@@ -13,13 +13,12 @@ while(<FH>){
 	if( ($s =~ /^\s*\#/)  or
 		($s =~ /^\s*\{/)  or
 		($s =~ /^\s*\}/) ){
-		# elsif($s =~ /:\s*(\([^\)]*\)|\s*)/){        # $` $&  $'
 	} elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
 		print "\t==>[$1]  [$2] [$3] [$4] [$5] [$']\n";
-	} elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
-		print "\t\t[$1]  [$2] [$3] [$4] [$5] [$']\n";
-	} elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\(([^\)]*)\)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
-		print "\t\t[$1]  [$2] [$3] [$4] [$5] [$']\n";
+	# upper regular expression express the following three regex.   we can combine the syntax with | in regex.
+	# elsif($s =~ /:\s*(\([^\)]*\)|\s*)/)        # $` $&  $'
+	# elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
+	# elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\(([^\)]*)\)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
 	} else {
 		print "ERR: $s\n";
 	}
