@@ -1,5 +1,17 @@
 #!/bin/perl
 
+our %gCan;
+
+sub analyse_contig_tree_recursively {
+	my $TAXA_TREE   = shift @_;
+	#print $TAXA_TREE;
+	foreach (keys %{$TAXA_TREE}) {
+		print "$_ \n";
+		if (ref $TAXA_TREE->{$_} eq 'HASH') {
+			analyse_contig_tree_recursively($TAXA_TREE->{$_});
+		}
+	}
+}
 
 $filename = shift (@ARGV);
 open(FH, "<",$filename) or die "Can't open < $filename: $!";
@@ -15,6 +27,13 @@ while(<FH>){
 		($s =~ /^\s*\}/) ){
 	} elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
 		print "\t==>[$1]  [$2] [$3] [$4] [$5] [$']\n";
+		my $lBytes = $1;
+		my $lDescription = $2;
+		my $lValue = $3;
+		my $lDefine = $4;
+		my $lContinue = $5;
+		my $lOthers = $';   # Comments
+		$gCan{$lBytes}{$lDescription}{lValue}{$lDefine}{$lContinue} = $lOthers;
 	# upper regular expression express the following three regex.   we can combine the syntax with | in regex.
 	# elsif($s =~ /:\s*(\([^\)]*\)|\s*)/)        # $` $&  $'
 	# elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
@@ -24,6 +43,11 @@ while(<FH>){
 	}
 }
 #print $total_context_org;
+foreach my $key (keys %gCan) {
+	#print $keys;
+}
+analyse_contig_tree_recursively(\%gCan);
+
 
 exit;
 
