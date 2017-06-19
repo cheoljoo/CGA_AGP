@@ -1,6 +1,8 @@
 #!/bin/perl
 
-our %gCan;
+our %gCan;      # %gCan{index}{Description}{Value}{Define}{Continue}
+our %gRow;      # horizontal meaing
+our %gCol;      # structure
 
 sub analyse_contig_tree_recursively {
 	my $TAXA_TREE   = shift @_;
@@ -42,11 +44,86 @@ while(<FH>){
 		print "ERR: $s\n";
 	}
 }
+close(FH);
+
 #print $total_context_org;
 foreach my $key (keys %gCan) {
 	#print $keys;
 }
 analyse_contig_tree_recursively(\%gCan);
+
+print $total_context_org;
+while(1)
+{
+	$temp = $total_context_org;
+	$total_context_org =~ s/(\#[^\{\n]*)\{/$1#+#+#++###/g;
+	$total_context_org =~ s/(\#[^\}\n]*)\}/$1#-#-#--###/g;
+	$total_context_org =~ s/(\#[^\\\n]*)\\/$1#=#=#==###/g;
+	if($temp eq $total_context_org){
+		last;
+	}
+}
+print $total_context_org;
+
+my @matches = $total_context_org =~ /\{(?:\{[^\{]*\}|[^\{])*\}/sg;
+
+foreach (@matches) {
+	    print "!!!! $_\n";
+	}
+
+
+	$i = 0;
+while(1){
+	if($total_context_org =~ /\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\)(\s*)/)
+	{        # $` $&  $'
+		print "++++++++++++++++++\n";
+		$lstart = $`;
+		$lmid = $&;
+		$lend = $';
+		$lspace = $6;
+		print "--8--$lspace--8--\n";
+		$lspace =~ s/\s*\n//;
+		print "--8--$lspace--8--\n";
+		$lstart =~ s/\{/#+#+#++###/g;
+		$lmid =~ s/\\//;
+		print "-1-$lstart-2-\n";
+		print "-3-$lmid-4-\n";
+		print "-5-$lend-6-\n";
+		if($lend =~ s/^(\s*\#[^\n]*\n)(\s*)//){
+			$lmid .= $1;
+			$lspace = $2;
+			print "--7--$lmid--7--\n";
+		} else {
+			$lmid =~ s/\n\s*$/\n/;
+		}
+		print "--8--$lspace--8--\n";
+		print "=1-$lstart-2-\n";
+		print "=3-$lmid-4-\n";
+		print "=5-$lend-6-\n";
+		$total_context_org = $lstart . $lmid . $lend;
+	} else {
+		last;
+	}
+	#my @matches = $total_context_org =~ /\{(?:\{.*\}|[^\{])*\}/sg;
+	#foreach (@matches) { print "!! $_\n"; }
+	$total_context_org =~ /(\{([^\{\}]|(?R))*\})/g;
+	$lbracket = $1;
+	print("----------\n$lbracket\n------\n");
+	$lbracket =~ s/\{/#+#+#++###/g;
+	$lbracket .= "\n";
+	print "--9--$lbracket--9--\n";
+	$total_context_org = $lstart . $lmid . $lspace . $lbracket . $lspace . $lend;
+	print "\n======= $i ==========\n";
+	print $total_context_org;
+	$i++;
+}
+
+
+	print "\n======= Final  ==========\n";
+$total_context_org =~ s/$1#\+#\+#\+\+###/\{/g;
+$total_context_org =~ s/$1#-#-#--###/\}/g;
+$total_context_org =~ s/$1#=#=#==###/\\/g;
+print $total_context_org;
 
 
 exit;

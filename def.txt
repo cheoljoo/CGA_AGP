@@ -2,7 +2,7 @@
 # Define : VP_TO_GP_MSG
 Index 0 :   (Header - Start Bytes)   Value : 0xAA    , Define : START_BYTES
 {
-	Index 1 : (Header - Command)  Value : 0x84  , Define : MSG_ODI      \
+	Index 1 : (Header - Command)  Value : 0x84  , Define : MSG_ODI      \       # AAA
 	Index 1 : Value : 0x88   , Define : MSG_ODI_RETRY
 	{
 		Index 2 : (Seq Number) Value : Any , Define : SEQ_NUMBER
@@ -23,13 +23,13 @@ Index 0 :   (Header - Start Bytes)   Value : 0xAA    , Define : START_BYTES
 			Index 3-4 : (Size of Payload) Value : 0x01EE , Define : ODI_MSG_PRNDL_MSG
 		}
 	}
-	Index 1 : (Header - Command)  Value : 0x81   , Define : MSG_CONTROL     \   # Comments 1
+	Index 1 : (Header - Command)  Value : 0x81   , Define : MSG_CONTROL     \   # Comments 1  { {  }
 	Index 1 : (Header - Command)  Value : 0x82   , Define : MSG_ASK_STATUS  \
 	Index 1 : (Header - Command)  Value : 0x85   , Define : MSG_ENG         \
 	Index 1 : Value : 0x86   , Define : MSG_VP_DEBUG    \
 	Index 1 : (Header - Command)  Value : 0x87   , Define : MSG_DIAG            # CTL1
 	{
-		Index 2 : (Sub Command) Value : Any , Define : SUB_COMMAND     # Comments 2
+		Index 2 : (Sub Command) Value : Any , Define : SUB_COMMAND     # Comments 2 { { } }  \
 		Index 3 : (Size of Payload) Value : Size , Define : SIZE_OF_PAYLOAD
 		Index 4-? : (Data ifn exists) Value : Any , Define : Data
 	}
