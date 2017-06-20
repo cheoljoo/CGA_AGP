@@ -1,8 +1,11 @@
 #!/bin/perl
 
 our %gCan;      # %gCan{index}{Description}{Value}{Define}{Continue}
-our %gRow;      # horizontal meaing
+our %gRow;      # horizontal meaing : %gRow{index}{value}{define} = history
 our %gCol;      # structure
+
+our %gTmp;
+our $gIndexOfStart;
 
 sub analyse_contig_tree_recursively {
 	my $TAXA_TREE   = shift @_;
@@ -125,6 +128,68 @@ $total_context_org =~ s/$1#-#-#--###/\}/g;
 $total_context_org =~ s/$1#=#=#==###/\\/g;
 print $total_context_org;
 
+@lines = split(/\n/,$total_context_org);
+#LOG3 print @lines;
+
+
+print "\n======= Analysis  ==========\n";
+foreach $line (@lines){
+	print $line . "\n";
+	if( ($line =~ /^\s*\#/)  or
+		($line =~ /^\s*\{/)  or
+		($line =~ /^\s*\}/) ){
+	} elsif($line =~ /^\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*/){        # $` $&  $'
+		my $lIndex = $1;
+		my $lDescription = $2;
+		my $lValue = $3;
+		my $lDefine = $4;
+		my $lOthers = $';   # Comments
+
+		$gIndexOld = $gIndexOfStart;
+		if($lIndex =~ /(\d+)\s*-\s*(\d+)/){
+			$gIndexOfStart = $1;
+			$gLen = $2 - $1 + 1;
+		} elsif($lIndex =~ /(\d+)\s*-\s*\?/){
+			$gIndexOfStart = $1;
+			$gLen = 99999;
+		} elsif($lIndex =~ /(\d+)/){
+			$gIndexOfStart = $1;
+			$gLen = 1;
+		} else {
+			print "ERR : $line \n";
+		}
+
+		if($gIndexOfStart < $gIndexOld){
+			foreach $key (sort {$a<=>$b} keys %gTmp){
+				if($key >= $gIndexOfStart){
+					print "#";
+					delete $gTmp{$key}{Len} ;
+					delete $gTmp{$key}{Span} ;
+					delete $gTmp{$key}{Description} ;
+					delete $gTmp{$key}{Value} ;
+					delete $gTmp{$key}{Define} ;
+					delete $gTmp{$key}{Comments} ;
+					delete $gTemp{$key};
+				} else {
+					$gTmp{$key}{Span}++ ;
+				}
+			}
+		}
+
+		print "$gIndexOfStart $gLen  $lDescription  $lValue  $lDefine $lOthers\n";
+		$gTmp{$gIndexOfStart}{Len} = $gLen;
+		$gTmp{$gIndexOfStart}{Span} = 1;
+		$gTmp{$gIndexOfStart}{Description} = $lDescription;
+		$gTmp{$gIndexOfStart}{Value} = $lValue;
+		$gTmp{$gIndexOfStart}{Define} = $lDefine;
+		$gTmp{$gIndexOfStart}{Comments} = $lOthers;
+
+		foreach $key (sort {$a<=>$b} keys %gTmp){
+			print "$key\[$gTmp{$key}{Len}:$gTmp{$key}{Span}\]  ";
+		}
+		print "\n";
+	}
+}
 
 
 
