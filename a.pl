@@ -23,12 +23,12 @@ while(<FH>){
 	$s = $s_org = $_;
 	chop($s);
 	$total_context_org .= $s_org;
-	print $s_org;
+	#LOG1 print $s_org;
 	if( ($s =~ /^\s*\#/)  or
 		($s =~ /^\s*\{/)  or
 		($s =~ /^\s*\}/) ){
 	} elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
-		print "\t==>[$1]  [$2] [$3] [$4] [$5] [$']\n";
+		#LOG1 print "\t==>[$1]  [$2] [$3] [$4] [$5] [$']\n";
 		my $lBytes = $1;
 		my $lDescription = $2;
 		my $lValue = $3;
@@ -46,13 +46,14 @@ while(<FH>){
 }
 close(FH);
 
-#print $total_context_org;
-foreach my $key (keys %gCan) {
-	#print $keys;
-}
-analyse_contig_tree_recursively(\%gCan);
-
+print "\n======= Origin  ==========\n";
 print $total_context_org;
+foreach my $key (keys %gCan) {
+	#LOG1 #print $keys;
+}
+#LOG2 analyse_contig_tree_recursively(\%gCan);
+#LOG2 print $total_context_org;
+
 while(1)
 {
 	$temp = $total_context_org;
@@ -63,43 +64,42 @@ while(1)
 		last;
 	}
 }
-print $total_context_org;
+#LOG2 print $total_context_org;
 
-my @matches = $total_context_org =~ /\{(?:\{[^\{]*\}|[^\{])*\}/sg;
+#LOG2 my @matches = $total_context_org =~ /\{(?:\{[^\{]*\}|[^\{])*\}/sg;
+#LOG2 foreach (@matches) {
+#LOG2 print "!!!! $_\n";
+#LOG2 }
 
-foreach (@matches) {
-	    print "!!!! $_\n";
-	}
 
-
-	$i = 0;
+$i = 0;
 while(1){
 	if($total_context_org =~ /\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\)(\s*)/)
 	{        # $` $&  $'
-		print "++++++++++++++++++\n";
+		#LOG2 print "++++++++++++++++++\n";
 		$lstart = $`;
 		$lmid = $&;
 		$lend = $';
 		$lspace = $6;
-		print "--8--$lspace--8--\n";
+		#LOG2 print "--8--$lspace--8--\n";
 		$lspace =~ s/\s*\n//;
-		print "--8--$lspace--8--\n";
+		#LOG2 print "--8--$lspace--8--\n";
 		$lstart =~ s/\{/#+#+#++###/g;
 		$lmid =~ s/\\//;
-		print "-1-$lstart-2-\n";
-		print "-3-$lmid-4-\n";
-		print "-5-$lend-6-\n";
+		#LOG2 print "-1-$lstart-2-\n";
+		#LOG2 print "-3-$lmid-4-\n";
+		#LOG2 print "-5-$lend-6-\n";
 		if($lend =~ s/^(\s*\#[^\n]*\n)(\s*)//){
 			$lmid .= $1;
 			$lspace = $2;
-			print "--7--$lmid--7--\n";
+			#LOG2 print "--7--$lmid--7--\n";
 		} else {
 			$lmid =~ s/\n\s*$/\n/;
 		}
-		print "--8--$lspace--8--\n";
-		print "=1-$lstart-2-\n";
-		print "=3-$lmid-4-\n";
-		print "=5-$lend-6-\n";
+		#LOG2 print "--8--$lspace--8--\n";
+		#LOG2 print "=1-$lstart-2-\n";
+		#LOG2 print "=3-$lmid-4-\n";
+		#LOG2 print "=5-$lend-6-\n";
 		$total_context_org = $lstart . $lmid . $lend;
 	} else {
 		last;
@@ -108,22 +108,24 @@ while(1){
 	#foreach (@matches) { print "!! $_\n"; }
 	$total_context_org =~ /(\{([^\{\}]|(?R))*\})/g;
 	$lbracket = $1;
-	print("----------\n$lbracket\n------\n");
+	#LOG2 print("----------\n$lbracket\n------\n");
 	$lbracket =~ s/\{/#+#+#++###/g;
 	$lbracket .= "\n";
-	print "--9--$lbracket--9--\n";
+	#LOG2 print "--9--$lbracket--9--\n";
 	$total_context_org = $lstart . $lmid . $lspace . $lbracket . $lspace . $lend;
-	print "\n======= $i ==========\n";
-	print $total_context_org;
+	#LOG2 print "\n======= $i ==========\n";
+	#LOG2 print $total_context_org;
 	$i++;
 }
 
 
-	print "\n======= Final  ==========\n";
+print "\n======= Final  ==========\n";
 $total_context_org =~ s/$1#\+#\+#\+\+###/\{/g;
 $total_context_org =~ s/$1#-#-#--###/\}/g;
 $total_context_org =~ s/$1#=#=#==###/\\/g;
 print $total_context_org;
+
+
 
 
 exit;
