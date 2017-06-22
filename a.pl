@@ -2,7 +2,12 @@
 
 our %gCan;      # %gCan{index}{Description}{Value}{Define}{Continue}
 our %gRow;      # horizontal meaing : %gRow{index}{value}{define} = history
+our $gRowCnt = 0;
+our $gRowMaxIndex = 0;
 our %gCol;      # structure
+our $gColCnt = 0;
+our %gColStruct;
+our $gColMaxIndex = 0;
 
 our %gTmp;
 our $gIndexOfStart;
@@ -160,7 +165,17 @@ foreach $line (@lines){
 		}
 
 		if($gIndexOfStart < $gIndexOld){
+			my $tmpStructName = "";
 			foreach $key (sort {$a<=>$b} keys %gTmp){
+				{       # copy
+					$gCol{$gColCnt}{$key}{Len} = $gTmp{$key}{Len} ;
+					$gCol{$gColCnt}{$key}{Span} = $gTmp{$key}{Span} ;
+					$gCol{$gColCnt}{$key}{Description} = $gTmp{$key}{Description} ;
+					$gCol{$gColCnt}{$key}{Value} = $gTmp{$key}{Value} ;
+					$gCol{$gColCnt}{$key}{Define} = $gTmp{$key}{Define} ;
+					$gCol{$gColCnt}{$key}{Comments} = $gTmp{$key}{Comments} ;
+					if($gTmp{$key}{Len} ne ""){ $tmpStructName .= "__" . $gTmp{$key}{Define}; }
+				}
 				if($key >= $gIndexOfStart){
 					print "#";
 					delete $gTmp{$key}{Len} ;
@@ -174,6 +189,8 @@ foreach $line (@lines){
 					$gTmp{$key}{Span}++ ;
 				}
 			}
+			$gColStruct{$gColCnt}{Name} = $tmpStructName;
+			$gColCnt ++;
 		}
 
 		print "$gIndexOfStart $gLen  $lDescription  $lValue  $lDefine $lOthers\n";
@@ -191,7 +208,85 @@ foreach $line (@lines){
 	}
 }
 
+		{
+			my $tmpStructName = "";
+			foreach $key (sort {$a<=>$b} keys %gTmp){
+				{       # copy
+					$gCol{$gColCnt}{$key}{Len} = $gTmp{$key}{Len} ;
+					$gCol{$gColCnt}{$key}{Span} = $gTmp{$key}{Span} ;
+					$gCol{$gColCnt}{$key}{Description} = $gTmp{$key}{Description} ;
+					$gCol{$gColCnt}{$key}{Value} = $gTmp{$key}{Value} ;
+					$gCol{$gColCnt}{$key}{Define} = $gTmp{$key}{Define} ;
+					$gCol{$gColCnt}{$key}{Comments} = $gTmp{$key}{Comments} ;
+					if($gTmp{$key}{Len} ne ""){ $tmpStructName .= "__" . $gTmp{$key}{Define}; }
+				}
+				if($key >= $gIndexOfStart){
+					print "#";
+					delete $gTmp{$key}{Len} ;
+					delete $gTmp{$key}{Span} ;
+					delete $gTmp{$key}{Description} ;
+					delete $gTmp{$key}{Value} ;
+					delete $gTmp{$key}{Define} ;
+					delete $gTmp{$key}{Comments} ;
+					delete $gTemp{$key};
+				} else {
+					$gTmp{$key}{Span}++ ;
+				}
+			}
+			$gColStruct{$gColCnt}{Name} = $tmpStructName;
+			$gColCnt ++;
+		}
 
+## Print gCol
+foreach $key (sort {$a<=>$b} keys %gColStruct){
+	print "gColStruct\{$key\}{Name} = $gColStruct{$key}{Name}\n";
+}
+
+# Make the Structure from gCol
+foreach $key (sort {$a<=>$b} keys %gCol){
+	if($gRowMaxIndex < $key){ $gRowMaxIndex = $key; }
+	$tmpStructMembers = "";
+	print "gColStruct\{$key\}{Name} = $gColStruct{$key}{Name}\n";
+	$tmpStructMembers .= "struct  $gColStruct{$key}{Name} {\n";
+	foreach $key2 (sort {$a<=>$b} keys %{$gCol{$key}}){
+		print "gCol\{$key\}\{$key2\} Len:$gCol{$key}{$key2}{Len} Span:$gCol{$key}{$key2}{Span} V:$gCol{$key}{$key2}{Value} D:$gCol{$key}{$key2}{Define}\n";
+		if($gCol{$key}{$key2}{Len} == ""){ next; }
+		if($gCol{$key}{$key2}{Len} == 1){
+			$tmpStructMembers .= "\tchar $gCol{$key}{$key2}{Define};";
+		} elsif($gCol{$key}{$key2}{Len} == 2){
+			$tmpStructMembers .= "\tshort $gCol{$key}{$key2}{Define};";
+		} elsif($gCol{$key}{$key2}{Len} == 4){
+			$tmpStructMembers .= "\tint $gCol{$key}{$key2}{Define};";
+		} elsif($gCol{$key}{$key2}{Len} > 4){
+			$tmpStructMembers .= "\tchar *$gCol{$key}{$key2}{Define};";
+		} else {
+			$tmpStructMembers .= "\tERROR : $gCol{$key}{$key2}{Define};";
+		}
+		$tmpStructMembers .= "\t\t/* Len:$gCol{$key}{$key2}{Len} Span:$gCol{$key}{$key2}{Span} V:$gCol{$key}{$key2}{Value} D:$gCol{$key}{$key2}{Define} Desc:$Col{$key}{$key2}{Description} C:$gCol{$key}{$key2}{Comments} */\n";
+		if($gColMaxIndex < $key2){ $gColMaxIndex = $key2; }
+	}
+	$tmpStructMembers .= "};\n";
+	$gColStruct{$key}{Struct} = $tmpStructMembers;
+	print "$gColStruct{$key}{Struct}";
+}
+
+$a = <<'END_MESSAGE';
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>테이블</title>
+</head>
+<body>
+ <h1>데이터 테이블 캡션</h1>
+  <table border="1">
+END_MESSAGE
+
+$b = <<'END_MESSAGE';
+  </table>
+  </body>
+  </html>
+END_MESSAGE
 
 exit;
 
