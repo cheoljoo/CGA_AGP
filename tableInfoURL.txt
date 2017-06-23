@@ -1,0 +1,8 @@
+regular expression Info : http://perldoc.perl.org/perlretut.html
+
+Table Info
+http://blog.naver.com/dlsgml22/220166219158
+http://jowook.tistory.com/entry/%EC%9B%B9%EC%A0%91%EA%B7%BC%EC%84%B1table%EC%9D%98-scopecol%EA%B3%BC-scoperow
+http://blog.naver.com/seri313/221013562648
+http://pjh445.blog.me/220009147704
+
