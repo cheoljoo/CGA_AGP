@@ -1,5 +1,10 @@
 #!/bin/perl
 
+use constant START_BRACE => "{";
+use constant END_BRACE => "}";
+use constant BACK_SLASH => "\\";
+use constant SHARP => "\#";
+
 our %gCan;      # %gCan{index}{Description}{Value}{Define}{Continue}
 our %gRow;      # horizontal meaing : %gRow{index}{value}{define} = history
 our $gRowCnt = 0;
@@ -13,12 +18,14 @@ our %gTmp;
 our $gIndexOfStart;
 
 sub analyse_contig_tree_recursively {
-	my $TAXA_TREE   = shift @_;
-	#print $TAXA_TREE;
-	foreach (keys %{$TAXA_TREE}) {
-		print "$_ \n";
-		if (ref $TAXA_TREE->{$_} eq 'HASH') {
-			analyse_contig_tree_recursively($TAXA_TREE->{$_});
+	my ($TAXA_TREE,$lstr)    = @_;
+	print "sub $TAXA_TREE\n";
+	foreach my $key (sort{$a<=>$b} keys %{$TAXA_TREE}) {
+		if (ref $TAXA_TREE->{$key} eq 'HASH') {
+			print "K:$key lstr=$lstr\n";
+			analyse_contig_tree_recursively($TAXA_TREE->{$key},$lstr . "\{$key\}");
+		} else {
+			print "$lstr $key = $TAXA_TREE->{$key}\n";
 		}
 	}
 }
@@ -80,6 +87,8 @@ while(1)
 #LOG2 }
 
 
+# expand the original lines (delimiter : \ )
+# The end \ of statemant means that this line has the same rule (sub syntax) of next lines.
 $i = 0;
 while(1){
 	if($total_context_org =~ /\s*Index\s+([\d-?]+)\s*:\s*(\([^\):]*\)|\s*)\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\)(\s*)/)
@@ -379,3 +388,9 @@ print FH $a;
 print FH $b;
 print FH $c;
 close(FH);
+
+
+
+analyse_contig_tree_recursively(\%gColStruct,"");
+analyse_contig_tree_recursively(\%gCol,"");
+analyse_contig_tree_recursively(\%gCan,"");
