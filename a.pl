@@ -1,5 +1,9 @@
 #!/bin/perl
 
+
+# this is example for constant.
+#  But , I want to use the constant as define.
+#  I can not use it.  so it is not a good solution for me.
 use constant START_BRACE => "{";
 use constant END_BRACE => "}";
 use constant BACK_SLASH => "\\";
@@ -17,17 +21,63 @@ our $gColMaxIndex = 0;
 our %gTmp;
 our $gIndexOfStart;
 
-sub analyse_contig_tree_recursively {
-	my ($TAXA_TREE,$lstr)    = @_;
-	print "sub $TAXA_TREE\n";
+sub change_special_code {
+	my ($s) = @_;
+	$s =~ s/\{/#\+#\+#\+\+###/g;
+	$s =~ s/\}/#\-#\-#\-\-###/g;
+	$s =~ s/\\/#\=#\=#\=\=###/g;
+	$s =~ s/\n/#\%#\%#\%\%###/g;
+	$s =~ s/\"/#\&#\&#\&\&###/g;
+	return $s;
+}
+sub recover_special_code {
+	my ($s) = @_;
+	#print "[r:$s]";
+	$s =~ s/#\+#\+#\+\+###/\{/g;
+	$s =~ s/#\-#\-#\-\-###/\}/g;
+	$s =~ s/#\=#\=#\=\=###/\\/g;
+	$s =~ s/#\%#\%#\%\%###/\n/g;
+	$s =~ s/#\&#\&#\&\&###/\"/g;
+	#print "[R:$s]";
+	return $s;
+}
+sub traverse_hash_tree_to_change_special_code {
+	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
+	#print "[sub $TAXA_TREE]\n";
 	foreach my $key (sort{$a<=>$b} keys %{$TAXA_TREE}) {
 		if (ref $TAXA_TREE->{$key} eq 'HASH') {
-			print "K:$key lstr=$lstr\n";
-			analyse_contig_tree_recursively($TAXA_TREE->{$key},$lstr . "\{$key\}");
+			#print "[K:[$key] lstr=$lstr]\n";
+			if($key =~ /^\s*\d+\s*$/){
+				traverse_hash_tree_to_change_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . change_special_code($key) . "\}",$fh);
+			} else {
+				traverse_hash_tree_to_change_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{\"" . change_special_code($key) . "\"\}",$fh);
+			}
 		} else {
-			print "$lstr $key = $TAXA_TREE->{$key}\n";
+			#print "[T:$lstr $key = $TAXA_TREE->{$key}]\n";
+			if($key =~ /^\s*\d+\s*$/){
+				print $fh "\$$vn$lstr\{" . change_special_code($key) ."\}=\"" . change_special_code($TAXA_TREE->{$key}) . "\"\n";
+			} else {
+				print $fh "\$$vn$lstr\{\"" . change_special_code($key) ."\"\}=\"" . change_special_code($TAXA_TREE->{$key}) . "\"\n";
+			}
 		}
 	}
+}
+sub traverse_hash_tree_to_recover_special_code {
+	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
+	#print "sub $TAXA_TREE\n";
+	foreach my $key (sort{$a<=>$b} keys %{$TAXA_TREE}) {
+		if (ref $TAXA_TREE->{$key} eq 'HASH') {
+			#print "K:$key lstr=$lstr\n";
+			traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+		} else {
+			#print "$lstr $key = $TAXA_TREE->{$key}\n";
+			print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+		}
+	}
+}
+sub traverse_hash_tree {
+	my ($TAXA_TREE,$vn,$lstr)    = @_;
+	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,$lstr,STDOUT);
 }
 
 $filename = shift (@ARGV);
@@ -66,7 +116,7 @@ print $total_context_org;
 foreach my $key (keys %gCan) {
 	#LOG1 #print $keys;
 }
-#LOG2 analyse_contig_tree_recursively(\%gCan);
+#LOG2 traverse_hash_tree(\%gCan);
 #LOG2 print $total_context_org;
 
 while(1)
@@ -390,7 +440,35 @@ print FH $c;
 close(FH);
 
 
+open(GVW,">"."GV.txt") or die "GVW:ERROR$!\n";
+traverse_hash_tree_to_change_special_code(\%gColStruct,"gColStruct","",GVW);
+traverse_hash_tree_to_change_special_code(\%gCol,"gCol","",GVW);
+traverse_hash_tree_to_change_special_code(\%gCan,"gCan","",GVW);
+close(GVW) or die "Error in closing the file ", __FILE__, " $!\n";;
 
-analyse_contig_tree_recursively(\%gColStruct,"");
-analyse_contig_tree_recursively(\%gCol,"");
-analyse_contig_tree_recursively(\%gCan,"");
+print "AAAAAAAA\n";
+
+open(GVR,"<","GV.txt") or die "GVR:ERROR$!\n";
+$cnt = 0 ;
+%TT = {};
+while(<GVR>){
+	$s = $_;
+	chop($s);
+	print "==[$cnt]=======$s]]]]\n";
+	$s =~ s/^\$([^\{]+)/\$TT/;
+	#print "=========$s]]]]\n";
+	#$vname = $1;
+	#$vname="TT";
+	#print "vname=$vname \n";
+	#(\%$vname)->{"RF"}="RGF";
+	#if(!keys %{$vname}){ %{$vname} = (); }
+	#recover_hash_value(\%{$vname},$s);
+	$kk = "\$TT\{TT\}\{TT\}\{TT\}=\"TT\"";
+	eval $s;
+	eval $kk;
+	if($cnt >7){ last; }
+	$cnt++;
+};
+close(GVR) or die "Error in closing the file ", __FILE__, " $!\n";;
+traverse_hash_tree(\%TT,"TT","");
+
