@@ -1,0 +1,10 @@
+HTTP/1.1 200 OK
+Server: Microsoft-IIS/5.0
+Date: Wed, 14 Jan 2004 07:12:33 GMT
+Pragma: no-cache
+Content-Length: 280
+Content-Type: Video/k3g
+Expires: Wed, 14 Jan 2004 07:11:33 GMT
+Cache-control: private
+
+url=rtsp://61.74.66.34:554/WEB0101C3DAB937D337A03B92;sbj=ⓥ반지의제왕:왕의귀환(2:52/2.3M);id=718663;plt=172;fsz=2458505;cpr=해당저작권자;plc=0;exd=0;rtu=http://61.74.66.33/KUN/00/00/00/72/11/721141_1.asp?menuid=721141;nes=2;ppc=1;cfe=0;cdu=WEB0101C3DAB937D337A03B92;ctp=0000000011

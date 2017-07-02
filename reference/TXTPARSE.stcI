@@ -1,0 +1,168 @@
+stcI_HASH : TXTPARSE
+stcI_EXTENSION : l
+Set : iterate_comments = OFF
+SetI : LEXPREFIX = KEY
+SetI : TYPEDEFNAME = VALUE
+
+/* scanner for a toy Pascal-like language */
+
+%{
+/* need this for the call to atof() below */
+#include <math.h>
+#include "+<+$FileName+>+"
+
+static TYPEDEFNAME *pTYPEDEFNAME;
+
+
+%}
+
+
++<+$LEX_TOKEN_RESULT{TYPEDEFNAME}+>+
+
+ITERATE %LEXPREFIX_TXTPARSE_STATE  +<<+ 	ITKEY    ITVALUE
+%s 		ITKEY
++>>+
+
+
+%%
+
+ITERATE %LEXPREFIX_TXTPARSE_STATE  +<<+ 	ITKEY    ITVALUE
+	ITERATE %LEXPREFIX_TXTPARSE_STATE_ITKEY +<<+ IT3KEY IT3VALUE
+IT3KEY 		{
+	BEGIN	IT3VALUE;
+	FPRINTF(LOG_LEVEL,"%s : %.*s\n","IT3VALUE IT3KEY - ITKEY ITVALUE",LEXPREFIXleng , LEXPREFIXtext);
+}
+	+>>+
+
+	ITERATE %LEXPREFIX_TXTPARSE_RULE_ITKEY  +<<+ 	IT2KEY    IT2VALUE
+		IT2KEY 			{
+			int __txtparse_rule_action = 0;
+		NOTEQUAL(+<+$LEXPREFIX_TXTPARSE_RULE_ACTION_ITKEY{IT2KEY}+>+,) #{ 
+		//// int +<+$LEXPREFIX_TXTPARSE_RULE_ACTION_ITKEY{IT2KEY}+>+(TYPEDEFNAME *pTYPEDEFNAME , char *lextext, int lexleng)
+			__txtparse_rule_action = +<+$LEXPREFIX_TXTPARSE_RULE_ACTION_ITKEY{IT2KEY}+>+(pTYPEDEFNAME , &LEXPREFIXtext, &LEXPREFIXleng);
+		}#
+		FPRINTF(LOG_LEVEL,"%s = %.*s\n"
+			, "+<+$LEXPREFIX_TXTPARSE_RULE_VAR_NAME_ITKEY{IT2KEY}+>+"
+			, LEXPREFIXleng - +<+$LEXPREFIX_TXTPARSE_RULE_SKIP_LENGTH_ITKEY{IT2KEY}+>+ 
+			, LEXPREFIXtext + +<+$LEXPREFIX_TXTPARSE_RULE_SKIP_LENGTH_ITKEY{IT2KEY}+>+ 
+		);
+		if(__txtparse_rule_action == 0){
+			Set_Value(
+		      	(int) +<+$type_set_type{ +<+$LEXPREFIX_TXTPARSE_RULE_VAR_TYPE_ITKEY{IT2KEY}+>+ }+>+
+				, (char *) ( pTYPEDEFNAME->+<+$LEXPREFIX_TXTPARSE_RULE_VAR_NAME_ITKEY{IT2KEY}+>+ ) 	
+				, (int *)  &( pTYPEDEFNAME->+<+$LEXPREFIX_TXTPARSE_RULE_VAR_NAME_ITKEY{IT2KEY}+>+ ) 	
+				, (int) +<+$LEXPREFIX_TXTPARSE_RULE_SIZE_ITKEY{IT2KEY}+>+
+				, (int) STG_STRING
+				, (char *) (LEXPREFIXtext + +<+$LEXPREFIX_TXTPARSE_RULE_SKIP_LENGTH_ITKEY{IT2KEY}+>+ )
+				, (int *) 0
+				, (int) LEXPREFIXleng - +<+$LEXPREFIX_TXTPARSE_RULE_SKIP_LENGTH_ITKEY{IT2KEY}+>+ 
+				NOTEQUAL( +<+$TAG_AUTO_STRING_DEF{ +<+$LEXPREFIX_TXTPARSE_DEFINE_TAG_ITKEY{IT2KEY}+>+ }+>+,) , Get_TAG_AUTO_STRING_DEF_+<+$LEXPREFIX_TXTPARSE_DEFINE_TAG_ITKEY{IT2KEY}+>+
+				IFEQUAL( +<+$TAG_AUTO_STRING_DEF{ +<+$LEXPREFIX_TXTPARSE_DEFINE_TAG_ITKEY{IT2KEY}+>+ }+>+,) , Get_TAG_DEF_ALL_+<+$LEXPREFIX_TXTPARSE_DEFINE_TAG_ITKEY{IT2KEY}+>+
+				);
+			}
+
+		}
+
+	+>>+
+<ITKEY>(+<+$LEX_LINEFEED{TYPEDEFNAME}+>+) {
+	FPRINTF(LOG_LEVEL,"BEGIN 0\n");
+	BEGIN 0;
+}
+<ITKEY>.			{ 
+	/* FPRINTF(LOG_LEVEL,"ITKEY unrecognized : %s\n",LEXPREFIXtext); */
+}
+
+
+
++>>+
+
+
+
+(+<+$LEX_FORMFEED{TYPEDEFNAME}+>+) {
+	BEGIN 0;
+	return ;
+}
+
+[\r\n]	{}
+
+.		{  
+	/* FPRINTF(LOG_LEVEL,"unrecognized : %s\n",LEXPREFIXtext);  */
+}
+
+%%
+Set : iterate_comments = ON
+
+int LEXPREFIXwrap(){
+	return 1;
+}
+
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+@code
+int LOG_ME_REQ_HDR_LEX(char *sp
+		,int slen
+		,LOG_ME_REQ_HDR *pLOG_ME_REQ_HDR)
+LEXPREFIX_+<+$sub_name+>+_LEX
+LEXPREFIX_+<+$sub_name+>+
+*pLEXPREFIX_+<+$sub_name+>+
+@endcode
+ **/
+Set : function_def{LEXPREFIX_LEX} = "int LEXPREFIX_LEX (char *sp ,int slen ,char *dp)"
+int LEXPREFIX_LEX (char *sp
+		,int slen
+		,char *dp)
+{
+	pTYPEDEFNAME = (TYPEDEFNAME *)dp;
+	LEXPREFIX_scan_bytes(sp,slen);
+	LEXPREFIXlex();
+	LEXPREFIX_delete_buffer(yy_current_buffer);
+	yy_init = 1;
+
+	TYPEDEFNAME_Prt("LEXPREFIX", pTYPEDEFNAME);
+
+	return 1;
+}
+
+
+#ifdef TEST
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+ **/
+int main( argc, argv )
+int argc;
+char **argv;
+{
+
+	char s[1000],d[1000];
+	memset(s,0,1000);
+	memset(d,0,1000);
+    sprintf(s,"Host: TEF.ETE\r\n");
+
+	
+	LEXPREFIX_LEX (s,strlen(s),d);
+
+	return 0;
+
+}
+#endif
+

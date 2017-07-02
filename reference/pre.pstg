@@ -1,0 +1,119 @@
+FileName : L7.h
+STC_FileName : LOG_KUN.stc , LOG_ME.stc , BODY.stc
+
+<TAG_DEFINE_START:RespCode>
+#define	RespCode_A_Type  1 /* TTT */
+#define	RespCode_B_Type  2
+#define	RespCode_C_Type  3
+<TAG_DEFINE_END:RespCode>
+
+#define 	DEF_SIZE_IMSI	16
+#define 	DEF_SIZE_TMSI	16
+#define EX_MAX_NID 40
+#define TEST_TEST		333
+STG_COMMON typedef struct _stg_call {
+		<TAG_COMMON_MEMBER:LOG_KUN>%KUN_CTime%  /**< 주석2 */ 	
+		<TAG_COMMON_MEMBER:LOG_ME>%ME_CMETime%  /**< 주석3 */   @STG_PARM:KKKK:KKKK@		@STG_PARM:K2:K2@
+	STIME Ctime;	 %CCreateTime% /**<  기본 주석  : DEFAULT로 없으면 이것을 사용하게 됨 : 초까지 나타내는 시간 */ 	#FIRST#
+	MTIME		Cutime;  %CMTime%	 	/**< micro 초 나타내는 시간 */	#FIRST#
+
+<TAG_KEY>
+	IP4 		CuiIP;		@STG_PARM:JJJ:JJJJ@				%CIPAddr%				/**< IP address */  #LAST#  @STG_PARM:J2:J2@
+	U8			CucTMSI[DEF_SIZE_TMSI];	%CTMSI%					/**< TMSI */		#FIRST#		/* TT */
+	U8			CucIMSI[DEF_SIZE_IMSI];	%CIMSI%					/**< IMSI */	/* KR */
+</TAG_KEY>
+
+		<TAG_COMMON_MEMBER:LOG_KUN> /**< NID */  %KUN_CNID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>KUN_NID:{VALUE}#  
+	U32		CuiBase; 			%CBASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}# #LAST#
+	U8		CuiNID[EX_MAX_NID]; 	 %CNID%  /**< NID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+
+		<TAG_COMMON_MEMBER:LOG_ME>  /**< ME_SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>ME_SID:{DIGIT}#
+		<TAG_COMMON_MEMBER:LOG_KUN>  /**< KUN_SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>KUN_SID:{DIGIT}#
+	U32		<TAG_DEFINE:RespCode>CuiSID; 	#LAST#			
+} LOG_CALL;
+
+
+
+/**
+ * 	@brief LOG_KUN : 시험 단계의 structure로써 아래의 LOG_MEKUN이 진짜
+ *
+ *	LOG_KUN에서 사용할 REQ/RESP HDR관련 1개씩(Host: , Content-Type:)에 대해서만 다른 부분
+ *  이런식으로 작성한다는 예제
+ *	
+ *	@see	L7.h
+ *	@note	%..% syntax for CREATE_SQL \n   #...# syntax for text parsing or command
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LOG_KUN {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	REQ_HDR:^^:GET				^[ \t]*GET[ \t]+
+	STATE	REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+	STATE	REQ_HDR:^^:HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	RESP_HDR:^^:HTTP			^[ \t]*HTTP[ \t]+
+	STATE	RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+	<STG_COMMON:LOG_CALL>
+
+	U8		host[20];			/**< Host */  %HOSTNAME% 	#PARSING_RULE:^^:REQ_HDR:^^:<HOST>{VALUE}#
+	U32		uiBase; 			%BASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}#
+	U8		uiNID[EX_MAX_NID]; 	 /**< NID */  %NID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+	U32		uiSID; 				/**< SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}#
+
+    U32 	uiSrvIP;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+    U32		<TAG_DEFINE:RespCode>RespCode;			/**< 잘못된 예제 */ 		#PARSING_RULE:^^:RESP_HDR:^^:<HTTP>{DIGIT}# 	 /* TTT */ 
+    U32		ContentLength;		/**< Contents Length */  	#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_LENGTH>{DIGIT}#
+    U8		ContentType[100]; 	%CType%  /**< Contents Type */		#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_TYPE>{ID}#
+	U32 	<TAG_DEFINE:RespCode>ReqCode;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+} LOG_KUN;
+
+STG_LOG_TEXT_PARSING typedef struct _st_LOG_ME {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	REQ_HDR:^^:GET				^[ \t]*GET[ \t]+
+	STATE	REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+	STATE	REQ_HDR:^^:HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	RESP_HDR:^^:HTTP			^[ \t]*HTTP[ \t]+
+	STATE	RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+	<STG_COMMON:LOG_CALL>
+
+	U8		host[20];			/**< Host */  %HOSTNAME% 	#PARSING_RULE:^^:REQ_HDR:^^:<HOST>{VALUE}#
+	U32		uiBase; 			%BASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}#
+	U8		uiNID[EX_MAX_NID]; 	 /**< NID */  %NID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+	U32		uiSID; 				/**< SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}#
+
+    U32 	uiSrvIP;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+    U32		<TAG_DEFINE:RespCode>RespCode;			/**< 잘못된 예제 */ 		#PARSING_RULE:^^:RESP_HDR:^^:<HTTP>{DIGIT}#
+    	 ALTERNATIVE_RULE		/**< 다시 */ #PARSING_RULE:^^:RESP_HDR:^^:<HTTP>KIT:{DIGIT}#
+    U32		ContentLength;		/**< Contents Length */  	#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_LENGTH>{DIGIT}#
+    U8		ContentType[100]; 	%CType%  /**< Contents Type */		#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_TYPE>{ID}#
+<TAG_DEFINE_START:ReqCode>
+#define	ReqCode_A_Type  1 /* TTT */
+#define	ReqCode_B_Type  2
+#define	ReqCode_C_Type  3
+<TAG_DEFINE_END:ReqCode>
+	U32 	<TAG_DEFINE:ReqCode>ReqCode;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+} LOG_ME;
+
+#define		MAX_BODY_STR_SIZE		100
+#define		MAX_URL_CNT				10
+typedef struct _st_BODY_STR {
+	U16		type;
+	U16		len;
+	U8 		str[MAX_BODY_STR_SIZE];
+} BODY_STR;
+
+typedef struct _st_BODY {
+	U32 		url_cnt;
+	BODY_STR	url[MAX_URL_CNT];
+} BODY;
+
+

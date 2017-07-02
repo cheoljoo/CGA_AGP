@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <signal.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include <sys/time.h>
+
+#include <tas_define.h>
+#include <tas_shm.h>
+#include <define.h>
+#include <typedef.h>
+#include <msgdef.h>
+
+#include <logutillib.h>
+#include <shmutillib.h>
+
+#include "flat_ims_interface.h"
+#include "flat_ims_structg.h"
+
+/*--------------------------------------------------------------------------------------------------*/
+#define  	RECONNECT_TIME		5
+
+#define	 	NOT_LOG_ON			1012
+#define	 	NO_TABLE			942
+
+#define		MAX_LOG_COUNT		1500
+#define		DEF_TIME_INSERT		60
+
+/*--------------------------------------------------------------------------------------------------*/
+/**
+ * 테이블 생성시 필요한 테이블 create Script 경로 정의 
+**/
+#define		TABLE_PATH			"/home/mungsil/ims_sqm/LIBSTG/STRUCTG/structg/OUTPUT/"
+
+/*--------------------------------------------------------------------------------------------------*/
+/**
+ * 테이블 생성시 필요한 테이블 Screit 파일명 정의
+ * 프로토콜 구조체가 추가될 때마다 정의해 줘야 한다.
+ * STRUCTG에서 자동으로 생성하게 해 줄 것이다. 이팀장님이...
+**/
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+#define		FNAME_ITKEY				TABLE_PATH"ITKEY.sql"
++>>+
+

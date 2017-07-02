@@ -1,0 +1,67 @@
+FileName : LOG_member_Get_func.c
+Set : iterate_comments = ON
+
+#include <netinet/in.h>
+
+/** @code
+$save_typedef_member_(typedef_name){member명} = membertype;
+$save_typedef_member_(member명){typedef_name} = membertype;
+$save_typedef_member_{member명} = membertype; // 처음 것을 set하고 다음 것들은 모두 같은 값이어야 한다. 
+
+
+int Get_SrvL7Code (int type , int len , void *thisLOG)
+{
+	선언 ; 
+
+	switch(type){
+		case  : ;
+		default : return 0;
+	}
+}
+@endcode 
+*/
+
+ITERATE %save_typedef_member +<<+ ITKEY  ITVALUE
+Set : function_def{Get_Member_ITKEY} = "ITVALUE +<+$save_typedef_member_array{ITKEY}+>+ Get_Member_ITKEY(int type , void *thisLOG)"
+ITVALUE +<+$save_typedef_member_array{ITKEY}+>+ Get_Member_ITKEY(int type , void *thisLOG){
+	//// ITKEY : member  , ITVALUE : type
+
+	ITERATE %save_typedef_member_ITKEY +<<+ IT2KEY  IT2VALUE
+	IT2KEY 	*pIT2KEY;
+	+>>+
+
+	switch(type){
+	ITERATE %save_typedef_member_ITKEY +<<+ IT2KEY  IT2VALUE
+	case IT2KEY_DEF_NUM:
+		pIT2KEY = (IT2KEY *) thisLOG;
+		FPRINTF(LOG_LEVEL,"%s : %s : type %d , thisLOG 0x%x\n","IT2KEY","ITKEY",type,thisLOG);
+		return ( ITVALUE +<+$save_typedef_member_array{ITKEY}+>+ ) pIT2KEY->ITKEY;
+	+>>+
+	default : 
+		FPRINTF(LOG_LEVEL,"%s : type %d , thisLOG 0x%x\n","ITKEY",type,thisLOG);
+		break;
+	}
+	return ( ITVALUE +<+$save_typedef_member_array{ITKEY}+>+ ) 0;
+}
+
+
+
++>>+
+
+int	Get_Member_0(int type , void *thisLOG)
+{
+	return 1;
+}
+
+int	Get_Member_1(int type , void *thisLOG)
+{
+	return 1;
+}
+
+
+
+
+
+
+
+

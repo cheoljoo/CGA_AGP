@@ -1,0 +1,217 @@
+FileName : LogTcpSess.h
+STC_FileName : LogTcpSessDTO.stc, LogTcpSessDAO.stc
+
+#define DEF_ARRAY_RTX		3
+
+
+<TAG_DEFINE_START:STATUS>
+#define DEF_STATUS_SYN		1
+#define DEF_STATUS_SYNACK	2
+#define DEF_STATUS_ACK		3
+<TAG_DEFINE_END:STATUS>
+
+<TAG_DEFINE_START:FINSTATUS>
+#define DEF_FIN_0			0			/**< FIN 이 없는 경우 */
+#define DEF_FIN_1			1			/**< 첫번째 FIN 을 받은 경우 */
+#define DEF_FIN_2			2			/**< 두번째 FIN 을 받은 경우 */
+#define DEF_FIN_3			3			/**< 두번째 FIN 에 대한 ACK를 받은 경우 */
+<TAG_DEFINE_END:FINSTATUS>
+
+<TAG_DEFINE_START:ENDSTATUS>
+#define DEF_END_NORMAL		1
+#define DEF_END_ABNORMAL	2
+#define DEF_END_LONGLAST	3
+#define DEF_END_RST			4
+<TAG_DEFINE_END:ENDSTATUS>
+
+<TAG_DEFINE_START:RTX>
+#define DEF_FROM_CLIENT     1			/**< UP : From Client */
+#define DEF_FROM_SERVER     2			/**< DOWN : From Server */
+<TAG_DEFINE_END:RTX>	
+
+<TAG_DEFINE_START:SYN_RCV_FLAG>
+#define SYN_RCV_OFF						0
+#define SYN_RCV_ON						1
+<TAG_DEFINE_END:SYN_RCV_FLAG>
+
+<TAG_DEFINE_START:L4FAILCODE>
+#define TCP_SUCCESS						0
+#define TCP_NOERR_FIN_E1				1
+#define TCP_NOERR_FIN_E2				2
+#define ABNORMAL_TRANS					15
+#define LONGLAST_SYN_TRANS				31
+#define LONGLAST_SYNACK_TRANS			32
+#define LONGLAST_NOFIN_TRANS			33
+#define LONGLAST_FIN_E1					34
+#define LONGLAST_FIN_E2					35
+#define TCP_ERR_RST_E1_SYN				41
+#define TCP_ERR_RST_E1_SYNACK			42
+#define TCP_ERR_RST_E1_NOFIN			43
+#define TCP_ERR_RST_E1_FIN_E1			44
+#define TCP_ERR_RST_E1_FIN_E2			45
+#define TCP_ERR_RST_E2_SYN				51
+#define TCP_ERR_RST_E2_SYNACK			52
+#define TCP_ERR_RST_E2_NOFIN			53
+#define TCP_ERR_RST_E2_FIN_E1			54
+#define TCP_ERR_RST_E2_FIN_E2			55
+<TAG_DEFINE_END:L4FAILCODE>
+
+<TAG_DEFINE_START:TCPFLAG>
+#define DEF_TCP_START		1
+#define DEF_TCP_DATA		2
+#define DEF_TCP_END			3
+#define DEF_TCP_UPDATE		4
+<TAG_DEFINE_END:TCPFLAG>
+
+<TAG_DEFINE_START:RETRANS>
+#define DEF_RETRANS_OFF		0
+#define DEF_RETRANS_ON		1
+<TAG_DEFINE_END:RETRANS>
+
+/**
+ * @brief TCP_SESS : TCP 세션 관리를 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_TCP_SESS {
+	STIME	uiLastUpdateTime;	/**< 초기값 생성시간, 이후 패킷받은 시간 */
+	MTIME	uiLastUpdateMTime;	/**< 초기값 생성시간, 이후 패킷받은 시간 */
+	STIME	uiSessCreateTime;	/**< 세션 생성 시간 */
+	MTIME	uiSessCreateMTime;	/**< 세션 생성 시간 */
+
+	STIME	uiLastSessUpdateTime;		/**< 마지막으로 A_CALL에 세션이 살아 있음을 알리는 메시지 보낸 시간 */
+
+	U8		<TAG_DEFINE:STATUS>ucStatus;	/**< 세션 상태  */ 			
+	U8		<TAG_DEFINE:FINSTATUS>ucFinStatus; /**< 세션 종료 상태 */
+	U8		<TAG_DEFINE:ENDSTATUS>ucEndStatus;	/**< 어떤 조건에 의해서 종료 되었는가? */
+	U8		<TAG_DEFINE:RTX>ucSynRtx;			/**< Syn의 방향 */
+	U8		<TAG_DEFINE:RTX>ucFinRtx;			/**< 첫번째 Fin의 방향 */
+	U8		<TAG_DEFINE:RTX>ucRstRtx;			/**< Rst의 방향 */
+	U8		<TAG_DEFINE:SYN_RCV_FLAG>ucRcvSyn;			@STG_PAR_ARRAY:JKEY:0:T0@
+
+	U32		uiSynSeq;		/**< TCP SYN SEQ No. */
+	U32		uiSynAckSeq;	/**< TCP SYNACK SEQ No. */
+	U32		uiSynAckAck;	/**< TCP SYNACK ACK No. */		
+
+	OFFSET 	offset_LOG;             @STG_PARM: JAVA :YES@		@STG_PAR_ARRAY:JKEY:2:T2@
+
+	U32		uiReqCount;		/**< Request Packet Count */
+	OFFSET	offset_ReqData;		/**< Request Packet First Node */
+
+	U32		uiResCount;		/**< Response Packet Count */
+	OFFSET	offset_ResData;		/**< Response Packet First Node */
+
+	S32		dSndMsgQ;		/**< 보내야 할 서비스블럭의 메시지큐아이디 */
+	U32		uiFinChkSeq[DEF_ARRAY_RTX];		/**< FIN PACKET의 재전송을 체크하기 위함 : Index = 0 은 사용하지 않음 */
+	U32		uiFinChkAck[DEF_ARRAY_RTX];		/**< FIN PACKET에 대한 ACK PACKET 번호 : Index = 0 은 사용하지 않음 */
+
+	U32		uiLastReqSeq;	/**< 마지막에 처리한 SEQ 번호 : REQ */
+	U32		uiLastResSeq;	/**< 마지막에 처리한 SEQ 번호 : RES */
+
+	U32		uiNextReqSeq;
+	U32		uiNextResSeq;	@STG_PAR_ARRAY:JKEY:1:T1@
+
+	U32		uiRcvReqAck;
+	U32		uiRcvResAck;
+
+	STIME	uiRcvReqAckTime;
+	MTIME	uiRcvReqAckMTime;		 @STG_PAR_ARRAY:JKEY:3:T3@
+
+	STIME	uiRcvResAckTime;
+	MTIME	uiRcvResAckMTime;
+
+	U16		usL4Code;
+	U16		usL7Code;
+	U16		usAppCode;
+	DEF		<TAG_DEFINE:L4FAILCODE>usL4FailCode;
+
+	U64		timerNID;
+
+	U8		ucTcpClientStatus;
+	U8		ucTcpServerStatus;
+
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} TCP_SESS;
+
+CF_CF typedef struct _st_TCP_INFO {
+	U32		uiDataSize;		/**< TCP Payload Size */
+	U32		uiSrvIP;		/**< Server IP Address */
+
+	U32		uiCliIP;		/**< 단말 IP Address */
+	U16		usSrvPort;		/**< Server Port */
+	U16		usCliPort;		/**< 단말 Port */
+
+	U32		uiSeqNum;		/**< Packet Seq No. */
+	U32		uiAckNum;		/**< Ack Packet의 Ack No. */
+
+	OFFSET	uiSOffset;
+
+    STIME	uiCapTime;		/**< 캡쳐된 시간 */
+    MTIME	uiCapMTime;		/**< 캡쳐된 Micro 시간 */
+    STIME	uiAckTime;		/**< Ack Packet을 받은 시간 */
+    MTIME	uiAckMTime;		/**< Ack Packet을 받은 Micro 시간 */
+
+	U16		usAppCode;
+	U16		usL4Code;		/**< L4Code */
+	U16		usL7Code;		/**< L7Code */
+	DEF		<TAG_DEFINE:L4FAILCODE>usL4FailCode;	/**< L4 Error Code */
+	U8		<TAG_DEFINE:RTX>ucRtx;		/**< UP/Down 방향 1: UP, 2: Down */
+	S8		<TAG_DEFINE:TCPFLAG>cTcpFlag;	/**< [O] TCP State */
+	S8		<TAG_DEFINE:RETRANS>cRetrans;		/**< [O] 재전송 Flag */
+	U8		ucProtocol;		/**< [O] 현재 사용되는 곳 없음, 향후 기능 확장에서 사용될 가능성 있음 */
+
+	U8		ucTcpClientStatus;
+	U8		ucTcpServerStatus;
+
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} TCP_INFO;
+
+
+
+CF_CF typedef struct _st_TCP_INF1 {
+	U32		uiDataSize;		/**< TCP Payload Size */
+	U32		uiSrvIP;		/**< Server IP Address */
+} TTTTTT; 	@STG_TYPEDEF:JAVA:3333@
+
+typedef struct _st_TCP_INF2 {
+	U32		uiDataSize;		/**< TCP Payload Size */
+	U32		uiSrvIP;		/**< Server IP Address */
+} KKKKKK;	@STG_TYPEDEF:JAVA:444@    @STG_TYPEDEF:JAVA_DOC:TTT@
+
+
+

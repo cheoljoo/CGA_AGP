@@ -1,0 +1,1462 @@
+=============================================================================
+1. 날자   : 2007.05.31 
+2. 작성자 : 이철주 
+3. 내용  :  add the space for indent of tab.
+	Problem - In case of any size of string , two values do not have the white space.
+	Solution - add two space between two values.
+	ex) #define AAAAA13    -> #define AAAAA   13
+4. 파일
+	./structg.pl      						                			1.244
+=============================================================================
+1. 날자   : 2007.04.26 (목)
+2. 작성자 : 이철주 + 박현석 (finder)
+3. 내용  :  ++++  , ----  에서 한자리만을 처리하는 문제 해결
+	80 인 경우 ----를 하면  0만을 인식하여  8-1 의 값을 찍음.
+	\d  --> \d+ 로 바꾸어줌.
+4. 파일
+	./structg.pl      						                			1.242
+	./web_protocolpageDTO     					               			1.4
+=============================================================================
+1. 날자   : 2007.04.17 (화)
+2. 작성자 : 이철주
+3. 내용  : minor change (ASN PER)
+	add extern variable
+	add set function 
+4. 파일
+	./ASN_PER.stc      						                			1.2
+	./common_stg.pstg      						               			1.13
+=============================================================================
+1. 날자   : 2007.04.16 (월)
+2. 작성자 : 이철주
+3. 내용  : Reload the GLOBAL.TXT files
+	Make the ASN PER's init file
+4. 파일
+	./structg.pl      						                			1.241
+	./ASN_PER.stc      						                			1.1
+	./common_stg.pstg      						               			1.12
+=============================================================================
+1. 날자   : 2007.04.02 (월)
+2. 작성자 : 이철주
+3. 내용  : add the comments function in the pstg and stg's file
+	^##   is the starting sign of comments.
+	ex)
+##STC_FileName : Set_Value.stc , TAG_DEF.stc , flow.stc , clex.stc , flow_dot.stcI , stg_call_silog.stc, log_func.stc
+4. 파일
+	./structg.pl      						                			1.240
+	./pstg.pl      							                			1.19
+=============================================================================
+1. 날자   : 2007.03.30 (금)
+2. 작성자 : 이철주
+3. 내용  :  typedef struct 의 번호 Fix 가능
+	현재 기본 값 : 100 번 부터 출발을 하게 되어져 있고. 한개씩 증가하면서 처리됨
+	변경 : typedef struct ... {} NAME;   @DEF_NUM:1000@    이라고 선언하면 그 structure의 번호는 1000 번이 할당이 됩니다. 
+		그 뒤는 1000부터 한개씩 증가하면서 할당이 되게 됩니다.
+
+	-. 에러 check
+	중복 check :  ERROR Checiking 을 할수 있습니다.
+	수행을 하면 중간에 중복이 일어나면 , 다음과 같이 에러를 뿌려주면서 exit를 합니다.
+	ERROR : (LOG_TCP_SESS : 1000) typedef struct DEFINITION # was already allocated to MN_CONF.
+	9369 at structg.pl line 1897.
+	--> MN_CONF가 이전에 있는 값이고,  LOG_TCP_SESS에 같은 값 1000 을 할당하려다가 중복이 됨을 확인하고 멈춘 것 입니다.
+4. 파일
+	./common_stg.pstg													1.11
+	./structg.pl      						                			1.239
+=============================================================================
+1. 날자   : 2007.03.29 (목)
+2. 작성자 : 이철주
+3. 내용  :  
+		STG_timemax , STG_ifacc MACRO 추가
+		ASSOCIATION Once_At_   함수에서 정의된 순서대로 수행하게 함.
+4. 파일
+	./define.upr														1.51
+	./ASSOCIATION.stcI													1.10
+	./common_stg.pstg													1.10
+=============================================================================
+1. 날자   : 2007.03.28 (수)
+2. 작성자 : 신영호
+3. 내용  :  
+		STG_inc_xx Macro 정의
+4. 파일
+	./define.upr														1.46
+=============================================================================
+1. 날자   : 2007.03.27 (화)
+2. 작성자 : 이철주
+3. 내용  :  state_diagram 예제 추가
+	$ make sd 
+	$ ./sd.exe
+4. 파일
+	./Makefile			      							                1.31
+	./STATE_DIAGRAM.stc      						         		    1.2
+	./state_diagram.pstg      						                	1.2
+	./structg.pl      						                			1.234
+=============================================================================
+1. 날자   : 2007.03.27 (화)
+2. 작성자 : 이철주
+3. 내용  :  state_diagram 추가
+	- 기존의 TAG_FLOW와 같은 기능을 하는 것임.
+	- 새로운 요구사항을 추가하고, 기존의 것도 그대로 지원하기 위해서 STATE_DIAGRAM 으로 새로 만듦
+	- <STATE_DIAGRAM_VERTEX:..> </STATE_DIAGRAM_VERTEX:..>  과
+	  <STATE_DIAGRAM_EDGE:..> </STATE_DIAGRAM_EDGE:..> 가 같이 존재해야함
+	- Example : make sd  하면 됨.  (state_diagram.pstg와 아래의 stc들을 이용하게 됨)
+
+	- 주요 차이점
+		: VERTEX가 STATE_DIAGRAM_VERTEX로 들어감 (EDGE --> VERTEX로 이동)
+		: CONTINUE와 OTHERMSG를 VERTEX부분에 set해줌.
+		: 이것으로 인하여 모든 VERTEX에 대한 EDGE들을 만들어줄 필요가 없음
+4. 파일
+	./Makefile			      							                1.30
+	./STATE_DIAGRAM_dot.stcI      						                1.1
+	./STATE_DIAGRAM.stc      						         		    1.1
+	./c.pstg      						                				1.2
+	./common_stg.pstg      						                		1.9
+	./state_diagram.pstg      						                	1.1
+	./structg.pl      						                			1.233
+=============================================================================
+1. 날자   : 2007.03.27 (화)
+2. 작성자 : 이철주
+3. 내용  :  structg안에 여러가지의 stc , stcI 추가
+	기존 DB_ProC_h.stc 와 LOG_member_Get_func.stc 등을 변경
+	LOG_member_Get_func.stc --> log_func.stc , Compare_typedef.stc , LOG_member_Get_func.stc  , Set_Value.stc , TAG_DEF.stc 으로 분리
+		log_func.stc : 정의된 함수들을 모아둠.
+		Compare_typedef.stc : typedef의 값의 전후를 비교를 위한 함수 (상당히 김)
+		LOG_member_Get_func.stc : 각 member들을 위한 C++에서와 같은 함수 제공
+		Set_Value.stc : Set_Value()를 제공 (STRING과 pointer의 일반적으로 제공가능한 함수)
+		TAG_DEF.stc : TAG_DEF 관련 여러가지 제공 함수 
+4. 파일
+	./Compare_typedef.stc      							                1.1
+	./LOG_member_Get_func.stc      						                1.65
+	./Set_Value.stc      							                    1.1
+	./TAG_DEF.stc      							                        1.1
+	./log_func.stc      							                    1.1
+	./DB_SQL.stc      							                        1.3
+	./DB_ProC_h.stc      							                    1.3
+=============================================================================
+1. 날자   : 2007.03.27 (화)
+2. 작성자 : 신영호
+3. 내용  :  ProC 
+			extern 선언. --> 다시 지움.
+4. 파일
+	./DB_ProC.stc      							                        1.5
+	./DB_ProC.stc      							                        1.6
+=============================================================================
+1. 날자   : 2007.03.27 (화)
+2. 작성자 : 이철주
+3. 내용  :  ProC (pc) file들을 OraMake에 제대로 추가 하기 위해서
+4. 파일
+	./structg.pl       							                        1.232
+	./DB_ProC.stc      							                        1.3
+=============================================================================
+1. 날자   : 2007.03.26 (월)
+2. 작성자 : 이철주
+3. 내용  :  STG_ASSOCIATION 중에서
+***     @STG_TYPEDEF:STG_STAT_TABLE:YES@ 라고 선언 한 것에 대한 것만 처리해주는 부분이다. 
+4. 파일
+	./STAT_ALL_h.stc       							 	               	1.1
+	./common_stg.pstg      						                        1.8
+=============================================================================
+1. 날자   : 2007.03.23 (금)
+2. 작성자 : 이철주
+3. 내용  :  SQL관련 여러가지 값들 추가
+	SQL_TYPEDEF 추가
+	SQL에 STG_TYPEDEF 추가
+	사용예 : sql_table_html.stc
+4. 파일
+	./structg.pl       							                        1.230
+	./sql_table_html.stc       							                1.2
+=============================================================================
+1. 날자   : 2007.03.22 (목)
+2. 작성자 : 이철주
+3. 내용  :  define안에서도 STG_PARM이 가능하게 함.
+	 현재는 @STG_PARM:DEFINE_SHORT:???@ 을 이용함..
+4. 파일
+	./structg.pl       							                        1.229
+=============================================================================
+1. 날자   : 2007.03.20 (화)
+2. 작성자 : 이철주
+3. 내용  :  TIME DEBUG를 더 효율적으로
+4. 파일
+	./structg.pl       							                        1.228
+=============================================================================
+1. 날자   : 2007.03.20 (화)
+2. 작성자 : 이철주
+3. 내용  :  print_all_global_var 안에서 %ARRAY_SIZE 값을 넣어줌
+	print_all_global_var의 위치를 SQL을 처리하고 stc처리 하기 전으로 옮김
+	기존 : print_all_global_var이 SQL을 처리하기 전에 수행되어졌음.
+4. 파일
+	./structg.pl       							                        1.227
+=============================================================================
+1. 날자   : 2007.03.20 (화)
+2. 작성자 : 이철주
+3. 내용  :  stc관련 성능 개선
+data로는 "DB_SQL.stc" v1.1  를 기본으로 판단하는 값이다.
+
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 8 : 22 : 57
+structg (149) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 8 : 25 : 26
+structg (0) : Cchange ITERATE END 1 (len: 540637) (DB_SQL.stc) - 3-19-2007 : 8 : 25 : 26
+structg (184) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 8 : 28 : 30
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 8 : 28 : 30
+
+
+
+structg : Cchange START (DB_SQL.stc) - 3-19-2007 : 9 : 15 : 19
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 9 : 15 : 19
+structg (142) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 41
+structg (0) : Cchange ITERATE END 1 (len: 540637) (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 41
+structg (4) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 45
+structg (1) : Cchange ITERATE EQUAL END 3 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 46
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 46
+structg : STC - 3-19-2007 : 9 : 17 : 46
+
+
+
+structg : Cchange START (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (0) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (21) : Cchange ITERATE EQUAL END 1-1 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 6
+structg (1) : Cchange ITERATE EQUAL END 1-2 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 7
+structg (0) : Cchange ITERATE END 1 (len: 540635) (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 7
+structg (4) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 11
+structg (1) : Cchange ITERATE EQUAL END 3 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 12
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 12
+
+() 부분이 걸리는 시간임
+
+이간이 위의 내용처럼 줄어듦을 볼수 있다.
+    149  -> 142 -> 21 초 (replace를 고친 부분)
+		    184 -> 4 -> 4  (EQUAL을 고친 부분)
+
+4. 파일
+	./structg.pl       							                        1.226
+=============================================================================
+=== TAG Name : Just_do_not_increasing_the_performance
+1. 날자   : 2007.03.16 (금)
+2. 작성자 : 이철주
+3. 내용  :  
+	DB라는 이름으로 기존의 flat에서 처리하던 SQL관련 내용들 stc로 만듦
+	%SQL_{typedef}_member_full  의 내용이 틀려서 수정
+4. 파일
+	./structg.pl       							                        1.225
+	./DB_ProC.stc      							                        1.1
+	./DB_ProC_h.stc    							                        1.1
+	./DB_SQL.stcI      							                        1.1
+=============================================================================
+1. 날자   : 2007.03.16 (금)
+2. 작성자 : 이철주
+3. 내용  :  
+	split 함수에서 ' ' 을 사용하면 여러 문자에 대한 split도 가능`
+4. 파일
+	./structg.pl       							                        1.224
+=============================================================================
+1. 날자   : 2007.03.16 (금)
+2. 작성자 : 이철주
+3. 내용  :  
+	- IFEQUAL에 || , &&  문법 추가 
+	한 종류만 있어야함.
+	아래 2가지 모두 가능하게 추가
+	IFEQUAL(+<+$SQL_ITJAVANAME{IT2VALUE}+>+,U32 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,U16 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,IP4 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,S16 || +<+$SQL_ITJAVANAME{IT2VAL
+		private long IT2VALUE;  // +<+$SQL_ITJAVANAME_TABLE_COMMENTS{IT2VALUE}+>+
+	}#
+	IFEQUAL(+<+$SQL_ITJAVANAME{IT2VALUE}+>+,U32 || U16 || IP4 || S16 || S32 || S64 || STIME || MTIME ) #{
+			private long IT2VALUE;  // +<+$SQL_ITJAVANAME_TABLE_COMMENTS{IT2VALUE}+>+
+	}#
+4. 파일
+	./structg.pl       							                        1.222
+=============================================================================
+1. 날자   : 2007.03.15 (목)
+2. 작성자 : 이철주
+3. 내용  :  
+	- IFEQUAL에 || , &&  문법 추가 
+		한 종류만 있어야함.
+	- #???_DEBUG 라는 것으로 DBG에 print하는 부분을 상당수 막음.
+4. 파일
+	./structg.pl       							                        1.221
+=============================================================================
+1. 날자   : 2007.03.15 (목)
+2. 작성자 : 이철주
+3. 내용  : 
+	#== SQL과 WEB에서 이용할수 있는 값들을 만들어준다.  <<<<<  START
+	#== SQL과 WEB에서 이용할수 있는 값들을 만들어준다.  <<<<<  END
+		와 이와 관련된 함수 추가
+	GLOBAL.TXT에 SQL_ARRAY_{typedef 이름}  으로 부터 시작되는 값들을 산출함.
+	SQL  은 Short name 기분으로 산출됨 
+4. 파일
+	./structg.pl       							                        1.217
+=============================================================================
+1. 날자   : 2007.03.13 (화)
+2. 작성자 : 이철주
+3. 내용  : Mantis : [해결] 0000312 :  SB_PASING 코딩 줄이기 
+4. 파일
+	./structg.pl       							                        1.216
+=============================================================================
+1. 날자   : 2007.03.12 (월)
+2. 작성자 : 이철주
+3. 내용  : sql 문제 해결 
+4. 파일
+	./structg.pl       							                        1.215
+=============================================================================
+1. 날자   : 2007.03.09 (금)
+2. 작성자 : 이철주
+3. 내용  : NotIFEQUAL --> NOTEQAUL 로 수정 (reserved word가 포함되는 구조니깐 골치 아픔)
+4. 파일
+	./structg.pl       							                        1.214
+	./ASSOCIATION.stcI       							                1.6
+	./LOG_member_Get_func.stc       							        1.64
+	./LOG_member_Set_func.stc       							        1.2
+	./TXTPARSE.stcI       							                    1.26
+	./cilog.stc       							                        1.7
+	./clex.stc       							                        1.6
+	./makefile.stc       							                    1.6
+	./stg_call_mlog_timer_h.stc       							        1.2
+=============================================================================
+1. 날자   : 2007.03.09 (금)
+2. 작성자 : 이철주
+3. 내용  : 다중 IFEQUAL 처리 & inc/dec 기능 추가 
+	- 다중 IFEQUAL 처리 
+		IFEQUAL(...) #{ 
+			IFEQUAL(...) #{
+			}#
+		}#
+		방식 처리 가능    #{   }# 안에는 # 문자는 오면 안됨.
+	- #은 STG_SHARP_ 으로 변경해서 사용하면 됨.
+	- inc/dec 기능 추가 
+		----   : 1개를 빼줌 
+		++++   : 1개를 더해줌 
+		ex) 
+		    +<+$ARRAY_SIZE{ANALYSIS_CALL_COMMON_STG_PAR_ARRAY_MEMBER_CALL_HASH_KEY}+>+ ++++
+			+<+$ARRAY_SIZE{ANALYSIS_CALL_COMMON_STG_PAR_ARRAY_MEMBER_CALL_HASH_KEY}+>+++++
+			+<+$ARRAY_SIZE{ANALYSIS_CALL_COMMON_STG_PAR_ARRAY_MEMBER_CALL_HASH_KEY}+>+ ----
+			+<+$ARRAY_SIZE{ANALYSIS_CALL_COMMON_STG_PAR_ARRAY_MEMBER_CALL_HASH_KEY}+>+----
+4. 파일
+	./structg.pl       							                        1.213
+	./flow.stc       							                        1.43
+=============================================================================
+1. 날자   : 2007.03.08 (목)
+2. 작성자 : 이철주
+3. 내용  : STG_ASSOCIATION의 경우 bug 해결    
+	$stg_ass 가 없어도 :을 출력해주는 문제 해결 
+4. 파일
+	./pstg.pl       							                        1.18
+=============================================================================
+1. 날자   : 2007.03.07 (수)
+2. 작성자 : 이철주
+3. 내용  : lex관련 error 해결 
+	Makefile안의 SRC부분에 lex.....c가 제대로 나오게 
+4. 파일
+	./structg.pl       							                        1.205
+	./TXTPARSE.stcI 							                        1.25
+=============================================================================
+1. 날자   : 2007.03.07 (수)
+2. 작성자 : 이철주
+3. 내용  : STC HD DB 등으로 directory를 누었음.
+	stcI 의 file들 (기본적으로 default로 들어가는 것들)을 STC아래 생성되게 바꿈
+4. 파일
+	./ASSOCIATION.stcI 							                        1.5
+	./TXTPARSE.stcI 							                        1.24
+	./flow_dot.stcI 							                        1.5
+	./structg.pl       							                        1.204
+	./common_stg.pstg      						                        1.5
+=============================================================================
+1. 날자   : 2007.03.07 (수)
+2. 작성자 : 이철주
+3. 내용  : SQL 관련 변수 길이 및 table space 이름 추가 
+	stg or pstg 안에
+		@STG_PARM:SQL_NUMBER_SIZE:6@   --> Size를 6으로  :: default (10)
+		@STG_TYPEDEF:SQL_TABLESPACE:udp@ --> table space 이름을 udp :: default (tcp)
+
+	#ifdef __FLAT_VOID__    추가
+
+4. 파일
+	./structg.pl       							                        1.203
+	./common_stg.pstg      						                        1.4
+=============================================================================
+1. 날자   : 2007.03.06 (화)
+2. 작성자 : 신영호
+3. 내용  : 
+	- structg.pl
+		IP4 type --> U32로 변경 
+4. 파일
+	./structg.pl       							                        1.202
+=============================================================================
+1. 날자   : 2007.03.02 (금)
+2. 작성자 : 이철주
+3. 내용  :  REVERSE ARRAY ITERATOR 추가
+	- structg.pl
+		ITERATE &NAME  +<<+ ITKEY ITVALUE
+4. 파일
+	./structg.pl       							                        1.198
+=============================================================================
+1. 날자   : 2007.03.02 (금)
+2. 작성자 : 이철주
+3. 내용  :  pstg의 기능 강화 (be available to use the multiple STG_COMMONs)
+	- pstg.pl
+		STG_COMMON으로 한개만 사용할 수 있던 것것을 multi로 늘림
+		주석이 잘 안 나올수 잇는 것을 첫번째 주석을 살림
+		@...@ 관련 내용을 그래도 살려줌 
+4. 파일
+	./pstg.pl       							                        1.17
+=============================================================================
+1. 날자   : 2007.02.28 (수)
+2. 작성자 : 이철주
+3. 내용  :  
+	- Makefile , pstg.pstg
+		pstg.pl을 위한 예제 
+	- pstg.pl
+		LOG_COMMON (STG_COMMON)안에서도 <TAG_DEFINE:...> 사용가능 
+	이며 make com 을 하면 수행이 됨.
+4. 파일
+	./Makefile					       							        1.27
+	./pstg.pl       							                        1.16
+	./pstg.pstg       							                        1.1
+=============================================================================
+1. 날자   : 2007.02.28 (수)
+2. 작성자 : 이철주
+3. 내용  :  
+	- structg.pl 
+		ANALYSIS 관련 여러 값 추가 (type , member_full ) 
+	 	STG_PAR_ARRAY 관련 여러 값 추가 (_NEXT_)
+	- 같이 있어야 하는 것은
+		M common_stg.pstg
+		A stg_call_mlog_timer_h.stc
+	이며 make com 을 하면 수행이 됨.
+4. 파일
+	./stg_call_mlog_timer_h.stc       							        1.1
+	./structg.pl       							                        1.197
+=============================================================================
+1. 날자   : 2007.02.27 (화)
+2. 작성자 : 이철주
+3. 내용  :  EDGE 수행 변경
+	- EDGE를 수행할때 , current_state 2 next_state 로 계산을 했던 것을 
+		--> current_state _CONDITION_  if_value로 하여 조건으로 처리하도록 변경함.
+	- pstg.pl : LOG_COMMON에서도 @..@의 부분을 살려둠.
+4. 파일
+	./flow.stc       							                        1.41
+	./structg.pl       							                        1.196
+	./pstg.pl   		  						                        1.15
+=============================================================================
+1. 날자   : 2007.02.26 (월)
+2. 작성자 : 신영호
+3. 내용  :  
+	.사용자 정의 hash 선언 
+		} LOG_RTP_RTCP;  @STG_TYPEDEF:LOG_TABLE_LIST:444@
+		-- 위 처럼 선언하면 
+		ANALYSIS_LOG_TABLE_LIST_STG_TYPEDEF  hash 가 만들어짐.
+	.flat_ file에 #ifndef, #define, #endif 추가
+4. 파일
+	./structg.pl       							                        1.195
+=============================================================================
+1. 날자   : 2007.02.26 (월)
+2. 작성자 : 이철주
+3. 내용  :  STG_PAR_ARRAY 으로 원하는 변수들을 생성키실수 있게 해줌.
+	- Syntax : @STG_PAR_ARRAY:이름:번호:값@ 
+	ANALYSIS_[type이름]_STG_PAR_ARRAY_MEMBER_[이름]   [번호] = Member_Variable
+	ANALYSIS_[type이름]_STG_PAR_ARRAY_VALUE_[이름]    [번호] = [값]
+4. 파일
+	./structg.pl       							                        1.194
+	./LogTcpSess.stg     						                        1.3
+=============================================================================
+1. 날자   : 2007.02.26 (월)
+2. 작성자 : 이철주
+3. 내용  :  
+	- FileName : ....   을 이용한 다른 directory에 file을 생성 가능
+	확장자 : stc
+		: ../../../STC_ 이라고 하면
+		  실제 file은 structg/../  안에 file들이 생김.
+	- stcI_FILEPREFIX : ....   을 이용한 다른 directory에 file을 생성 가능
+	확장자 : stcI 
+		: ../../../STC_  하고 하면 stc는 tmp 안에 생기지만,
+		  실제 file들은 structg/../../ 안에 file들이 생김
+4. 파일
+	./structg.pl       							                        1.193
+=============================================================================
+1. 날자   : 2007.02.23 (금)
+2. 작성자 : 이철주
+3. 내용  :  
+	- 1번의 ITERATION을 위해서 %ONETIME 추가 
+	- stc의 결과가 *.c *.cpp *.pc 에만 #include <자신.h> 를 추가히켜줌
+	  .java나 .l / .html 같은 것에서는 있으면 에러가 나기 때문임.
+4. 파일
+	./structg.pl       							                        1.192
+=============================================================================
+1. 날자   : 2007.02.21 (수)
+2. 작성자 : 이철주
+3. 내용  :  
+	- TABLE_LOG등 외에 CF_CF등의 원하는 것을 넣을수 있게 하고
+		그 변수 명으로 값이 생성됨.
+		(structure의 grouping을 마음대로 할수 있게 하기 위해서 성성함)
+		ex :   CF_CF typedef struct ... { } AA;  
+				$CF_CF {AA} = 2   --> in GLOAL.TXT
+	- @STG_TYPEDEF:[name]:[value]@ 기능 추가 
+		ex :   typedef struct ... { } AA;  @STG_TYPEDEF:JAVA_DOC:this@
+				$ANALYSIS_AA_STG_TYPEDEF {JAVA_DOC} = this  --> in GLOBAL.TXT
+
+4. 파일
+	./structg.pl       							                        1.189
+	./LogTcpSess.stg     						                        1.2
+=============================================================================
+1. 날자   : 2007.02.20 (화)
+2. 작성자 : 이철주
+3. 내용  :  stcI에서 prefix , postfix filename 추가
+4. 파일
+	./structg.pl       							                        1.188
+=============================================================================
+1. 날자   : 2007.02.20 (화)
+2. 작성자 : 이철주
+3. 내용  : OraMake를 위한 // 주석 삭제
+		   OraMake를 위한 ... 삭제
+4. 파일
+	./structg.pl       							                        1.187
+=============================================================================
+1. 날자   : 2007.02.20 (화)
+2. 작성자 : 이철주
+3. 내용  : ARRAY_SIZE hash값 추가   
+	0에서 시작해서 마지막의 index의 값이 들어감.
+4. 파일
+	./structg.pl       							                        1.184
+=============================================================================
+1. 날자   : 2007.02.20 (화)
+2. 작성자 : 신영호
+3. 내 용  : 
+	- ProC compile 적용 가능하게 수정
+4. 파일
+	./define.upr														1.40
+	./oramake.upr														1.4
+=============================================================================
+1. 날자 : 2007.02.20
+2. 작성자 : 이철주
+3. 내용  : STG_PARM 으로 원하는 변수들을 생성키실수 있게 해줌.
+	- Syntax : @STG_PARM:이름:변수값@
+	ANALYSIS_[type이름]_STG_PARM_[이름] { member } = [변수값]
+		이라는 HASH가 GLOBAL.TXT에 쌓인다.
+4. 파일
+	./structg.pl       							                        1.179
+	./Makefile       							                        1.23
+	./test.pstg       							                        1.7
+=============================================================================
+=== TAG Name : FLOW_VERTEX_EDGE_1_0_0_0
+1. 날자 : 2007.02.16
+2. 작성자 : 이철주
+3. 내용  : VERTEX와 EDGE로 구분되어 처리됨
+	- make flow2 를 보면 됨.
+	  example : flow2.pstg
+4. 파일
+	./structg.pl       							                        1.178
+	./Makefile       							                        1.22
+	./flow.stc       							                        1.40
+	./flow2.pstg       							                        1.1
+	./flow_dot.stcI       							                    1.4
+	./test.pstg       							                        1.6
+=============================================================================
+===
+===
+=== 여기서 부터는 TAG_FLOW의 모양이 바뀜 (VERTEX와 EDGE로 구분되어 처리됨)
+=== TAG Name : FLOW_VERTEX_EDGE_1_0_0_0
+===
+=== 기존 것은 TAG_FLOW에 되어져있는 부분을 TAG_AUTO_DEFINE... 의 
+=== 각 VERTEX 밑으로 이동시키면 됨.
+===
+=============================================================================
+=== TAG Name : FLOW_VERTEX_1_0_1_0
+
+1. 날자 : 2007.02.01
+2. 작성자 : 이철주
+3. 내용  : stc / stcI 의 처리 문제 해결 
+	- stc input file들에서 stc를 stcI 보다 우선순위를 높게 되어져있고,
+	  stc , stcI를 모두 처리하게 된다.
+	- 수정 : stcI를 먼저 처리하고 , stcI가 되면 stc는 하지 않는다.
+4. 파일
+	./structg.pl       							                        1.177
+=============================================================================
+1. 날자 : 2007.01.16
+2. 작성자 : 이철주
+3. 내용  : stcI 에서 file Prefix 기능 추가 (prefix가 없으니 가끔 stc의 결과에 대해서 헤깔림)
+	- stcI_FILEPREFIX : STCI_ASSOCIATION_
+	  filename이 보통은 Hash의 key값.extension으로 생겼는데
+	  이것이 있으므로 해서
+	      STCI_ASSOCIATION_(Hash의 Key값).extension  으로 생성됨
+	- example  : ASSOCIATION.stcI
+4. 파일
+	./structg.pl       							                        1.176
+	./ASSOCIATION.stcI 							                        1.4
+=============================================================================
+1. 날자 : 2007.01.16
+2. 작성자 : 이철주
+3. 내용  : BIT 관련 처리 / SB_PARSING 처리 추가
+	- SB_PARSING (STG Binary Parsing)
+		Rule : @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usSrcPort }@
+		설명 : 
+			. Binary Parsing을 위한 것이며 structure앞에는 특정한 것이 붙는 것은 아니다.
+			. 그냥 위의 rule만을 각 member뒤에 삽입하면 
+			. @SB_PARSING 라는 HASH에 저장이 되게 된다.
+		따라가는 법 (GLOBAL.TXT)
+			@SB_PARSING{typedef_name} = typedef_name
+			@SB_PARSING_typedef_name {member} = SB_PARSING_RULE
+	- BIT관련 처리
+		BIT8 / BIT16 type 추가
+		GLOBAL.TXT에 BIT_ 관련 내용 추가
+		cilog에서 제대로 나오게 추가
+4. 파일
+	./structg.pl       							                        1.175
+	./bit.stg       							                        1.2
+=============================================================================
+1. 날자 : 2006.11.27
+2. 작성자 : 이철주
+3. 내용  : doxygen 적용
+4. 파일
+	./structg.pl       							                        1.174
+=============================================================================
+1. 날자 : 2006.11.17
+2. 작성자 : 이철주
+3. 내용  :  typedef_def_cnt 초기화 변경 : 100으로 set하였으니 101부터 시작할 것이다.
+4. 파일
+	./structg.pl														1.170
+=============================================================================
+1. 날자 : 2006.11.14
+2. 작성자 : 이철주
+3. 내용  :  STG_COMMON  에도  ALTERNATIVE_ASSOCIATION  , ALTERNATIVE_RULE 적용함.
+	 ALTERNATIVE_RULE        #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COOKIE>MIN={DIGIT}#
+	- pstg.pl - STG_COMMON안에  추가됨.
+		 ALTERNATIVE_RULE        #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COOKIE>MIN={DIGIT}#
+		를 추가함으로써 CILOG의 값이 제대로 되는지를 check할수 있다.
+	- aqua.pstg
+		LOG_COMMON안에  
+		 ALTERNATIVE_RULE        #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COOKIE>MIN={DIGIT}# 추가 
+4. 파일
+	./aqua.pstg															1.54
+	./pstg.pl															1.14
+=============================================================================
+1. 날자 : 2006.11.13
+2. 작성자 : 이철주
+3. 내용  :  STG_COMMON  에도 @...@ 을 적용함
+	@CILOG_HIDDEN@      ,    @CHECKING_VALUE:...@
+	- pstg.pl - STG_COMMON안에  추가됨.
+		@CHECKING_VALUE:string , string...@
+		@CHECKING_VALUE:digit~digit , digit~digit...@
+		를 추가함으로써 CILOG의 값이 제대로 되는지를 check할수 있다.
+	- aqua.pstg
+		예제 추가   $ make aqua
+		GLOBAL.TXT 가 AQUA2/TOOLS/HandMade 에서 필요함.
+4. 파일
+	./aqua.pstg															1.53
+	./pstg.pl															1.13
+=============================================================================
+1. 날자 : 2006.11.13
+2. 작성자 : 이철주
+3. 내용  : 
+	- structg.pl
+		@CHECKING_VALUE:string , string...@
+		@CHECKING_VALUE:digit~digit , digit~digit...@
+		를 추가함으로써 CILOG의 값이 제대로 되는지를 check할수 있다.
+	- aqua.pstg
+		예제 추가   $ make aqua
+		GLOBAL.TXT 가 AQUA2/TOOLS/HandMade 에서 필요함.
+4. 파일
+	./aqua.pstg															1.52
+	./structg.pl														1.167
+=============================================================================
+1. 날자 : 2006.11.11
+2. 작성자 : 이철주
+3. 내용  : TAG_DEF_ALL_NUM_  변수 추가
+	HASH : $TAG_DEF_ALL_METHOD { METHOD_GET } = 1 --> 반대 되는 것을 한개 만들어야겠당.!
+	HASH : $TAG_DEF_ALL_METHOD { 1 } = METHOD_GET;  <-- 새로 만들어짐 
+	이 값을 TOOLS/HandMade에서 field들을 효율적으로 보여주기 위해서 사용됨.
+	(변수들을 쫓아서 필요한 값을 찾아주기 위함임)
+4. 파일
+	./structg.pl														1.166
+=============================================================================
+1. 날자 : 2006.11.11
+2. 작성자 : 이철주
+3. 내용  : log_table.html의 문제 해결 (번호가 HIDDEN이 반영되지 않음)
+	문제 : 1,2,3 4가 hidden이면  5번이 나옴. 
+	log_table.html을 보면 바로 작업할수 있게 변경을 햇음.
+	%ANALYSIS_ARRAY_CILOG_TABLE_이름   을 추가함.
+4. 파일
+	./structg.pl														1.165
+	./log_table.stc														1.3
+=============================================================================
+1. 날자 : 2006.11.11
+2. 작성자 : 이철주
+3. 내용  : ASSOCIATION에서 association rule or func을 여러개 처리 가능하게 ...
+	HTTP와 ONLINE에서의 값중에 먼저 들어오는 값을 거기에 Set할 필요가 생김
+	usSvcL4Type
+	- aqua.pstg : ASSOCIATION 에 ALTERNATIVE_ASSOCIATION을 추가함.
+		사용법 : 사용하려는 것의 뒤에 다음과 같이 추가를 함.
+		DEF     <TAG_DEFINE:L4CODE>FirstSvcL4Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL4Type):FIRST;            /**< First IP, PORT로 판단한 Service type */
+		                ALTERNATIVE_ASSOCIATION:STG_Equal(pLOG_ONLINE_TRANS->usSvcL4Type):FIRST;
+	- structg.pl
+	>               if( $str =~ /^\s*ALTERNATIVE_ASSOCIATION\s*:\s*([^:;]*)\s*:\s*([^:;]*)\s*\;\s*(.*)$/ ){
+	>               if($str =~ /^\s*ALTERNATIVE_ASSOCIATION\s*:\s*([^:;]*)\s*:\s*([^:;]*)\s*:\s*([^:;]*)\s*\;\s*(.*)$/){
+		ASSOCIATION 에 ALTERNATIVE_ASSOCIATION을 추가함.
+4. 파일
+	./structg.pl														1.164
+	./aqua.pstg															1.51
+=============================================================================
+1. 날자 : 2006.11.10
+2. 작성자 : 이철주
+3. 내용  : LOG_member_Set_func.stc 추가 (Get뿐만 아니라 Set도 가능)
+	- LOG_member_Set_func.stc 
+		Set 하는 함수들 추가 (C++처럼 사용가능)
+4. 파일
+	./LOG_member_Set_func.stc 											1.1
+=============================================================================
+1. 날자 : 2006.11.10
+2. 작성자 : 이철주
+3. 내용  : CLEX
+	- structg.pl , clex.stc
+	/*  +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_string{0}+>+   */
+	을 추가하여 debugging을 위한 정보를 넣게 됨.
+   
+	CLEX_ITKEY_Depth5() 추가
+4. 파일
+	./structg.pl														1.163
+	./clex.stc															1.4
+=============================================================================
+1. 날자 : 2006.11.10
+2. 작성자 : 이철주
+3. 내용  : CLEX
+	- structg.pl
+		아래의 ascii 번호로 나타내가 위해서 
+		..num_... 로 되는 변수들을 만들어주어야 할 것이다.
+	- clex.stc
+		+<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+
+		+<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_substr{MAT1KEY}+>+
+		처럼 num_가 추가된 내용으로 처리 한다.
+	  특징 : character로 처리를 하다보니 특수만자나 특별한 문자들에 대한 처리가 어렵다.
+	  	이를 극복하기 위해서 ascii 번호를 이용하여 처리를 한다.
+		ascii 번호는 한글까지 mapping하는데로 전혀 문제가 없다.
+4. 파일
+	./structg.pl														1.162
+	./clex.stc															1.2
+=============================================================================
+1. 날자 : 2006.11.09
+2. 작성자 : 이철주
+3. 내용  : CLEX
+	-  structg.pl
+		TAG_DUAL_STRING_뒤에 여러가지 값을 추가하였음.
+		> ##  ???_L0 {숫자a} = a
+		> ##  ???_L0_숫자a_substr {a를 뺀 string } = 전체 string
+		> ##  ???_L0_숫자a {다음문자의 숫자} = 문자
+		> ##             다음문자의 숫자가 0 이면 끝이므로 return값을 넣어줌 
+	- clex.stc
+		-. CLEX로 2글자 이상인 것들에 대해서 처리
+			현재의 상태 : AUTO_STRING에 대한 처리는 마찬가지가 된다.   비교를 할때 getfile과 비교를 한다는 것이 다른 것이다. 이 부분은 추후 바꿔주어도 될 것이다.
+			비교를 한다는 것이 configuration을 의미한다는 것이고,
+			일반 input에서 비교를 하는 것은 getfile과 비교하는 것이 맞을 것으로 생각된다.
+			필요시 : Get_TAG_AUTO_STRING_DEF_ITKEY 을 고쳐주면 될 것이다.
+			--- 일단 getfile로 하는 것으로 하자..  이것으로 parsing하는 것이 더 효율적일수도 있다는 생각이 든다. 
+			+ 여러가지 경우가 있다.  
+				exact match가 필요한 것 vs 그렇지 않은 것
+				input이 body형식이나 header를 parsing하는 형식 인 것 vs  처음에 비교하여 만족하는 것이 있는지?
+				longest matching인지 vs  먼저 만족하면 끝내야 하는 것인지?
+				처음에 몇 글짜까지를 비교를 하면서 찾아야 하는 것인지? (how long)
+			+사용할 예
+				application/ application/vdm 같은 것 고려
+				GET 등의 Method
+			+ 이중에서 지금 처리해야 할 부분
+				처음에 비교를 하여야 하는 것 (space 난 tab으로 시작하는 것은 지우고 넣어야 한다고 고려를 하자)
+				exact match가 아닌 것 : application/ application/vdm 같은 것 고려
+4. 파일
+	./structg.pl														1.159
+	./clex.stc															1.1
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용  : (shlee 요청) HIDDEN을 표시하지 말것 , STRING도 가능하면 숫자로 찍어줄것
+	-  structg.pl
+		+<+$define_digit{ }+>+  에 대한 처리가 가능하게 함.
+		기존 : regular expresstion이 [..]+로 되어져있어서 처리 못했었음. 
+	- log_table.stc
+		html을 만들어주는 것으로 HIDDEN이 모두 NO가 나와야 한다. YES는 찍지 않게 함. (%CILOG_HIDDEN)
+		처음 :  define된 값들을 모두 찍어줌
+		뒤 :  각 LOG TABLE들에 대한 table 생성 
+4. 파일
+	./structg.pl														1.158
+	./log_table_.stc													1.2
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용  :  상득씨의 요청에 따라 flow의 (D) , (Y)양쪽에 모든 값들 허용
+	-  structg.pl
+		기존에 Get_Member를 call 하던 것을 모든 내용들을 허용하게 바꾸었음.
+		기존 code는 comment #으로 막아두었음.
+		이유 : 우리가 pINPUT, pTHIS를 무슨 type으로 쓰는지를 fix하기 때문에 
+		      Get_Member가 필요치 않아졌음.
+		추후 Get_Member를 이용할 경우 (예상) : Set_Member
+			들어오는 type들이 많아서 어떤 type으로 들어올지 모를때 사용가능함.
+4. 파일
+	./structg.pl														1.157
+=============================================================================
+1. 날자 : 2006.11.03
+2. 작성자 : 이철주
+3. 내용  :  log_table.stc를 위한 값을 얻기 위해서 추가
+	-  structg.pl
+		ANALYSIS_$typedef_name\_TABLE_COMMENTS 이란 GLOBAL 변수 이름 추가 
+	-  pstg.pl
+		주석문 다는 모양 변경 : log_table.stc를 위한 값을 얻기 위해서 추가
+	- log_table.stc
+		문서작업을 편리하게 하기 위한 html table 
+4. 파일
+	./log_table.stc														1.1
+	./structg.pl														1.156
+	./pstg.pl															1.12
+	./aqua.pstg															1.47
+=============================================================================
+
+
+
+
+Fri Nov  3 18:24:55 KST 2006
+지금까지 추가된 내용들에 대해서 정리를 하자.
+*확장자
+	stcI - 한개의 stcI는 여러개의 stc의 역할을 한다. temporary에 stc를 만든후에 그것을 이용하여 각기 stc의 작업을 처리한다.
+	stc - 한개의 file을 생성을 하게 하는 것이고, GLOBAL.TXT안의 있는 값들을 이용하여 결과물를 만든다.
+			stc로 작성을 하면 향후 pstg , stg가 변경시에도 코드가 자동으로 변하게 된다.
+	pstg - pstg.pl을 이용허여 stg를 만드는 것이다.
+	stg - structg.pl 의 input file
+	stgL - stg들을 묶음으로 처리하기 위한 것이다. 내부적으로는 한개로 합쳐서 한개의 pstg나 stg를 처리하는 것과 같게 동작한다.
+*pstg.pl이 추가되어졌다. - pre processor 
+	STG_COMMON에 대한 처리를 한다.
+		STG_LOG_TEXT_PARSING 에 대한 적당한 변경을 한다.
+		STG_ASSOCIATION 에 대한 적당한 변경을 한다.
+	STG_REPLACE
+*structg.pl
+	ITERATE  HASH(%) 와 ARRAY(@) 모두 되게 추가하였음
+	PARSING_CASE_IGNORE 추가 : flex의 case insensitive하게 -i option 처리
+	STRING type추가
+	CILOG_HIDDEN 추가
+	CASE_IGNORE적용
+	<TAG_FLOW_START:PAGE>에서 action에 대한 multi line 처리 완료
+	FPP 추가 
+	ANALYSIS_TYPEDEF 추가 .... (기존 코드에 바로 넣는 것에서 방식 변경) - cilog.stc , log_table.stc
+	STG_ASSOCIATION 추가
+	- STG_COMMON -> STG_ASSOCIATION으로 변경
+	- pstg.pl에서 <TAG_KEY> 처리 삭제
+	- ASSOCIATION을 위한 ASSOCIATION.stcI 기본 추가
+	TAG_DEFINE 관련(AUTO포함) 중복 선언 에러 추가
+	%function_def에 PARSING_RULE관련 ACTION 추가 (처음에 수행도 되게 추가)
+	ALTERNATIVE_RULE의 여러 형태 처리 완료
+	TAG_AUTO 관련 처리 완료
+	TAG_AUTO_STRING_DEFINE_START  추가
+	BIT operation 추가
+	    BIT16           a1 (1 : PING);              /**< TOS의 첫번째 bit */
+		BIT16           ctime (12 : PING);          /**< TOS 마지막 3개의 bit */
+		BIT16           b ( 3 : PING);
+	IFEQUAL과 반대로 수행되는 NotIFEQUAL 추가
+	GLOBAL_Pre_STC.TXT 추가 : STC를 수행하기 전의 global 변수의 값들
+	multi-line일때만 위의 #{ .. }#을 사용하면됨.  flow.stc안에 예제 추가하였음
+	Page state diagram TEST main program 완료
+	SET : iterate_commnets = OFF   ,  ON
+
+
+
+=============================================================================
+1. 날자 : 2006.06.15 (수) 
+2. 작성자 : 이철주
+3. 내용  : STAT관련 처리 변경 (각 structure관련 함수의 인자 및 구조 번경)
+	-  structg.pl
+		STAT관련 처리 추가 : Once , Accumulate 변경  (인자 및 구조 변경)
+		stat_function 함수 추가 (Accumualate, Once 파일 / 함수들 생성)
+		STAT_ALL을 STAT가 정의되어져있을때만 선언하게 됨.
+4. 파일
+	./structg.pl														1.54
+=============================================================================
+1. 날자 : 2006.06.14 (화)
+2. 작성자 : 이철주
+3. 내용  : STAT관련 처리 변경
+	table 명 %s 없앰.   
+	accumulate , once 변경 : STAT_ALL 추가 
+	- pc.upr 
+		table명에 %s를 STAT일때만 _%s를 없앰.
+	-  structg.pl
+		STAT관련 처리 추가 : Once , Accumulate 변경 
+		_%s 처리 변경 : table명
+	- userfile.stg
+		STAT 내용 변경 : ACCU.. .INC에서만 타 table의 내용 사용가능
+		자체 적인 것 안에서는 pthis만 사용가능
+4. 파일
+	./pc.upr															1.7
+	./structg.pl														1.52
+	./userfile.stg														1.39
+=============================================================================
+1. 날자 : 2006.06.09 (금)
+2. 작성자 : 이철주
+3. 내용  : STG_STAT_TABLE 추가
+	-  structg.pl
+		STG_STAT_TABLE 추가
+		STAT관련 결과로 Set_Stat_Once.c 를 더 추가로 내어놓음.
+		STG_ACCUMULATE , STG_INC추가
+	- userfile.stg
+		STG_STAT_TABLE 추가
+		STG_ACCUMULATE , STG_INC추가
+4. 파일
+	./structg.pl														1.51
+	./userfile.stg														1.38
+=============================================================================
+1. 날자 : 2006.06.01 (목)
+2. 작성자 : 이철주
+3. 내용  : 
+	-  structg.pl
+		ITERATE recusive bug 수정
+		flat recursive bug 수정 
+4. 파일
+	./structg.pl														1.50
+=============================================================================
+1. 날자 : 2006.05.28 (월)
+2. 작성자 : 이철주
+3. 내용  : 
+	-  structg.pl
+		ITERATE 연산자가 +<+ ... +>+ 연산자보다 앞섬
+			ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+				if (+<+$HASH_KEY_IS{ITKEY}+>+(pSTG_HASHKEY->ITKEY) > 0) 
+		    이런식으로 ITKEY를 적용한 후에 +<+...+>+ 연산자 수행가능
+	
+			# +<+$stg_hash_del_timeout+>+ ==> 10
+			# +<+$typedef_name[54]+>+  ==> COMBI_Accum
+			# +<+$HASH_KEY_TYPE{uiIP}+>+ ==> IP4
+			# +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+  ==> int
+		위와 같은 처리를 반복 처리함
+
+4. 파일
+	./structg.pl														1.47
+=============================================================================
+1. 날자 : 2006.05.28 (월)
+2. 작성자 : 이철주
+3. 내용  : 
+	-  NTAM 3차에 대한 적용까지
+		userfile.stg : 
+			TABLE_LOG , TABLE_CF ,  STG_COMBINATION_TABLE keyword 사용
+				TABLE_LOG : DB에 들어갈 테이블이며 계산이 되어짐
+				TABLE_CF : DB에 들어갈 테이블이지만, call flow관련된 것으로 계산되어지지 않음.
+				STG_COMBINATION_TABLE : DB에 들어갈 테이블이며 , 내부적으로 생성되는 것
+			STG_HASH_KEY keyword뒤에 위에서 선언한 typedef 이름을 넣으면 그 structure를 KEY Structure로 이용하게 됨. 
+		structg.pl :
+			GLOBAL.TXT로 stg의 분석 결과를 저장한 값들을 모아둔 화일을 따로 떼어둠.
+			STC처리 추가  - ITERATE +<<+ ... +>>+ 과 +<+$...+.+  추가 
+			undefined_typedef 추가 (our로 정의 되지 않은 모양들에 대한 처리를 위한 부분임)
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_4_0_1_NTAM_Auto_3_Gen_TestOK
+    -NTAM 3단계 기능 추가 (ora , make compile OK)
+		userfile.stg : 
+			TABLE_LOG , TABLE_CF ,  STG_COMBINATION_TABLE keyword 사용
+				TABLE_LOG : DB에 들어갈 테이블이며 계산이 되어짐
+				TABLE_CF : DB에 들어갈 테이블이지만, call flow관련된 것으로 계산되어지지 않음.
+				STG_COMBINATION_TABLE : DB에 들어갈 테이블이며 , 내부적으로 생성되는 것
+			STG_HASH_KEY keyword뒤에 위에서 선언한 typedef 이름을 넣으면 그 structure를 KEY Structure로 이용하게 됨. 
+		structg.pl :
+			GLOBAL.TXT로 stg의 분석 결과를 저장한 값들을 모아둔 화일을 따로 떼어둠.
+			STC처리 추가  - ITERATE +<<+ ... +>>+ 과 +<+$...+.+  추가 
+			undefined_typedef 추가 (our로 정의 되지 않은 모양들에 대한 처리를 위한 부분임)
+4. 파일
+	./Makefile															1.6
+	./co_log_debug.stc													1.1
+	./co_log_main.stc													1.1
+	./define.upr														1.18
+	./structg.pl														1.45
+	./userfile.stg														1.29
+=============================================================================
+1. 날자 : 2006.05.25 (목)
+2. 작성자 : 이철주
+3. 내용  : 
+	- TEST Program (comformance test를 위해 만듦)
+		structg.pl등을 고친후에는 test.sh을 돌려서
+		memg hasho hashg timerN 에 대해서도 제대로 처리해주는지를 check할수 있음.
+		중간에 잘못되면 끝나는 현상이 나타남.
+4. 파일
+	./test.sh       	                                                1.1
+=============================================================================
+1. 날자 : 2006.05.25 (목)
+2. 작성자 : 이철주
+3. 내용  : 
+	- Short Name 처리
+		 SQL문 자동 생성 (*.sql) : Short_COMBI_  or Short_TIM_ 모양만을 처리 함.
+		 %flat_typdef_contents에 모든 내용 저장
+	 	 *.stg에서 %...% 으로 ShortName 생성 가능 : %..%이 없으면 그냥 기존 이름으로 처리
+	- 각 stg들에 대한 시험 완료 (make까지 수행 완료)
+		hash.stg hashg.stg hasho.stg memg.stg sip.stg timerN.stg userfile.stg
+4. 파일
+	./structg.pl                                                        1.43
+	./userfile.stg														1.24
+	./hash.stg															1.5
+	./hasho.stg															1.1
+	./hashg.stg															1.1
+	./memg.stg															1.1
+	./sip.stg															1.3
+	./timerN.stg														1.1
+=============================================================================
+1. 날자 : 2006.05.25 (목)
+2. 작성자 : 신영호
+3. 내용  : 
+	- X8 type 추가 -> %02X 로 찍게함. 
+	- print 시 [Index] 추가 -- bug 수정
+	- ToDo 
+		. dump lib를 추가하여 dump로 찍어야 함
+4. 파일
+	./structg.pl                                                        1.37
+=============================================================================
+1. 날자 : 2006.05.24 (수)
+2. 작성자 : 이철주
+3. 내용  : 
+	- STIME , MTIME : S32로 변경
+	- TIME64처리 추가 : STG_DiffTIME64
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_3_1_1_NTAM_Auto_2_Gen_CompileOK
+    -NTAM 2단계 기능 추가 (ora , make compile OK)
+        STG_HASH_KEY - 한개만 존재해야하며 , 맨 마지막에 들어가야 한다.
+            2개씩 분리하여 key, data를 만들고 , 최과장님의 요구에 따라 DATA는 퉁으로
+        STG_COMBINATION_TABLE  - 여러개가 가능하며 , p를 앞에 붙여서 pointer로 선언하여야 한다.
+            DIFF , EQUAL 구현 (Set_Combination_Once)
+            ACCUMULATION 구현 - 각 TIM_... 메시지가 들어올때마다 축적하게 설정
+
+4. 파일
+	./define.upr														1.16
+	./structg.pl														1.33
+	./userfile.stg														1.20
+=============================================================================
+1. 날자 : 2006.05.24 (수)
+2. 작성자 : 이철주
+3. 내용  : 
+	- NTAM 2단계 기능 추가
+		STG_HASH_KEY - 한개만 존재해야하며 , 맨 마지막에 들어가야 한다.
+			2개씩 분리하여 key, data를 만들고 , 최과장님의 요구에 따라 DATA는 퉁으로
+		STG_COMBINATION_TABLE  - 여러개가 가능하며 , p를 앞에 붙여서 pointer로 선언하여야 한다.
+			DIFF , EQUAL 구현 (Set_Combination_Once)
+			ACCUMULATION 구현 - 각 TIM_... 메시지가 들어올때마다 축적하게 설정
+	- structg.pl : NTAM 자동화 2단계를 위한  추가  
+		STG_HASH_KEY - 한개만 존재해야하며 , 맨 마지막에 들어가야 한다.
+		STG_COMBINATION_TABLE  - 여러개가 가능하며 , p를 앞에 붙여서 pointer로 선언하여야 한다.
+	- DEBUG.TXT에는 ===== Global Variables ===================== 이 있어서 사용할수 있는 모든 variable들의 값을 볼수 있음.
+		분석된 결과라고 생각하면 됨.
+	- define.upr : 여러가지 2단계를 위한 함수 정의 : STG...
+	- userfile.stg : NTAM자동화 2단계를 위한 
+		STG_HASH_KEY
+		STG_COMBINATION_TABLE  추가
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_3_1_0_NTAM_Auto_2_Gen
+	-NTAM 2단계 기능 추가
+4. 파일
+	./define.upr														1.15
+	./structg.pl														1.32
+	./userfile.stg														1.18
+=============================================================================
+1. 날자 : 2006.05.22 (월)
+2. 작성자 : 이철주
+3. 내용  : 
+	- NTAM 자동화 1단계 수행중
+		STG_HASH_KEY 추가 - 관련 structure들 자동 생성
+		TIME64 추가 (내부 정의를 해야 하나?)
+4. 파일
+	./define.upr														1.14
+	./structg.pl														1.30
+	./userfile.stg														1.14
+=============================================================================
+1. 날자 : 2006.05.19 (금)
+2. 작성자 : 이철주
+3. 내용  :
+	- 이상한 코드 제거 save_typedef...가 여러개
+	- use strict "vars"  사용 : 앞으로는 변수를 위에 선언하고 사용해야 함.
+	- Global 변수들 중에 중요한 것들을 print하게 하였음. 
+	  (추후에 이 값들을 이용하여 추가되는 기능 들을 수월하게 만들수 있음)
+4. 파일
+	./structg.pl														1.29
+=============================================================================
+1. 날자 : 2006.05.16 (화)
+2. 작성자 : 신영호
+3. 내용  :
+	- flat_ header파일에 pack(1), pack(0) 삽입
+4. 파일
+	./structg.pl														1.26
+=============================================================================
+1. 날자 : 2006.05.11 (목)
+2. 작성자 : 이철주
+3. 내용  :
+	- STIME관련 +STIME+등의 변화를 주는 내용을 여러개 할수 있게 s///g 라는 것을 사용
+	- $type_printPre 관련 에러 수정 
+4. 파일
+	./structg.pl														1.25
+=============================================================================
+1. 날자 : 2006.05.10 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- $(STG_DEBUG) 환경변수 추가 
+		. 이 환경 변수로 DEBUG 모드와 NO DEBUG 구분
+		. default(선언이 안되어 있으면 NO DEBUG)모드 
+		. export 로 선언해 놓으면 debug 모드
+4. 파일
+	./define.upr														1.13
+	./makefile.upr														1.7
+	./oramake.upr														1.3
+	./structg.pl														1.21
+=============================================================================
+1. 날자 : 2006.05.10 (수)
+2. 작성자 : 이철주
+3. 내용  :
+	- structg.pl
+		U64, S64 Print 하는 함수 추가
+		twin arguments의 함수 사용가능   : $type_twin_func{"U64"} = 1;
+			(ex. twin  NTOHL64(aaa,aaa); )
+			(ex. uni arg  :  aaa = ntohl(aaa);)
+	- define.upr : 
+		endian 관련 NTOH64 , NTOH32 추가 
+		FPRINTF 예전의 돌림 (dAppLog -> fprintf)
+4. 파일
+	./define.upr														1.12
+	./structg.pl														1.20
+=============================================================================
+1. 날자 : 2006.05.10 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- U64, S64 추가
+	- endian 변환 함수 define.upr에 선언. 
+4. 파일
+	./define.upr														1.11
+	./structg.pl														1.19
+=============================================================================
+1. 날자 : 2006.05.04 (목)
+2. 작성자 : 신은주
+3. 내용  :
+	- TIM_CFLOW_RANAP, _GMMSM ADD
+4. 파일
+	./userfile.stg														1.8
+=============================================================================
+1. 날자 : 2006.05.04 (목)
+1. 날자 : 2006.05.04 (목)
+2. 작성자 : 신영호
+3. 내용  :
+	- fprintf --> dAppLog로 변경
+	- KTF_IMS project에서 tag 사용 안하게 적용
+4. 파일
+	./userfile.stg														1.6
+	./define.upr 														1.9
+=============================================================================
+1. 날자 : 2006.05.04 (목)
+2. 작성자 : 신영호
+3. 내용  :
+	- TableName 수정 
+		TIM_IUPS (T : Table
+				  IM : Project Name
+				  IUPS : Protocol or 구간 )
+	- pc.upr : Table 명 parameter로 받게 수정 (XXX)
+	
+4. 파일
+	./pc.upr															1.5
+	./structg.pl														1.17
+
+	./pc.upr															1.6
+	./structg.pl														1.18
+	./userfile.stg														1.6
+=============================================================================
+1. 날자 : 2006.05.03 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- DEBUG flag 제외 makefile, oramake file 작성
+	- file은 각각 nodebug.mk, nodebugora.mk 로 만들어짐 (OUTPUT)
+4. 파일
+	./makefile_nodebug.upr												1.1
+	./oramake_nodebug.upr												1.1
+	./structg.pl														1.16
+=============================================================================
+1. 날자 : 2006.05.02 (화)
+2. 작성자 : 신영호
+3. 내용  :
+	- Oracle Makefile file와 일반 makefile 구분 (OraMake, Makefile)
+	- userfile.stg에 두개이상 struct정의해도 oracle lib생성 됨
+4. 파일
+	./oramake.upr														1.2
+	./userfile.stg														1.3
+	./structg.pl														1.15
+=============================================================================
+1. 날자 : 2006.04.25 (화)
+2. 작성자 : 이철주  
+3. 내용  :
+	- STIME (second time) type 추가
+		> ### STIME : 초 시간  (time_t)
+		> $type{"STIME"} = "time_t";
+		> $type_size{"STIME"} = 4;
+		> $type_func{"STIME"} = "ntohl";
+		> $type_printPre{"STIME"} = "S8 STG_PrintPre[1024]\; strftime(STG_PrintPre, 1024, \"\%Y \%m-\%d \%H:\%M \%S\", localtime((time_t *)&+STIME+))\;";
+		> $type_printM{"STIME"} = "STG_PrintPre";
+		> $type_printV{"STIME"} = "\%s";
+		> $type_define{"STIME"} = "time_t";
+	- OUTPUT
+   		{    S8 STG_PrintPre[1024]; strftime(STG_PrintPre, 1024, "%Y %m-%d %H:%M %S", localtime((time_t *)&pstThis->sTimeKey));
+       		FPRINTF(LOG_LEVEL,"_%s : pstThis->sTimeKey = %s\n",pcPrtPrefixStr,STG_PrintPre);
+   		}
+4. 파일
+	./define.upr														1.6
+	./structg.pl														1.14
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 이철주  
+3. 내용  :
+	- OFFSET type을 추가 함. (offset : int 로 추가하였음. %16d)
+4. 파일
+	./structg.pl														1.13
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 이철주  
+3. 내용  :
+	- define_stg.h 를 없애고 , FileName (*.h)안에 포함시킴 (flat_?.h 는 pc를 위해서만 별도 사용)
+	- 뭔칙 : 한개의 .h 와 한개의 .a 만을 가진다. 
+4. 파일
+	./structg.pl														1.12
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- Oracle Makefile file와 일반 makefile 구분 (OraMake, Makefile)
+4. 파일
+	./oramake.upr														1.1
+	./makefile.upr														1.5
+	./userfile.stg														1.5
+	./structg.pl														1.10
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- make pc 시 define 문제 해결 
+	flat_xxx.h에  xxx.h 을 include 시켰음. (flat.upr 변경으로)
+
+4. 파일
+	./flat.upr															1.2
+	./structg.pl														1.9
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 신영호
+3. 내용  :
+	- Makefile 
+		IN = userfile.stg로 변경 
+		사용자는 userfile.stg로 선언해야 한다.
+	- makefile.upr 수정 
+		.make all과 make pc 로 구분 
+		.make all은 .pc파일을 제외하고 library만듬.
+		.make pc는 .pc파일 포함해서 쨖ibrary만듬.
+	- pc.upr 수정
+		.include 추가 
+	- structg.pl 수정
+		.makefile.upr 수정에 따른 추가 
+4. 파일
+	./makefile.upr														1.2
+	./pc.upr															1.3
+	./structg.pl														1.8
+	./define.upr														1.4
+	./makefile.upr														1.3
+	./define.upr														1.5
+	./Makefile															1.5
+
+	./makefile.upr														1.4
+=============================================================================
+1. 날자 : 2006.04.12 (수)
+2. 작성자 : 이철주
+3. 내용  :
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - hashg 가 되게 했음.
+    - hashg와 structg의 연동 성공까지 (hashg에서 달아준 tag임)
+=============================================================================
+1. 날자 : 2006.04.11 (화)
+2. 작성자 : 이철주
+3. 내용  :
+	- structg.pl
+		IP4 $type_define에 추가
+	- hash.stg
+		[] 에 대해서는 처리 못함. (실제로 이렇게 사용하지 않음.)
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg
+	변화 : ProC 처리 / 전체적 모양 변경 
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+	- structg.pl 한개로 통합
+	- Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+	- hashg 가 되게 했음.
+4. 파일
+	./hash.stg    														1.4 - Binary
+	./structg.pl  														1.7
+=============================================================================
+1. 날자 : 2006.04.11 (화)
+2. 작성자 : 이철주
+3. 내용  :
+	- structg.pl
+		project hashg 의 내용이 되게끔 수정을 함.
+		cvs co hashg
+		makefile 생성
+4. 파일
+	./makefile.upr    													1.1 - Binary
+	./define.upr    													1.3 - Binary
+	./footer.upr    													1.3 - Binary
+	./structg.pl  														1.6
+=============================================================================
+1. 날자 : 2006.04.07 (금)
+2. 작성자 : 이철주
+3. 내용  :
+	- structg.pl
+		: [] [ ] [ 16] [17 ] [MAX] 등 처리 가능
+		: define.upr 처리 (그대로 읽어서 씀) - struct.pl안의 type들은 자동 정의
+4. 파일
+	./sip.stg    														1.1 - Binary
+	./structg.pl  														1.4
+	./define.upr    													1.2 - Binary
+=============================================================================
+1. 날자 : 2006.04.07 (금)
+2. 작성자 : 이철주
+3. 내용  : 통합 코드 
+	- structg.pl
+		: Makefile 자동 생성 (단지 file이름만)
+		: define.upr 처리 (그대로 읽어서 씀)
+		: *.pc file 자동 생성 
+		: define_stg.h 안에  extern으로 사용한 함수들 선언
+		: 결과는 OUTPUT directory밑에 생성  
+	- code_gen.pl , flat_hdr_gen.pl 삭제 -> structg.pl로 대체 
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_1_ENC_DEC_PRT_ProC
+	변화 : ProC 처리 / 전체적 모양 변경 
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+	- structg.pl 한개로 통합
+	- Makefile 자동 생성 
+4. 파일
+	./structg.pl  														1.3
+	./Makefile  														1.4
+	./define.upr    													1.1 - Binary
+	./pc.upr    														1.2 - Binary
+	./code_gen.pl  														DELETE
+	./flat_hdr_gen.pl  													DELETE
+=============================================================================
+1. 날자 : 2006.04.07 (금)
+2. 작성자 : 이철주
+3. 내용  (code_gen.pl + flat_hdr_gen.pl ==> structg.pl 한개로 합침)
+	- Doxyfile 추가 : doxygen을 수행할때 default conf 파일임 (내용은 structg.cfg와 같음)
+	- structg.cfg : *.pc도 처리하도록 바꿈
+	- structg.pl  : code_gen.pl + flat_hdr_gen.pl ==> 한개로 합침
+	- hash.stg : .pl 통합 작업으로 인한 내용 변경 (flatfilename은 자동으로 앞에 flat_ 이 붙게 함)
+	- Makefile : structg.pl 을 사용  
+	- pc.upr : ProC를 만들때 사용하는 것으로 오늘 이후 추가할 예정임. (미리 만들어둠) 
+
+    TAG : tagnanme : REL_CodeGenerator_0_0_0_2_0_0_ENC_DEC
+    - Decode/Encode/Print까지 처리
+    - Flat 처리
+	- structg.pl 한개로 통합
+4. 파일
+	./Doxyfile    														1.1 - Binary
+	./structg.cfg    													1.2 - Binary
+	./structg.pl  														1.1
+	./Makefile  														1.3
+	./hash.stg    														1.3 - Binary
+	./pc.upr															1.1 - Binary
+=============================================================================
+1. 날자 : 2006.04.06 (목)
+2. 작성자 : 이철주
+3. 내용
+	- flat_hdr_gen.pl안에서 기존에 []만 포함되면 수행 못한다고 했엇는데
+		struct ... xx[]으로 된 것만 수행을 못하고
+		U8 aaa[??] 과 같은 것은 수행을 할수 있게 함.
+		나오는 것도 stGtp_stAAA 등의 제대로 된 순서로 나오게 함.
+	- hash.stg 화일의 변경 : [] 되는 예제를 추가
+
+    TAG : tagnanme : REL_CodeGenerator_0_0_0_1_0_0_ENC_DEC
+    - Decode/Encode/Print까지 처리
+    - Flat 처리
+4. 파일
+	./flat_hdr_gen.pl  													1.4
+	./hash.stg    														1.2 - Binary
+	./tag.TXT  															1.1
+=============================================================================
+1. 날자 : 2006.04.03 (월)
+2. 작성자 : 이철주
+3. 내용
+	- char (*fn)(char,...) 과 같은 funciton 을 처리하게 하였음.
+		dec/enc/prt 모든 함수에 이 부분에 대한 처리는 하지 않는 것으로 한다.
+		대입하고 찍고 해봐야 아무 소용이 없기 때문이다.  
+4. 파일
+	./code_gen.pl  														1.4
+	./flat_hdr_gen.pl  													1.3
+	./header.upr														1.2 - Binary
+=============================================================================
+1. 날자 : 2006.04.03 (월)
+2. 작성자 : 이철주
+3. 내용
+	- define_stg.h 를 자동생성으로 바꿈
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .
+4. 파일
+	./Makefile    														1.2
+	./code_gen.pl  														1.3
+	./define_stg.h    													Removed
+	./typedef.upr    													1.1 - Binary
+=============================================================================
+1. 날자 : 2006.04.03 (월)
+2. 작성자 : 이철주
+3. 내용
+	- Comment 추가 
+		: *.pl에 대해서 comment를 형식에 가능한 맞추어 추가
+4. 파일
+	./README.TXT  														1.4
+	./code_gen.pl  														1.2
+	./flat_hdr_gen.pl  													1.2
+=============================================================================
+1. 날자 : 2006.03.31 (금)
+2. 작성자 : 이철주
+3. 내용
+	- INIT
+4. 파일
+	./Makefile    														1.1
+	./define_stg.h    													1.1
+	./hash.stg    														1.1 - Binary
+	./structg.cfg														1.1 - Binary
+	./HISTORY.TXT  														1.1 - Binary
+	./README.TXT  														1.1
+	./code_gen.pl  														1.1
+	./flat_hdr_gen.pl  													1.1
+	./flat.upr         													1.1 - Binary
+	./footer.upr    													1.1 - Binary
+	./function.upr  													1.1 - Binary
+	./header.upr														1.1 - Binary
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./structg/structg 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./structg 밑에서   
+
+cvs import -m "INIT" structg upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co structg 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

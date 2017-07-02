@@ -1,0 +1,135 @@
+
+날자 : 2006.04.06 (목)
+    TAG : tagnanme : REL_CodeGenerator_0_0_0_1_0_0_ENC_DEC
+    - Decode/Encode/Print까지 처리
+    - Flat 처리
+
+날자 : 2006.04.07 (금)
+    TAG : tagnanme : REL_CodeGenerator_0_0_0_2_0_0_ENC_DEC
+    - Decode/Encode/Print까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_1_ENC_DEC_PRT_ProC
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성
+
+날자 : 2006.04.11
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - hashg 가 되게 했음.
+
+날자 : 2006.04.12
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - hashg 가 되게 했음.
+    - hashg와 structg의 연동 성공까지 (hashg에서 달아준 tag임)
+
+날자 : 2006.05.19 (금)
+    TAG tagnanme : REL_CodeGenerator_0_0_0_3_0_0_For_base_STG_HASH
+    - STG_HASH 라는 것을 정의하기 위한 사전 작업 (기본적인 내용들은 마쳐진 상태)
+    - use strict "vars" 를 사용한 버젼
+
+날자 : 2006.05.24 (수)
+    TAG tagnanme : REL_CodeGenerator_0_0_0_3_1_0_NTAM_Auto_2_Gen
+	-NTAM 2단계 기능 추가
+		STG_HASH_KEY - 한개만 존재해야하며 , 맨 마지막에 들어가야 한다.
+			2개씩 분리하여 key, data를 만들고 , 최과장님의 요구에 따라 DATA는 퉁으로
+		STG_COMBINATION_TABLE  - 여러개가 가능하며 , p를 앞에 붙여서 pointer로 선언하여야 한다.
+			DIFF , EQUAL 구현 (Set_Combination_Once)
+			ACCUMULATION 구현 - 각 TIM_... 메시지가 들어올때마다 축적하게 설정
+	
+날자 : 2006.05.24 (수)
+    TAG tagnanme : REL_CodeGenerator_0_0_0_3_1_1_NTAM_Auto_2_Gen_CompileOK
+	-NTAM 2단계 기능 추가 (ora , make compile OK)
+		STG_HASH_KEY - 한개만 존재해야하며 , 맨 마지막에 들어가야 한다.
+			2개씩 분리하여 key, data를 만들고 , 최과장님의 요구에 따라 DATA는 퉁으로
+		STG_COMBINATION_TABLE  - 여러개가 가능하며 , p를 앞에 붙여서 pointer로 선언하여야 한다.
+			DIFF , EQUAL 구현 (Set_Combination_Once)
+			ACCUMULATION 구현 - 각 TIM_... 메시지가 들어올때마다 축적하게 설정
+
+날자 : 2006.05.29 (월)
+    TAG tagnanme : REL_CodeGenerator_0_0_0_4_0_1_NTAM_Auto_3_Gen_TestOK
+    -NTAM 3단계 기능 추가 (ora , make compile OK)
+		userfile.stg : 
+			TABLE_LOG , TABLE_CF ,  STG_COMBINATION_TABLE keyword 사용
+				TABLE_LOG : DB에 들어갈 테이블이며 계산이 되어짐
+				TABLE_CF : DB에 들어갈 테이블이지만, call flow관련된 것으로 계산되어지지 않음.
+				STG_COMBINATION_TABLE : DB에 들어갈 테이블이며 , 내부적으로 생성되는 것
+			STG_HASH_KEY keyword뒤에 위에서 선언한 typedef 이름을 넣으면 그 structure를 KEY Structure로 이용하게 됨. 
+		structg.pl :
+			GLOBAL.TXT로 stg의 분석 결과를 저장한 값들을 모아둔 화일을 따로 떼어둠.
+			STC처리 추가  - ITERATE +<<+ ... +>>+ 과 +<+$...+.+  추가 
+			undefined_typedef 추가 (our로 정의 되지 않은 모양들에 대한 처리를 위한 부분임)
+
+날자 : 2007.02.16 (금)
+    TAG tagnanme : FLOW_VERTEX_1_0_1_0
+		AQUA2 까지 활용한 내용....
+		TAG가 기존처럼 VERTEX 로만 구성되어지는 경우 
+
+날자 : 2007.02.16 (금)
+    TAG tagnanme : FLOW_VERTEX_EDGE_1_0_0_0
+		내용  : VERTEX와 EDGE로 구분되어 처리됨
+	   	 - make flow2 를 보면 됨.
+		   example : flow2.pstg
+
+
+날자 : 2007.03.20 
+    TAG tagnanme : Just_do_not_increasing_the_performance
+		내용  :  일단 저장 : 성능 개선 바로 이전의 단계
+		- IMS_KTF의 project를 위한 내용으로 현재까지는 제대로 모든 것이 돌아간다.
+		  그러나, stc를 돌리는데 시간이 매우 많이 걸린다.
+
+이 다음부터는 다음의 내용을 적용하기 위한 것이다. 시간을 비교하는 자료인다.
+data로는 "DB_SQL.stc" v1.1  를 기본으로 판단하는 값이다.
+
+
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 8 : 22 : 57
+structg (149) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 8 : 25 : 26
+structg (0) : Cchange ITERATE END 1 (len: 540637) (DB_SQL.stc) - 3-19-2007 : 8 : 25 : 26
+structg (184) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 8 : 28 : 30
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 8 : 28 : 30
+
+
+
+structg : Cchange START (DB_SQL.stc) - 3-19-2007 : 9 : 15 : 19
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 9 : 15 : 19
+structg (142) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 41
+structg (0) : Cchange ITERATE END 1 (len: 540637) (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 41
+structg (4) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 45
+structg (1) : Cchange ITERATE EQUAL END 3 (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 46
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 9 : 17 : 46
+structg : STC - 3-19-2007 : 9 : 17 : 46
+o
+
+
+
+structg : Cchange START (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (0) : Cchange ITERATE START 1 (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (0) : Cchange replace START 1 (DB_SQL.stc) - 3-19-2007 : 11 : 15 : 45
+structg (21) : Cchange ITERATE EQUAL END 1-1 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 6
+structg (1) : Cchange ITERATE EQUAL END 1-2 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 7
+structg (0) : Cchange ITERATE END 1 (len: 540635) (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 7
+structg (4) : Cchange ITERATE EQUAL END 2 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 11
+structg (1) : Cchange ITERATE EQUAL END 3 (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 12
+structg : Cchange END (DB_SQL.stc) - 3-19-2007 : 11 : 16 : 12
+
+
+이간이 위의 내용처럼 줄어듦을 볼수 있다.   
+	149  -> 142 -> 21 초 (replace를 고친 부분)
+	184 -> 4 -> 4  (EQUAL을 고친 부분)
+
+
+
+

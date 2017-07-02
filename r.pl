@@ -36,6 +36,8 @@ sub traverse_hash_tree {
 	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,$lstr,STDOUT);
 }
 
+
+# set the variables from file
 $filename = shift (@ARGV);
 open(FH, "<",$filename) or die "Can't open < $filename: $!";
 my $lcnt = 0 ;
@@ -52,6 +54,9 @@ while(<FH>){
 	#$lcnt++;
 }
 close(FH);
+
+
+
 foreach my $key (keys %hashName){
 	print "----[$key]----\n";
 	traverse_hash_tree(\%{$key},$key,"",STDOUT);

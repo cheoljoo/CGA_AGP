@@ -1,0 +1,161 @@
+#include	"m_log_extern.h"
+
+void Struct_Print(void)
+{
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+	printf("ITKEY	DEF_NUM(%d), size(%d)\n", ITKEY_DEF_NUM, ITKEY_SIZE);
++>>+
+}
+
+/** Message_Print function.
+ *
+ *  Debugging용 Print 함수
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, flat_ims_structg.h flat_ims_interface.h
+ *
+ *  @exception 	None
+ *  @note       Debugging을 위해 들어오는 메세지들의 필드들을 Print한다.
+ *
+**/
+void Message_Print(stCom_MsgQHeader *msgq)
+{
+	stCom_MsgQHeader_Prt("MsgQHdr", (stCom_MsgQHeader *)msgq);
+
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+	stFlat_ITKEY			astFlat_ITKEY;
++>>+
+
+	dAppLog(LOG_DEBUG, "ucGroup(%d), ucMsgID(%d)", msgq->ucGroup, msgq->ucMsgID);
+
+	switch (msgq->ucMsgID) {
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+		case ITKEY_DEF_NUM:
+				memset(&astFlat_ITKEY, 0x0, stFlat_ITKEY_SIZE);
+				memcpy(&astFlat_ITKEY, &msgq->szBody, stFlat_ITKEY_SIZE);
+				ITKEY_Dec((ITKEY *)&astFlat_ITKEY, (ITKEY *)&astFlat_ITKEY);
+				ITKEY_Prt("stFlat_ITKEY", (ITKEY *)&astFlat_ITKEY);
+				break;
+
++>>+
+		default:
+				break;
+	}
+}
+
+/** ExecuteTest function.
+ *
+ *  M_LOG Test 함수
+ *
+ *  @param      None
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, flat_ims_structg.h flat_ims_interface.h
+ *
+ *  @exception 	None
+ *  @note       Test 메세지를 만들어 CO_LOG 프로세서 처리 상태를 Test한다.
+ *
+**/
+void ExecuteTest(int R_Qid)
+{
+	int		i, w_fp, dRet;
+	struct timeval tm;
+
+	STG_ucTMSI_llTime		aSTG_ucTMSI_llTime;
+	STG_ucIMSI_ucTMSI		aSTG_ucIMSI_ucTMSI;
+	STG_uiIP_ucIMSI			aSTG_uiIP_ucIMSI;
+
+	stCom_MsgQHeader		msg_h;
+
+	CF	 			aCF;
+	CF_GMMSM	 			aCF_GMMSM;
+	CF_RANAP	 			aCF_RANAP;
+	LOG_IUPS	 			aLOG_IUPS;
+
+for (i=1;i <= 5; i++) {
+
+	// CFLOW
+	memset(&msg_h, 0x0, stCom_MsgQHeader_SIZE);
+	msg_h.usType = 1000;
+	msg_h.ucSvcID = SID_LOG;
+	msg_h.ucMsgID = CF_DEF_NUM;
+	msg_h.ucGroup = 0x01;
+	msg_h.usBodyCount = 1;
+	msg_h.usBodyLen = CF_SIZE;
+
+	gettimeofday(&tm, NULL);
+
+	memset(&aCF, 0x0, CF_SIZE);
+
+	sprintf(aCF.stgCoInfo.ucTMSI, "tmsi_%d", i);
+	aCF.usPrototype = 1;
+	aCF.usMsgType = 1;
+	aCF.usRange = 1;
+	aCF.uiSessStartTime = tm.tv_sec;
+	aCF.uiSessStartMTime = tm.tv_usec;
+
+	CF_Enc(&aCF, &aCF);
+
+	memcpy(&msg_h.szBody, &aCF, CF_SIZE);
+
+	dRet = msgsnd(R_Qid, &msg_h, stCom_MsgQHeader_SIZE, 0);
+	if (dRet < 0) {
+		printf("ERR: msgsnd(%d)\n", dRet);
+		exit(-1);
+	}
+
+	// GMMSM
+	memset(&msg_h, 0x0, stCom_MsgQHeader_SIZE);
+	msg_h.usType = 1000;
+	msg_h.ucSvcID = SID_LOG;
+	msg_h.ucMsgID = CF_GMMSM_DEF_NUM;
+	msg_h.ucGroup = 0x01;
+	msg_h.usBodyCount = 1;
+	msg_h.usBodyLen = CF_GMMSM_SIZE;
+
+	gettimeofday(&tm, NULL);
+
+	memset(&aCF_GMMSM, 0x0, CF_GMMSM_SIZE);
+
+	sprintf(aCF_GMMSM.stgCoInfo.ucTMSI, "tmsi_%d", i);
+	aCF_GMMSM.uiSessStartTime = tm.tv_sec;
+	aCF_GMMSM.uiSessStartMTime = tm.tv_usec;
+
+	CF_GMMSM_Enc(&aCF_GMMSM, &aCF_GMMSM);
+
+	memcpy(&msg_h.szBody, &aCF_GMMSM, CF_GMMSM_SIZE);
+
+	dRet = msgsnd(R_Qid, &msg_h, stCom_MsgQHeader_SIZE, 0);
+	if (dRet < 0) {
+		printf("ERR: msgsnd(%d)\n", dRet);
+		exit(-1);
+	}
+
+	// IUPS
+	memset(&msg_h, 0x0, stCom_MsgQHeader_SIZE);
+	msg_h.usType = 1000;
+	msg_h.ucSvcID = SID_LOG;
+	msg_h.ucMsgID = LOG_IUPS_DEF_NUM;
+	msg_h.ucGroup = 0x01;
+	msg_h.usBodyCount = 1;
+	msg_h.usBodyLen = LOG_IUPS_SIZE;
+
+	gettimeofday(&tm, NULL);
+
+	memset(&aLOG_IUPS, 0x0, LOG_IUPS_SIZE);
+
+	sprintf(aLOG_IUPS.stgCoInfo.ucIMSI, "imsi_%d", i);
+
+	LOG_IUPS_Enc(&aLOG_IUPS, &aLOG_IUPS);
+
+	memcpy(&msg_h.szBody, &aLOG_IUPS, LOG_IUPS_SIZE);
+
+	dRet = msgsnd(R_Qid, &msg_h, stCom_MsgQHeader_SIZE, 0);
+	if (dRet < 0) {
+		printf("ERR: msgsnd(%d)\n", dRet);
+		exit(-1);
+	}
+}
+}

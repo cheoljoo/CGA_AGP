@@ -1,0 +1,111 @@
+FileName : ASN_PER.c
+Set : iterate_comments = ON
+Set : filelist{STC/ASN_PER.c} = "CFILE"
+
+
+#include "hashg.h"
+
+/**		file  ASN_PER.c
+ *      - +Intro+
+ *
+ *     Copyright (c) 2006~ by Upresto Inc, Korea
+ *     All rights reserved
+ *
+ *		$Id: ASN_PER.stc,v 1.5 2007/04/18 05:58:08 cjlee Exp $
+ * 
+ *     @Author      $Author: cjlee $
+ *     @version     $Revision: 1.5 $
+ *     @date        $Date: 2007/04/18 05:58:08 $
+ *     @ref         ASN_PER.c
+ *     @todo        
+ *
+ *     @section     Intro(¼Ò°³)
+ *      - +Intro+
+ *
+ *     @section     Requirement
+ *      @li +Requirement+
+ *
+ **/
+
+
+Set : function_def{ASN_PER_RANAP_Get_String_From_Desc_Num} = "char * ASN_PER_RANAP_Get_String_From_Desc_Num(U32	desc_num)"
+char * ASN_PER_RANAP_Get_String_From_Desc_Num(U32	desc_num)
+{
+
+	switch(desc_num){
+ITERATE @desc_def +<<+ ITKEY ITVALUE
+		case ITKEY:
+			return "ITVALUE";
++>>+
+		default:
+			return NULL;
+	}
+	return NULL;
+}
+
+
+ITERATE %SQL_ASN_PER_STG_TYPEDEF +<<+ ITKEY ITVALUE
+Set : function_def{ASN_PER_ITKEY_hashg_init} = "void* ASN_PER_ITKEY_hashg_init()"
+void* ASN_PER_ITKEY_hashg_init()
+{
+	stHASHGINFO *pstHASHGINFO;
+	STRING	descs[DESC_MAX_SIZE];
+	ASN_PER_HASH_DATA  aASN_PER_HASH_DATA;
+	ITKEY	aITKEY;
+
+	pstHASHGINFO = hashg_init(0, DESC_MAX_SIZE , 0, sizeof(ASN_PER_HASH_DATA), 1000 /**<hash size */);
+
+ITERATE %ANALYSIS_ITKEY_STG_PARM_ASN_PER +<<+ IT2KEY IT2VALUE
+	// add IT2VALUE to hash (IT2KEY , IT2VALUE)	+<+$ANALYSIS_ITKEY_array{IT2KEY}+>+
+	memset(descs,0x0,DESC_MAX_SIZE);
+	sprintf(descs,"%s","IT2VALUE");
+
+	IFEQUAL(+<+$ANALYSIS_ITKEY_array{IT2KEY}+>+,YES) #{
+	aASN_PER_HASH_DATA.offset =  (S32) ((U8 *) (aITKEY.IT2KEY)-(U8 *) &aITKEY); 
+	}#
+	NOTEQUAL(+<+$ANALYSIS_ITKEY_array{IT2KEY}+>+,YES) #{
+	aASN_PER_HASH_DATA.offset =  (S32) ((U8 *) &(aITKEY.IT2KEY)-(U8 *) &aITKEY); 
+	}#
+
+	IFEQUAL(+<+$ANALYSIS_ITKEY_array{IT2KEY}+>+,YES) #{
+	aASN_PER_HASH_DATA.type = ASN_PER_MEMCPY;
+	}#
+	NOTEQUAL(+<+$ANALYSIS_ITKEY_array{IT2KEY}+>+,YES) #{
+	aASN_PER_HASH_DATA.type = ASN_PER_EQUAL;
+	}#
+
+	IFEQUAL(+<+$ANALYSIS_ITKEY_STG_PARM_ASN_PER_FUNC{IT2KEY}+>+,) #{
+	aASN_PER_HASH_DATA.func = NULL;
+	}#
+	NOTEQUAL(+<+$ANALYSIS_ITKEY_STG_PARM_ASN_PER_FUNC{IT2KEY}+>+,) #{
+	aASN_PER_HASH_DATA.func = +<+$ANALYSIS_ITKEY_STG_PARM_ASN_PER_FUNC{IT2KEY}+>+ ;
+	}#
+
+
+	hashg_add(pstHASHGINFO,(U8 *)descs,(U8 *)&aASN_PER_HASH_DATA);
+
+
+
++>>+
+
+	return pstHASHGINFO;
+}
+
++>>+
+
+
+Set : function_def{asn_per_buff} =  "char *asn_per_buff"
+char *asn_per_buff;
+
+Set : function_def{asn_per_hash} =  "void *asn_per_hash"
+void *asn_per_hash;
+
+Set : function_def{ASN_PER_Set_Buffer} = "void ASN_PER_Set_Buffer(char *p, void *hash)"
+void ASN_PER_Set_Buffer(char *p, void *hash)
+{
+	asn_per_buff = p;
+	asn_per_hash = hash;
+}
+
+
+

@@ -1,0 +1,58 @@
+
+
+
+#ifndef _STG_PROC_
+#define _STG_PROC_
+#include    <sqlca.h>
+#include    <oraca.h>
+#include 	"+HEADER+"
+#endif
+
+/** DBInsert_+TableName+ function.
+ *
+ *  +Intro+
+ *
+ * 	@param   dCount	 	Structure의 연속된 갯수 
+ * 	@param   pstData	+TableName+ 으로 선언된 pointer
+ * 	@param   pszName	Table명의 DAY 값  : +TableName+_%s
+ * 	@param   pdErrRow	Error 번호 
+ *
+ *  @return     0 : Success , Negative : Fail
+ *  @see        +TableName+
+ *
+ *  @Warning  	DB Table의 마지막에 (sysdate,'YYYYMMDDHH24MISS') 을 꼭 추가해주어야 한다. \n v? 마지막 번호와 field의 수가 맞는지 정도는 약간 확인해 주기 바란다. (혹시 모르니) 
+ *  @note       DB의 실제 TableName 앞에 st를 붙여서 typdef strct ... { } TableName; 으로 만들어주어야 한다.
+ **/
++Function_Definition+
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+	int         dRet;
+	char        szSqlStmt[1024 * 3];
+	EXEC SQL END DECLARE SECTION;
+
+	oraca.orastxtf = ORASTFERR;
+	*pdErrRow = 0;
+
+	if (pszName) {
+		sprintf(szSqlStmt, "INSERT INTO +SmallTableName+ VALUES ( +DB_Table_Field_Name+  to_char(sysdate,'YYYYMMDDHH24MISS'))",
+					 pszName);
+	} else {
+		sprintf(szSqlStmt, "INSERT INTO +SmallTableName_a+ VALUES ( +DB_Table_Field_Name+  to_char(sysdate,'YYYYMMDDHH24MISS'))");
+	}
+
+	EXEC SQL DECLARE INSERT_+TableName+ STATEMENT;
+	EXEC SQL PREPARE INSERT_+TableName+ FROM :szSqlStmt;
+	EXEC SQL FOR :dCount EXECUTE INSERT_+TableName+ USING
+			:pstData;
+
+	dRet = sqlca.sqlcode;
+	if(dRet < 0)
+	{
+			*pdErrRow = sqlca.sqlerrd[2];
+			EXEC SQL ROLLBACK WORK;
+			return dRet;
+	}
+	EXEC SQL COMMIT WORK;
+
+	return 0;
+}

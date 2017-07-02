@@ -1,0 +1,46 @@
+FileName : STAT_ALL.h
+Set : iterate_comments = ON
+
+/**
+*** 	STG_ASSOCIATION 중에서
+***	@STG_TYPEDEF:STG_STAT_TABLE:YES@ 라고 선언 한 것에 대한 것만 처리해주는 부분이다.
+*/
+
+typedef struct __STAT_ALL {
+ITERATE %SQL_STG_STAT_TABLE_STG_TYPEDEF +<<+ ITKEY ITVALUE
+	ITKEY		aITKEY;
++>>+
+} STAT_ALL;
+#define stFlat_ITKEY_SIZE sizeof(stFlat_ITKEY)
+
+
+ASSOCIATION_STAT_ALL(STAT_WCDMA_SIPNTE_MIN *pthis , int type , char *p)
+{
+	switch(type){
+ITERATE %ANALYSIS_TYPEDEF  +<<+ 	ITKEY    ITVALUE
+	case ITKEY_DEF_NUM:
+	ITERATE %ANALYSIS_STG_STAT_TABLE_STG_TYPEDEF +<<+ IT2KEY IT2VALUE
+	NOTEQUAL(+<+$ASSOCIATION_IT2KEY{ITKEY}+>+,) #{
+		ASSOCIATION_IT2KEY_with_ITKEY( &(pthis->aIT2KEY) , (ITKEY *) p);
+	}#
+	+>>+
+		break;
++>>+
+	default:
+		break;
+	}
+
+	/**<  Add the Once Functions : Start */
+ITERATE %ANALYSIS_STG_STAT_TABLE_STG_TYPEDEF  +<<+  ITKEY    ITVALUE
+        ITERATE %ASSOCIATION_OTHERS_ITKEY_pthis_func  +<<+  IT2KEY    IT2VALUE
+        IFEQUAL(+<+$ASSOCIATION_OTHERS_ITKEY_pthis_pri{IT2KEY}+>+,FIRST) if(! +<+$ASSOCIATION_OTHERS_ITKEY_pthis_check{IT2KEY}+>+){ IT2VALUE }
+        IFEQUAL(+<+$ASSOCIATION_OTHERS_ITKEY_pthis_pri{IT2KEY}+>+,LAST) IT2VALUE
+        +>>+
++>>+
+	/**<  Add the Once Functions : End */
+
+	return 0;
+
+}
+
+

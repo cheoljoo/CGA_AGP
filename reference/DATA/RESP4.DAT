@@ -1,0 +1,27 @@
+HTTP/1.1 200 OK
+KTF_HTTP_KEY:FF4B7F1CED5F63A3;RQSIZE=632;RSSIZE=4038
+Server: Microsoft-IIS/5.0
+Date: Tue, 05 Sep 2006 07:05:51 GMT
+CPdata: cpname=k_ktf;svccode=w_lucktv000
+CPdata: cpname=k_ktf;svccode=w_lucktv000
+Pragma: no-cache
+Cache-control: no-cache, must-revalidate
+Content-Length: 3619
+Content-Type: text/html
+Set-Cookie: ASPSESSIONIDQARCDBSD=HLDAKBKALGIGLHDGOIBDLHJP; path=/
+Cache-control: private
+
+
+<html>
+ 
+ 
+<body text="#000000" link="#000000"alink="#090909" blink="#66FF00">
+<img src="/loc/240_tv.sis"/>
+  <br />
+ <table width="100%" border="0" cellspacing="1" cellpadding="0">
+ <tr><td><a href="http://ktfwipidcinfo.magicn.com:8081/appdtinfo.asp?&svcty
+pe=01&history=http://ktfwipidc.magicn.com/page/74879.asp`홈;&appid=01029EC2&appname=라이브고화질TV&pid=1041&hurl=http://ktfwipidc.magicn.com/page/74879.asp" focus="yes"><img src="/loc/240_live.sis"></a></td>
+     <td><a href="http://ktfwipidcinfo.magicn.com:8081/appdtinfo.asp?svctype=01&history=http://ktfwipidc.magicn.com/page/24371.asp`홈;&appid=01020811&appname=사주닷컴&pid=1041&hurl=http://ktfwipidc.magicn.com/page/74878.asp"><img src="/loc/240saju.sis"></a></td>
+     <td><a href="http://ktfwipidcinfo.magicn.com:8081/appdtinfo.asp?svctype=01&history=http://ktfwipidc.magicn.com/page/74878.asp`홈;&appid=010267CB&appname=천하운세대가&pid=1041&hurl=http://ktfwipidc.magicn.com/page/74878.asp"><img src="/loc/240천하.sis"></a></td>
+ </tr>
+</table>

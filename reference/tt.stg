@@ -1,0 +1,148 @@
+FileName : aqua.h
+STC_FileName : cilog.stc
+
+#include <hasho.h>
+#include <timerN.h>
+#include <mems.h>
+#include <nifo.h>
+#include <db.h>
+
+STG_ASSOCIATION typedef struct _stg_common {
+ 	STIME 		uiCallTime:STG_Equal(pLOG_COMMON->uiCallTime):FIRST;		$$CILOG_HIDDEN$$
+ 	MTIME		uiCallMTime:STG_Equal(pLOG_COMMON->uiCallMTime):FIRST;
+ 
+ <TAG_KEY>
+ 	IP4 		uiClientIP:STG_Equal(pLOG_COMMON->uiClientIP):FIRST;
+ </TAG_KEY>
+ 	IP4			uiNASName: STG_Equal(pLOG_COMMON->uiNASName): FIRST;
+ 	U32			usSID:STG_Equal(pLOG_COMMON->usSID):FIRST;
+ 	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE]: STG_Equal( pLOG_COMMON->szBrowserInfo): FIRST;
+ 	U8			szModel[MAX_MODEL_SIZE]: STG_Equal( pLOG_COMMON->szModel): FIRST;
+ 	U8			szSvcOption[MAX_SVCOPTION_SIZE]: STG_Equal( pLOG_COMMON->szSvcOption): FIRST;
+ 	U8			szMIN[MAX_MIN_SIZE]: STG_Equal( pLOG_COMMON->szMIN): FIRST;
+ } LOG_COMMON;
+
+STG_LOG_TEXT_PARSING typedef struct _st_CONF_MN {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:MN			\([ \t]*MN
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+    IP4     CIP;          #PARSING_RULE:^^:GRASP:^^:<MN>IP={VALUE}#
+</TAG_KEY>
+
+    IP4     NetMask;        #PARSING_RULE:^^:GRASP:^^:<MN>Mask={VALUE}#
+} MN_CONF;
+
+typedef struct _st_TCP_SESS_KEY {
+	IP4				uiSIP;				/**< Source IP */
+	IP4				uiDIP;				/**< Destination IP */
+	U16				usSPort;			/**< Source Port */
+	U16				usDPort;			/**< Destination Port */
+	U8				szReserved[4];		/**< Reserved */
+} TCP_SESS_KEY;
+
+TABLE_LOG typedef struct _st_Tcp_Sess_Log {
+	/* <STG_COMMON:LOG_COMMON> */
+ 	STIME 		uiCallTime;  /**<  STG_Equal(pLOG_COMMON->uiCallTime):FIRST */
+ 	MTIME		uiCallMTime;  /**<  STG_Equal(pLOG_COMMON->uiCallMTime):FIRST */
+ 	IP4 		uiClientIP;  /**<  STG_Equal(pLOG_COMMON->uiClientIP):FIRST */
+ 	IP4			uiNASName;  /**<   STG_Equal(pLOG_COMMON->uiNASName): FIRST */
+ 	U32			uiBaseID;  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}#  STG_Equal(pLOG_COMMON->uiBaseID): FIRST */
+ 	U32			usNID;  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>NID:{DIGIT}# STG_Equal(pLOG_COMMON->usNID):FIRST  */
+ 	U32			usSID;  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}# STG_Equal(pLOG_COMMON->usSID):FIRST */
+ 	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE];  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<BROWSER_INFO>{STR}:^^:Get_Detailed_Browser_Info#  STG_Equal( pLOG_COMMON->szBrowserInfo): FIRST */
+ 	U8			szModel[MAX_MODEL_SIZE];  /**<   STG_Equal( pLOG_COMMON->szModel): FIRST */
+ 	U8			szSvcOption[MAX_SVCOPTION_SIZE];  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_CHANNEL_INFO>{STR}#  STG_Equal( pLOG_COMMON->szSvcOption): FIRST */
+ 	U8			szMIN[MAX_MIN_SIZE];  /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change#  STG_Equal( pLOG_COMMON->szMIN): FIRST */
+
+
+	U16		<TAG_DEFINE:PLATFORMTYPE>usPlatformType;				/**< usSvcL4Type / 1000 * 1000 */
+	DEF		<TAG_DEFINE:L4CODE>usSvcL4Type;				/**< IP, PORT로 판단한 Service type */
+} LOG_TCP_SESS;
+
+STG_LOG_TEXT_PARSING typedef struct _st_Http_Log {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*GET[ \t]+
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*POST[ \t]+
+	STATE	WIPI_REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:COUNTER				COUNTER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:BROWSER_INFO				User-Agent[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_CHANNEL_INFO		CHANNEL_INFO[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_NUMBER				HTTP_PHONE_NUMBER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:CDU				CDU[ \t]*:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:HTTP			^[ \t]*HTTP[/.0-9]+[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CPDATA					CPdata:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:LOCATION				Location:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:BILLINFO				BILL_INFO:[ \t]*
+	TOKEN	STR 				[^\r\n]+
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&;: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+
+	/* <STG_COMMON:LOG_COMMON> */
+ 	STIME 		uiCallTime;   /**< STG_Equal(pLOG_COMMON->uiCallTime):FIRST */
+ 	MTIME		uiCallMTime;   /**< STG_Equal(pLOG_COMMON->uiCallMTime):FIRST */
+ 	IP4 		uiClientIP;   /**< STG_Equal(pLOG_COMMON->uiClientIP):FIRST */
+ 	IP4			uiNASName;   /**<  STG_Equal(pLOG_COMMON->uiNASName): FIRST */
+ 	U32			uiBaseID;  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}# /**<  STG_Equal(pLOG_COMMON->uiBaseID): FIRST */
+ 	U32			usNID;  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>NID:{DIGIT}# /**< STG_Equal(pLOG_COMMON->usNID):FIRST  */
+ 	U32			usSID;  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}# /**< STG_Equal(pLOG_COMMON->usSID):FIRST */
+ 	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE];  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<BROWSER_INFO>{STR}:^^:Get_Detailed_Browser_Info# /**<  STG_Equal( pLOG_COMMON->szBrowserInfo): FIRST */
+ 	U8			szModel[MAX_MODEL_SIZE];   /**<  STG_Equal( pLOG_COMMON->szModel): FIRST */
+ 	U8			szSvcOption[MAX_SVCOPTION_SIZE];  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_CHANNEL_INFO>{STR}# /**<  STG_Equal( pLOG_COMMON->szSvcOption): FIRST */
+ 	U8			szMIN[MAX_MIN_SIZE];  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change# /**<  STG_Equal( pLOG_COMMON->szMIN): FIRST */
+} LOG_HTTP_TRANS;
+
+STG_LOG_TEXT_PARSING typedef struct _st_url_analysis {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	URL_S:^^:URL_T		[?]+
+	TOKEN	VALUE 				[^?=&;: \t\r\n]+
+
+	U8		MenuID[MAX_MENUID_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>MenuID={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>appId={VALUE}#
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>applicationid={VALUE}#
+			/**< VOD/Dosirak => Menu ID 
+			  BREW ADS/PAS-BREW => :Application ID
+			  WIPI MARS => Application ID */			/* will be implementing */
+	U8		szSvcAction[MAX_SVCACTION_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>SvcType={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>action={VALUE}#
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>c={VALUE}#
+			/**< VOD/Dosirak => SvcType 
+			  BREW ADS/PAS-BREW => getFile
+			  WIPI MARS => 요청 코드 */			/* will be implementing */
+	U8		ContentID[MAX_CONTENTID_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>id={VALUE}# 
+							/**< VOD/Dosirak Download인 경우 Contents ID : return BODY안의 URL안에 */ 
+	U8		CATID[MAX_CATID_SIZE];		#PARSING_RULE:^^:URL_S:^^:<URL_T>pkgID={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>productid={VALUE}#
+			/**< VOD/Dosirak Download 인 경우 CATID : resp hdr BILL_INFO
+			  BREW ADS/PAS-BREW Type 인 경우 PKGID pkgID=
+			  WIPI MARS인 경우 product ID : productid= */
+} URL_ANALYSIS;
+
+STG_ASSOCIATION typedef struct _st_Page_Log {
+	/* <STG_COMMON:LOG_COMMON> */
+ 	STIME 		uiCallTime:STG_Equal(pLOG_COMMON->uiCallTime):FIRST; /**<  */
+ 	MTIME		uiCallMTime:STG_Equal(pLOG_COMMON->uiCallMTime):FIRST; /**<  */
+ 	IP4 		uiClientIP:STG_Equal(pLOG_COMMON->uiClientIP):FIRST; /**<  */
+ 	IP4			uiNASName: STG_Equal(pLOG_COMMON->uiNASName): FIRST; /**<  */
+ 	U32			uiBaseID: STG_Equal(pLOG_COMMON->uiBaseID): FIRST; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}# */
+ 	U32			usNID:STG_Equal(pLOG_COMMON->usNID):FIRST ; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>NID:{DIGIT}# */
+ 	U32			usSID:STG_Equal(pLOG_COMMON->usSID):FIRST; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}# */
+ 	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE]: STG_Equal( pLOG_COMMON->szBrowserInfo): FIRST; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<BROWSER_INFO>{STR}:^^:Get_Detailed_Browser_Info# */
+ 	U8			szModel[MAX_MODEL_SIZE]: STG_Equal( pLOG_COMMON->szModel): FIRST; /**<  */
+ 	U8			szSvcOption[MAX_SVCOPTION_SIZE]: STG_Equal( pLOG_COMMON->szSvcOption): FIRST; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_CHANNEL_INFO>{STR}# */
+ 	U8			szMIN[MAX_MIN_SIZE]: STG_Equal( pLOG_COMMON->szMIN): FIRST; /**< #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change# */
+} CALL_SESSION_HASH_DATA;
+
+

@@ -1,0 +1,83 @@
+#
+# $Id: makefile_nodebug.upr,v 1.1 2006/05/03 00:29:16 yhshin Exp $
+#
+
+
+SHELL 	= /bin/sh
+
+CC 		= gcc
+AR 		= ar 
+RM 		= /bin/rm
+MV 		= /bin/mv
+DEPEND	= makedepend
+LINT 	= lint
+INSTALL = install
+
+TOP_BIN = 
+
+INCLUDES=  +INCLUDES+
+DEFINES = 
+OPTIMIZE= -O
+DEBUG   = -g3 -DDEBUG -Wall 
+
+CFLAGS 	= $(OPTIMIZE) $(INCLUDES) $(DEFINES)
+SFLAGS 	= $(INCLUDES) $(DEFINES)
+DEPOPTS = $(INCLUDES) $(DEFINES) 
+
+HDRS 	= +HDRS+
+
+SRCS 	= +SRCS+
+
+TARGET 	= +TARGET+
+
+OBJS 	= $(SRCS:.c=.o)
+
+#
+#-----------------------------------------------------------
+#
+
+#
+.SUFFIXES: .c .s s.o c.o p.o q.o .i .u .H
+.s.o:
+	$(CC) $(CFLAGS) -c $<
+.c.s:
+	$(CC) $(SFLAGS) -S $<
+.c.u:
+	$(CC) $(CFLAGS) -j $<
+.c.i:
+	$(CC) $(CFLAGS) -P $<
+
+all: $(TARGET) $(HADS)
+
+$(TARGET): $(SRCS) $(HDRS) $(OBJS) 
+	$(RM) -f $@
+	$(AR) clq $@ $(OBJS)
+	$(AR) ts $@ 
+	$(MV) $@ ../../
+	$(MV) *.h ../../
+
+
+clean:
+	$(RM) -f *.s *.u *.o *.i core $(TARGET)
+
+depend: $(SRCS)
+	$(DEPEND) -o.o -f Makefile -- $(DEPOPTS) -- $(SRCS)
+
+lint:
+	$(LINT) $(INCLUDES) -h -v -a -u -x -m $(SRCS)
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+
+#
+# $Log: makefile_nodebug.upr,v $
+# Revision 1.1  2006/05/03 00:29:16  yhshin
+# nodebug makefile
+#
+# Revision 1.2  2006/03/19 01:06:28  yhshin
+# pc용과 일반용으로 구분
+#
+# Revision 1.1  2006/03/19 00:13:28  yhshin
+# structg lib add
+#
+#

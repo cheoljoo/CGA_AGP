@@ -1,0 +1,144 @@
+FileName : Bit.h
+STC_FileName : cilog.stc
+
+SET_DEF_START_NUM : 120
+
+
+
+/**
+ * 	@brief TIM_IUPS : IUPS 구간 Log Structure.
+ *
+ *	A_RANAP에서 NTAM으로 전송되는 데이터
+ *	
+ *	@see	iups.h
+ *	@node	+Note+
+ */
+typedef struct _st_IUPS_Sess_Cnt {
+	S32			Calltrycnt;					/**< 호 try count, SM service request 수신시 */
+	BIT8			a1 (1: TOS);				/**< TOS의 첫번째 bit */
+	BIT8			b (4: TOS);
+	BIT8			ctime (3 : TOS);			/**< TOS 마지막 3개의 bit */
+	S32			Callfailcnt;				/**< 호 fail count, 타임아웃경우  */
+	S32			Callendcnt;					/**< 호 release count, RANAP release message 수신시 */
+} stIUPSCnt;
+
+/* bit관련 처리는
+ * TABLE에서는 어떻게 처리를 해주게 되는가?
+ */
+
+#define DEF_SIZE_SESSIONID  20
+typedef struct _st_Iups_Sess_Log {
+	U8			SessionID [DEF_SIZE_SESSIONID];	/**< SCCP Session ID */
+	U16			RANAPCause;				/**< 상태 코드 */
+	U16			SMCause;					/**< 상태 코드 */
+	U16			PDPType;					/**< IP or PPP */
+	BIT16			a1 (1 : PING);				/**< TOS의 첫번째 bit */
+	BIT16			ctime (12 : PING);			/**< TOS 마지막 3개의 bit */
+	BIT16			b ( 3 : PING);
+	S32			DurSetupTime;				/**< IP을 얻을 때까지 걸린 시간 */
+	S32			DurReleaseTime;			/**< 호 종료시 발생된 시간 */
+	S32			DurActPDPTime;				/**< Activation PDP 걸린 시간 */
+	S32			DurDeActPDPTime;			/**< DeActivation PDP 걸린 시간 */
+	S32			Direction;					/**< UP/DOWN */
+    stIUPSCnt	stIupsCnt;	%TTTTT__%				/**< IUPS 호 분석정보 */
+} LOG_IUPS;
+
+
+/* 
+	BIT			a1 (1/16 : PING);		
+	BIT			ctime (12/16 : PING);	
+	BIT			b (3/16 : PING);
+	이것을 다음과 같이 바꿔주어야 할 것이다.
+
+	a1
+	ctime 
+	b 
+	라고 할때, 이 값들을 TABLE 의 필드 에 대해서 정의해주어야 할 것이다.
+
+	일단 같은 이름에 대해서는 순서를 바꿔준다.
+	TABLE로 만들어지는 내용은 이 값을 대치하는 값이 만들어질 확률이 커질 것으로 보이며,
+	혹시 처리를 하드라도 , int로 그냥 잡아서 넣는 것도 한개의 방법이라고 생각한다.
+
+	flat관련은 여기서는 빼기로 한다. 
+	1. 결론
+	- TABLE_LOG로 선언하는 것에는 BIT를 선언하지 않는다.
+	- 위에서 typdef로 그냥 선언한 것들에서만 이것을 필요로 하면 될 것이고,
+	- Binary를 정의하는 곳에서만 BIT를 사용하면 되며, 
+	- 그 값이 들어가는 것들에만 TABLE_LOG를 붙여서 사용하면 될 것으로 보인다. OK  GOOD  하하하..
+
+	2.현재 sturctg에서는 flat_save... ()를 수용한다. 
+	- 그러나, BIT가 들어갈때는 BIT가 아닌 것으로만 처리를 하면 될 것으로 보인다.
+*/
+
+
+
+
+#define   MAX_LEN                                                                 1024
+
+
+
+typedef struct _stTcpHeader_ {
+		U16        usSrcPort;                         @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usSrcPort }@
+		U16        usDstPort;                         @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usDstPort }@
+		S32        iSequenceNum;                 @SB_PARSING{V_Order, 0, 0, 0,  4, NULL, NULL, &TCP_Header.iSequenceNum }@
+		S32        iAckNum;                          @SB_PARSING{V_Order, 0, 0, 0,  4, NULL, NULL, &TCP_Header.iAckNum }@
+
+
+
+		BIT8                bDataOffset (4: TcpH1);       @SB_PARSING{ V_Value,  0, 0, 0, 1, NULL, NULL, &TCP_Header.TcpH1.A}@
+
+		BIT8                bReserved (4: TcpH1);        
+
+		BIT8                bECN (4: TcpH2);               @SB_PARSING{ V_Value,  0, 0, 0, 1, NULL, NULL, &TCP_Header.TcpH2.A}@
+
+		BIT8                bCtlBits (4: TcpH2); 
+
+
+
+		U16        usWindow;                        @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usWindow }@
+
+		U16        usChecksum;                    @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usChecksum }@
+
+		U16        usUrgentPointer;                @SB_PARSING{V_Order, 0, 0, 0,  2, NULL, NULL, &TCP_Header.usUrgentPointer }@
+
+
+
+		/* Option */
+
+		/* T_DisOrder */
+
+		U8          ucTCase_Type;                 @SB_PARSING{T_DisOrder, 1, 16, 0, 0, &TCP_Header.TtypeType, NULL, NULL}@
+
+
+
+		/* TV_DisOrder */
+
+		U8          ucTVCase_Type;               @SB_PARSING{TV_DisOrder, 1, 16 0, 2, &TCP_Header.ucTVCase_Value, NULL, &TCP_Header.ucTVCase_Type }@
+
+		STRING          ucTVCase_Value[MAX_LEN];                          
+
+
+
+		/* TLV_DisOrder */
+
+		U8          ucTLVaue_Type;                @SB_PARSING{TLV_Order, 1, 16, 1, 0, &TCP_Header.ucTLVaue_Type, &TCP_Header.ucTLVaue_Len, &TCP_Header.ucTLVaue_Value }@
+
+		U8          ucTLVaue_Len;                  
+
+		STRING          ucTLVaue_Value[MAX_LEN];
+
+
+
+		/* Tb_DisOrder */
+
+		U8          ucTbCase_Type;               @SB_PARSING{Tb_DisOrder, 4, 9, 4, 1, &TCP_Header.ucTbCase_Type, NULL, &TCP_Header.ucTbCase_Value }@
+
+		U8          ucTbCase_Value;
+
+
+
+} TCP_Header;
+
+
+
+

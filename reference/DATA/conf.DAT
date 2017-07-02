@@ -1,0 +1,40 @@
+
+( L4
+ServerIP=128.134.98.22
+ServerPort=7090
+L4Code=ME
+AppCode=APPCODE_ME
+L7Code=0
+) L4
+
+( L4
+ServerIP=128.134.98.22
+ServerPort=8080
+L4Code=ME
+AppCode=APPCODE_BREW
+L7Code=0
+) L4
+
+( MN
+IP=10.1.0.0
+Mask=255.255.0.0
+) MN
+
+( L7
+Method=0 
+Host=m.dosirak.com 
+Contents_Type=audio/k3g
+Redirect_Protocol=HTTP
+L7Code=DOSIRAKDOWN
+AppCode=APPCODE_VOD
+) L7
+
+( L7
+Method=METHOD_CONNECT
+Host=0
+Contents_Type=0
+Redirect_Protocol=0
+L7Code=SSL
+AppCode=APPCODE_SSL
+) L7
+

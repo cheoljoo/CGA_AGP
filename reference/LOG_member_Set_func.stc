@@ -1,0 +1,35 @@
+FileName : LOG_member_Set_func.c
+Set : iterate_comments = ON
+
+#include <netinet/in.h>
+
+ITERATE %save_typedef_member +<<+ ITKEY  ITVALUE
+
+Set : function_def{Set_Member_ITKEY} = "S32 Set_Member_ITKEY(int type , void *thisLOG , ITVALUE +<+$save_typedef_member_array{ITKEY}+>+set_value)"
+S32 Set_Member_ITKEY(int type , void *thisLOG , ITVALUE +<+$save_typedef_member_array{ITKEY}+>+set_value){
+	//// ITKEY : member  , ITVALUE : type
+
+	ITERATE %save_typedef_member_ITKEY +<<+ IT2KEY  IT2VALUE
+	IT2KEY 	*pIT2KEY;
+	+>>+
+
+	switch(type){
+	ITERATE %save_typedef_member_ITKEY +<<+ IT2KEY  IT2VALUE
+	case IT2KEY_DEF_NUM:
+		pIT2KEY = (IT2KEY *) thisLOG;
+		FPRINTF(LOG_LEVEL,"%s : %s : type %d , thisLOG 0x%x\n","IT2KEY","ITKEY",type,thisLOG);
+		IFEQUAL(+<+$save_typedef_member_array{ITKEY}+>+,*) memcpy(pIT2KEY->ITKEY,set_value, +<+$save_typedef_member_arr_size_ITKEY{IT2KEY}+>+);
+		NOTEQUAL(+<+$save_typedef_member_array{ITKEY}+>+,*) pIT2KEY->ITKEY = set_value;
+		return 1;
+	+>>+
+	default : 
+		FPRINTF(LOG_LEVEL,"%s : type %d , thisLOG 0x%x\n","ITKEY",type,thisLOG);
+		break;
+	}
+	return 0;
+}
+
+
+
++>>+
+

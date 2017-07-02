@@ -1,0 +1,40 @@
+stcI_HASH : ANALYSIS_JAVA_PROTOCOL_STG_TYPEDEF
+stcI_EXTENSION : java
+stcI_FILEPREFIX : AAA_
+stcI_FILEPOSTFIX : _DTO
+SetI : ITJAVANAME = KEY
+Set : iterate_comments = OFF
+
+/*
+ * Copyright 2005 EOSOFT, Inc. All rights reserved.
+ * EOSOFT PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * 
+ *	@author	Hyun Seok Park
+ *	@version	1.0, 07/02/20
+ *	@since		JDK1.5
+ */
+package com.upresto.ims.protocol.dto;
+
+import java.sql.*;
+import java.util.*;
+import kr.co.eosoft.config.*;
+import kr.co.eosoft.common.*;
+import com.upresto.ims.util.*;
+
+public class Protocol_ITJAVANAME_DTO extends DTO {
+	// ITJAVANAME 테이블항목
+	ITERATE @SQL_ARRAY_ITJAVANAME +<<+ IT2KEY IT2VALUE
+	NOTEQUAL(+<+$SQL_ITJAVANAME_STG_PARM_JAVA_USEYN{IT2VALUE}+>+,NO) #{
+		IFEQUAL(+<+$SQL_ITJAVANAME{IT2VALUE}+>+,U32 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,U16 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,IP4 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,S16 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,S32 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,S64 || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,STIME || +<+$SQL_ITJAVANAME{IT2VALUE}+>+,MTIME ) #{		
+				private long IT2VALUE;	// +<+$SQL_ITJAVANAME_TABLE_COMMENTS{IT2VALUE}+>+
+		}#
+		IFEQUAL(+<+$SQL_ITJAVANAME{IT2VALUE}+>+,U32 || U16 || IP4 || S16 || S32 || S64 || STIME || MTIME ) #{		
+				private long IT2VALUE;	// +<+$SQL_ITJAVANAME_TABLE_COMMENTS{IT2VALUE}+>+
+		}#
+	}#
+	+>>+
+	}#
+	+>>+
+
+
+}

@@ -1,0 +1,1292 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+#include <signal.h>
+#include <sys/time.h>
+#include <errno.h>
+
+#include <tas_define.h>
+#include <tas_shm.h>
+#include <define.h>
+#include <typedef.h>
+#include <msgdef.h>
+
+#include <logutillib.h>
+#include <shmutillib.h>
+
+#include "hasho.h"
+#include "timerN.h"
+#include "hashg.h"
+#include "memg.h"
+#include "ims_interface.h"
+#include "ims_structg.h"
+
+/*--------------------------------------------------------------------------------------------------*/
+#define 	MSG_HEAD_SZ       	stCom_MsgQHeader_SIZE
+#define 	MSG_HEAD_HEAD_SZ	(MSG_HEAD_SZ - MAX_MSGBODY_SIZE)
+
+/**< hash마다의 session이 idle일때 timeout을 위한 시간 (초) */
+#define		STG_HASH_SESS_TIMEOUT	100
+/**< hash마다의 delete가 들어온후에 timeout을 위한 시간 (초) */
+#define		STG_HASH_DEL_TIMEOUT	30
+/**< hash의 size를 각 key마다의 hash에 ??? 개를 잡으라는 선언 */ 
+#define		STG_HASH_SIZE			8192
+
+/*--------------------------------------------------------------------------------------------------*/
+int 	JiSTOPFlag;
+int 	FinishFlag;
+
+int		R_Qid, W_Qid[M_LOG_MSGQ_COUNT];
+
+/**
+ 5분통계를 위한 전역변수
+ */
+U64			TIMERNID_STAT;	/// Timer ID
+STAT_ALL	aSTAT_ALL;		/// STAT 구조체들을 선언해 놓은 구조체 선언
+
+/*--------------------------------------------------------------------------------------------------*/
+/** Hasho **/
+
+/// Corelation 정보 관리를 위한 Hasho Table 선언
+ITERATE %stg_key_hashs +<<+		KEY   VALUE
+stHASHOINFO		*pstHashInfo_KEY;
++>>+
+
+/*--------------------------------------------------------------------------------------------------*/
+/** TimerN **/
+
+/* 시험 : 해쉬 스트링 +<+$typedef_name[54]+>+ , +<+$HASH_KEY_TYPE{uiIP}+>+ , +<+$table{LOG_CFLOW}+>+    +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+*/
+
+/* 5분 통계(STAT)를 위한 timeout 시간(sec) */
+#ifdef STAT_TEST
+#define		DEF_TIME_STAT	60
+#else
+#define		DEF_TIME_STAT	(60 * 5)
+#endif
+
+/* 5분 계산을 위한 공식 */
+#define		STAT_REMAIN(CURR_TIME)	( (DEF_TIME_STAT - (CURR_TIME % DEF_TIME_STAT)) )
+
+/* 5분 통계(STAT)를 위한 Hashg, TimerN */
+stHASHGINFO		*pstHashgInfo_STAT;
+stTIMERNINFO	*pstTimerNInfo_STAT;
+
+/* ??? 이런식으로 있는 것의 KEY와 VALUE를 이용하는 방식을 통하며, 이름이 TMSI , IMSI, IP등이 */
+ITERATE %stg_key_hashs +<<+		KEY   VALUE
+stTIMERNINFO	*pstTimerNInfo_KEY;    /// VALUE 
++>>+
+/** stTIMERNINFO	*pstTimerNInfo_TMSI; *pstTimerNInfo_IMSI, *pstTimerNInfo_IP; **/
+
+/*--------------------------------------------------------------------------------------------------*/
+/** Init Functions **/
+void SetUpSignal();
+void UserControlledSignal(int sign);
+void FinishProgram();
+void IgnoreSignal(int sign);
+
+int dInit_IPC(void);
+int dInit_Hasho(void);
+int dInit_TimerN(void);
+
+/** MsgQ Functions **/
+int GetMsgPacket(stCom_MsgQHeader *msgq);
+int PutMsgPacket(stCom_MsgQHeader *msgq);
+
+/** Call Functions **/
+void Proc_Corelation_Message(stCom_MsgQHeader *msgq);
+void *Log_Copy(void *pstMsgBody, int size);
+void Set_Log_Stat(int msgid, void *msg_body, int size);
+void Set_HashoData_Log(int msgid, U8 *pKey, void *msg_body, int size);
+void Proc_Log_Message(stCom_MsgQHeader *msgq);
+
+/** Hasho Functions **/
+void Get_HashoData(STG_HASHKEY *pSTG_HASHKEY);
+void Set_HashoData(STG_HASHKEY aSTG_HASHKEY);
+
+void TimerN_Reset(void);
+
+/** TimerN Functions **/
+void invoke_call_stat(void);
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+void invoke_del_ITKEY(void *pa);
++>>+
+
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+void HashTimer_Add_ITKEY(U8 *pKey, U8 *pData);
++>>+
+
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+void HashTimer_Del_ITKEY(U8 *pKey);
++>>+
+
+/** TimerN Functions **/
+void Message_Print(stCom_MsgQHeader *msgq);
+
+/** Util **/
+char *MakeDate(time_t tm);
+
+/*--------------------------------------------------------------------------------------------------*/
+/** MakeDate function.
+*
+*  날짜 --> String으로 변환하는 함수
+*
+*  @param      tm       : 시간(tmie_t)
+*              date_buf : 날짜 String(return value)
+*
+*  @return     None
+*  @see        +See+
+*
+*  @exception  None
+*  @note       time_t 를 string 으로 변환
+*              요건 라이브러리성 함수인데....
+*
+**/
+char *MakeDate(time_t tm)
+{
+	struct tm *tmbuf;
+	char	date_buf[50];
+
+	int     yyyy, mm, dd, hh, mi, ss;
+
+	tmbuf = localtime(&tm);
+
+	yyyy = tmbuf->tm_year + 1900;
+	mm   = tmbuf->tm_mon  + 1;
+	dd   = tmbuf->tm_mday;
+	hh   = tmbuf->tm_hour;
+	mi   = tmbuf->tm_min;
+	ss   = tmbuf->tm_sec;
+
+	memset(date_buf, 0x0, sizeof(date_buf));
+	sprintf(date_buf, "%04d%02d%02d%02d%02d%02d", yyyy, mm, dd, hh, mi, ss);
+
+	return date_buf;
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+int main(int argc, int *argv[])
+{
+	int		dRet, dMsgRet;
+	time_t	tLastTime, tCurrTime, timeout;	
+
+	stCom_MsgQHeader		MsgQ;
+
+	+<+$stg_hash_first_data+>+	*p+<+$stg_hash_first_data+>+;
+
+	/* Debug용 Log 초기화 */
+	AppLogInit(getpid(), SEQ_PROC_CO_LOG, LOG_HOME"CO_LOG", "CO_LOG");	/* SEQ_PROC_CO_LOG : 69 */
+
+	/* Initiause IPC */
+    dRet = dInit_IPC();
+    if( dRet < 0 )  {
+        dAppLog(LOG_CRI, "[LINE[%d]]MAIN : FAILED IN dInit_IPC dRet[%d]", __LINE__, dRet);
+        exit(0);
+    }
+
+	dRet = dSetVersionInfo( SEQ_PROC_CO_LOG, "1.0.0" );
+    if( dRet<0 ){
+
+        dAppLog(LOG_WARN,"MAIN : Failed in Initialize Version Info [%d], proc_idx [%d]", dRet, SEQ_PROC_CO_LOG );
+        exit(1);
+    }
+
+	/* Corelation을 위햔 Hasho Init */
+	dRet = dInit_Hasho();
+	if (dRet < 0) {
+		exit(0);
+	}
+
+	/* Corelation을 위햔 TimerN Init */
+	dRet = dInit_TimerN();
+	if (dRet < 0) {
+		exit(0);
+	}
+
+	dAppLog(LOG_INFO, "MAIN : CO_LOG STARTING ---------------------------------------------");
+
+#ifdef AAA
+ExecuteTest(R_Qid);
+#endif
+
+	/* STAT을 위한 TimerN 추가 */
+	/* 자동으로 DEF_TIME_STAT 시간 간격으로 invoke_call_stat 함수를 Call 한다. */
+	timeout = time(NULL);
+	TIMERNID_STAT = timerN_add(pstTimerNInfo_STAT, invoke_call_stat, NULL, 0, timeout + STAT_REMAIN(timeout));
+	/* STAT 관련 구조체 초기화 */
+	memset(&aSTAT_ALL, 0x0, sizeof(aSTAT_ALL));
+
+	/* Hasho Table(Shared Memory)에 남아있는 데이타들 TimerN 재설정 */
+	TimerN_Reset();
+
+	/* Timer Invoke 를 위한 시간 Set(Polling 방식) */
+	tLastTime = time(NULL);
+
+	while (JiSTOPFlag) {
+		/* 메세지 Receive */
+		memset(&MsgQ, 0x0, stCom_MsgQHeader_SIZE);		
+		dMsgRet = GetMsgPacket(&MsgQ);	
+		if (dMsgRet > 0) {
+			if (MsgQ.ucGroup == 0x05) {
+				/* Corelation 메세지 처리 */
+				Proc_Corelation_Message(&MsgQ);
+			}
+			else {
+				/* Log 메세지 처리 */
+				Proc_Log_Message(&MsgQ);
+
+				/* Message Queue Write */
+				dRet = PutMsgPacket(&MsgQ);
+				if (dRet < 0) {
+					dAppLog(LOG_CRI, "ERR: w_qid(%d), msgsnd(%d)\n", W_Qid, dRet);
+				}
+			}
+		}
+
+		tCurrTime = time(NULL);
+		/* STAT Timer Invoke를 위한 시간 Check(polling) */
+		timerN_invoke(pstTimerNInfo_STAT);
+
+		/* Timer Invoke 를 위한 시간 Check(polling) */
+		if ( tCurrTime >= tLastTime + STG_HASH_SESS_TIMEOUT) {
+			/* Timer invoke */
+		ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+			/// Key ==> ITKEY 
+			timerN_invoke(pstTimerNInfo_ITKEY);
+			+>>+
+
+			/*
+			timerN_invoke(pstTimerNInfo_TMSI);
+			timerN_invoke(pstTimerNInfo_IMSI);
+			timerN_invoke(pstTimerNInfo_IP);
+			*/
+
+			/* Poll time clear */
+			tLastTime = time(NULL);
+		}
+		/// 이 부분에 if 문을 안걸어주면 데이타양이 많을 때 데이타 처리속도가 많이 지연된다.
+		/// MsgQ Recv 데이타가 없으면 usleep(100)
+		if (dMsgRet == 0) usleep(100);
+	}
+
+	FinishProgram();
+
+	exit(0);
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+/** dInit_IPC function.
+ *
+ *  Shm, MsgQ, Signal 을 초기화한다.
+ *
+ *  @param      None
+ * 				
+ *  @return     None
+ *  @see       	+See+
+ *
+ *  @exception 	None
+ *  @note       초기화 함수(Shared Memory, Message Queue, Signal)
+ *
+**/
+int dInit_IPC(void)
+{
+	int 	dRet, i;
+	
+	dRet = Init_shm_common();		/* Shared Memory Initialize */
+	if (dRet < 0) {
+		dAppLog(LOG_CRI, "dInit_IPC : Fail IN Init_shm_common  [%d]",dRet);
+       	return -1;
+	}
+
+	/* Message Queue Set */
+	R_Qid = msgget(S_MSGQ_CO_LOG, IPC_CREAT|0666);
+	if (R_Qid < 0) {
+		dAppLog(LOG_CRI, "ERR: R_Qid msgget(%d)", R_Qid);
+		exit(-1);
+	}
+
+	for (i=0;i < M_LOG_MSGQ_COUNT; i++) {
+		W_Qid[i] = msgget(S_MSGQ_M_LOG+i, IPC_CREAT|0666);
+		if (W_Qid[i] < 0) {
+			dAppLog(LOG_CRI, "ERR: W_Qid[%d] msgget(%d)", i, W_Qid[i]);
+			exit(-2);
+		}
+#ifdef TEST
+		printf("PRN: W_Qid[%d] msgget(%d)\n", i, W_Qid[i]);
+#endif
+	}
+	
+    SetUpSignal();
+}
+
+/** dInit_Hasho function.
+ *
+ *  Hasho Table 초기화 함수
+ *
+ *  @param      None
+ * 				
+ *  @return     0 : Success, 0 > : Fail
+ *  @see       	+See+
+ *
+ *  @exception 	None
+ *  @note       각각의 TMSI,IMSI,IP가 Key가 되는 Hash Table 3개를 생성한다.
+ * 				Corelation 메세지는 Corelation 정보가 (TIME,TMSI), (TMSI,IMSI), (IMSI,IP) 쌍으로
+ * 				들어온다.
+**/
+int dInit_Hasho(void)
+{
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+	/// Key ==> ITKEY 
+	pstHashInfo_ITKEY = hasho_init(S_SSHM_C_LOG_HASHO_ITKEY, STG_KEY_ITKEY_SIZE, STG_KEY_ITKEY_SIZE, STG_DATA_ITKEY_SIZE, STG_HASH_SIZE);
+	if ( !pstHashInfo_ITKEY ) {
+		dAppLog(LOG_CRI, "ERR: hasho_init_ITKEY");
+		return -1;
+	}
+#ifdef TEST
+	printf("PRN: ITKEY: HASH_KEY(0x%x)\n", S_SSHM_C_LOG_HASHO_ITKEY);
+#endif
+
++>>+
+
+	return 0;
+}
+
+/** dInit_TimerN function.
+ *
+ *  TimerN Table 초기화 함수
+ *
+ *  @param      None
+ * 				
+ *  @return     0 : Success, 0 > : Fail
+ *  @see       	timerN.h
+ *
+ *  @exception 	None
+ *  @note       각각의 Hasho Table만큼 TimerN를 설정한다.
+ *				각각의 Hasho Table마다 Timer가 1개씩 존재한다.
+ *
+**/
+int dInit_TimerN(void)
+{
+	pstTimerNInfo_STAT = timerN_init(1, 0);
+	if ( !pstTimerNInfo_STAT ) {
+		dAppLog(LOG_CRI, "ERR: timerN_init_STAT");
+		return -3;
+	}
+
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+	/// Key ==> ITKEY 
+	pstTimerNInfo_ITKEY = timerN_init(MAX_HASH_SIZE, STG_KEY_ITKEY_SIZE);
+	if ( !pstTimerNInfo_ITKEY ) {
+		dAppLog(LOG_CRI, "ERR: timerN_init_ITKEY");
+		return -1;
+	} 
+
++>>+
+
+	return 0;
+}
+
+void SetUpSignal()
+{
+	JiSTOPFlag = 1;
+
+    /* WANTED SIGNALS   */
+    signal(SIGTERM, UserControlledSignal);
+    signal(SIGINT,  UserControlledSignal);
+    signal(SIGQUIT, UserControlledSignal);
+
+    /* UNWANTED SIGNALS */
+    signal(SIGHUP,  IgnoreSignal);
+    signal(SIGALRM, IgnoreSignal);
+    signal(SIGPIPE, IgnoreSignal);
+    signal(SIGPOLL, IgnoreSignal);
+    signal(SIGPROF, IgnoreSignal);
+    signal(SIGUSR1, IgnoreSignal);
+    signal(SIGUSR2, IgnoreSignal);
+    signal(SIGVTALRM, IgnoreSignal);
+    signal(SIGCLD, SIG_IGN);
+
+	dAppLog(LOG_CRI, 
+	"SetUpSignal : SIGNAL HANDLER WAS INSTALLED[%d]", JiSTOPFlag);
+
+    return;
+} /* end of SetUpSignal */
+
+void UserControlledSignal(int sign)
+{
+    JiSTOPFlag = 0;
+    FinishFlag = sign;
+
+	dAppLog(LOG_CRI, "UserControlledSignal : [%d]", sign);
+} /* end of UserControlledSignal */
+
+void FinishProgram( )
+{
+    dAppLog(LOG_CRI, 
+	"FinishProgram : PROGRAM IS NORMALLY TERMINATED, Cause = %d", FinishFlag);
+	/* dESQLClose(); */
+    exit(0);	
+} /* end of FinishProgram */
+
+void IgnoreSignal(int sign)
+{
+    if (sign != SIGALRM)
+        dAppLog(LOG_CRI, 
+		"IgnoreSignal : UNWANTED SIGNAL IS RECEIVED, signal = %d", sign);
+    signal(sign, IgnoreSignal);
+} /* end of IgnoreSignal */
+
+/*--------------------------------------------------------------------------------------------------*/
+
+/** GetMsgPacket function.
+ *
+ *  메세지큐로부터 데이타를 읽는다.
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return     < 0 : error, etc : success
+ *  @see       	+See+
+ *
+ *  @exception 	None
+ *  @note       SI_LOG로부터 메세지큐를 이용하여 데이타를 Receive 한다.
+ *				메세지의 종류는 Corelation 메세지, Log 메세지가 있다.
+ *				MsgQHeader 구조체를 받아 값을 그대로 Receive 한 후 return 한다.
+ *
+ *  @메세지 종류
+	 -- NTAF와 NTAM간의 ucMsgID는 LIBSTG/STRUCTG/ims_structg.h에 정의되어 있다.
+ *
+ *   -- SI_LOG와 CO_LOG간의 Message Format
+ *
+ * < Corelation 메세지(ucGroup == 0x05) >
+ *
+ * ucMsgID가 STG_ucTMSI_llTime_DEF_NUM 일 경우
+ * +--------------------------------------+
+ * | MsgQHeader | uiCommand | TMSI | TIME |
+ * +--------------------------------------+
+ * 
+ * ucMsgID가 STG_ucIMSI_ucTMSI_DEF_NUM 일 경우
+ * +--------------------------------------+
+ * | MsgQHeader | uiCommand | IMSI | TMSI |
+ * +--------------------------------------+
+ * 
+ * ucMsgID가 STG_uiIP_ucIMSI_DEF_NUM 일 경우
+ * +--------------------------------------+
+ * | MsgQHeader | uiCommand | IP   | IMSI |
+ * +--------------------------------------+
+ * 
+ * < Log 메세지(ucGroup != 0x05) >
+ * 
+ * +-----------------------------------------------------------------+
+ * | MsgQHeader | CreateTime | CreateMTime | TMSI | IMSI | IP | BODY |
+ * +-----------------------------------------------------------------+
+ *              |                                                    |
+ *              +------------- MsgQBody(Max 6144 Byte) --------------+ 
+ * 
+**/
+int GetMsgPacket(stCom_MsgQHeader *msgq)
+{
+	int		ret;
+
+	/** 
+	 *  SI_LOG로부터 메세지를 받는다. MsgQHeaer 구조체 이용
+	**/
+	ret = msgrcv(R_Qid, msgq, stCom_MsgQHeader_SIZE, 0, IPC_NOWAIT | MSG_NOERROR);
+    if( ret < 0 ) {
+        if( errno != EINTR && errno != ENOMSG ) {
+            dAppLog(LOG_DEBUG,"ERR: msgrcv(%s)\n", errno, strerror(errno) );
+            return -1;
+        }
+
+        return 0;
+	}
+#ifdef TEST
+	printf("PRN: GetMsgPacket: ucGroup(%d), msgid(%d)\n", msgq->ucGroup, msgq->ucMsgID);
+	Message_Print(msgq);
+#endif
+
+#ifdef DEBUG
+	dAppLog(LOG_DEBUG, "PRN: GetMsgPacket: ucGroup(%d), msgid(%d)", msgq->ucGroup, msgq->ucMsgID);
+#endif
+
+
+	return ret;
+}
+
+/** PutMsgPacket function.
+ *
+ *  메세지큐를 이용하여 M_LOG 로 메세지를 전달한다.
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return     < 0 : error, etc : success
+ *  @see       	co_log_global.h, ims_interface.h
+ *
+ *  @exception 	None
+ *  @note       메세지를 메세지큐를 이용하여 M_LOG 로 보낸다.(메세지큐 이용)
+ *              Protocol 메세지만 보낸다.
+ *
+ *  @메세지 종류
+ *
+ *   --  CO_LOG와 M_LOG간의 Message Format
+ *
+ * Protocol 메세지만 전달한다.
+ *
+ * +-------------------------------------------------------------------------------+
+ * | MsgQHeader | MsgQBody( CreateTime | CreateMTime | TMSI | IMSI | IP | Message )|
+ * +-------------------------------------------------------------------------------+
+ *              |                                                                  |
+ *              +------------------- MsgQBody(Max 6144 Byte) ----------------------+ 
+ *
+**/
+int PutMsgPacket(stCom_MsgQHeader *msgq)
+{
+	int		ret, qIdx;
+
+	qIdx = msgq->ucMsgID % M_LOG_MSGQ_COUNT;
+
+	ret = msgsnd(W_Qid[qIdx], msgq, stCom_MsgQHeader_SIZE, 0);
+	if (ret < 0) {
+		dAppLog(LOG_CRI, "ERR: qIdx(%d), msgsnd(%d)", qIdx, ret);
+		return -3;
+	}
+#ifdef TEST
+	printf("PRN: msgsnd MsgQID(%d), W_Qid[%d] : %d\n", msgq->ucMsgID, qIdx, W_Qid[qIdx]);
+#endif
+
+	return ret;
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+/** Proc_Corelation_Message function.
+ *
+ *  Corelation 메세지일 경우 ucMsgID 별로 구분하여 처리한다.
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, ims_interface.h
+ *
+ *  @exception 	None
+ *  @note       ucMsgID별로 Corelation 정보를 처리한다.
+ *				Corelation 메세지일 경우 Call
+ *
+**/
+void Proc_Corelation_Message(stCom_MsgQHeader *msgq)
+{
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+	STG_ITKEY		aSTG_ITKEY;
++>>+
+	/**	STG_ucTMSI_llTime		aSTG_ucTMSI_llTime; **/
+
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+	STG_DATA_ITKEY	aSTG_DATA_ITKEY;
++>>+
+	/** STG_DATA_ucTMSI_llTime	aSTG_DATA_ucTMSI_llTime; **/
+
+	U32		Command;
+
+	memcpy(&Command, &msgq->szBody, sizeof(U32));
+
+	if (ntohl(Command) == DEF_ADD) {
+		switch (msgq->ucMsgID) {
+ITERATE %HASH_KEY +<<+ 		ITKEY 	ITVALUE
+			case STG_ITVALUE_DEF_NUM:
+				/// Message Decoding 
+				memcpy(&aSTG_ITVALUE, &msgq->szBody, STG_ITVALUE_SIZE);
+				STG_ITVALUE_Dec(&aSTG_ITVALUE, &aSTG_ITVALUE);
+				/// Message 데이타를 Hasho 테이블 데이타에 copy 
+				memset(&aSTG_DATA_ITVALUE, 0x0, sizeof(aSTG_DATA_ITVALUE));
+	ITERATE %ITVALUE_MEMBER +<<+ 	IT2KEY    IT2VALUE
+				memcpy(&aSTG_DATA_ITVALUE.stgCoInfo.IT2KEY, &aSTG_ITVALUE.IT2KEY, sizeof(aSTG_DATA_ITVALUE.stgCoInfo.IT2KEY));
+	+>>+
+
+				/// Corelation 정보 Add 
+				HashTimer_Add_ITKEY((U8 *)&aSTG_ITVALUE.ITKEY, (U8 *)&aSTG_DATA_ITVALUE);
+				/// Hasho 테이블 동기화 
+				Set_HashoData(aSTG_DATA_ITVALUE.stgCoInfo);
+				break;
+
++>>+
+			default:
+				break;
+		}
+		return;
+	}
+
+	/* delete 메세지를 받으면 일정시간이 지난 후 Timer에 의해 Delete 한다. */
+	if (ntohl(Command) == DEF_DEL) {
+		switch (msgq->ucMsgID) {
+ITERATE %stg_key_hashs +<<+ 	ITKEY    ITVALUE
+			case STG_ITKEY_DEF_NUM:
+				/// Message Decoding 
+				memcpy(&aSTG_ITKEY, &msgq->szBody, STG_ITKEY_SIZE);
+				STG_ITKEY_Dec(&aSTG_ITKEY, &aSTG_ITKEY);
+				/// Corelation 정보 Del 
+	ITERATE %ITKEY_MEMBER_KEY +<<+ 	IT2KEY    ITVALUE2
+				HashTimer_Del_IT2KEY((U8 *)&aSTG_ITKEY.IT2KEY); 
+	+>>+
+				break;
+
++>>+
+			default:
+				break;
+		}
+		return;
+	}
+
+	/* 모든 Hash Table Del */
+	if (ntohl(Command) == DEF_ALL_DEL) {
+		switch (msgq->ucMsgID) {
+ITERATE %stg_key_hashs +<<+ 	ITKEY    ITVALUE
+			case STG_ITKEY_DEF_NUM:
+				/// Message Decoding 
+				memcpy(&aSTG_ITKEY, &msgq->szBody, STG_ITKEY_SIZE);
+				STG_ITKEY_Dec(&aSTG_ITKEY, &aSTG_ITKEY);
+				/// Message 데이타를 Hasho 테이블 데이타에 copy 
+	ITERATE %ITKEY_MEMBER +<<+ 	IT2KEY    ITVALUE2
+				memcpy(&aSTG_DATA_ITKEY.stgCoInfo.IT2KEY, &aSTG_ITKEY.IT2KEY, sizeof(aSTG_DATA_ITKEY.stgCoInfo.IT2KEY));
+	+>>+
+				/// TMSI Hash 테이블에서 IMSI,IP 값을 가져온다. 
+				Get_HashoData(&aSTG_DATA_ITKEY.stgCoInfo);
+				/// 모든 Hasho Table Del 
+	ITERATE %HASH_KEY +<<+ 	IT2KEY    ITVALUE2
+				HashTimer_Del_IT2KEY((U8 *)&aSTG_DATA_ITKEY.stgCoInfo.IT2KEY);
+	+>>+
+				/// HashTimer_Del_imsi((U8 *)&aSTG_DATA_ITKEY.stgCoInfo.ucIMSI); 
+				break;
+
++>>+
+
+			default:
+				break;
+		}
+		return;
+	}
+}
+
+/** Log_Copy function.
+ *
+ *  Log 메세지들을 Memory 할당, 복사한다.(malloc 함수 이용)
+ *
+ *  @param      pstMsgBody : Log 메세지 Body
+ *				size       : Log 메세지 Body size
+ *
+ *  @return     None
+ *  @see       	None
+ *
+ *  @exception 	None
+ *  @note       First Hasho Key의 HashoData 부분에 추가할 Log 메세지들을 Memory 할당, 복사하고
+ * 				그 메모리의 Pointer를 Return 한다.
+ *
+**/
+void *Log_Copy(void *pstMsgBody, int size)
+{
+	void *ptr;
+
+	ptr = (void *) malloc(size);
+	if (ptr) memcpy(ptr, pstMsgBody, size);
+	return ptr;
+}
+
+/** Set_HashoData_Log function.
+ *
+ *  Log 메세지를 전달받아 First HashoKey의 HashoData에 추가하는 함수
+ *
+ *  @param      msgid    : ucMsgID
+ *				pKey     : First Hasho Table Key 값
+ *				msg_body : Log 메세지 Body
+ *				size     : Log 메세지 Body size
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, ims_interface.h, hasho.h
+ *
+ *  @exception 	None
+ *  @note       First HashoKey의 HashoData 구조체를 보면 각 Log 메세지들을 저장할 수 있다.
+ *				(Accumulate, Combination 처리를 위해)
+ *				이 함수는 그 Log 메세지들을 추가하고,
+ *				각 Log 메세지들에 대해 Accumulate 처리를 한다.
+ *				5분 통계를 위한 aSTAT_ALL 구조체의 값들도 처리한다.
+ *
+**/
+void Set_HashoData_Log(int msgid, U8 *pKey, void *msg_body, int size)
+{
+	stHASHONODE				*pstHASHONODE;
+	+<+$stg_hash_first_data+>+	*p+<+$stg_hash_first_data+>+;
+ITERATE %table_log +<<+ 	ITKEY    ITVALUE
+	ITKEY		aITKEY;
++>>+
+
+	pstHASHONODE = hasho_find(pstHashInfo_+<+$stg_hash_first_key_name+>+, pKey);
+	if ( pstHASHONODE ) {
+		p+<+$stg_hash_first_data+>+ = (+<+$stg_hash_first_data+>+ *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_+<+$stg_hash_first_key_name+>+));
+
+		switch (msgid) {
+ITERATE %table_log +<<+ 	ITKEY    ITVALUE
+			case ITKEY_DEF_NUM:
+				memset(&aITKEY, 0x0, ITKEY_SIZE);
+				memcpy(&aITKEY, msg_body, ITKEY_SIZE);
+				ITKEY_Dec(&aITKEY, &aITKEY);
+#ifdef AAA
+				ITKEY_Prt("ITKEY", &aITKEY);
+#endif
+				if(!p+<+$stg_hash_first_data+>+->pITKEY){
+					/// Hasho DATA에 Log Msg 추가
+					p+<+$stg_hash_first_data+>+->pITKEY = (ITKEY *) Log_Copy((void *)&aITKEY, size);
+				}
+
+				/// Hasho Accumulate 처리 
+				p+<+$stg_hash_first_data+>+->usCntITKEY++;
+				Set_ITKEY_COMBI_Accumulate(p+<+$stg_hash_first_data+>+, &aITKEY);
+				/// STAT Accumlate 처리
+				Set_ITKEY_STAT_Accumulate(&aITKEY, &aSTAT_ALL);
+
+				break;
+
++>>+
+
+			default:
+				break;
+		}
+	}
+}
+
+/** Set_Log_Stat function.
+ *
+ *  STAT_Accumulate 함수를 Call 한다.
+ *
+ *  @param      msgid    : ucMsgID
+ *				msg_body : Log 메세지 Body
+ *				size     : Log 메세지 Body size
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, ims_interface.h, hasho.h
+ *
+ *  @exception 	None
+ *  @note       Log 메세지의 Corelation 정보가 없을 경우 Stat_Accumulate 함수를 Call 한다.
+ *
+**/
+void Set_Log_Stat(int msgid, void *msg_body, int size)
+{
+ITERATE %table_log +<<+ 	ITKEY    ITVALUE
+	ITKEY		aITKEY;
++>>+
+
+	switch (msgid) {
+ITERATE %table_log +<<+ 	ITKEY    ITVALUE
+		case ITKEY_DEF_NUM:
+			memset(&aITKEY, 0x0, ITKEY_SIZE);
+			memcpy(&aITKEY, msg_body, ITKEY_SIZE);
+			ITKEY_Dec(&aITKEY, &aITKEY);
+#ifdef AAA
+			ITKEY_Prt("ITKEY", &aITKEY);
+#endif
+			/// STAT Accumlate 처리
+			Set_ITKEY_STAT_Accumulate(&aITKEY, &aSTAT_ALL);
+
+			break;
+
++>>+
+
+		default:
+			break;
+	}
+}
+
+/** Proc_Log_Message function.
+ *
+ *  Log 메세지일 경우 처리 함수
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, ims_interface.h
+ *
+ *  @exception 	None
+ *  @note       ucMsgID별로 Corelation 정보를 처리한다.
+ *				Protocol 메세지일 경우 Call
+ *
+ *	@처리순서   Log 메세지의 Corelation 정보를 Decoding 한다.
+ *				Corelation 정보의 Key 값을 가지고 해당 Hash Table의 데이타를 가져온다.
+ *				가져온 데이타를 Corelation 정보 필드에 Update 한다.
+ *				메세지를 M_LOG로 전달한다.(메세지큐 이용)
+ *
+**/
+void Proc_Log_Message(stCom_MsgQHeader *msgq)
+{
+	STG_HASHKEY		aSTG_HASHKEY;
+
+	/* LOG 메세지에서 Corelation 정보를 가져온다. */
+	memcpy(&aSTG_HASHKEY, &msgq->szBody, STG_HASHKEY_SIZE);
+
+	/* Protocol 메세지의 Corelation 정보를 Decoding 한다. */
+	STG_HASHKEY_Dec(&aSTG_HASHKEY, &aSTG_HASHKEY);
+	
+	/* Protocol 메세지의 Corelation 정보에 없는 필드들을 Hash Table에서 가져온다. */
+	Get_HashoData(&aSTG_HASHKEY);
+
+	/* Log 메세지를 TMSI Hasho 테이블 데이타의 관련 필드에 Pointer를 저장한다. */
+	/* 그리고 Accumulate 처리 */
+
+	if (+<+$stg_hash_first_key_is+>+(aSTG_HASHKEY.+<+$stg_hash_first_key+>+) > 0) {
+		Set_HashoData_Log(msgq->ucMsgID, (U8 *)&aSTG_HASHKEY.+<+$stg_hash_first_key+>+, (void *)msgq->szBody, msgq->usBodyLen);	
+	}
+	/// Log 메세지에 Corelation 정보가 없을 경우 STAT Accumlate 처리
+	else {
+		Set_Log_Stat(msgq->ucMsgID, (void *)msgq->szBody, msgq->usBodyLen);
+	}
+
+	/* M_LOG로 보내기 위해 Corelation 정보를 Encoding 한다. */
+	STG_HASHKEY_Enc(&aSTG_HASHKEY, &aSTG_HASHKEY);
+
+	/* 값을 채운 Corelation 정보 + 메세지를 MsgQHeaeder Body에 copy 한다. */
+	memcpy(&msgq->szBody, &aSTG_HASHKEY, STG_HASHKEY_SIZE);
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+/** Get_HashoData function.
+ *
+ *  Hasho Data에 있는 Key 값을 가지고 해당 Hash Table을 검색하여 Corelation 정보를 구하는 함수
+ *
+ *  @param      pSTG_HASHKEY: Hash Data
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h
+ *
+ *  @exception 	None
+ *  @note       
+ *
+**/
+void Get_HashoData(STG_HASHKEY *pSTG_HASHKEY)
+{
+	stHASHONODE				*pstHASHONODE;
+ITERATE %stg_key_hashs +<<+ 	ITKEY    ITVALUE
+	STG_DATA_ITKEY	*pSTG_DATA_ITKEY;
++>>+
+	/* STG_DATA_uiIP_ucIMSI	*pSTG_DATA_uiIP_ucIMSI; */
+
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+	if (+<+$HASH_KEY_IS{ITKEY}+>+(pSTG_HASHKEY->ITKEY) > 0) {
+		pstHASHONODE = hasho_find(pstHashInfo_ITVALUE, (U8 *)&pSTG_HASHKEY->ITKEY);
+		if ( pstHASHONODE ) {
+			pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+			memcpy(pSTG_HASHKEY, &pSTG_DATA_ITVALUE->stgCoInfo, STG_HASHKEY_SIZE);
+		}
+		return;
+	}
+
++>>+
+}
+
+/** Set_HashoData function.
+ *
+ *  HashData에 있는 HashKey값을 가지고 모든 Hasho 테이블들을 동기화하는 함수.
+ *
+ *  @param      aSTG_HASHKEY: Hash Data
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h
+ *
+ *  @exception 	None
+ *  @note       
+ *
+**/
+void Set_HashoData(STG_HASHKEY aSTG_HASHKEY)
+{
+	stHASHONODE				*pstHASHONODE;
+ITERATE %stg_key_hashs +<<+ 	ITKEY    ITVALUE
+	STG_DATA_ITKEY	*pSTG_DATA_ITKEY;
++>>+
+	/* STG_DATA_uiIP_ucIMSI	*pSTG_DATA_uiIP_ucIMSI; */
+	
+	/** 각 Hasho 테이블에서 Data를 가져온다. **/
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+	if (STG_HASH_KEY_ITVALUE_IS(aSTG_HASHKEY.ITKEY) > 0) {
+	ITERATE %HASH_KEY +<<+ 	IT2KEY    IT2VALUE
+		/// IT2KEY Hasho find 
+		if (STG_HASH_KEY_IT2VALUE_IS(aSTG_HASHKEY.IT2KEY) > 0) {
+			pstHASHONODE = hasho_find(pstHashInfo_IT2VALUE, (U8 *)&aSTG_HASHKEY.IT2KEY);
+			if ( pstHASHONODE ) {
+				pSTG_DATA_IT2VALUE = (STG_DATA_IT2VALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_IT2VALUE));
+		ITERATE %IT2VALUE_MEMBER +<<+ 	IT3KEY    IT3VALUE
+				memcpy(&aSTG_HASHKEY.IT3KEY, &pSTG_DATA_IT2VALUE->stgCoInfo.IT3KEY, sizeof(aSTG_HASHKEY.IT3KEY));
+		+>>+
+			}
+		}
+	+>>+
+	}
+
++>>+
+	
+	/** 가져온 데이타를 모든 Hasho 테이블에 copy 한다. **/
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+	if (STG_HASH_KEY_ITVALUE_IS(aSTG_HASHKEY.ITKEY) > 0) {
+		pstHASHONODE = hasho_find(pstHashInfo_ITVALUE, (U8 *)&aSTG_HASHKEY.ITKEY);
+		if ( pstHASHONODE ) {
+			pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+			memcpy(&pSTG_DATA_ITVALUE->stgCoInfo, &aSTG_HASHKEY, STG_HASHKEY_SIZE);
+		}
+	}
+
++>>+
+	
+/* 요 부분은 테스트를 위한 부분임 */
+#ifdef AAA
+	if (strlen(aSTG_HASHKEY.ucTMSI) > 0) 
+		hash_data_prt(1,pstHashInfo_ucTMSI_llTime, (U8 *)&aSTG_HASHKEY.ucTMSI, "aft:TMSI Hash Table");
+	if (strlen(aSTG_HASHKEY.ucIMSI) > 0) 
+		hash_data_prt(2,pstHashInfo_ucIMSI_ucTMSI, (U8 *)&aSTG_HASHKEY.ucIMSI, "aft:IMSI Hash Table");
+	if (aSTG_HASHKEY.uiIP > 0) 
+		hash_data_prt(3,pstHashInfo_uiIP_ucIMSI, (U8 *)&aSTG_HASHKEY.uiIP, "aft:IP   Hash Table");
+#endif
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+/** call_stat function.
+ *
+ *  5분 통계 작업을 한다.
+ *
+ *  @param      None
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h
+ *  @exception 	None
+ *  @note       5분 통계를 위한 전역변수 STAT_ALL 에 있는 STAT 관련 구조체들을
+ *				MsgHeader를 붙여 M_LOG 로 보낸다.
+ *				5분마다 Call 된다.
+ *
+**/
+void invoke_call_stat(void)
+{
+	time_t				timeout;
+	stCom_MsgQHeader	astCom_MsgQHeader;
+
+	/// STAT 테이블들의 데이타를 DB에 저장하기 위해 MsgHeader 값을 셋팅 후 MsgQ에 write 한다.
+ITERATE %table_stat +<<+ 	ITKEY 		ITVALUE
+	{
+		Set_ITKEY_Once(&aSTAT_ALL.aITKEY);
+		
+#ifdef AAA
+		ITKEY_Prt("stat_ITKEY", &aSTAT_ALL.aITKEY);
+#endif
+
+		timeout = time(NULL);
+		aSTAT_ALL.aITKEY.stgCoInfo.llTime.time = timeout;
+		memcpy(aSTAT_ALL.aITKEY.StartTime, MakeDate(timeout), sizeof(aSTAT_ALL.aITKEY.StartTime)-1);
+		aSTAT_ALL.aITKEY.StartTime[sizeof(aSTAT_ALL.aITKEY.StartTime)-1] = '\0';
+
+		ITKEY_Enc(&aSTAT_ALL.aITKEY, &aSTAT_ALL.aITKEY);
+
+		/// MsgQ Header Data Set
+		memset(&astCom_MsgQHeader, 0x0, sizeof(astCom_MsgQHeader));
+		astCom_MsgQHeader.ucMsgID = ITKEY_DEF_NUM;
+		astCom_MsgQHeader.usBodyCount = 1;
+		astCom_MsgQHeader.usBodyLen = ITKEY_SIZE;
+
+		memcpy(&astCom_MsgQHeader.szBody, &aSTAT_ALL.aITKEY, ITKEY_SIZE);
+
+		///< MsgQ Send
+		PutMsgPacket(&astCom_MsgQHeader);
+	}
+
++>>+
+
+	/// 다음 5분 통계 작업을 위해
+	/// STAT TimerN 재설정
+	timeout = time(NULL);
+	timerN_del(pstTimerNInfo_STAT, TIMERNID_STAT);
+	TIMERNID_STAT = timerN_add(pstTimerNInfo_STAT, invoke_call_stat, NULL, 0, timeout + STAT_REMAIN(timeout));
+	/// STAT을 구조체 초기화
+	memset(&aSTAT_ALL, 0x0, sizeof(aSTAT_ALL));
+#ifdef DEBUG
+dAppLog(LOG_DEBUG, "INVOKE: call invoke STAT(%ld) !!!", timeout);
+#endif
+#ifdef TEST
+printf("INVOKE: call invoke STAT(%ld) !!!\n", timeout);
+#endif
+}
+
+/*--------------------------------------------------------------------------------------------------*/
+/** Proc_Combination function.
+ *
+ *  Combination 처리
+ *
+ *  @param      pData : HashData Pointer
+ *  @return     None
+ *
+ *  @see       	co_log_global.h
+ *  @exception 	None
+ *
+ *  @note       
+ *
+**/
+
+void Proc_Combination(+<+$stg_hash_first_data+>+ *pData)
+{
+	stCom_MsgQHeader	astCom_MsgQHeader;
+
+	Set_Combination_Once(pData);
+#ifdef AAA
+	+<+$stg_hash_first_data+>+_Prt("+<+$stg_hash_first_key+>+_KEY_DATA", pData);
+#endif
+ITERATE %table_combi +<<+ 	ITKEY    ITVALUE
+	///< ITKEY 처리
+	{
+#ifdef AAA
+		ITKEY_Prt("ITKEY", &pData->aITKEY);
+#endif
+
+		ITKEY_Enc(&pData->aITKEY, &pData->aITKEY);
+
+		///< MsgQ Header Data Set
+		memset(&astCom_MsgQHeader, 0x0, sizeof(astCom_MsgQHeader));
+		astCom_MsgQHeader.ucMsgID = ITKEY_DEF_NUM;
+		astCom_MsgQHeader.usBodyCount = 1;
+		astCom_MsgQHeader.usBodyLen = ITKEY_SIZE;
+
+		memcpy(&astCom_MsgQHeader.szBody, &pData->aITKEY, ITKEY_SIZE);
+
+		///< MsgQ Send
+		PutMsgPacket(&astCom_MsgQHeader);
+	}
+
++>>+
+}	
+
+/** invoke_del_??? function.
+ *
+ *  TMSI Hasho Table의 Key값에 해당하는 Node를 삭제한다.
+ *
+ *  @param      pa : ??? Hasho Table의 Key Pointer
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h
+ *  @exception 	None
+ *  @note       TimerN_invoke()를 통해 자동으로 호출된다.
+ *
+**/
+void invoke_del_+<+$stg_hash_first_key+>+(void *pa)
+{
+	STG_KEY_+<+$stg_hash_first_key_name+>+	*pSTG_KEY_+<+$stg_hash_first_key_name+>+;
+
+	stHASHONODE				*pstHASHONODE;
+	+<+$stg_hash_first_data+>+	*p+<+$stg_hash_first_data+>+;
+
+	stCom_MsgQHeader		astCom_MsgQHeader;
+
+	pSTG_KEY_+<+$stg_hash_first_key_name+>+ = (STG_KEY_+<+$stg_hash_first_key_name+>+ *) pa;
+
+	/* LOG 데이타를 free 시켜주기 위해 Hasho Data를 가져온다. */
+	pstHASHONODE = hasho_find(pstHashInfo_+<+$stg_hash_first_key_name+>+, (U8 *)pSTG_KEY_+<+$stg_hash_first_key_name+>+);
+	if ( pstHASHONODE ) {
+		p+<+$stg_hash_first_data+>+ = (+<+$stg_hash_first_data+>+ *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_+<+$stg_hash_first_key_name+>+));
+
+		Proc_Combination(p+<+$stg_hash_first_data+>+);
+		
+		/* LOG 데이타 멤버들을 free 시켜준다. */
+ITERATE %table_log +<<+ 	ITKEY    ITVALUE
+		free(p+<+$stg_hash_first_data+>+->pITKEY);
++>>+
+		/* free(pSTG_DATA_+<+$stg_hash_first_data+>+->pTIM_CFLOW_GMMSM); */
+	}
+	
+	hasho_del(pstHashInfo_+<+$stg_hash_first_key_name+>+, (U8 *)&pSTG_KEY_+<+$stg_hash_first_key_name+>+->+<+$stg_hash_first_key+>+);
+#ifdef DEBUG
+if ( !strncmp("+<+$stg_hash_first_key_type+>+", "U8", 2) ) {
+dAppLog(LOG_DEBUG, "INVOKE: call invoke STG_KEY_+<+$stg_hash_first_key+>+(%s)", 
+			pSTG_DATA_+<+$stg_hash_first_key_name+>+->stgCoInfo.+<+$stg_hash_first_key+>+);
+}
+else {
+dAppLog(LOG_DEBUG, "INVOKE: call invoke STG_KEY_+<+$stg_hash_first_key+>+(%d)", 
+			pSTG_DATA_+<+$stg_hash_first_key_name+>+->stgCoInfo.+<+$stg_hash_first_key+>+);
+}
+#endif
+
+#ifdef TEST
+if ( !strncmp("+<+$stg_hash_first_key_type+>+", "U8", 2) ) {
+printf("INVOKE: call invoke +<+$stg_hash_first_key+>+(%s)\n", 
+			pSTG_DATA_+<+$stg_hash_first_key_name+>+->stgCoInfo.+<+$stg_hash_first_key+>+);
+}
+else {
+printf("INVOKE: call invoke +<+$stg_hash_first_key+>+(%d)\n", 
+			pSTG_DATA_+<+$stg_hash_first_key_name+>+->stgCoInfo.+<+$stg_hash_first_key+>+);
+}
+#endif
+}
+
+/** invoke_del_??? function.
+ *
+ *  IMSI Hasho Table의 Key값에 해당하는 Node를 삭제한다.
+ *
+ *  @param      pa : ??? Hasho Table의 Key Pointer
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h
+ *
+ *  @exception 	None
+ *  @note       TimerN_invoke()를 통해 자동으로 호출된다.
+ *
+**/
+ITERATE %HASH_KEY_OTHER +<<+ 	ITKEY    ITVALUE
+void invoke_del_ITKEY(void *pa)
+{
+	STG_KEY_ITVALUE		*pSTG_KEY_ITVALUE;
+
+	pSTG_KEY_ITVALUE = (STG_KEY_ITVALUE *) pa;
+	
+	hasho_del(pstHashInfo_ITVALUE, (U8 *)&pSTG_KEY_ITVALUE->ITKEY);
+
+#ifdef DEBUG
+if ( !strncmp("ITKEY", "uc", 2) )
+	dAppLog(LOG_DEBUG, "INVOKE: call invoke ITKEY(%s)", pSTG_KEY_ITVALUE->ITKEY);
+else
+	dAppLog(LOG_DEBUG, "INVOKE: call invoke ITKEY(%d)", pSTG_KEY_ITVALUE->ITKEY);
+#endif
+#ifdef TEST
+if ( !strncmp("ITKEY", "uc", 2) )
+	printf("INVOKE: call invoke ITKEY(%s)\n", pSTG_KEY_ITVALUE->ITKEY);
+else
+	printf("INVOKE: call invoke ITKEY(%d)\n", pSTG_KEY_ITVALUE->ITKEY);
+#endif
+}
+
++>>+
+
+/** TimerN_Reset function.
+ *
+ *  프로세서 재구동시 Shared Memory에 남아 있는 Hasho Talbe에 Timer를 걸어준다.
+ *
+ *  @param      None
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h, timerN.h
+ *
+ *  @exception 	None
+ *  @note       각 Hasho Table을 검색하여 남아 있는 Node들에 Timer 를 걸어준다.
+ *              이 처리 함수가 존재하지 않으면 Hasho Table에 남아있는 모든 Node들은 Shared Memory
+ *              를 삭제하지 않는한 영원히 남아있게 된다.
+ *
+**/
+void TimerN_Reset(void)
+{
+	int						iIndex;
+	OFFSET					pOff, *pNodeHead;
+	stHASHONODE				*pstHASHONODE;
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+	STG_DATA_ITVALUE	*pSTG_DATA_ITVALUE;
+	STG_KEY_ITVALUE		*pSTG_KEY_ITVALUE	;	
++>>+
+	/* STG_DATA_ucIMSI_ucTMSI	*pSTG_DATA_ucIMSI_ucTMSI; 
+	STG_KEY_ucIMSI_ucTMSI	*pSTG_KEY_ucIMSI_ucTMSI;
+	*/
+
+	time_t					timeout;
+
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+	/// Haso_ITKEY 
+	for (iIndex = 0;iIndex < pstHashInfo_ITVALUE->uiHashSize; iIndex++) {
+		pNodeHead = (OFFSET *) (((OFFSET *) HASHO_PTR(pstHashInfo_ITVALUE, pstHashInfo_ITVALUE->offset_psthashnode)) + iIndex);
+		pOff = (OFFSET) *pNodeHead;
+		while (pOff) {
+			pstHASHONODE = (stHASHONODE *) HASHO_PTR(pstHashInfo_ITVALUE, pOff);
+
+			pSTG_KEY_ITVALUE = (STG_KEY_ITVALUE *) (((S32) (pstHASHONODE->offset_Key)) + ((S32) pstHashInfo_ITVALUE));
+			pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+			if (!pSTG_KEY_ITVALUE && !pSTG_DATA_ITVALUE) {
+				timeout = time(NULL);
+				pSTG_DATA_ITVALUE->TimerId = timerN_add(pstTimerNInfo_ITVALUE, invoke_del_ITKEY, (U8 *)pSTG_KEY_ITVALUE->ITKEY, STG_KEY_ITVALUE_SIZE, timeout + STG_HASH_SESS_TIMEOUT);
+
+#ifdef DEBUG
+				dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: Key         (%s)", pSTG_KEY_ITVALUE->ITKEY);
+				dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: iCreateTime (%d)", pSTG_DATA_ITVALUE->stgCoInfo.llTime.time);
+				dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: iCreateMTime(%d)", pSTG_DATA_ITVALUE->stgCoInfo.llTime.utime);
+	ITERATE %HASH_KEY +<<+ 	IT2KEY    IT2VALUE
+				dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: IT2KEY        (%d)", pSTG_DATA_ITVALUE->stgCoInfo.uiIP);
+	+>>+
+				/// dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: ucTMSI      (%s)", pSTG_DATA_ucTMSI_llTime->stgCoInfo.ucTMSI);
+				dAppLog(LOG_DEBUG, "TimerN_Reset: ITKEY: TimerId    (%d)", pSTG_DATA_ITVALUE->TimerId);
+#endif
+			}
+			
+			pOff = pstHASHONODE->offset_next;
+		}
+	}
+
++>>+
+}
+
+/** Hashtimer_Add_??? function.
+ *
+ *  TMSI, Hasho Table에 Node를 추가하고 Timer를 설정한다.
+ *
+ *  @param      pKey  : Hasho Table Key
+ *				pData : Hasho Table Data
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h, timerN.h
+ *
+ *  @exception 	None
+ *  @note       기존에 Key 값이 있으면 Hasho와 TimerN을 삭제한 후 추가한다.
+ *
+**/
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+void HashTimer_Add_ITKEY(U8 *pKey, U8 *pData)
+{
+	time_t					timeout;
+	stHASHONODE				*pstHASHONODE;
+	STG_DATA_ITVALUE	*pSTG_DATA_ITVALUE;
+
+	timeout = time(NULL);
+	pstHASHONODE = hasho_find(pstHashInfo_ITVALUE, pKey);
+	if (pstHASHONODE) {
+		/// Hasho, TimerN Update 
+		pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+		memcpy((STG_DATA_ITVALUE *)pSTG_DATA_ITVALUE, (STG_DATA_ITVALUE *)pData, STG_HASHKEY_SIZE);
+		timerN_update(pstTimerNInfo_ITVALUE, pSTG_DATA_ITVALUE->TimerId, timeout + STG_HASH_DEL_TIMEOUT);
+	}
+	else {
+		/// Hasho, TimerN Add 
+		pstHASHONODE = hasho_add(pstHashInfo_ITVALUE, pKey, pData);
+		if (pstHASHONODE) {
+			pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+			pSTG_DATA_ITVALUE->TimerId = timerN_add(pstTimerNInfo_ITVALUE, invoke_del_ITKEY, (U8 *)pKey, STG_KEY_ITVALUE_SIZE, timeout + STG_HASH_SESS_TIMEOUT);
+		}
+	}
+}
+
++>>+
+
+/** Hashtimer_Del_??? function.
+ *
+ *  TMSI delete 메세지를 받았을 때 Timer를 update 한다.
+ *
+ *  @param      pKey  : Hasho Table Key
+ *
+ *  @return     None
+ *  @see       	co_log_global.h, hasho.h, timerN.h
+ *
+ *  @exception 	None
+ *  @note       Timer를 Update 한다.
+ *				??? Hasho Table의 Node를 직접 삭제하지 않고 Timer에 의해 삭제될 수 있도록 한다.
+ *
+**/
+ITERATE %HASH_KEY +<<+ 	ITKEY    ITVALUE
+void HashTimer_Del_ITKEY(U8 *pKey)
+{
+	time_t					timeout;
+	STG_DATA_ITVALUE	*pSTG_DATA_ITVALUE;
+	stHASHONODE				*pstHASHONODE;
+
+	pstHASHONODE = hasho_find(pstHashInfo_ITVALUE, pKey);
+	if (pstHASHONODE) {
+		/// TimerN Update 
+		pSTG_DATA_ITVALUE = (STG_DATA_ITVALUE *) (((S32) (pstHASHONODE->offset_Data)) + ((S32) pstHashInfo_ITVALUE));
+		timeout = time(NULL);
+		timerN_update(pstTimerNInfo_ITVALUE, pSTG_DATA_ITVALUE->TimerId, timeout + STG_HASH_DEL_TIMEOUT);
+	}
+}
+
++>>+
+

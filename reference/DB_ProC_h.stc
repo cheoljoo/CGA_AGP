@@ -1,0 +1,22 @@
+FileName : ../DB_ProC.h
+Set : iterate_comments = OFF
+
+#ifndef _DB_PROC_H__
+#define _DB_PROC_H__
+#include "common_stg.h"
+
+#pragma pack (1)
+ITERATE %ANALYSIS_TYPEDEF +<<+ ITKEY ITVALUE
+typedef struct __st_ITKEY {
+	ITERATE @SQL_ARRAY_ITKEY +<<+ IT2KEY IT2VALUE
+			+<+$SQL_ITKEY_type{IT2VALUE}+>+ 		+<+$SQL_ITKEY_member_full{IT2VALUE}+>+ ;
+	+>>+
+} stFlat_ITKEY;
+#define stFlat_ITKEY_SIZE sizeof(stFlat_ITKEY)
+
++>>+
+
+#pragma pack (0)
+#endif
+
+

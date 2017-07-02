@@ -1,0 +1,57 @@
+FileName : cilog_table.html
+Set : iterate_comments = OFF
+
+
+<HTML>
+
+<HEAD>
+<TITLE>CILOG TABLE</TITLE>
+</HEAD>
+
+<BODY>
+HTML 문서는 머리와 몸통의 두 부분으로 구성되어
+있으며, 이를 정의하기 위하여 3개의 기본적인 태그가
+이용된다. 본 예제는 이러한 기본 태그를 사용하여 작성한
+것이다
+<br>
+
+
+<body>
+
+
+ITERATE %table_log +<<+ ITKEY ITVALUE
+<TABLE border=1> <TR> <h2> ITKEY </h2> </TR>
+	<TR>
+		<TD bgcolor=0xCCFFFF> IDX </TD>			<!--  Index  -->
+		<TD bgcolor=0xFFFFFF> Field </TD>			<!--  Field Name  -->					
+		<TD bgcolor=0xFFFFFF> Var Type	</TD>		<!--  type  -->
+		<TD bgcolor=0xFFFFFF> Str Size	</TD>   <!--  string define size  -->
+		<TD bgcolor=0xFFFFFF> Str Digit	</TD>   <!-- define value  -->
+		<TD bgcolor=0xFFFFFF> Print Fmt	</TD>   <!--  Print format -->
+		<TD bgcolor=0xFFFFFF> Comments	</TD>   <!--  Comments  -->
+	</TR>
+	ITERATE @ANALYSIS_ARRAY_CILOG_TABLE_ITKEY +<<+ IT2KEY IT2VALUE
+	IFEQUAL(+<+$ANALYSIS_ITKEY_CILOG_HIDDEN{IT2VALUE}+>+,NO) #{
+	<TR>
+		<TD bgcolor=CCFFFFFF> IT2KEY </TD>			<!--  Index  -->
+		<TD> IT2VALUE </TD>			<!--  Field Name  -->					
+		<TD bgcolor=0xEEFFFF> +<+$ANALYSIS_ITKEY{IT2VALUE}+>+	</TD>		<!--  type  -->
+		<TD> +<+$ANALYSIS_ITKEY_array_size{IT2VALUE}+>+	</TD>   <!--  string define size  -->
+		<TD bgcolor=0xEEFFFF> +<+$define_digit{ +<+$ANALYSIS_ITKEY_array_size{IT2VALUE }+>+}+>+	</TD>   <!-- define value  -->
+		<TD> +<+$ANALYSIS_ITKEY_PrintFormat{IT2VALUE}+>+	</TD>   <!--  Print format -->
+		<TD bgcolor=0xEEFFFF> +<+$ANALYSIS_ITKEY_TABLE_COMMENTS{IT2VALUE}+>+	</TD>   <!--  Comments  -->
+	</TR>
+	}#
+	+>>+
+</TABLE>
+<BR><BR>
++>>+
+
+
+</body>
+</html>
+
+
+
+
+

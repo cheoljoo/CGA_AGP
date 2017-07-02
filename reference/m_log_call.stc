@@ -1,0 +1,48 @@
+FileName : m_log_call.cpp
+Set :  AAA = 3
+
+#include "m_log_extern.h"
+
+/** Call_Proc function.
+ *
+ *  MsgID별로 처리 함수 호출
+ *
+ *  @param      msgq  : 메세지큐 구조체(MsgQHeader + MsgQBody(처리 메세지) 로 구성)
+ *
+ *  @return		None
+ *  @see		m_log_global.h flat_ims_interface.h
+ *
+ *  @exception	MsgID별로 DB에 Insert 하는 함수를 호출한다.
+ *  @note		구조체가 추가되면 MsgID별로 함수를 추가해야 한다.
+ * 				STRUCTG에서 자동으로 생성하게 해 줄 것이다. 이팀장님이...
+ *
+ *  @프로토콜 메세지 Format
+ *              +----------------------------------------------------------------------------+
+ *              | MsgQHeader | MsgQBody( ctime | cmtime | ip | imsi | tmsi | 메세지 body )   |
+ *              +----------------------------------------------------------------------------+
+ *                           |	                                                             |
+ *                           +----------------- MsgQBody(Max 6144 Byte) ---------------------+ 
+ *			
+**/
+/* 예 : +<+ $AAA +>+ */
+void Call_Proc(stCom_MsgQHeader *msgq)
+{
+	switch (msgq->ucMsgID) {
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+
+		case ITKEY_DEF_NUM:
+			Msg_ITKEY(msgq);
+			break;
+
++>>+
+		case 0:
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+			if (gdMsgCnt_ITKEY > 0) Msg_ITKEY(msgq);
++>>+
+			break;
+
+		default:
+			break;
+	}	
+}
+

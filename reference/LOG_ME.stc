@@ -1,0 +1,294 @@
+FileName : LOG_ME_REQ_HDR.l
+Set : iterate_comments = OFF
+Set : main_name = LOG_ME
+Set : sub_name = REQ_HDR
+Set : lex_prefix = LogMEReqHdr
+
+/* scanner for a toy Pascal-like language */
+
+%{
+/* need this for the call to atof() below */
+#include <math.h>
+#include "../../../L7.h"
+
++<+$main_name+>+ *p+<+$main_name+>+;
+
+
+%}
+
++<+$LEX_TOKEN_RESULT{+<+$main_name+>+}+>+
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+%s 		ITKEY
++>>+
+
+
+%%
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+ITVALUE 		{
+	BEGIN	ITKEY;
+	printf("%s\n","ITKEY ITVALUE");
+}
+	ITERATE %+<+$main_name+>+_MSG_RULE_+<+$sub_name+>+_ITKEY  +<<+ 	IT2KEY    IT2VALUE
+		IT2KEY 			{
+		(yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+) ;
+		printf("%s = %s\n"
+			, "+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+"
+			, yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ 
+		);
+		Set_Value(
+		      (int) +<+$type_set_type{ +<+$+<+$main_name+>+_MSG_RULE_VAR_TYPE_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ }+>+
+			, (char *) ( p+<+$main_name+>+->+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ ) 	
+			, (int *)  &( p+<+$main_name+>+->+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ ) 	
+			, (int) +<+$+<+$main_name+>+_MSG_RULE_SIZE_+<+$sub_name+>+_ITKEY{IT2KEY}+>+
+			, (int) STG_STRING
+			, (char *) (yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ )
+			, (int *) 0
+			, (int) yyleng - +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ );
+
+		}
+
+	+>>+
+<ITKEY>(+<+$LEX_LINEFEED{+<+$main_name+>+}+>+) {
+	BEGIN 0;
+}
+<ITKEY>. 
++>>+
+
+
+
+(+<+$LEX_FORMFEED{+<+$main_name+>+}+>+) {
+	return ;
+}
+
+.		{ printf("unrecognized : %s\n",yytext); }
+
+%%
+Set : iterate_comments = ON
+
+int +<+$lex_prefix+>+wrap(){
+	return 1;
+}
+
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+@code
+int LOG_ME_REQ_HDR_LEX(char *sp
+		,int slen
+		,LOG_ME_REQ_HDR *pLOG_ME_REQ_HDR)
++<+$main_name+>+_+<+$sub_name+>+_LEX
++<+$main_name+>+_+<+$sub_name+>+
+*p+<+$main_name+>+_+<+$sub_name+>+
+@endcode
+ **/
+int +<+$main_name+>+_+<+$sub_name+>+_LEX (char *sp
+		,int slen
+		,char *dp)
+{
+	p+<+$main_name+>+ = (+<+$main_name+>+ *)dp;
+	+<+$lex_prefix+>+_scan_bytes(sp,slen);
+	+<+$lex_prefix+>+lex();
+
+	LOG_ME_Prt("LOG_ME ", p+<+$main_name+>+);
+
+	return 1;
+}
+
+
+#ifdef TEST
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+ **/
+int main( argc, argv )
+int argc;
+char **argv;
+{
+
+	char s[1000],d[1000];
+	memset(s,0,1000);
+	memset(d,0,1000);
+    sprintf(s,"Host: TEF.ETE\r\n");
+
+	
+	+<+$main_name+>+_+<+$sub_name+>+_LEX (s,strlen(s),d);
+
+	return 0;
+
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+FileName : LOG_ME_RESP_HDR.l
+Set : iterate_comments = OFF
+Set : main_name = LOG_ME
+Set : sub_name = RESP_HDR
+Set : lex_prefix = LogMERespHdr
+
+/* scanner for a toy Pascal-like language */
+
+%{
+/* need this for the call to atof() below */
+#include <math.h>
+#include "../../../L7.h"
+
++<+$main_name+>+ *p+<+$main_name+>+;
+
+%}
+
++<+$LEX_TOKEN_RESULT{+<+$main_name+>+}+>+
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+%s 		ITKEY
++>>+
+
+
+%%
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+ITVALUE 		{
+	BEGIN	ITKEY;
+	printf("%s\n","ITKEY ITVALUE");
+}
+	ITERATE %+<+$main_name+>+_MSG_RULE_+<+$sub_name+>+_ITKEY  +<<+ 	IT2KEY    IT2VALUE
+		IT2KEY 			{
+		(yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+) ;
+		printf("%s = %s\n"
+			, "+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+"
+			, yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ 
+		);
+		Set_Value(
+		      (int) +<+$type_set_type{ +<+$+<+$main_name+>+_MSG_RULE_VAR_TYPE_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ }+>+
+			, (char *) ( p+<+$main_name+>+->+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ ) 	
+			, (int *)  &( p+<+$main_name+>+->+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ ) 	
+			, (int) +<+$+<+$main_name+>+_MSG_RULE_SIZE_+<+$sub_name+>+_ITKEY{IT2KEY}+>+
+			, (int) STG_STRING
+			, (char *) (yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ )
+			, (int *) 0
+			, (int) yyleng - +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ );
+
+		}
+
+	+>>+
+<ITKEY>(+<+$LEX_LINEFEED{+<+$main_name+>+}+>+) {
+	BEGIN 0;
+}
+<ITKEY>. 
++>>+
+
+
+
+(+<+$LEX_FORMFEED{+<+$main_name+>+}+>+) {
+	return ;
+}
+
+.		{ printf("unrecognized : %s\n",yytext); }
+
+%%
+Set : iterate_comments = ON
+
+int +<+$lex_prefix+>+wrap() {
+	return 1; 
+}
+
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+@code
+int LOG_ME_REQ_HDR_LEX(char *sp
+		,int slen
+		,LOG_ME_REQ_HDR *pLOG_ME_REQ_HDR)
++<+$main_name+>+_+<+$sub_name+>+_LEX
++<+$main_name+>+_+<+$sub_name+>+
+*p+<+$main_name+>+_+<+$sub_name+>+
+@endcode
+ **/
+int +<+$main_name+>+_+<+$sub_name+>+_LEX (char *sp
+		,int slen
+		,char *dp)
+{
+	printf("%s : len %d\n",__FUNCTION__,slen);
+	p+<+$main_name+>+ = (+<+$main_name+>+ *)dp;
+	+<+$lex_prefix+>+_scan_bytes(sp,slen);
+	+<+$lex_prefix+>+lex();
+
+	LOG_ME_Prt("LOG_ME ", p+<+$main_name+>+);
+
+	return 1;
+}
+
+
+
+#ifdef TEST
+/** main function : starting function for TEST
+ *
+ * ME request head has the "Host:" parameter.
+ * This tests "Host:" parameter through upper library function. ()
+ * 
+ *
+ * @param argc	: running parameter count
+ * @param argv	: running parameter value
+ *
+ *  @return     void
+ *
+ *  @note       You may observe the yy_?? function. \n and I will use the supporting library function.
+ **/
+int main( argc, argv )
+int argc;
+char **argv;
+{
+
+	char s[1000],d[1000];
+	memset(s,0,1000);
+	memset(d,0,1000);
+    sprintf(s,"HTTP KIT:12345\r\n");
+    sprintf(s,"%sContent-Type: TEF.ETE\r\n",s);
+
+	
+	+<+$main_name+>+_+<+$sub_name+>+_LEX (s,strlen(s),d);
+
+	return 0;
+
+}
+#endif
+

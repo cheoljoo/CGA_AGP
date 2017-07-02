@@ -1,0 +1,657 @@
+FileName : BODY.l
+Lex_Compile_Option : -i
+Set : iterate_comments = OFF
+
+/* scanner for a toy Pascal-like language */
+
+%{
+/* need this for the call to atof() below */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <timerN.h>
+#include <hashg.h>
+#include "aqua.h"
+
+#define   FILEREF	"file:///"
+#define   FILEREF_LEN	8
+
+static BODY	*gpBODY;
+static LIST	*gpUrlParseLIST;
+static MENU_TITLE_KEY gahref;
+static MENU_TITLE_KEY *pMENU_TITLE_KEY;
+static MENU_TITLE_DATA gatitle;
+static MENU_TITLE_DATA gamenutitle;
+static stHASHGINFO		*gpHASHGINFO;
+static stTIMERNINFO		*gpTIMERNINFO;
+static stHASHGNODE		*pHASHGNODE;
+static int gtimeout;
+static MENU_TITLE_DATA *pMENU_TITLE_DATA;
+
+int brace_cnt;
+int href_brace_cnt;
+
+
+#define IMG_TYPE	1
+extern void put_body_list(char *text , int leng);
+extern void put_href(char *totext,U16 *toleng,char *fromtext,int fromleng);
+extern void put_menutitle(char *totext,U16 *toleng,char *fromtext,int fromleng);
+extern void invoke_del_MENUTITLE(void *p);
+
+
+%}
+
+DIGIT    [0-9]
+ID       [A-Za-z0-9]*
+ac		</a>
+%s		HREF
+%s		IMG
+%s		BGIMG
+%s		LEXBODY
+%s		LINK
+%s		META
+
+%%
+
+^"url=http://"[^ \t;]* {
+	FPRINTF(LOG_LEVEL,"\nREDIRECT HTTP  %s\n",yytext);
+	gpBODY->redirect_url_type = REDIRECT_HTTP;
+	yyleng -= 4;
+	if(yyleng > MAX_BODY_STR_LEN){
+		gpBODY->redirect_url_len = MAX_BODY_STR_LEN;
+		memcpy(gpBODY->redirect_url ,yytext+4,MAX_BODY_STR_SIZE);
+		gpBODY->redirect_url[MAX_BODY_STR_LEN] = 0;
+	} else {
+		gpBODY->redirect_url_len = yyleng;
+		memcpy(gpBODY->redirect_url ,yytext+4,yyleng);
+		gpBODY->redirect_url[yyleng] = 0;
+	}
+	return  1;
+}
+
+^"url=rtsp://"[^ \t;]* {
+	FPRINTF(LOG_LEVEL,"\nREDIRECT RTSP  %s\n",yytext);
+	gpBODY->redirect_url_type = REDIRECT_RTSP;
+	yyleng -= 4;
+	if(yyleng > MAX_BODY_STR_LEN){
+		gpBODY->redirect_url_len = MAX_BODY_STR_LEN;
+		memcpy(gpBODY->redirect_url ,yytext+4,MAX_BODY_STR_SIZE);
+		gpBODY->redirect_url[MAX_BODY_STR_LEN] = 0;
+	} else {
+		gpBODY->redirect_url_len = yyleng;
+		memcpy(gpBODY->redirect_url ,yytext+4,yyleng);
+		gpBODY->redirect_url[yyleng] = 0;
+	}
+	return  1;
+}
+
+"<a"[ \t]+[^<>]*"href="[ \t]*[^ <>'"]+ {
+		gamenutitle.menutitle_len=0;
+		gatitle.menutitle_len=0;
+		gahref.href_len=0;
+		BEGIN HREF;
+		FPRINTF(LOG_LEVEL,"\nHTML: HREF %s [H]\n",yytext);
+		put_href(gahref.href,&gahref.href_len,yytext,yyleng);
+		{
+			S32		dRet;	
+			FPRINTF(LOG_LEVEL,"\n############## HREF %s [%d]\n",gahref.href, gahref.href_len);
+			dRet = Make_Absolute_URL_URLLIST( gpUrlParseLIST, &gahref.href_len, gahref.href);
+			if(dRet < 0){
+				gamenutitle.menutitle_len=0;
+				gatitle.menutitle_len=0;
+				gahref.href_len=0;
+				FPRINTF(LOG_BUG, "Make_Absolute_URL_URLLIST RET=[%d]", dRet); 
+			}
+		}
+		href_brace_cnt = -1;
+}
+"<a"[ \t]+[^<>]*"href='"[ \t]*[^ <>'"]+ {
+		gamenutitle.menutitle_len=0;
+		gatitle.menutitle_len=0;
+		gahref.href_len=0;
+		BEGIN HREF;
+		FPRINTF(LOG_LEVEL,"\nHTML: HREF %s [H]\n",yytext);
+		put_href(gahref.href,&gahref.href_len,yytext,yyleng);
+		// ???   shlee , gahref안의 것을 절대 path와 그것과 관련된 len으로 바꿔주세요.
+		{
+			S32		dRet;	
+			FPRINTF(LOG_LEVEL,"\n############## HREF %s [%d]\n",gahref.href, gahref.href_len);
+			dRet = Make_Absolute_URL_URLLIST( gpUrlParseLIST, &gahref.href_len, gahref.href);
+			if(dRet < 0){
+				gamenutitle.menutitle_len=0;
+				gatitle.menutitle_len=0;
+				gahref.href_len=0;
+				FPRINTF(LOG_BUG, "Make_Absolute_URL_URLLIST RET=[%d]", dRet); 
+			}
+		}
+		href_brace_cnt = -1;
+}
+"<a"[ \t]+[^<>]*"href=\""[ \t]*[^ <>'"]+ {
+		gamenutitle.menutitle_len=0;
+		gatitle.menutitle_len=0;
+		gahref.href_len=0;
+		BEGIN HREF;
+		FPRINTF(LOG_LEVEL,"\nHTML: HREF %s [H]\n",yytext);
+		put_href(gahref.href,&gahref.href_len,yytext,yyleng);
+		// ???   shlee , gahref안의 것을 절대 path와 그것과 관련된 len으로 바꿔주세요.
+		{
+			S32		dRet;	
+			FPRINTF(LOG_LEVEL,"\n############## HREF %s [%d]\n",gahref.href, gahref.href_len);
+			dRet = Make_Absolute_URL_URLLIST( gpUrlParseLIST, &gahref.href_len, gahref.href);
+			if(dRet < 0){
+				gamenutitle.menutitle_len=0;
+				gatitle.menutitle_len=0;
+				gahref.href_len=0;
+				FPRINTF(LOG_BUG, "Make_Absolute_URL_URLLIST RET=[%d]", dRet); 
+			}
+		}
+		href_brace_cnt = -1;
+}
+<HREF>\< {
+		href_brace_cnt --;
+		//FPRINTF(LOG_LEVEL,"HREF: <  brace %d\n",href_brace_cnt);
+}
+<HREF>\> {
+		href_brace_cnt ++;
+		//FPRINTF(LOG_LEVEL,"HREF: >  brace %d\n",href_brace_cnt);
+}
+<HREF>&nbsp; { 
+	//FPRINTF(LOG_LEVEL,"HREF : nbsp %s\n",yytext);
+}
+<HREF>"title=\""[ \t]*[^ \t'<>]+ {
+	FPRINTF(LOG_LEVEL,"HREF: TIELE1 %.*s [H]\n",yyleng,yytext);
+	if(gahref.href_len && (gatitle.menutitle_len == 0)){
+		put_menutitle(gatitle.menutitle,&gatitle.menutitle_len,yytext,yyleng);
+		gatitle.timerNID = 0;
+		FPRINTF(LOG_LEVEL,"HREF: TIELE2 %.*s [H]\n",yyleng,yytext);
+	}
+}
+<HREF>"title='"[ \t]*[^ \t'<>]+ {
+	FPRINTF(LOG_LEVEL,"HREF: TIELE1 %.*s [H]\n",yyleng,yytext);
+	if(gahref.href_len && (gatitle.menutitle_len == 0)){
+		put_menutitle(gatitle.menutitle,&gatitle.menutitle_len,yytext,yyleng);
+		gatitle.timerNID = 0;
+		FPRINTF(LOG_LEVEL,"HREF: TIELE2 %.*s [H]\n",yyleng,yytext);
+	}
+}
+<HREF>"title="[ \t]*[^ \t'<>]+ {
+	FPRINTF(LOG_LEVEL,"HREF: TIELE1 %.*s [H]\n",yyleng,yytext);
+	if(gahref.href_len && (gatitle.menutitle_len == 0)){
+		put_menutitle(gatitle.menutitle,&gatitle.menutitle_len,yytext,yyleng);
+		gatitle.timerNID = 0;
+		FPRINTF(LOG_LEVEL,"HREF: TIELE2 %.*s [H]\n",yyleng,yytext);
+	}
+}
+<HREF>"</a>" {
+		BEGIN 0;
+		FPRINTF(LOG_LEVEL,"MENUTITLE: %d HREF  {%.*s} [H]\n",gahref.href_len,gahref.href_len,gahref.href);
+		FPRINTF(LOG_LEVEL,"MENUTITLE: %d TITLE {%.*s} [H]\n",gatitle.menutitle_len,gatitle.menutitle_len,gatitle.menutitle);
+		FPRINTF(LOG_LEVEL,"MENUTITLE: %d MENU  {%.*s} [H]\n",gamenutitle.menutitle_len,gamenutitle.menutitle_len,gamenutitle.menutitle);
+
+		if(gpHASHGINFO && gpTIMERNINFO){
+			if(gamenutitle.menutitle_len){
+				gpBODY->href_cnt++;
+				pHASHGNODE = hashg_add(gpHASHGINFO, (U8 *)&gahref, (U8 *)&gamenutitle);
+			} else if(gatitle.menutitle_len){		// use the 'title=...'
+				gpBODY->href_cnt++;
+				pHASHGNODE = hashg_add(gpHASHGINFO, (U8 *)&gahref, (U8 *)&gatitle);
+			} else {
+				pHASHGNODE = 0;
+			}
+			FPRINTF(LOG_LEVEL,"MENUTITLE: hash_add %p\n",pHASHGNODE);
+
+			if(pHASHGNODE){
+				pMENU_TITLE_DATA = (MENU_TITLE_DATA *) pHASHGNODE->pstData;
+				FPRINTF(LOG_LEVEL,"MENUTITLE: hash_add timer %llu",pMENU_TITLE_DATA->timerNID);
+				if(pMENU_TITLE_DATA->timerNID){
+					pMENU_TITLE_DATA->timerNID = timerN_update(gpTIMERNINFO, pMENU_TITLE_DATA->timerNID, time(NULL) + gtimeout);
+				} else {
+					pMENU_TITLE_DATA->timerNID = timerN_add(gpTIMERNINFO, invoke_del_MENUTITLE, (U8 *)&gahref, MENU_TITLE_KEY_SIZE, time(NULL) + gtimeout);
+				}
+			}
+		}
+		
+		gamenutitle.menutitle_len=0;
+		gatitle.menutitle_len=0;
+		gahref.href_len=0;
+}
+<HREF>[ \t]			{}
+<HREF>[\r\n]		{}
+<HREF>[^<>\r\n&;]+ 	{ 
+	if(href_brace_cnt ==0){
+		int space = 0,i;
+		FPRINTF(LOG_LEVEL,"HREF: [%d] [%d] {%.*s}\n",href_brace_cnt,yyleng,yyleng,yytext);
+
+		for(;yyleng>0;yytext++,yyleng--){
+			switch(*yytext){
+				case ' ':
+				case '\t':
+				case '\n':
+				case '\r':
+					break;
+				default:
+					space = 1;
+					break;
+			}
+			if(space == 1) break;
+		}
+
+		if(gahref.href_len && (gamenutitle.menutitle_len ==0) && (yyleng != 0)){		// yyleng > 0
+			if(yyleng > MAX_MENUTITLE_LEN){
+				gamenutitle.menutitle_len = MAX_MENUTITLE_LEN;
+			} else {
+				gamenutitle.menutitle_len = yyleng;
+			}
+			for( i = 0 ; i < gamenutitle.menutitle_len ; i++,yytext++){
+				switch(*yytext){
+					case '\n':
+					case '\r':
+					case '\t':
+						gamenutitle.menutitle[i] = ' ';
+						break;
+					default:
+						gamenutitle.menutitle[i] = *yytext;
+						break;
+				}
+			}
+			gamenutitle.menutitle[gamenutitle.menutitle_len] = 0;
+			gamenutitle.timerNID = 0;
+		}
+	}
+}
+
+
+
+
+
+"<"[ \t]*bgsound {
+		FPRINTF(LOG_LEVEL,"IMG: %s [H]\n",yytext);
+		BEGIN IMG;
+		brace_cnt = -1;
+}
+
+"<"[ \t]*img {
+		FPRINTF(LOG_LEVEL,"IMG: %s [H]\n",yytext);
+		BEGIN IMG;
+		brace_cnt = -1;
+}
+<IMG>\r\n		{ BEGIN 0; }
+<IMG>\< {
+		brace_cnt --;
+		//FPRINTF(LOG_LEVEL,"HREF: <  brace %d\n",brace_cnt);
+}
+<IMG>\> {
+		brace_cnt ++;
+		if(brace_cnt == 0){ 
+			BEGIN 0; 
+		}
+		FPRINTF(LOG_LEVEL,"IMG: >  brace %d\n",brace_cnt);
+}
+<IMG>"src='"[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"IMG src: %s [H]\n",yytext);
+		put_body_list(yytext+5,yyleng-5);
+	}
+}
+<IMG>"src=\""[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"IMG src: %s [H]\n",yytext);
+		put_body_list(yytext+5,yyleng-5);
+	}
+}
+<IMG>"src="[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"IMG src: %s [H]",yytext);
+		put_body_list(yytext+4,yyleng-4);
+	}
+}
+
+"<"[ \t]*link {
+		FPRINTF(LOG_LEVEL,"LINK: %s [H]\n",yytext);
+		BEGIN LINK;
+		brace_cnt = -1;
+}
+<LINK>\r\n		{ BEGIN 0; }
+<LINK>\< {
+		brace_cnt --;
+		//FPRINTF(LOG_LEVEL,"HREF: <  brace %d\n",brace_cnt);
+}
+<LINK>\> {
+		brace_cnt ++;
+		if(brace_cnt == 0){ 
+			BEGIN 0; 
+		}
+		FPRINTF(LOG_LEVEL,"LINK: >  brace %d\n",brace_cnt);
+}
+<LINK>"href='"[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LINK src1: %s [H]\n",yytext);
+		put_body_list(yytext+6,yyleng-6);
+	}
+}
+<LINK>"href=\""[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LINK src2: %s [H]\n",yytext);
+		put_body_list(yytext+6,yyleng-6);
+	}
+}
+<LINK>"href="[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LINK src3: %s [H]\n",yytext);
+		put_body_list(yytext+5,yyleng-5);
+	}
+}
+
+"<"[ \t]*meta[ \t]*http-equiv[ \t]*=[ \t'"]*refresh[ \t'"]*content[ \t]*=[ \t'"]*[0-9]+;[ \t]* {
+	FPRINTF(LOG_LEVEL,"META: %s [H]\n",yytext);
+	BEGIN META;
+	brace_cnt = -1;
+}
+<META>\r\n		{ BEGIN 0; }
+<META>\< {
+	brace_cnt --;
+	//FPRINTF(LOG_LEVEL,"HREF: <  brace %d\n",brace_cnt);
+}
+<META>\> {
+	brace_cnt ++;
+	if(brace_cnt == 0){ 
+		BEGIN 0; 
+	}
+	FPRINTF(LOG_LEVEL,"META: >  brace %d\n",brace_cnt);
+}
+<META>"url="[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"META src: %s [H]\n",yytext);
+		put_body_list(yytext+4,yyleng-4);
+	}
+}
+
+"<"[ \t]*body {
+		FPRINTF(LOG_LEVEL,"LEXBODY: %s [H]\n",yytext);
+		BEGIN LEXBODY;
+		brace_cnt = -1;
+}
+<LEXBODY>\r\n		{ BEGIN 0; }
+<LEXBODY>\< {
+		brace_cnt --;
+		//FPRINTF(LOG_LEVEL,"HREF: <  brace %d\n",brace_cnt);
+}
+<LEXBODY>\> {
+		brace_cnt ++;
+		if(brace_cnt == 0){ 
+			BEGIN 0; 
+		}
+		FPRINTF(LOG_LEVEL,"LEXBOX: >  brace %d\n",brace_cnt);
+}
+<LEXBODY>"background='"[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LEXBODY background: %s [H]\n",yytext);
+		put_body_list(yytext+12,yyleng-12);
+	}
+}
+<LEXBODY>"background=\""[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LEXBODY background: %s [H]\n",yytext);
+		put_body_list(yytext+12,yyleng-12);
+	}
+}
+<LEXBODY>"background="[ \t]*[^ \t\r\n>\\'"]+  {
+	if(brace_cnt == -1){
+		FPRINTF(LOG_LEVEL,"LEXBODY background: %s [H]\n",yytext);
+		put_body_list(yytext+11,yyleng-11);
+	}
+}
+
+
+
+
+"background-image"[ \t]*:[ \t]*url[ \t]*"("[ \t]* {
+		FPRINTF(LOG_LEVEL,"BGIMG: %s [H]\n",yytext);
+		BEGIN BGIMG;
+}
+<BGIMG>\r\n		{ BEGIN 0; }
+<BGIMG>[ \t]*[^ \t\r\n>\\'")]+  {
+	FPRINTF(LOG_LEVEL,"BGIMG background-img: %s [H]\n",yytext);
+	put_body_list(yytext,yyleng);
+	BEGIN 0;
+}
+
+
+
+
+
+[\r\n]
+.	
+
+
+
+%%
+
+void invoke_del_MENUTITLE(void *p)
+{
+	MENU_TITLE_KEY *pMENU_TITLE_KEY;
+	pMENU_TITLE_KEY = (MENU_TITLE_KEY *)p;
+
+	MENU_TITLE_KEY_Prt((char *)__FUNCTION__,pMENU_TITLE_KEY);
+	hashg_del_from_key(gpHASHGINFO, (U8 *) p);
+}
+
+void put_href(char *totext,U16 *toleng,char *fromtext,int fromleng)
+{
+	int __i=0,__start=1,__idx=0;
+	char *to_str , *from_str;
+	int	space=0;
+
+	to_str = totext;
+	from_str = fromtext;
+	for(__i=0;__i<fromleng;__i++){
+		switch(from_str[__i]){
+			case ' ':
+			case '\t':
+			case '\n':
+			case '\r':
+				break;
+			default:
+				space = 1;
+				break;
+		}
+		if(space == 1) break;
+
+	}
+	for(;__i<fromleng;__i++){
+		if(__start){
+			if( (from_str[__i] == '=')){
+				__start = 0;
+				__idx = 0;
+			} 
+		} else {
+			switch(from_str[__i]){
+				case ' ':
+				case '\t':
+				case '\'':
+				case '\"':
+				case '>':
+					break;
+				default:
+					to_str[__idx] = from_str[__i];
+					__idx++;
+					break;
+			}
+			if(__idx >= MAX_BODY_STR_LEN) break;
+		}
+	}
+	*toleng = __idx;
+	memset(&to_str[__idx],0x00,MAX_BODY_STR_SIZE - __idx);		// to_str[__idx] = 0;
+}
+
+void put_menutitle(char *totext,U16 *toleng,char *fromtext,int fromleng)
+{
+	int __i=0,__start=1,__idx=0;
+	char *to_str , *from_str;
+	int	space=0;
+
+	to_str = totext;
+	from_str = fromtext;
+	for(__i=0;__i<fromleng;__i++){
+		switch(from_str[__i]){
+			case ' ':
+			case '\t':
+			case '\n':
+			case '\r':
+				break;
+			default:
+				space = 1;
+				break;
+		}
+		if(space == 1) break;
+
+	}
+	for(;__i<fromleng;__i++){
+		if(__start){
+			if( (from_str[__i] == '=')){
+				__start = 0;
+				__idx = 0;
+			} 
+		} else {
+			switch(from_str[__i]){
+				case ' ':
+				case '\'':
+				case '\"':
+				case '>':
+					break;
+				case '\t':
+					FPRINTF(LOG_LEVEL,"TAB: %s",from_str);
+					to_str[__idx] = ' ';
+					__idx++;
+					break;
+				default:
+					to_str[__idx] = from_str[__i];
+					__idx++;
+					break;
+			}
+			if(__idx >= MAX_MENUTITLE_LEN) break;
+		}
+	}
+	*toleng = __idx;
+	to_str[__idx] = 0;
+}
+
+void put_body_list(char *text , int leng){
+	int space=0;
+	FPRINTF(LOG_LEVEL,"text-[%s]\n",text);
+
+	for(;leng>0;text++,leng--){
+		switch(*text){
+			case ' ':
+			case '\t':
+			case '\n':
+			case '\r':
+				break;
+			default:
+				space = 1;
+				break;
+		}
+		if(space == 1) break;
+	}
+
+	if(leng == 0) return;
+
+	if(gpBODY->aLIST.listcnt >= MAX_URL_CNT){
+		gpBODY->link_cnt++;
+	} else {
+		if( (leng < FILEREF_LEN) || memcmp(text, FILEREF, FILEREF_LEN) ){
+			FPRINTF(LOG_LEVEL,"PUTBODY : Len=%d < FILEREF_LEN(%d) SRC %s (curcnt=%d)\n",
+				leng, FILEREF_LEN, text, gpBODY->aLIST.listcnt, sizeof(BODY));
+			S32 dRet;
+			gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].type = IMG_TYPE;
+			if(leng > MAX_BODY_STR_LEN)
+				leng = MAX_BODY_STR_LEN;
+			memcpy(gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].str,text,leng);
+			gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].str[leng] = 0;
+			gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].len = leng;
+			dRet = Make_Absolute_URL_Buf_URLLIST( gpUrlParseLIST, leng, text, &gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].len, gpBODY->aLIST.strlist[gpBODY->aLIST.listcnt].str);
+			if(dRet < 0)
+				FPRINTF(LOG_BUG, "Make_Absolute_URL_Buf_URLLIST RET=[%d]", dRet); 
+			gpBODY->aLIST.listcnt++;
+			gpBODY->link_cnt++;
+		} else {
+			FPRINTF(LOG_LEVEL,"PUTBODY : Len=%d >= FILEREF_LEN(%d) SRC %s (curcnt=%d)\n",
+				leng, FILEREF_LEN, text, gpBODY->aLIST.listcnt, sizeof(BODY));
+		}
+	}
+	return ;
+}
+
+int BODYwrap(){
+	return 1;
+}
+
+Set : function_def{BODY_LEX} = "int BODY_LEX (char *sp ,int slen ,U8 *dp ,stHASHGINFO *pHASHGINFO ,stTIMERNINFO *pTIMERNINFO ,int	timeout ,LIST *listp)"
+int BODY_LEX (char *sp
+		,int slen
+		,U8 *dp
+		,stHASHGINFO *pHASHGINFO
+		,stTIMERNINFO *pTIMERNINFO
+		,int	timeout
+		,LIST *listp
+		)
+{
+	int		i;
+
+	FPRINTF(LOG_LEVEL,"%s : slen %d\n",(char *)__FUNCTION__,slen);
+	brace_cnt = 0;
+	href_brace_cnt = 0;
+	gpBODY = (BODY *) dp;
+	gpHASHGINFO = pHASHGINFO;
+	gpTIMERNINFO = pTIMERNINFO;
+	gtimeout = timeout;
+	gpUrlParseLIST = listp;
+	gpBODY->redirect_url_type = 0;
+	gpBODY->redirect_url_len = 0;
+	gpBODY->redirect_url[0] = 0x00;
+	gpBODY->link_cnt = 0;
+	gpBODY->href_cnt = 0;
+	gpBODY->aLIST.listcnt = 0;
+	BODY_scan_bytes(sp,slen);
+	BODYlex();
+	BODY_delete_buffer(yy_current_buffer);
+	yy_init = 1;
+
+	/* BODY_Prt("BODY", gpBODY); */
+	FPRINTF(LOG_LEVEL,"%s : redirect_url_type %d   ,  link_cnt : %d , href_cnt : %d\n",(char *)__FUNCTION__,gpBODY->redirect_url_type,gpBODY->link_cnt,gpBODY->href_cnt);
+	FPRINTF(LOG_LEVEL,"%s : redirect_url  %d  : %.*s\n",(char *)__FUNCTION__,gpBODY->redirect_url_len,gpBODY->redirect_url_len,gpBODY->redirect_url);
+	for(i=0;i<gpBODY->aLIST.listcnt;i++){
+		FPRINTF(LOG_LEVEL,"%s : [%d] body str  %d : %s\n",(char *)__FUNCTION__,i,gpBODY->aLIST.strlist[i].len,gpBODY->aLIST.strlist[i].str);
+	}
+
+
+	return 1;
+}
+
+#ifdef TEST
+main( argc, argv )
+int argc;
+char **argv;
+{
+	int size=0;
+	char buf[BUFSIZ];
+	char s[BUFSIZ],d[BUFSIZ];
+	FILE *fp;
+
+	memset(s,0,BUFSIZ);
+	memset(d,0,BUFSIZ);
+
+	fp = fopen("../DATA/BODY.DAT","r");
+
+	while(fgets(buf,BUFSIZ,fp)){
+		if( (size + strlen(buf)) >= BUFSIZ) break;
+		sprintf(s,"%s%s\n",s,buf);
+		size += strlen(buf);
+	};
+
+    BODY_LEX(s,size,d,0,0);
+}
+#endif
+
+

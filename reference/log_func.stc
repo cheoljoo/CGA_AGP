@@ -1,0 +1,332 @@
+FileName : log_func.c
+Set : iterate_comments = ON
+
+int Parse_Set_ContentsTypeName(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)
+Set : function_def{Parse_Set_ContentsTypeName} = "int Parse_Set_ContentsTypeName(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)"
+{
+	int size;	
+
+	// if already existed , we will not do anything.
+	if(pLOG_HTTP_TRANS->ContentsTypeName[0] != 0){ 
+		// 1 :: After returning from this function , ignore the Set_Value()  (not run)
+		return 1;
+	}   
+
+	if(MAX_CONTENTSTYPE_LEN < *lexleng){
+		size = MAX_CONTENTSTYPE_LEN;
+	} else {
+		size = *lexleng;
+	}
+	memcpy(pLOG_HTTP_TRANS->ContentsTypeName,*lextext,size);
+	pLOG_HTTP_TRANS->ContentsTypeName[size] = 0;
+	// *(ToPtrChar + size) = 0;
+
+	// 0 :: After returning from this function , run the Set_Value()
+	return 0;
+}
+
+int Get_Detailed_URL(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)
+Set : function_def{Get_Detailed_URL} = "int Get_Detailed_URL(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)"
+{
+	int i;
+	char sss[BUFSIZ];
+	URL_ANALYSIS *pURL_ANALYSIS;
+	char *plextext;
+
+	plextext = *lextext;
+
+	FPRINTF(LOG_LEVEL, "%s : txt %.*s leng %d",(char *)__FUNCTION__ , *lexleng , plextext , *lexleng);
+
+	pURL_ANALYSIS = (URL_ANALYSIS *)sss;
+	memset(sss,0,BUFSIZ);
+	URL_ANALYSIS_URL_S_LEX(plextext,*lexleng,sss);
+
+	memcpy(pLOG_HTTP_TRANS->MenuID, pURL_ANALYSIS->MenuID , MAX_MENUID_SIZE);
+	memcpy(pLOG_HTTP_TRANS->SvcAction, pURL_ANALYSIS->szSvcAction , MAX_SVCACTION_SIZE);
+	/// pLOG_HTTP_TRANS->SvcAction = Get_TAG_AUTO_STRING_DEF_SVCACTION(pURL_ANALYSIS->szSvcAction);
+	memcpy( pLOG_HTTP_TRANS->ContentID, pURL_ANALYSIS->ContentID , MAX_CONTENTID_SIZE);
+	memcpy( pLOG_HTTP_TRANS->CATID, pURL_ANALYSIS->CATID , MAX_CATID_SIZE);
+	if(pLOG_HTTP_TRANS->MIN[0] == 0x00)
+		memcpy( pLOG_HTTP_TRANS->MIN, pURL_ANALYSIS->szURLMIN, MAX_MIN_SIZE);
+
+	for(i=0;i<*lexleng;i++){
+		if( (plextext[i] == ' ') || (plextext[i] == '\t')){
+			plextext[i] = 0;
+			break;
+		}
+	}
+//	pLOG_HTTP_TRANS->usURLSize = i;
+
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->MenuID = %.*s",(char *)__FUNCTION__ , MAX_MENUID_SIZE , pLOG_HTTP_TRANS->MenuID);
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->SvcACtion = %.*s",(char *)__FUNCTION__ , MAX_SVCACTION_SIZE , pLOG_HTTP_TRANS->SvcAction);
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->ContentID = %.*s",(char *)__FUNCTION__ , MAX_CONTENTID_SIZE , pLOG_HTTP_TRANS->ContentID);
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->CATID = %.*s",(char *)__FUNCTION__ , MAX_CATID_SIZE , pLOG_HTTP_TRANS->CATID);
+
+
+	// 0 :: After returning from this function , run the Set_Value()
+	return 0;
+}
+
+
+int Get_Is_CDU(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)
+Set : function_def{Get_Is_CDU} = "int Get_Is_CDU(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)"
+{
+	char *plextext;
+
+	plextext = *lextext;
+
+	FPRINTF(LOG_LEVEL, "%s : txt %.*s leng %d",(char *)__FUNCTION__ , *lexleng , plextext , *lexleng);
+
+	pLOG_HTTP_TRANS->isCDU = 1;
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->isCDU = %d",(char *)__FUNCTION__ , pLOG_HTTP_TRANS->isCDU);
+
+	// 1 :: After returning from this function , ignore the Set_Value()  (not run)
+	return 1;
+}
+
+int Get_Detailed_Browser_Info(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)
+Set : function_def{Get_Detailed_Browser_Info} = "int Get_Detailed_Browser_Info(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)"
+{
+	int semi_cnt=0;
+	int idxBrowserInfo=0;
+	char BrowserInfo[BUFSIZ];
+	int idxModel=0;
+	char Model[BUFSIZ];
+	int i;
+	char *plextext;
+
+	plextext = *lextext;
+
+
+
+	if(!memcmp(plextext,"BREW",4)){
+		FPRINTF(LOG_LEVEL, "%s : BREW txt %s leng %d",(char *)__FUNCTION__ , plextext , *lexleng);
+		for(i=0;(i<*lexleng) && (i<MAX_BROWSERINFO_LEN);i++,plextext++){
+			switch(*plextext){
+				case ' ':
+				case '\t':
+				case '(':
+					pLOG_HTTP_TRANS->BrowserInfo[i] = 0;
+					return 1;
+				default:
+					pLOG_HTTP_TRANS->BrowserInfo[i] = *plextext;
+					break;
+			}
+		}
+		pLOG_HTTP_TRANS->BrowserInfo[i] = 0;
+		pLOG_HTTP_TRANS->BrowserInfo[MAX_BROWSERINFO_SIZE - 1] = 0;
+		return 1;
+	}
+
+	FPRINTF(LOG_LEVEL, "%s : txt %s leng %d",(char *)__FUNCTION__ , plextext , *lexleng);
+
+
+	for(i=0;i<*lexleng;i++,plextext++){
+		if(*plextext == ';'){ 
+			semi_cnt++;
+			continue;
+		}
+		if(semi_cnt == 1){
+			BrowserInfo[idxBrowserInfo]=*plextext;
+			idxBrowserInfo++;
+		} else if(semi_cnt == 2){
+			Model[idxModel]=*plextext;
+			idxModel++;
+		} else if (semi_cnt >= 3){
+			break;
+		}
+	}
+	BrowserInfo[idxBrowserInfo]=0;
+	Model[idxModel]=0;
+
+	/// printf("BrowserInfo : %s\n",BrowserInfo);
+	/// printf("Model : %s\n",Model);
+	/// printf("strcasecmp=%d\n",memcmp(plextext,";",*lexleng));
+	/// printf("*lextext : %s\n",plextext);
+	/// printf("*lexleng : %d\n",*lexleng);
+	memcpy(pLOG_HTTP_TRANS->Model,Model,MAX_MODEL_SIZE);
+	pLOG_HTTP_TRANS->Model[MAX_MODEL_SIZE - 1] = 0;
+	memcpy(pLOG_HTTP_TRANS->BrowserInfo,BrowserInfo,MAX_BROWSERINFO_SIZE);
+	pLOG_HTTP_TRANS->BrowserInfo[MAX_BROWSERINFO_SIZE - 1] = 0;
+
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->Model = %.*s",(char *)__FUNCTION__ , MAX_MODEL_SIZE , pLOG_HTTP_TRANS->Model);
+	FPRINTF(LOG_LEVEL,"%s : pLOG_HTTP_TRANS->BrowserInfo = %.*s",(char *)__FUNCTION__ , MAX_BROWSERINFO_SIZE, pLOG_HTTP_TRANS->BrowserInfo);
+
+	// 1 :: After returning from this function , ignore the Set_Value()  (not run)
+	return 1;
+}
+
+
+int PARSING_MIN_Change(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)
+Set : function_def{PARSING_MIN_Change} = "int PARSING_MIN_Change(LOG_HTTP_TRANS *pLOG_HTTP_TRANS , char **lextext, int *lexleng)"
+{
+	char *plextext;
+	int i;
+
+	plextext = *lextext;
+
+	
+	FPRINTF(LOG_LEVEL,"%s : MIN0 = %.*s",(char *)__FUNCTION__ , *lexleng, plextext);
+	if( (plextext[0] == '8') &&
+	    (plextext[1] == '2') ){
+		FPRINTF(LOG_LEVEL,"%s : MIN082 = %.*s",(char *)__FUNCTION__ , *lexleng, plextext);
+		(*lextext) += 2;
+		(*lexleng) -= 2;
+		if( plextext[2] == '1' ){
+    		plextext[1] = '0';
+			(*lextext) -= 1;
+			(*lexleng) += 1;
+			FPRINTF(LOG_LEVEL,"%s : MIN821 = %.*s",(char *)__FUNCTION__ , *lexleng, *lextext);
+		}
+	} else {
+		FPRINTF(LOG_LEVEL,"%s : MIN01= %.*s",(char *)__FUNCTION__ , *lexleng, plextext);
+		if( plextext[0] == '1' ){
+			for(i=(*lexleng);i>0;i--){
+				plextext[i] = plextext[i-1];
+			}
+			plextext[0] = '0';
+			(*lexleng) += 1;
+			plextext[*lexleng] = 0;
+		}
+		FPRINTF(LOG_LEVEL,"%s : MIN02= %.*s",(char *)__FUNCTION__ , *lexleng, plextext);
+	}
+	FPRINTF(LOG_LEVEL,"%s : MIN END = %.*s",(char *)__FUNCTION__ , *lexleng, *lextext);
+
+	// 0 :: After returning from this function , run the Set_Value()
+	return 0;
+
+}
+
+/** Remake URL to Other Buffer with Delete Port :**/
+Set : function_def{Remake_URL_Buf} = "int Remake_URL_Buf(U16 usURLSize, U8 *pURL, U16 *pusOutSize, U8 *pOUTPUT)"
+int Remake_URL_Buf(U16 usURLSize, U8 *pURL, U16 *pusOutSize, U8 *pOUTPUT)
+{
+	int         i, dPos, dRet = 0;
+	int         dFirst, dLast;
+
+	dFirst = 0;
+	if(memcmp(pURL, "https", 5) == 0) {
+		dPos = 8;
+		dLast = 8;
+		i = 8;
+	} else {
+		dPos = 7;
+		dLast = 7;
+		i = 7;
+	}
+
+	for(; i < usURLSize; i++)
+	{
+		dLast++;
+		if(pURL[i] == '/') {
+			dLast--;
+			break;
+		} else if(pURL[i] == ':') {
+			dFirst = i;
+		} else if(pURL[i] == '?') {
+			break;
+		}
+
+	} /* End of For i */
+
+	if(dFirst != 0 ) {
+		memcpy(pOUTPUT, pURL, dPos + dFirst);
+		memcpy(pOUTPUT+dFirst, pURL+dLast, usURLSize - dLast);
+		*pusOutSize = DecordURLtoBuf(pURL+dLast, pOUTPUT+dFirst, usURLSize - dLast);
+		*pusOutSize += dFirst;
+		pOUTPUT[*pusOutSize] = 0x00;
+		FPRINTF(LOG_LEVEL, "Remake_URL_Buf Len=%d URL=[%.*s] OUT=[%.*s]", *pusOutSize, MAX_URL_SIZE, pURL, MAX_URL_SIZE, pOUTPUT);  
+	} else {
+		*pusOutSize = DecordURLtoBuf(pURL, pOUTPUT, usURLSize);
+		pOUTPUT[*pusOutSize] = 0x00;
+		FPRINTF(LOG_LEVEL, "Remake_URL_Buf 1 Len=%d URL=[%.*s] OUT=[%.*s]", *pusOutSize, MAX_URL_SIZE, pURL, MAX_URL_SIZE, pOUTPUT);  
+	}
+
+	if(*pusOutSize > 2 && pOUTPUT[*pusOutSize - 1] == '/') {
+		(*pusOutSize)--;
+		pOUTPUT[*pusOutSize] = 0x00;
+		FPRINTF(LOG_LEVEL, "Remake_URL_Buf 2 Last / Remove  Len=%d URL=[%.*s]", *pusOutSize, MAX_URL_SIZE, pOUTPUT);  
+	}
+
+	return dRet;
+}
+
+
+/** DECODE URL to BUF */
+Set : function_def{DecodeURL} = "int DecordURLtoBuf(unsigned char *source, unsigned char *dest, U16 usSize)"
+int DecordURLtoBuf(U8 *source, U8 *dest, U16 usSize)
+{
+	int num=0, i, j, index=0;
+	int retval=0;
+
+	for(j = 0; j < usSize; j++)
+	{
+		if (*source == '%') {
+			num = 0;
+			retval = 0;
+
+			if (*(source+1)=='2' && *(source+2) =='5')
+				source+=2;
+
+			for (i = 0; i < 2; i++)
+			{
+				source++;
+
+				if ( *source==0 ) {
+					dest[index]=0;
+					return index;
+				}
+
+				if (*(source) < ':')
+					num = *(source) - 48;
+				else if (*(source) > '@' && *(source) < '[')
+					num = (*(source) - 'A')+10;
+				else
+					num = (*(source) - 'a')+10;
+
+				if ((16*(1-i))) 
+					num = (num*16);
+				retval += num;
+			}
+
+			dest[index] = retval;
+			index++;
+
+		} else {
+			dest[index] = *source;
+			index++;
+		}
+
+		source++;
+    }
+
+	dest[index]=0;
+    return index;
+}
+
+#ifdef TEST
+main( argc, argv )
+int argc;
+char **argv;
+{
+	int size=0;
+	char buf[BUFSIZ];
+	char s[BUFSIZ],d[BUFSIZ];
+	FILE *fp;
+
+	memset(s,0,BUFSIZ);
+	memset(d,0,BUFSIZ);
+
+	fp = fopen("../DATA/BODY.DAT","r");
+
+	while(fgets(buf,BUFSIZ,fp)){
+		if( (size + strlen(buf)) >= BUFSIZ) break;
+		sprintf(s,"%s%s\n",s,buf);
+		size += strlen(buf);
+	};
+
+    BODY_LEX(s,size,d,0,0);
+}
+#endif
+
+

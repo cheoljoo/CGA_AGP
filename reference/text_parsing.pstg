@@ -1,0 +1,268 @@
+FileName : L7.h
+STC_FileName : LOG_KUN.stc , LOG_ME.stc , makefile.stc
+
+/* 
+ * $Id: text_parsing.pstg,v 1.2 2007/03/14 03:46:22 cjlee Exp $
+ */
+
+<TAG_DEFINE_START:RespCode>
+#define	RespCode_A_Type  1 /* TTT */
+#define	RespCode_B_Type  2
+#define	RespCode_C_Type  3
+<TAG_DEFINE_END:RespCode>
+
+#define DEF_SIZE_TMSI   16
+#define DEF_SIZE_IMSI   16
+
+#define EX_MAX_NID 40
+
+#define TEST_TEST		333
+STG_COMMON typedef struct _stg_call {
+		<TAG_COMMON_MEMBER:LOG_KUN>%KUN_CTime%  /**< 주석2 */ 	
+		<TAG_COMMON_MEMBER:LOG_ME>%ME_CMETime%  /**< 주석3 */ 
+	STIME Ctime;	 %CCreateTime% /**<  기본 주석  : DEFAULT로 없으면 이것을 사용하게 됨 : 초까지 나타내는 시간 */ 	#FIRST#
+	MTIME		Cutime;  %CMTime%	 	/**< micro 초 나타내는 시간 */	#FIRST#
+
+<TAG_KEY>
+	IP4 		CuiIP;					%CIPAddr%				/**< IP address */
+	U8			CucTMSI[DEF_SIZE_TMSI];	%CTMSI%					/**< TMSI */		#FIRST#		/* TT */
+	U8			CucIMSI[DEF_SIZE_IMSI];	%CIMSI%					/**< IMSI */	/* KR */
+</TAG_KEY>
+
+		<TAG_COMMON_MEMBER:LOG_KUN> /**< NID */  %KUN_CNID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>KUN_NID:{VALUE}#  
+	U32		CuiBase; 			%CBASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}# #LAST#
+	U8		CuiNID[EX_MAX_NID]; 	 %CNID%  /**< NID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+
+		<TAG_COMMON_MEMBER:LOG_ME>  /**< ME_SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>ME_SID:{DIGIT}#
+		<TAG_COMMON_MEMBER:LOG_KUN>  /**< KUN_SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>KUN_SID:{DIGIT}#
+	U32		<TAG_DEFINE:RespCode>CuiSID; 	#LAST#			
+} LOG_CALL;
+
+
+
+/**
+ * 	@brief LOG_KUN : 시험 단계의 structure로써 아래의 LOG_MEKUN이 진짜
+ *
+ *	LOG_KUN에서 사용할 REQ/RESP HDR관련 1개씩(Host: , Content-Type:)에 대해서만 다른 부분
+ *  이런식으로 작성한다는 예제
+ *	
+ *	@see	L7.h
+ *	@note	%..% syntax for CREATE_SQL \n   #...# syntax for text parsing or command
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LOG_KUN {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	REQ_HDR:^^:GET				^[ \t]*GET[ \t]+
+	STATE	REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+	STATE	REQ_HDR:^^:HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	RESP_HDR:^^:HTTP			^[ \t]*HTTP[ \t]+
+	STATE	RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+	<STG_COMMON:LOG_CALL>
+
+	U8		host[20];			/**< Host */  %HOSTNAME% 	#PARSING_RULE:^^:REQ_HDR:^^:<HOST>{VALUE}#
+	U32		uiBase; 			%BASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}#
+	U8		uiNID[EX_MAX_NID]; 	 /**< NID */  %NID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+	U32		uiSID; 				/**< SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}#
+
+    U32 	uiSrvIP;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+    U32		<TAG_DEFINE:RespCode>RespCode;			/**< 잘못된 예제 */ 		#PARSING_RULE:^^:RESP_HDR:^^:<HTTP>{DIGIT}# 	 /* TTT */  #LAST#
+    U32		ContentLength;		/**< Contents Length */  	#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_LENGTH>{DIGIT}#
+    U8		ContentType[100]; 	%CType%  /**< Contents Type */		#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_TYPE>{ID}#
+	U32 	<TAG_DEFINE:RespCode>ReqCode;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+} LOG_KUN;
+
+STG_LOG_TEXT_PARSING typedef struct _st_LOG_ME {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	REQ_HDR:^^:GET				^[ \t]*GET[ \t]+
+	STATE	REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+	STATE	REQ_HDR:^^:HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	RESP_HDR:^^:HTTP			^[ \t]*HTTP[ \t]+
+	STATE	RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+	<STG_COMMON:LOG_CALL>
+
+	U8		host[20];			/**< Host */  %HOSTNAME% 	#PARSING_RULE:^^:REQ_HDR:^^:<HOST>{VALUE}#
+	U32		uiBase; 			%BASE%  /**< BASEID */ 	#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}#
+	U8		uiNID[EX_MAX_NID]; 	 /**< NID */  %NID%		#PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>NID:{VALUE}#  
+	U32		uiSID; 				/**< SID */  #PARSING_RULE:^^:REQ_HDR:^^:<HTTP_PHONE_2G_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}#
+
+    U32 	uiSrvIP;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+    U32		<TAG_DEFINE:RespCode>RespCode;			/**< 잘못된 예제 */ 		#PARSING_RULE:^^:RESP_HDR:^^:<HTTP>{DIGIT}#
+    	 ALTERNATIVE_RULE		/**< 다시 */ #PARSING_RULE:^^:RESP_HDR:^^:<HTTP>KIT:{ID}#
+    	 ALTERNATIVE_RULE		/**< 다시 */ #PARSING_RULE:^^:RESP_HDR:^^:<HTTP>{ID}#
+    U32		ContentLength;		/**< Contents Length */  	#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_LENGTH>{DIGIT}#
+    U8		ContentType[100]; 	%CType%  /**< Contents Type */		#PARSING_RULE:^^:RESP_HDR:^^:<CONTENT_TYPE>{ID}#
+<TAG_DEFINE_START:ReqCode>
+#define	ReqCode_A_Type  1 /* TTT */
+#define	ReqCode_B_Type  2
+#define	ReqCode_C_Type  3
+<TAG_DEFINE_END:ReqCode>
+	U32 	<TAG_DEFINE:ReqCode>ReqCode;			#COMMAND:^^:STG_EQUAL(pHTTP->uiSrvIP)#
+} LOG_ME;
+
+STG_REPLACE typedef struct _st_IP_hash_key {
+	IP4 	ip;
+} KEY_IP;
+
+STG_REPLACE typedef struct _st_IP_Port_hash_key {
+	IP4 	ipport_ip;    @STG_PARM:AAA:TTT@    @STG_PARM:BBB:TTT@ /* 당신 */
+	U16		ipport_port;   /* 하하하 */    @STG_PARM:AAA:TTT@			
+} KEY_IPPORT;
+
+STG_REPLACE typedef struct _st_Method_hash_key {
+	U32		method;
+} KEY_METHOD;
+
+STG_REPLACE typedef struct _st_L7_hash_key {
+	U32		Host_len;
+	U8		Host[100];
+	U32		Context_Type;
+	U32		Redirect_Protocol;
+} KEY_L7;
+
+
+typedef struct _st_L4_data {
+	<STG_REPLACE:KEY_IPPORT>
+	U32		L4Code;
+	U32		Appcode;
+} L4CONF;
+
+typedef struct _st_MN_data {
+	<STG_REPLACE:KEY_IP>
+	U32		Mask;
+} MNCONF;
+
+typedef struct _st_L7Method_data {
+	<STG_REPLACE:KEY_METHOD>
+	U32		L7Code;
+	U32		Appcode;
+} L7MethodCONF;
+
+typedef struct _st_L7URL_data {
+	<STG_REPLACE:KEY_L7>
+	U32		L7Code;
+	U32		Appcode;
+	U32 	<TAG_DEFINE:ReqCode>ReqCode;
+} L7URLCONF;
+
+<TAG_AUTO_DEFINE_START :METHOD(100)>
+METHOD_GET
+METHOD_POST
+METHOD_HEAD
+METHOD_OPTIONS
+METHOD_PUT
+METHOD_DELETE
+METHOD_TRACE
+METHOD_CONNECT
+METHOD_RESULT
+METHOD_UNKNOWN
+<TAG_AUTO_DEFINE_END:METHOD>
+
+<TAG_AUTO_DEFINE_START :REDIRECT(100)>
+REDIRECT_HTTP
+REDIRECT_RTSP
+REDIRECT_UNKNOWN
+<TAG_AUTO_DEFINE_END:REDIRECT>
+
+<TAG_AUTO_DEFINE_START :APPCODE(100)>
+APPCODE_HTTP
+APPCODE_ME
+APPCODE_KUN
+APPCODE_BREW
+APPCODE_MARS
+APPCODE_RTSP
+APPCODE_VOD
+APPCODE_UNKNOWN
+<TAG_AUTO_DEFINE_END:REDIRECT>
+
+
+/* TAG_AUTO_STRING_DEFINE 에서 뽑아내야 할 값들
+  ==> define TYPE_DESC		101
+  ... 등의 define된 값들
+  Print_ContentsType(101) -> print the "application/vnd.oma.dd" string
+  Get_Define_ContentsType(char *s); ==> return TYPE_DESC;
+*/
+<TAG_AUTO_STRING_DEFINE_START:ContentsType(100)>
+application/vnd.oma.dd					CTYPE_DESC			/* ?? */
+text/html 								CTYPE_HTML
+text/x-html 							CTYPE_HTML
+text/xml 								CTYPE_XML
+text/vnd.wap.wml						CTYPE_WML
+application/xhtml+xml  					CTYPE_WML
+text/css  								CTYPE_STYLE
+text/plain 								CTYPE_LMSG
+image/sis 								CTYPE_SIS
+map/sis 								CTYPE_SIS
+application/ndwn 						CTYPE_NDWN
+application/vnd-qualcomm.qis.pkg 		CTYPE_BREWDOWN
+application/x-msdownload 				CTYPE_WIPIDOWN
+audio/ma2 								CTYPE_MA2
+audio/ma3 								CTYPE_MA3
+audio/ma5 								CTYPE_MA5
+audio/k3g 								CTYPE_VOD
+video/k3g 								CTYPE_VOD
+application/x-skt-lbs 					CTYPE_SOUND
+application/x-smaf 						CTYPE_SOUND
+application/vnd.smaf 					CTYPE_SOUND
+multipart/ 								CTYPE_MMSG
+application/ 							CTYPE_APPLICATION
+text/ 									CTYPE_TEXT
+image/ 									CTYPE_IMAGE
+audio/ 									CTYPE_SOUND
+<TAG_AUTO_STRING_DEFINE_END:ContentsType>
+
+
+/*
+ * $Log: text_parsing.pstg,v $
+ * Revision 1.2  2007/03/14 03:46:22  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.1  2007/02/13 04:26:44  cjlee
+ * TEXT_PRASING 예제
+ *
+ * Revision 1.5  2006/09/05 05:46:21  cjlee
+ * TAG_AUTO_STRING_DEFINE_START  추가
+ * : STRING  DEFINE문자  로 구성되어지며
+ *   DEFINE된 것들에 자동으로 번호가 붙으며,
+ *   STRING 문자 관련된 함수들이 만들어집니다.
+ *   Print_TAG_STRING_???(debug str , char *string)
+ *
+ * Revision 1.4  2006/09/04 05:53:38  cjlee
+ * STG_REPLACE 추가
+ * : 말그대로 그대로 대치를 시키는 것이다.
+ * 간단하여 가장 많이 사용될 것으로 보인다.
+ *
+ * Revision 1.3  2006/08/25 07:11:29  cjlee
+ * LOG_member_Get_func.stc : include L7.h추가 (header는 알아서 추가를 해야 할 것으로 보임)
+ * 	include를 자동으로 하면 .l 에서는 에러가 발생함.
+ * makefile.stc : LOG_KUN.stc에서와 같이 .l을 생성시키는 것들에 대해서 자동으로 makefile안에 삽입하게 변경
+ * 	STC안에서 make echo를 하고 나온 것에 대해서 make .. 하면 실행 화일이 만들어짐
+ * test.pstg : ME , KUN과 같은 PARSING을 포함하는 것들에 대해서 Makefile까지 자동으로 만들게 함.
+ * structg.pl :
+ * 	IFEQUAL과 반대로 수행되는 NotIFEQUAL 추가
+ * 	안의 변수들의 이름이 AAa.l등이 처리되게 바꿈
+ * 	치환 관련된 부분을 replace_var_with_value 함수로 모음
+ * 	GLOBAL_Pre_STC.TXT 추가 : STC를 수행하기 전의 global 변수의 값들
+ *
+ * Revision 1.2  2006/08/22 09:17:24  cjlee
+ * <TAG_FLOW_START:PAGE>에서 action에 대한 multi line 처리 완료
+ * % .. %   # .. # 한줄일때는 # # 으로 처리
+ * 여러줄일때는 #{     여러줄    }# 으로 끝을 알림
+ *
+ * Revision 1.1  2006/08/22 01:28:31  cjlee
+ * 1. precomile을 해야하는 것들에 대한 확장자는 .pstg 로 하는 것이 좋을 것으로 보인다. 이것을 하면 확장자가 .stg로 나오게 하면 될 것으로 보인다.
+ * 	pstg.pl 생성
+ * 	pstg용 file들 : test.stg -> test.pstg  , aqua.stg -> aqua.pstg
+ * 	Makefile에 flow , aqua , test  여러기지 추가
+ *
+ */

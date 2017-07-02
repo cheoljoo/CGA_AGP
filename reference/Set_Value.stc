@@ -1,0 +1,146 @@
+FileName : Set_Value.c
+Set : iterate_comments = ON
+
+#include <netinet/in.h>
+
+/** Set_Value function.
+ *
+ *  값을 Set하기 위한 함수. Type에 따라 Set을 수행.
+ *
+ *  @param      ToType  : STG_INTEGER or STG_STRING or STG_IP
+ *  @param      ToPtrChar  :  destination character pointer for copying from from_value (in caseof STG_STRING)
+ *  @param      ToPtrInt  :  destination integer pointer for copying from from_value (in case of STG_INTEGER or IP)
+ *  @param      ToSize  : allocation bytes size
+ *  @param      FromType  : STG_INTEGER or STG_STRING or STG_IP
+ *  @param      FromPtrChar  :  source character pointer for copying to destination (in case of STG_STRING)
+ *  @param      FromPtrInt  :  source integer pointer for copying to destination (in case of STG_INTEGER or IP)
+ *  @param      FromSize  : source bytes size
+ *  @param      Get_Value  : (function pointer) This function is running when Totype is STG_DEF.
+ *
+ *  @return		SUCCESS : 0 , FAIL 1
+ *
+ *  @note		이 함수를 이용하여 자동화시 생성되는 값들에 대한 Set을 수행한다.
+ *			
+**/
+Set : function_def{Set_Value} = "int Set_Value( int ToType, char *ToPtrChar , int *ToPtrInt, int ToSize ,int FromType, char *FromPtrChar , int *FromPtrInt , int FromSize , int (*Get_Value)(char *))"
+int Set_Value( int ToType, char *ToPtrChar , int *ToPtrInt, int ToSize
+		,int FromType, char *FromPtrChar , int *FromPtrInt , int FromSize
+		,int (*Get_Value)(char *)
+		)
+{
+	if( (ToType == STG_INTEGER) && (FromType == STG_INTEGER) ){
+		if(*ToPtrInt){  return -1; }
+		if(ToSize != FromSize) { 
+			FPRINTF(LOG_LEVEL," ERROR : value size is wrong!!! \n"); 
+			return 1;
+		}
+		memcpy(ToPtrInt , FromPtrInt , ToSize);
+	} else if( (ToType == STG_INTEGER) && (FromType == STG_STRING) ) {
+		if(*ToPtrInt){  return -1; }
+		if(ToSize == 4){
+			* ( (int *) ToPtrInt)		= atoi((char *) FromPtrChar);
+			FPRINTF(LOG_LEVEL,"%s : atoi %d", (char *)__FUNCTION__,*( (int *) ToPtrInt) );
+		} else if(ToSize == 2){
+			* ( (short *) ToPtrInt) 	= (short) atoi((char *) FromPtrChar);
+			FPRINTF(LOG_LEVEL,"%s : atoi %d", (char *)__FUNCTION__,*( (short *) ToPtrInt) );
+		} else if(ToSize == 1){
+			* ( (char *) ToPtrInt)		= (char) atoi((char *) FromPtrChar);
+			FPRINTF(LOG_LEVEL,"%s : atoi %d", (char *)__FUNCTION__,*( (char *) ToPtrInt) );
+		} else {
+			FPRINTF(LOG_LEVEL," ERROR : INTEGER value's size is wrong!!! \n"); 
+			return 1;
+		}
+	} else if( (ToType == STG_STRING) && (FromType == STG_INTEGER) ) {
+		char buf[BUFSIZ];
+		if(ToPtrChar[0]){  return -1; }
+		sprintf(buf,"%d", *( (int *) FromPtrInt));
+		if(strlen(buf) >= ToSize){
+			FPRINTF(LOG_LEVEL," ERROR : INTEGER value is very large!!! \n"); 
+			return 1;
+		} else {
+			sprintf(ToPtrChar,"%d",* ( (int *) FromPtrInt));
+		}
+	} else if( (ToType == STG_STRING) && (FromType == STG_STRING) ) {
+		int size;
+		if(ToPtrChar[0]){  return -1; }
+		if(FromSize > (ToSize-1) ){ size = ToSize -1; }
+		else { size = FromSize; }
+		memcpy(ToPtrChar, FromPtrChar, size);
+		*(ToPtrChar + size) = 0;
+	} else if( (ToType == STG_IP) && (FromType == STG_STRING) ) {
+		if(ToSize == 4){
+			* ( (int *) ToPtrInt)		= ntohl(inet_addr((char *) FromPtrChar));
+		} else {
+			FPRINTF(LOG_LEVEL," ERROR : INTEGER value's size is wrong!!! \n"); 
+			return 1;
+		}
+	} else if( (ToType == STG_DEF) && (FromType == STG_STRING) ) {
+		if(*ToPtrInt){  return -1; }
+		if(ToSize == 4){
+			if(Get_Value != 0){
+				* ( (int *) ToPtrInt)		= Get_Value((char *) FromPtrChar);
+			} else {
+				* ( (int *) ToPtrInt)		= 0;
+			}
+			FPRINTF(LOG_LEVEL,"%s : DEF %d (%s)", (char *)__FUNCTION__,*( (int *) ToPtrInt) , FromPtrChar );
+		} else {
+			FPRINTF(LOG_LEVEL," ERROR : INTEGER value's size is wrong!!! \n"); 
+			return 1;
+		}
+	} else {		/* ( (ToType == STG_STRING) && (FromType == STG_STRING) ) */
+		FPRINTF(LOG_LEVEL," ERROR : STG_STRING %d   , STG_INTEGER %d , STG_IP %d\n",STG_STRING,STG_INTEGER,STG_IP);
+		FPRINTF(LOG_LEVEL," ERROR : ToType %d , FromType %d\n",ToType,FromType); 
+		return 1;
+	}
+
+
+	return 0;
+}
+
+
+
+
+int 
+Is_LOG_Type(int type){
+Set : function_def{Is_LOG_Type} = "int Is_LOG_Type(int type)"
+	int ret=0;
+
+	switch(type){
+	ITERATE %table_log +<<+ ITKEY  ITVALUE
+	case ITKEY_DEF_NUM:
+		FPRINTF(LOG_LEVEL,"IS_LOG_Type : ITKEY_DEF_NUM = %d : type %d\n" , ITKEY_DEF_NUM , type);
+		ret = 1;
+		break;
+	+>>+
+	default :
+		FPRINTF(LOG_LEVEL,"IS_LOG_Type : Default  type %d\n" , type);
+		ret = 0;
+		break;
+	}
+
+	return ret;
+}
+
+
+
+
+char *
+PRINT_DEF_NUM_table_log(int type){
+Set : function_def{PRINT_DEF_NUM_table_log} = "char * PRINT_DEF_NUM_table_log(int type)"
+	switch(type){
+	ITERATE %table_log +<<+ IT2KEY  IT2VALUE
+		case IT2KEY_DEF_NUM:
+			return "IT2KEY_DEF_NUM";
+	+>>+
+		default :
+			return "UNKNOWN";
+	}
+	return "UNKNOWN";
+}
+
+
+
+
+
+
+

@@ -1,0 +1,113 @@
+FileName : LOG_KUN_RESP_HDR.l
+Set : main_name = LOG_KUN
+Set : sub_name = RESP_HDR
+
+/* scanner for a toy Pascal-like language */
+
+%{
+/* need this for the call to atof() below */
+#include <math.h>
+#define DEBUG_LEX printf("\tLEX: %s(%d) at line %d\n", yytext, yyval, yylineno);
+
+int brace_cnt;
+
+
+/*
+#define DEBUG_LEX
+*/
+%}
+
++<+$LEX_TOKEN_RESULT{+<+$main_name+>+}+>+
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+%s 		ITKEY
++>>+
+
+/*
+%s		HTTP
+%s		SERVER
+%s		DATE
+%s		CONTENTLENGTH
+%s		ContentType
+%s		HTML
+%s		HREF
+*/
+
+%%
+
+ITERATE %+<+$main_name+>+_MSG_STATE_+<+$sub_name+>+  +<<+ 	ITKEY    ITVALUE
+ITVALUE 		{
+	BEGIN	ITKEY;
+	printf("%s\n","ITKEY ITVALUE");
+}
+	ITERATE %+<+$main_name+>+_MSG_RULE_+<+$sub_name+>+_ITKEY  +<<+ 	IT2KEY    IT2VALUE
+		IT2KEY 			{
+		printf("%s = %s\n"
+			, "+<+$+<+$main_name+>+_MSG_RULE_VAR_NAME_+<+$sub_name+>+_ITKEY{IT2KEY}+>+"
+			, yytext + +<+$+<+$main_name+>+_MSG_RULE_SKIP_LENGTH_+<+$sub_name+>+_ITKEY{IT2KEY}+>+ 
+		);
+		}
+
+	+>>+
+<ITKEY>(+<+$LEX_LINEFEED{+<+$main_name+>+}+>+) {
+	BEGIN 0;
+}
+<ITKEY>. 
+
+
+	// ########### 
+
+
++>>+
+
+
+(+<+$LEX_FORMFEED{+<+$main_name+>+}+>+) {
+	return ;
+}
+
+.		{ printf("unrecognized : %s\n",yytext); }
+
+%%
+
+/*
+#undef input
+#undef unput
+#undef output
+#define input() (((yytchar=*lexinput++)=='\n'?(yylineno++,yytchar):yytchar)==?0:yytchar)
+#define unput(c) {yytchar= (c); if(yytchar=='\n')yylineno--;*--lexinput = yytchar;}
+#define output(c)
+*/
+
+char *myinput = "5+2\n";
+char *myinputptr;
+char *myinputlim;
+
+int
+my_yyinput(char *buf,int max_size){
+		int n = max_size;
+		if(max_size > ((int) (myinputlim - myinputptr))){
+				n = (myinputlim - myinputptr);
+		} 
+		if(n>0){
+				memcpy(buf,myinputptr,n);
+				myinputptr += n;
+		}
+		return n;
+}
+
+main( argc, argv )
+int argc;
+char **argv;
+    {
+    ++argv, --argc;  /* skip over program name */
+    if ( argc > 0 )
+            yyin = fopen( argv[0], "r" );
+    else
+            yyin = stdin;
+
+	myinputptr = myinput;
+	myinputlim = myinput+strlen(myinput);
+
+    yylex();
+    }
+

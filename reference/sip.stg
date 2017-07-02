@@ -1,0 +1,134 @@
+FileName : sip.h
+
+#define  MAX_LURI_SIZE  100
+
+typedef struct _st_Sip_Sess_Log {
+
+    S8        szIMSI [16];
+
+                    
+
+    U16      ucRange;
+
+    U16      ucDirection;
+
+    U16      ucSipState;             /* 1:INVITE_REQ, 
+
+                                           2:INVITE_ACK, 
+
+                                           3:BYE_REQ, 
+
+                                           4:BYE_ACK  */
+
+    U16      usSvcCode;
+
+            
+
+    U32        uServerIP;
+
+    U32        uClientIP;
+
+            
+
+    U16      usSrvPort;
+
+    U16      usCliPort;
+
+    U16      usSvcGroup;
+
+    U16      usReserved;
+
+        
+
+    S32         iInviteStartTime;       /* invite   */
+
+    S32         iInviteStartMTime;
+
+    S32         iInviteEndTime;         /* invite 200 0k    */
+
+    S32         iInviteEndMTime;
+
+            
+
+    S32         iByeStartTime;          /* BYE      */
+
+    S32         iByeStartMTime;
+
+    S32         iByeEndTime;            /* BYE 200 ok       */
+
+    S32         iByeEndMTime;
+
+        
+
+    U16      usSvcType;
+
+    U16      usErrorCode;
+
+    U16      usRetCode;
+
+    U16      usMethod;
+
+            
+
+    U32        uReqDataSize;
+
+    U32        uResDataSize;
+
+                    
+
+    U16      usContentType;
+
+    U16      usContentLength; 
+
+    U16      usReqHdrSize;
+
+    U16      usResHdrSize;
+
+ 
+
+    S8        szRequestURI [MAX_LURI_SIZE];
+
+    S8        szTo [MAX_LURI_SIZE];
+
+    S8        szFrom [MAX_LURI_SIZE];
+
+    S8        szCallID [MAX_LURI_SIZE];
+
+    S8        szCSeq [MAX_LURI_SIZE];
+
+    S8        szContact [MAX_LURI_SIZE];
+
+    S8        szRefer [MAX_LURI_SIZE];
+
+    U8        szToTag2[16 ];
+    U8        szToTag3[ 17 ];
+
+    U8        szFromTag1 [MAX_LURI_SIZE];
+    U8        szFromTag2 [  MAX_LURI_SIZE];
+
+                            
+
+    S32         iReqStartTime;        /* Start Time */
+
+    S32         iReqStartMTime;       /* Start MTime */
+
+    S32         iReqEndTime;
+
+    S32         iReqEndMTime;
+
+    S32         iResStartTime;
+
+    S32         iResStartMTime;
+
+    S32         iResEndTime;          /* End Time */
+
+    S32         iResEndMTime;         /* End MTime */
+
+                            
+
+    S32         iUpdateTime;
+
+    S32         iUpdateMTime;
+
+} st_Sip_Sess_Log;
+

@@ -1,0 +1,7 @@
+# LOG_member_Get_func.c 안에 정의되어지게 된다. 
+# 기본적으로 가져야 하는 것들을 어디에 정의를 해둘 필요가 있을 것으로 보인다. 이것은 OUTPUT에 같이 생성이 되게 하며 Makefile에도 넣어서 compile이 되게 하는 것이 좋을 것으로 보인다. 
+# 이 화일은 stc.upr로써 기본적으로 사용할 stc들의 이름을 나열하면 자동으로 처리하게 하기 위해서 만들었다.
+# 여기서 만들어지는 것들은 OUTPUT 아래 생성되어지며, makefile에도 자동으로 추가되게 될 것이다.
+#LOG_member_Get_func.stc
+TXTPARSE.stcI
+ASSOCIATION.stcI

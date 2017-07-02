@@ -1,0 +1,30 @@
+#include "m_log_define.h"
+
+int 	JiSTOPFlag;
+int 	FinishFlag;
+
+int		R_Qid;
+
+int		ProcIdx;		/** M_LOG 프로세서들은 여러개 존재한다 (M_LOG, M_LOG_1, M_LOG_2, M_LOG_3..)
+						 * 	이 변수는 프로세서들의 Index 번호를 나타내며
+						 *  이 Index 번호를 가지고 Recv MsgQID를 결정한다.
+						 * 	Index 번호는 프로세서명에서 받을 수 있다(M_LOG_ + Index)
+						 *  M_LOG 프로세서가 추가되면 INC/tas_define.h 에서 MsgQ Key를 추가해야한다. 
+						 */
+
+ITERATE %table +<<+ 	ITKEY	ITVALUE
+	char	gucCTimeChk_ITKEY[20];	
++>>+
+
+ITERATE %table +<<+ 	ITKEY	ITVALUE
+	int		gdMsgCnt_ITKEY = 0;
++>>+
+
+ITERATE %table +<<+ 	ITKEY	ITVALUE
+	time_t	gtLastTime_ITKEY;
++>>+
+
+ITERATE %table +<<+ 	ITKEY	ITVALUE
+	stFlat_ITKEY	gastFlat_ITKEY[MAX_LOG_COUNT];	
++>>+
+

@@ -1,0 +1,128 @@
+#
+# $Id: oramake.upr,v 1.6 2007/03/06 10:47:20 yhshin Exp $
+#
+
+
+#include  ../../../NTAM/ora_common_lib.mk
+include $(ORACLE_HOME)/precomp/lib/env_precomp.mk
+
+ORA_HOME = $(ORACLE_HOME)
+
+PROCFLAGS = -O3   -fPIC -DPRECOMP -I. -I$(ORA_HOME)/precomp/public \
+		-I$(ORA_HOME)/rdbms/public \
+		-I$(ORA_HOME)/rdbms/demo -I$(ORA_HOME)/plsql/public \
+		-I$(ORA_HOME)/network/public \
+		-D_GNU_SOURCE -D_LARGEFILE64_SOURCE=1 -D_LARGEFILE_SOURCE=1 \
+		-DSLTS_ENABLE -DSLMXMX_ENABLE -D_REENTRANT -DNS_THREADS
+
+ORALIBS = -L$(ORA_HOME)/lib/ -lclntsh `cat $(ORA_HOME)/lib/ldflags` \
+		`cat $(ORA_HOME)/lib/sysliblist` -ldl -lm
+
+
+SHELL 	= /bin/sh
+
+CC 		= gcc
+AR 		= ar 
+RM 		= /bin/rm
+DEPEND	= makedepend
+LINT 	= lint
+INSTALL = install
+
+TOP_BIN = 
+
+INCLUDES=  +INCLUDES+
+IMS_INC = -I./STC -I../../../INC -I../../../../INC -I../../../../NTAM/INC/
+DEFINES = 
+OPTIMIZE= -O
+
+ifeq ($(STG_DEBUG),)
+DEBUG   = -g3 -DDEF_PROC -DAPPLOG -DDEBUG_PRINT
+else
+DEBUG   = -g3 -DDEBUG -DDEF_PROC
+endif
+
+CFLAGS 	= $(OPTIMIZE) $(INCLUDES) $(IMS_INC) $(DEFINES) $(DEBUG)
+SFLAGS 	= $(INCLUDES) $(DEFINES) $(DEBUG)
+DEPOPTS = $(INCLUDES) $(DEFINES) 
+
+HDRS 	= +HDRS+
+
+SRCS 	= +PCSRCS+
+
+TARGET 	= +PCTARGET+
+
+OBJS 	= $(SRCS:.c=.o)  +PCOBJ+
+
+#
+#-----------------------------------------------------------
+#
+
+#
+.SUFFIXES: .pc .c .s s.o c.o p.o q.o .i .u .H
+.pc.o:
+	$(PROC) iname=$*.pc
+	$(CC) $(CFLAGS) $(PROCFLAGS) -c -o ./$*.o $*.c
+.s.o:
+	$(CC) $(CFLAGS) -c $<
+.c.s:
+	$(CC) $(SFLAGS) -S $<
+.c.u:
+	$(CC) $(CFLAGS) -j $<
+.c.i:
+	$(CC) $(CFLAGS) -P $<
+
+all: $(TARGET) 
+$(TARGET): $(SRCS) $(HDRS) $(OBJS)
+	$(RM) -f $@
+	$(AR) clq $@ $(OBJS)
+	$(AR) ts $@ 
+	$(INSTALL) $@ ../../
+	$(INSTALL) *.h ../../
+
++LEXS+
+
+clean:
+	$(RM) -f *.s *.u *.o *.i core $(TARGET) +PCFILE_C+ +PCFILE_LIS+
+
+depend: $(SRCS)
+	$(DEPEND) -o.o -f Makefile -- $(DEPOPTS) -- $(SRCS)
+
+lint:
+	$(LINT) $(INCLUDES) -h -v -a -u -x -m $(SRCS)
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+
+#
+# $Log: oramake.upr,v $
+# Revision 1.6  2007/03/06 10:47:20  yhshin
+# *** empty log message ***
+#
+# Revision 1.2  2007/02/27 01:43:49  yhshin
+# DEBUG_PRINT
+#
+# Revision 1.1  2007/02/26 22:59:10  yhshin
+# structg oramake 수정
+#
+# Revision 1.5  2007/02/20 09:39:55  yhshin
+# *** empty log message ***
+#
+# Revision 1.4  2007/02/20 07:15:14  yhshin
+# -DDEF_PROC
+#
+# Revision 1.3  2006/05/10 07:28:55  yhshin
+#  추가
+#
+# Revision 1.2  2006/05/02 08:22:45  yhshin
+# struct 두개 사용해도 pc파일 적용됨
+#
+# Revision 1.1  2006/04/19 06:25:25  yhshin
+# oracle makefile
+#
+# Revision 1.2  2006/03/19 01:06:28  yhshin
+# pc용과 일반용으로 구분
+#
+# Revision 1.1  2006/03/19 00:13:28  yhshin
+# structg lib add
+#
+#
