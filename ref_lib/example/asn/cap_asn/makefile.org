@@ -1,0 +1,1789 @@
+# makefile to build generated files
+
+include platform.mk
+#ASN-E-FILNOTFOU, File 'platform.mk' not found
+
+# include directories
+OSROOTDIR = /usr/local/asn1c-v583
+#ASN-E-FILNOTFOU, File 'rtsrc' not found
+LIBDIR  = $(OSROOTDIR)/c/lib
+RTSRCDIR = $(OSROOTDIR)/rtsrc
+BERSRCDIR = $(OSROOTDIR)/rtbersrc
+SRCDIR = .
+HFILESDIR = .
+HFILES = $(RTSRCDIR)/asn1type.h $(BERSRCDIR)/asn1ber.h 
+# compiler defs
+CFLAGS = -c $(CVARS_) $(CFLAGS_) $(CBLDTYPE_) -D_TRACE
+IPATHS = -I$(SRCDIR) -I$(OSROOTDIR) -I$(RTSRCDIR) -I$(BERSRCDIR) $(IPATHS_)
+LINKOPT = $(LINKOPT_)
+
+# run-time libraries
+LIBS = $(LIBDIR)/libasn1ber.a $(LIBDIR)/libasn1rt.a
+LLIBS = -lasn1ber -lasn1rt
+LPATHS = $(LPPFX)$(LIBDIR) $(XMLLPATHS)
+
+OBJECTS =  \
+CAP-datatypes$(OBJ) \
+CAP-errortypes$(OBJ) \
+CAP-errortypesTable$(OBJ) \
+CAP-operationcodes$(OBJ) \
+CAP-operationcodesTable$(OBJ) \
+CAP-errorcodes$(OBJ) \
+CAP-errorcodesTable$(OBJ) \
+CAP-classes$(OBJ) \
+CAP-classesTable$(OBJ) \
+CAP-object-identifiers$(OBJ) \
+CAP-U-ABORT-Data$(OBJ) \
+CAP-U-ABORT-DataTable$(OBJ) \
+CAP-gsmSSF-gsmSCF-ops-args$(OBJ) \
+CAP-gsmSSF-gsmSCF-ops-argsTable$(OBJ) \
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acs$(OBJ) \
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) \
+CAP-gsmSCF-gsmSRF-ops-args$(OBJ) \
+CAP-gsmSCF-gsmSRF-ops-argsTable$(OBJ) \
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acs$(OBJ) \
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable$(OBJ) \
+CAP-SMS-ops-args$(OBJ) \
+CAP-SMS-ops-argsTable$(OBJ) \
+CAP-smsSSF-gsmSCF-pkgs-contracts-acs$(OBJ) \
+CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) \
+CAP-gprsSSF-gsmSCF-ops-args$(OBJ) \
+CAP-gprsSSF-gsmSCF-ops-argsTable$(OBJ) \
+CAP-GPRS-ReferenceNumber$(OBJ) \
+CAP-GPRS-ReferenceNumberTable$(OBJ) \
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acs$(OBJ) \
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) \
+CS1-DataTypes$(OBJ) \
+CS2-datatypes$(OBJ) \
+DialoguePDUs$(OBJ) \
+MAP-DialogueInformation$(OBJ) \
+MAP-Protocol$(OBJ) \
+MAP-ProtocolTable$(OBJ) \
+MAP-MobileServiceOperations$(OBJ) \
+MAP-MobileServiceOperationsTable$(OBJ) \
+MAP-OperationAndMaintenanceOperations$(OBJ) \
+MAP-OperationAndMaintenanceOperationsTable$(OBJ) \
+MAP-CallHandlingOperations$(OBJ) \
+MAP-CallHandlingOperationsTable$(OBJ) \
+MAP-SupplementaryServiceOperations$(OBJ) \
+MAP-SupplementaryServiceOperationsTable$(OBJ) \
+MAP-ShortMessageServiceOperations$(OBJ) \
+MAP-ShortMessageServiceOperationsTable$(OBJ) \
+MAP-Errors$(OBJ) \
+MAP-ErrorsTable$(OBJ) \
+MAP-Group-Call-Operations$(OBJ) \
+MAP-Group-Call-OperationsTable$(OBJ) \
+MAP-LocationServiceOperations$(OBJ) \
+MAP-LocationServiceOperationsTable$(OBJ) \
+MAP-SecureTransportOperations$(OBJ) \
+MAP-SecureTransportOperationsTable$(OBJ) \
+MAP-MS-DataTypes$(OBJ) \
+MAP-OM-DataTypes$(OBJ) \
+MAP-CH-DataTypes$(OBJ) \
+MAP-SS-DataTypes$(OBJ) \
+MAP-SS-Code$(OBJ) \
+MAP-SM-DataTypes$(OBJ) \
+MAP-ER-DataTypes$(OBJ) \
+MAP-CommonDataTypes$(OBJ) \
+MAP-TS-Code$(OBJ) \
+MAP-BS-Code$(OBJ) \
+MAP-ExtensionDataTypes$(OBJ) \
+MAP-ExtensionDataTypesTable$(OBJ) \
+MAP-GR-DataTypes$(OBJ) \
+MAP-LCS-DataTypes$(OBJ) \
+MAP-ST-DataTypes$(OBJ) \
+MobileDomainDefinitions$(OBJ) \
+Remote-Operations-Generic-ROS-PDUs$(OBJ) \
+Remote-Operations-Generic-ROS-PDUsTable$(OBJ) \
+Remote-Operations-Information-Objects$(OBJ) \
+Remote-Operations-Useful-Definitions$(OBJ) \
+Remote-Operations-Useful-DefinitionsTable$(OBJ) \
+TCAPMessages$(OBJ) \
+TC-Notation-Extensions$(OBJ) \
+TC-Notation-ExtensionsTable$(OBJ) \
+UnidialoguePDUs$(OBJ) \
+RtClass$(OBJ) \
+Asn1External$(OBJ)
+
+ENCOBJECTS = 
+
+DECOBJECTS =  \
+CAP-datatypesDec$(OBJ) \
+CAP-errortypesDec$(OBJ) \
+CAP-operationcodesDec$(OBJ) \
+CAP-errorcodesDec$(OBJ) \
+CAP-classesDec$(OBJ) \
+CAP-object-identifiersDec$(OBJ) \
+CAP-U-ABORT-DataDec$(OBJ) \
+CAP-gsmSSF-gsmSCF-ops-argsDec$(OBJ) \
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) \
+CAP-gsmSCF-gsmSRF-ops-argsDec$(OBJ) \
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec$(OBJ) \
+CAP-SMS-ops-argsDec$(OBJ) \
+CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) \
+CAP-gprsSSF-gsmSCF-ops-argsDec$(OBJ) \
+CAP-GPRS-ReferenceNumberDec$(OBJ) \
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) \
+CS1-DataTypesDec$(OBJ) \
+CS2-datatypesDec$(OBJ) \
+DialoguePDUsDec$(OBJ) \
+MAP-DialogueInformationDec$(OBJ) \
+MAP-ProtocolDec$(OBJ) \
+MAP-MobileServiceOperationsDec$(OBJ) \
+MAP-OperationAndMaintenanceOperationsDec$(OBJ) \
+MAP-CallHandlingOperationsDec$(OBJ) \
+MAP-SupplementaryServiceOperationsDec$(OBJ) \
+MAP-ShortMessageServiceOperationsDec$(OBJ) \
+MAP-ErrorsDec$(OBJ) \
+MAP-Group-Call-OperationsDec$(OBJ) \
+MAP-LocationServiceOperationsDec$(OBJ) \
+MAP-SecureTransportOperationsDec$(OBJ) \
+MAP-MS-DataTypesDec$(OBJ) \
+MAP-OM-DataTypesDec$(OBJ) \
+MAP-CH-DataTypesDec$(OBJ) \
+MAP-SS-DataTypesDec$(OBJ) \
+MAP-SS-CodeDec$(OBJ) \
+MAP-SM-DataTypesDec$(OBJ) \
+MAP-ER-DataTypesDec$(OBJ) \
+MAP-CommonDataTypesDec$(OBJ) \
+MAP-TS-CodeDec$(OBJ) \
+MAP-BS-CodeDec$(OBJ) \
+MAP-ExtensionDataTypesDec$(OBJ) \
+MAP-GR-DataTypesDec$(OBJ) \
+MAP-LCS-DataTypesDec$(OBJ) \
+MAP-ST-DataTypesDec$(OBJ) \
+MobileDomainDefinitionsDec$(OBJ) \
+Remote-Operations-Generic-ROS-PDUsDec$(OBJ) \
+Remote-Operations-Information-ObjectsDec$(OBJ) \
+Remote-Operations-Useful-DefinitionsDec$(OBJ) \
+TCAPMessagesDec$(OBJ) \
+TC-Notation-ExtensionsDec$(OBJ) \
+UnidialoguePDUsDec$(OBJ)
+
+all : $(OBJECTS) $(ENCOBJECTS) $(DECOBJECTS)
+
+# .c -> .obj rules
+# common file rules
+CAP-datatypes$(OBJ) : $(SRCDIR)/CAP-datatypes.c \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CH-DataTypes.h \
+$(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-datatypes.c
+
+# decode file rules
+CAP-datatypesDec$(OBJ) : $(SRCDIR)/CAP-datatypesDec.c \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CH-DataTypes.h \
+$(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-datatypesDec.c
+
+# common file rules
+CAP-errortypes$(OBJ) : $(SRCDIR)/CAP-errortypes.c \
+$(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errortypes.c
+
+CAP-errortypesTable$(OBJ) : $(SRCDIR)/CAP-errortypesTable.c \
+$(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errortypesTable.c
+
+# decode file rules
+CAP-errortypesDec$(OBJ) : $(SRCDIR)/CAP-errortypesDec.c \
+$(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errortypesDec.c
+
+# common file rules
+CAP-operationcodes$(OBJ) : $(SRCDIR)/CAP-operationcodes.c \
+$(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-operationcodes.c
+
+CAP-operationcodesTable$(OBJ) : $(SRCDIR)/CAP-operationcodesTable.c \
+$(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-operationcodesTable.c
+
+# decode file rules
+CAP-operationcodesDec$(OBJ) : $(SRCDIR)/CAP-operationcodesDec.c \
+$(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-operationcodesDec.c
+
+# common file rules
+CAP-errorcodes$(OBJ) : $(SRCDIR)/CAP-errorcodes.c \
+$(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errorcodes.c
+
+CAP-errorcodesTable$(OBJ) : $(SRCDIR)/CAP-errorcodesTable.c \
+$(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errorcodesTable.c
+
+# decode file rules
+CAP-errorcodesDec$(OBJ) : $(SRCDIR)/CAP-errorcodesDec.c \
+$(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-errorcodesDec.c
+
+# common file rules
+CAP-classes$(OBJ) : $(SRCDIR)/CAP-classes.c \
+$(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-classes.c
+
+CAP-classesTable$(OBJ) : $(SRCDIR)/CAP-classesTable.c \
+$(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-classesTable.c
+
+# decode file rules
+CAP-classesDec$(OBJ) : $(SRCDIR)/CAP-classesDec.c \
+$(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-classesDec.c
+
+# common file rules
+CAP-object-identifiers$(OBJ) : $(SRCDIR)/CAP-object-identifiers.c \
+$(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-object-identifiers.c
+
+# decode file rules
+CAP-object-identifiersDec$(OBJ) : $(SRCDIR)/CAP-object-identifiersDec.c \
+$(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-object-identifiersDec.c
+
+# common file rules
+CAP-U-ABORT-Data$(OBJ) : $(SRCDIR)/CAP-U-ABORT-Data.c \
+$(HFILESDIR)/CAP-U-ABORT-Data.h \
+$(HFILESDIR)/CAP-U-ABORT-DataTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-U-ABORT-Data.c
+
+CAP-U-ABORT-DataTable$(OBJ) : $(SRCDIR)/CAP-U-ABORT-DataTable.c \
+$(HFILESDIR)/CAP-U-ABORT-Data.h \
+$(HFILESDIR)/CAP-U-ABORT-DataTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-U-ABORT-DataTable.c
+
+# decode file rules
+CAP-U-ABORT-DataDec$(OBJ) : $(SRCDIR)/CAP-U-ABORT-DataDec.c \
+$(HFILESDIR)/CAP-U-ABORT-Data.h \
+$(HFILESDIR)/CAP-U-ABORT-DataTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-U-ABORT-DataDec.c
+
+# common file rules
+CAP-gsmSSF-gsmSCF-ops-args$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-args.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-args.c
+
+CAP-gsmSSF-gsmSCF-ops-argsTable$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.c
+
+# decode file rules
+CAP-gsmSSF-gsmSCF-ops-argsDec$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsDec.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsDec.c
+
+# common file rules
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acs$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.c
+
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.c
+
+# decode file rules
+CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) : $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec.c
+
+# common file rules
+CAP-gsmSCF-gsmSRF-ops-args$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-args.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-args.c
+
+CAP-gsmSCF-gsmSRF-ops-argsTable$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.c
+
+# decode file rules
+CAP-gsmSCF-gsmSRF-ops-argsDec$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsDec.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h $(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/CAP-object-identifiers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsDec.c
+
+# common file rules
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acs$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.c
+
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.c
+
+# decode file rules
+CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec$(OBJ) : $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec.c
+
+# common file rules
+CAP-SMS-ops-args$(OBJ) : $(SRCDIR)/CAP-SMS-ops-args.c \
+$(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-SMS-ops-args.c
+
+CAP-SMS-ops-argsTable$(OBJ) : $(SRCDIR)/CAP-SMS-ops-argsTable.c \
+$(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-SMS-ops-argsTable.c
+
+# decode file rules
+CAP-SMS-ops-argsDec$(OBJ) : $(SRCDIR)/CAP-SMS-ops-argsDec.c \
+$(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-SMS-ops-argsDec.c
+
+# common file rules
+CAP-smsSSF-gsmSCF-pkgs-contracts-acs$(OBJ) : $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.c \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.c
+
+CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) : $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.c
+
+# decode file rules
+CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) : $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec.c
+
+# common file rules
+CAP-gprsSSF-gsmSCF-ops-args$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-args.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-args.c
+
+CAP-gprsSSF-gsmSCF-ops-argsTable$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.c
+
+# decode file rules
+CAP-gprsSSF-gsmSCF-ops-argsDec$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsDec.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/CS2-datatypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h $(HFILESDIR)/CAP-classesTable.h \
+$(HFILESDIR)/CAP-operationcodes.h $(HFILESDIR)/CAP-operationcodesTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsDec.c
+
+# common file rules
+CAP-GPRS-ReferenceNumber$(OBJ) : $(SRCDIR)/CAP-GPRS-ReferenceNumber.c \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumber.h \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumberTable.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-GPRS-ReferenceNumber.c
+
+CAP-GPRS-ReferenceNumberTable$(OBJ) : $(SRCDIR)/CAP-GPRS-ReferenceNumberTable.c \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumber.h \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumberTable.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-GPRS-ReferenceNumberTable.c
+
+# decode file rules
+CAP-GPRS-ReferenceNumberDec$(OBJ) : $(SRCDIR)/CAP-GPRS-ReferenceNumberDec.c \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumber.h \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumberTable.h $(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-GPRS-ReferenceNumberDec.c
+
+# common file rules
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acs$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.c
+
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.c
+
+# decode file rules
+CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec$(OBJ) : $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.h $(HFILESDIR)/CAP-classes.h $(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/TC-Notation-Extensions.h $(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h $(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h $(HFILESDIR)/CAP-object-identifiers.h \
+$(HFILESDIR)/CAP-errortypes.h $(HFILESDIR)/CAP-errortypesTable.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/CAP-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec.c
+
+# common file rules
+CS1-DataTypes$(OBJ) : $(SRCDIR)/CS1-DataTypes.c \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CS1-DataTypes.c
+
+# decode file rules
+CS1-DataTypesDec$(OBJ) : $(SRCDIR)/CS1-DataTypesDec.c \
+$(HFILESDIR)/CS1-DataTypes.h $(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CS1-DataTypesDec.c
+
+# common file rules
+CS2-datatypes$(OBJ) : $(SRCDIR)/CS2-datatypes.c \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CS2-datatypes.c
+
+# decode file rules
+CS2-datatypesDec$(OBJ) : $(SRCDIR)/CS2-datatypesDec.c \
+$(HFILESDIR)/CS2-datatypes.h $(HFILESDIR)/CS1-DataTypes.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/CS2-datatypesDec.c
+
+# common file rules
+DialoguePDUs$(OBJ) : $(SRCDIR)/DialoguePDUs.c \
+$(HFILESDIR)/DialoguePDUs.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/DialoguePDUs.c
+
+# decode file rules
+DialoguePDUsDec$(OBJ) : $(SRCDIR)/DialoguePDUsDec.c \
+$(HFILESDIR)/DialoguePDUs.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/DialoguePDUsDec.c
+
+# common file rules
+MAP-DialogueInformation$(OBJ) : $(SRCDIR)/MAP-DialogueInformation.c \
+$(HFILESDIR)/MAP-DialogueInformation.h \
+$(HFILESDIR)/MobileDomainDefinitions.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-DialogueInformation.c
+
+# decode file rules
+MAP-DialogueInformationDec$(OBJ) : $(SRCDIR)/MAP-DialogueInformationDec.c \
+$(HFILESDIR)/MAP-DialogueInformation.h \
+$(HFILESDIR)/MobileDomainDefinitions.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-DialogueInformationDec.c
+
+# common file rules
+MAP-Protocol$(OBJ) : $(SRCDIR)/MAP-Protocol.c \
+$(HFILESDIR)/MAP-Protocol.h \
+$(HFILESDIR)/MAP-ProtocolTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-Protocol.c
+
+MAP-ProtocolTable$(OBJ) : $(SRCDIR)/MAP-ProtocolTable.c \
+$(HFILESDIR)/MAP-Protocol.h \
+$(HFILESDIR)/MAP-ProtocolTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ProtocolTable.c
+
+# decode file rules
+MAP-ProtocolDec$(OBJ) : $(SRCDIR)/MAP-ProtocolDec.c \
+$(HFILESDIR)/MAP-Protocol.h \
+$(HFILESDIR)/MAP-ProtocolTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ProtocolDec.c
+
+# common file rules
+MAP-MobileServiceOperations$(OBJ) : $(SRCDIR)/MAP-MobileServiceOperations.c \
+$(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-MobileServiceOperations.c
+
+MAP-MobileServiceOperationsTable$(OBJ) : $(SRCDIR)/MAP-MobileServiceOperationsTable.c \
+$(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-MobileServiceOperationsTable.c
+
+# decode file rules
+MAP-MobileServiceOperationsDec$(OBJ) : $(SRCDIR)/MAP-MobileServiceOperationsDec.c \
+$(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-MobileServiceOperationsDec.c
+
+# common file rules
+MAP-OperationAndMaintenanceOperations$(OBJ) : $(SRCDIR)/MAP-OperationAndMaintenanceOperations.c \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-OM-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-OperationAndMaintenanceOperations.c
+
+MAP-OperationAndMaintenanceOperationsTable$(OBJ) : $(SRCDIR)/MAP-OperationAndMaintenanceOperationsTable.c \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-OM-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-OperationAndMaintenanceOperationsTable.c
+
+# decode file rules
+MAP-OperationAndMaintenanceOperationsDec$(OBJ) : $(SRCDIR)/MAP-OperationAndMaintenanceOperationsDec.c \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-OM-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-OperationAndMaintenanceOperationsDec.c
+
+# common file rules
+MAP-CallHandlingOperations$(OBJ) : $(SRCDIR)/MAP-CallHandlingOperations.c \
+$(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CallHandlingOperations.c
+
+MAP-CallHandlingOperationsTable$(OBJ) : $(SRCDIR)/MAP-CallHandlingOperationsTable.c \
+$(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CallHandlingOperationsTable.c
+
+# decode file rules
+MAP-CallHandlingOperationsDec$(OBJ) : $(SRCDIR)/MAP-CallHandlingOperationsDec.c \
+$(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-CH-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CallHandlingOperationsDec.c
+
+# common file rules
+MAP-SupplementaryServiceOperations$(OBJ) : $(SRCDIR)/MAP-SupplementaryServiceOperations.c \
+$(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SupplementaryServiceOperations.c
+
+MAP-SupplementaryServiceOperationsTable$(OBJ) : $(SRCDIR)/MAP-SupplementaryServiceOperationsTable.c \
+$(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SupplementaryServiceOperationsTable.c
+
+# decode file rules
+MAP-SupplementaryServiceOperationsDec$(OBJ) : $(SRCDIR)/MAP-SupplementaryServiceOperationsDec.c \
+$(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SupplementaryServiceOperationsDec.c
+
+# common file rules
+MAP-ShortMessageServiceOperations$(OBJ) : $(SRCDIR)/MAP-ShortMessageServiceOperations.c \
+$(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SM-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ShortMessageServiceOperations.c
+
+MAP-ShortMessageServiceOperationsTable$(OBJ) : $(SRCDIR)/MAP-ShortMessageServiceOperationsTable.c \
+$(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SM-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ShortMessageServiceOperationsTable.c
+
+# decode file rules
+MAP-ShortMessageServiceOperationsDec$(OBJ) : $(SRCDIR)/MAP-ShortMessageServiceOperationsDec.c \
+$(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-SM-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ShortMessageServiceOperationsDec.c
+
+# common file rules
+MAP-Errors$(OBJ) : $(SRCDIR)/MAP-Errors.c \
+$(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-ER-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-Errors.c
+
+MAP-ErrorsTable$(OBJ) : $(SRCDIR)/MAP-ErrorsTable.c \
+$(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-ER-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ErrorsTable.c
+
+# decode file rules
+MAP-ErrorsDec$(OBJ) : $(SRCDIR)/MAP-ErrorsDec.c \
+$(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-ER-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ErrorsDec.c
+
+# common file rules
+MAP-Group-Call-Operations$(OBJ) : $(SRCDIR)/MAP-Group-Call-Operations.c \
+$(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-GR-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-Group-Call-Operations.c
+
+MAP-Group-Call-OperationsTable$(OBJ) : $(SRCDIR)/MAP-Group-Call-OperationsTable.c \
+$(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-GR-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-Group-Call-OperationsTable.c
+
+# decode file rules
+MAP-Group-Call-OperationsDec$(OBJ) : $(SRCDIR)/MAP-Group-Call-OperationsDec.c \
+$(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-GR-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-Group-Call-OperationsDec.c
+
+# common file rules
+MAP-LocationServiceOperations$(OBJ) : $(SRCDIR)/MAP-LocationServiceOperations.c \
+$(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-LCS-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-LocationServiceOperations.c
+
+MAP-LocationServiceOperationsTable$(OBJ) : $(SRCDIR)/MAP-LocationServiceOperationsTable.c \
+$(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-LCS-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-LocationServiceOperationsTable.c
+
+# decode file rules
+MAP-LocationServiceOperationsDec$(OBJ) : $(SRCDIR)/MAP-LocationServiceOperationsDec.c \
+$(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-LCS-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-LocationServiceOperationsDec.c
+
+# common file rules
+MAP-SecureTransportOperations$(OBJ) : $(SRCDIR)/MAP-SecureTransportOperations.c \
+$(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SecureTransportOperations.c
+
+MAP-SecureTransportOperationsTable$(OBJ) : $(SRCDIR)/MAP-SecureTransportOperationsTable.c \
+$(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SecureTransportOperationsTable.c
+
+# decode file rules
+MAP-SecureTransportOperationsDec$(OBJ) : $(SRCDIR)/MAP-SecureTransportOperationsDec.c \
+$(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/MAP-Errors.h $(HFILESDIR)/MAP-ErrorsTable.h \
+$(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SecureTransportOperationsDec.c
+
+# common file rules
+MAP-MS-DataTypes$(OBJ) : $(SRCDIR)/MAP-MS-DataTypes.c \
+$(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/MAP-BS-Code.h \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/MAP-ER-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-MS-DataTypes.c
+
+# decode file rules
+MAP-MS-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-MS-DataTypesDec.c \
+$(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/MAP-BS-Code.h \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/MAP-ER-DataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-MS-DataTypesDec.c
+
+# common file rules
+MAP-OM-DataTypes$(OBJ) : $(SRCDIR)/MAP-OM-DataTypes.c \
+$(HFILESDIR)/MAP-OM-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-OM-DataTypes.c
+
+# decode file rules
+MAP-OM-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-OM-DataTypesDec.c \
+$(HFILESDIR)/MAP-OM-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-OM-DataTypesDec.c
+
+# common file rules
+MAP-CH-DataTypes$(OBJ) : $(SRCDIR)/MAP-CH-DataTypes.c \
+$(HFILESDIR)/MAP-CH-DataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-SS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CH-DataTypes.c
+
+# decode file rules
+MAP-CH-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-CH-DataTypesDec.c \
+$(HFILESDIR)/MAP-CH-DataTypes.h \
+$(HFILESDIR)/MAP-MS-DataTypes.h $(HFILESDIR)/MAP-SS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CH-DataTypesDec.c
+
+# common file rules
+MAP-SS-DataTypes$(OBJ) : $(SRCDIR)/MAP-SS-DataTypes.c \
+$(HFILESDIR)/MAP-SS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SS-DataTypes.c
+
+# decode file rules
+MAP-SS-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-SS-DataTypesDec.c \
+$(HFILESDIR)/MAP-SS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SS-DataTypesDec.c
+
+# common file rules
+MAP-SS-Code$(OBJ) : $(SRCDIR)/MAP-SS-Code.c \
+$(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SS-Code.c
+
+# decode file rules
+MAP-SS-CodeDec$(OBJ) : $(SRCDIR)/MAP-SS-CodeDec.c \
+$(HFILESDIR)/MAP-SS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SS-CodeDec.c
+
+# common file rules
+MAP-SM-DataTypes$(OBJ) : $(SRCDIR)/MAP-SM-DataTypes.c \
+$(HFILESDIR)/MAP-SM-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ER-DataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SM-DataTypes.c
+
+# decode file rules
+MAP-SM-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-SM-DataTypesDec.c \
+$(HFILESDIR)/MAP-SM-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ER-DataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-SM-DataTypesDec.c
+
+# common file rules
+MAP-ER-DataTypes$(OBJ) : $(SRCDIR)/MAP-ER-DataTypes.c \
+$(HFILESDIR)/MAP-ER-DataTypes.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ER-DataTypes.c
+
+# decode file rules
+MAP-ER-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-ER-DataTypesDec.c \
+$(HFILESDIR)/MAP-ER-DataTypes.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-ST-DataTypes.h $(HFILESDIR)/MAP-SS-Code.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ER-DataTypesDec.c
+
+# common file rules
+MAP-CommonDataTypes$(OBJ) : $(SRCDIR)/MAP-CommonDataTypes.c \
+$(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-BS-Code.h $(HFILESDIR)/MAP-SS-Code.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CommonDataTypes.c
+
+# decode file rules
+MAP-CommonDataTypesDec$(OBJ) : $(SRCDIR)/MAP-CommonDataTypesDec.c \
+$(HFILESDIR)/MAP-CommonDataTypes.h \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-BS-Code.h $(HFILESDIR)/MAP-SS-Code.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-CommonDataTypesDec.c
+
+# common file rules
+MAP-TS-Code$(OBJ) : $(SRCDIR)/MAP-TS-Code.c \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-TS-Code.c
+
+# decode file rules
+MAP-TS-CodeDec$(OBJ) : $(SRCDIR)/MAP-TS-CodeDec.c \
+$(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-TS-CodeDec.c
+
+# common file rules
+MAP-BS-Code$(OBJ) : $(SRCDIR)/MAP-BS-Code.c \
+$(HFILESDIR)/MAP-BS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-BS-Code.c
+
+# decode file rules
+MAP-BS-CodeDec$(OBJ) : $(SRCDIR)/MAP-BS-CodeDec.c \
+$(HFILESDIR)/MAP-BS-Code.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-BS-CodeDec.c
+
+# common file rules
+MAP-ExtensionDataTypes$(OBJ) : $(SRCDIR)/MAP-ExtensionDataTypes.c \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ExtensionDataTypes.c
+
+MAP-ExtensionDataTypesTable$(OBJ) : $(SRCDIR)/MAP-ExtensionDataTypesTable.c \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ExtensionDataTypesTable.c
+
+# decode file rules
+MAP-ExtensionDataTypesDec$(OBJ) : $(SRCDIR)/MAP-ExtensionDataTypesDec.c \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ExtensionDataTypesDec.c
+
+# common file rules
+MAP-GR-DataTypes$(OBJ) : $(SRCDIR)/MAP-GR-DataTypes.c \
+$(HFILESDIR)/MAP-GR-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-GR-DataTypes.c
+
+# decode file rules
+MAP-GR-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-GR-DataTypesDec.c \
+$(HFILESDIR)/MAP-GR-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-TS-Code.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-GR-DataTypesDec.c
+
+# common file rules
+MAP-LCS-DataTypes$(OBJ) : $(SRCDIR)/MAP-LCS-DataTypes.c \
+$(HFILESDIR)/MAP-LCS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-SM-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-LCS-DataTypes.c
+
+# decode file rules
+MAP-LCS-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-LCS-DataTypesDec.c \
+$(HFILESDIR)/MAP-LCS-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h $(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(HFILESDIR)/MAP-SS-DataTypes.h $(HFILESDIR)/MAP-MS-DataTypes.h \
+$(HFILESDIR)/MAP-SM-DataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-LCS-DataTypesDec.c
+
+# common file rules
+MAP-ST-DataTypes$(OBJ) : $(SRCDIR)/MAP-ST-DataTypes.c \
+$(HFILESDIR)/MAP-ST-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ST-DataTypes.c
+
+# decode file rules
+MAP-ST-DataTypesDec$(OBJ) : $(SRCDIR)/MAP-ST-DataTypesDec.c \
+$(HFILESDIR)/MAP-ST-DataTypes.h \
+$(HFILESDIR)/MAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MAP-ST-DataTypesDec.c
+
+# common file rules
+MobileDomainDefinitions$(OBJ) : $(SRCDIR)/MobileDomainDefinitions.c \
+$(HFILESDIR)/MobileDomainDefinitions.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MobileDomainDefinitions.c
+
+# decode file rules
+MobileDomainDefinitionsDec$(OBJ) : $(SRCDIR)/MobileDomainDefinitionsDec.c \
+$(HFILESDIR)/MobileDomainDefinitions.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/MobileDomainDefinitionsDec.c
+
+# common file rules
+Remote-Operations-Generic-ROS-PDUs$(OBJ) : $(SRCDIR)/Remote-Operations-Generic-ROS-PDUs.c \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Generic-ROS-PDUs.c
+
+Remote-Operations-Generic-ROS-PDUsTable$(OBJ) : $(SRCDIR)/Remote-Operations-Generic-ROS-PDUsTable.c \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Generic-ROS-PDUsTable.c
+
+# decode file rules
+Remote-Operations-Generic-ROS-PDUsDec$(OBJ) : $(SRCDIR)/Remote-Operations-Generic-ROS-PDUsDec.c \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Generic-ROS-PDUsDec.c
+
+# common file rules
+Remote-Operations-Information-Objects$(OBJ) : $(SRCDIR)/Remote-Operations-Information-Objects.c \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Information-Objects.c
+
+# decode file rules
+Remote-Operations-Information-ObjectsDec$(OBJ) : $(SRCDIR)/Remote-Operations-Information-ObjectsDec.c \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Information-ObjectsDec.c
+
+# common file rules
+Remote-Operations-Useful-Definitions$(OBJ) : $(SRCDIR)/Remote-Operations-Useful-Definitions.c \
+$(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Useful-Definitions.c
+
+Remote-Operations-Useful-DefinitionsTable$(OBJ) : $(SRCDIR)/Remote-Operations-Useful-DefinitionsTable.c \
+$(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Useful-DefinitionsTable.c
+
+# decode file rules
+Remote-Operations-Useful-DefinitionsDec$(OBJ) : $(SRCDIR)/Remote-Operations-Useful-DefinitionsDec.c \
+$(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Remote-Operations-Useful-DefinitionsDec.c
+
+# common file rules
+TCAPMessages$(OBJ) : $(SRCDIR)/TCAPMessages.c \
+$(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/TCAPMessages.c
+
+# decode file rules
+TCAPMessagesDec$(OBJ) : $(SRCDIR)/TCAPMessagesDec.c \
+$(HFILESDIR)/TCAPMessages.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/TCAPMessagesDec.c
+
+# common file rules
+TC-Notation-Extensions$(OBJ) : $(SRCDIR)/TC-Notation-Extensions.c \
+$(HFILESDIR)/TC-Notation-Extensions.h \
+$(HFILESDIR)/TC-Notation-ExtensionsClass.h $(HFILESDIR)/TC-Notation-ExtensionsTable.h \
+$(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/UnidialoguePDUs.h $(HFILESDIR)/DialoguePDUs.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/TC-Notation-Extensions.c
+
+TC-Notation-ExtensionsTable$(OBJ) : $(SRCDIR)/TC-Notation-ExtensionsTable.c \
+$(HFILESDIR)/TC-Notation-Extensions.h \
+$(HFILESDIR)/TC-Notation-ExtensionsClass.h $(HFILESDIR)/TC-Notation-ExtensionsTable.h \
+$(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/UnidialoguePDUs.h $(HFILESDIR)/DialoguePDUs.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/TC-Notation-ExtensionsTable.c
+
+# decode file rules
+TC-Notation-ExtensionsDec$(OBJ) : $(SRCDIR)/TC-Notation-ExtensionsDec.c \
+$(HFILESDIR)/TC-Notation-Extensions.h \
+$(HFILESDIR)/TC-Notation-ExtensionsClass.h $(HFILESDIR)/TC-Notation-ExtensionsTable.h \
+$(HFILESDIR)/TCAPMessages.h $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h $(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h $(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h $(HFILESDIR)/UnidialoguePDUs.h $(HFILESDIR)/DialoguePDUs.h \
+$(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/TC-Notation-ExtensionsDec.c
+
+# common file rules
+UnidialoguePDUs$(OBJ) : $(SRCDIR)/UnidialoguePDUs.c \
+$(HFILESDIR)/UnidialoguePDUs.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/UnidialoguePDUs.c
+
+# decode file rules
+UnidialoguePDUsDec$(OBJ) : $(SRCDIR)/UnidialoguePDUsDec.c \
+$(HFILESDIR)/UnidialoguePDUs.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/UnidialoguePDUsDec.c
+
+# common file rules
+RtClass$(OBJ) : $(SRCDIR)/RtClass.c \
+$(HFILESDIR)/RtClass.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/RtClass.c
+
+# common file rules
+Asn1External$(OBJ) : $(SRCDIR)/Asn1External.c \
+$(HFILESDIR)/Asn1External.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/Asn1External.c
+
+# .asn -> .c .h rules
+$(SRCDIR)/CAP-datatypesDec.c \
+$(SRCDIR)/CAP-datatypes.c \
+$(HFILESDIR)/CAP-datatypes.h \
+$(SRCDIR)/CAP-errortypesDec.c \
+$(SRCDIR)/CAP-errortypes.c \
+$(SRCDIR)/CAP-errortypesTable.c \
+$(HFILESDIR)/CAP-errortypes.h \
+$(HFILESDIR)/CAP-errortypesTable.h \
+$(SRCDIR)/CAP-operationcodesDec.c \
+$(SRCDIR)/CAP-operationcodes.c \
+$(SRCDIR)/CAP-operationcodesTable.c \
+$(HFILESDIR)/CAP-operationcodes.h \
+$(HFILESDIR)/CAP-operationcodesTable.h \
+$(SRCDIR)/CAP-errorcodesDec.c \
+$(SRCDIR)/CAP-errorcodes.c \
+$(SRCDIR)/CAP-errorcodesTable.c \
+$(HFILESDIR)/CAP-errorcodes.h \
+$(HFILESDIR)/CAP-errorcodesTable.h \
+$(SRCDIR)/CAP-classesDec.c \
+$(SRCDIR)/CAP-classes.c \
+$(SRCDIR)/CAP-classesTable.c \
+$(HFILESDIR)/CAP-classes.h \
+$(HFILESDIR)/CAP-classesClass.h \
+$(HFILESDIR)/CAP-classesTable.h \
+$(SRCDIR)/CAP-object-identifiersDec.c \
+$(SRCDIR)/CAP-object-identifiers.c \
+$(HFILESDIR)/CAP-object-identifiers.h \
+$(SRCDIR)/CAP-U-ABORT-DataDec.c \
+$(SRCDIR)/CAP-U-ABORT-Data.c \
+$(SRCDIR)/CAP-U-ABORT-DataTable.c \
+$(HFILESDIR)/CAP-U-ABORT-Data.h \
+$(HFILESDIR)/CAP-U-ABORT-DataTable.h \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsDec.c \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-args.c \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.c \
+$(SRCDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsDec.c \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-args.c \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec.c \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.c \
+$(SRCDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h \
+$(SRCDIR)/CAP-SMS-ops-argsDec.c \
+$(SRCDIR)/CAP-SMS-ops-args.c \
+$(SRCDIR)/CAP-SMS-ops-argsTable.c \
+$(HFILESDIR)/CAP-SMS-ops-args.h \
+$(HFILESDIR)/CAP-SMS-ops-argsTable.h \
+$(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.c \
+$(SRCDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsDec.c \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-args.c \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h \
+$(SRCDIR)/CAP-GPRS-ReferenceNumberDec.c \
+$(SRCDIR)/CAP-GPRS-ReferenceNumber.c \
+$(SRCDIR)/CAP-GPRS-ReferenceNumberTable.c \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumber.h \
+$(HFILESDIR)/CAP-GPRS-ReferenceNumberTable.h \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec.c \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.c \
+$(SRCDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.c \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.h \
+$(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.h \
+$(SRCDIR)/CS1-DataTypesDec.c \
+$(SRCDIR)/CS1-DataTypes.c \
+$(HFILESDIR)/CS1-DataTypes.h \
+$(SRCDIR)/CS2-datatypesDec.c \
+$(SRCDIR)/CS2-datatypes.c \
+$(HFILESDIR)/CS2-datatypes.h \
+$(SRCDIR)/DialoguePDUsDec.c \
+$(SRCDIR)/DialoguePDUs.c \
+$(HFILESDIR)/DialoguePDUs.h \
+$(SRCDIR)/MAP-DialogueInformationDec.c \
+$(SRCDIR)/MAP-DialogueInformation.c \
+$(HFILESDIR)/MAP-DialogueInformation.h \
+$(SRCDIR)/MAP-ProtocolDec.c \
+$(SRCDIR)/MAP-Protocol.c \
+$(SRCDIR)/MAP-ProtocolTable.c \
+$(HFILESDIR)/MAP-Protocol.h \
+$(HFILESDIR)/MAP-ProtocolTable.h \
+$(SRCDIR)/MAP-MobileServiceOperationsDec.c \
+$(SRCDIR)/MAP-MobileServiceOperations.c \
+$(SRCDIR)/MAP-MobileServiceOperationsTable.c \
+$(HFILESDIR)/MAP-MobileServiceOperations.h \
+$(HFILESDIR)/MAP-MobileServiceOperationsTable.h \
+$(SRCDIR)/MAP-OperationAndMaintenanceOperationsDec.c \
+$(SRCDIR)/MAP-OperationAndMaintenanceOperations.c \
+$(SRCDIR)/MAP-OperationAndMaintenanceOperationsTable.c \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h \
+$(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h \
+$(SRCDIR)/MAP-CallHandlingOperationsDec.c \
+$(SRCDIR)/MAP-CallHandlingOperations.c \
+$(SRCDIR)/MAP-CallHandlingOperationsTable.c \
+$(HFILESDIR)/MAP-CallHandlingOperations.h \
+$(HFILESDIR)/MAP-CallHandlingOperationsTable.h \
+$(SRCDIR)/MAP-SupplementaryServiceOperationsDec.c \
+$(SRCDIR)/MAP-SupplementaryServiceOperations.c \
+$(SRCDIR)/MAP-SupplementaryServiceOperationsTable.c \
+$(HFILESDIR)/MAP-SupplementaryServiceOperations.h \
+$(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h \
+$(SRCDIR)/MAP-ShortMessageServiceOperationsDec.c \
+$(SRCDIR)/MAP-ShortMessageServiceOperations.c \
+$(SRCDIR)/MAP-ShortMessageServiceOperationsTable.c \
+$(HFILESDIR)/MAP-ShortMessageServiceOperations.h \
+$(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h \
+$(SRCDIR)/MAP-ErrorsDec.c \
+$(SRCDIR)/MAP-Errors.c \
+$(SRCDIR)/MAP-ErrorsTable.c \
+$(HFILESDIR)/MAP-Errors.h \
+$(HFILESDIR)/MAP-ErrorsTable.h \
+$(SRCDIR)/MAP-Group-Call-OperationsDec.c \
+$(SRCDIR)/MAP-Group-Call-Operations.c \
+$(SRCDIR)/MAP-Group-Call-OperationsTable.c \
+$(HFILESDIR)/MAP-Group-Call-Operations.h \
+$(HFILESDIR)/MAP-Group-Call-OperationsTable.h \
+$(SRCDIR)/MAP-LocationServiceOperationsDec.c \
+$(SRCDIR)/MAP-LocationServiceOperations.c \
+$(SRCDIR)/MAP-LocationServiceOperationsTable.c \
+$(HFILESDIR)/MAP-LocationServiceOperations.h \
+$(HFILESDIR)/MAP-LocationServiceOperationsTable.h \
+$(SRCDIR)/MAP-SecureTransportOperationsDec.c \
+$(SRCDIR)/MAP-SecureTransportOperations.c \
+$(SRCDIR)/MAP-SecureTransportOperationsTable.c \
+$(HFILESDIR)/MAP-SecureTransportOperations.h \
+$(HFILESDIR)/MAP-SecureTransportOperationsTable.h \
+$(SRCDIR)/MAP-MS-DataTypesDec.c \
+$(SRCDIR)/MAP-MS-DataTypes.c \
+$(HFILESDIR)/MAP-MS-DataTypes.h \
+$(SRCDIR)/MAP-OM-DataTypesDec.c \
+$(SRCDIR)/MAP-OM-DataTypes.c \
+$(HFILESDIR)/MAP-OM-DataTypes.h \
+$(SRCDIR)/MAP-CH-DataTypesDec.c \
+$(SRCDIR)/MAP-CH-DataTypes.c \
+$(HFILESDIR)/MAP-CH-DataTypes.h \
+$(SRCDIR)/MAP-SS-DataTypesDec.c \
+$(SRCDIR)/MAP-SS-DataTypes.c \
+$(HFILESDIR)/MAP-SS-DataTypes.h \
+$(SRCDIR)/MAP-SS-CodeDec.c \
+$(SRCDIR)/MAP-SS-Code.c \
+$(HFILESDIR)/MAP-SS-Code.h \
+$(SRCDIR)/MAP-SM-DataTypesDec.c \
+$(SRCDIR)/MAP-SM-DataTypes.c \
+$(HFILESDIR)/MAP-SM-DataTypes.h \
+$(SRCDIR)/MAP-ER-DataTypesDec.c \
+$(SRCDIR)/MAP-ER-DataTypes.c \
+$(HFILESDIR)/MAP-ER-DataTypes.h \
+$(SRCDIR)/MAP-CommonDataTypesDec.c \
+$(SRCDIR)/MAP-CommonDataTypes.c \
+$(HFILESDIR)/MAP-CommonDataTypes.h \
+$(SRCDIR)/MAP-TS-CodeDec.c \
+$(SRCDIR)/MAP-TS-Code.c \
+$(HFILESDIR)/MAP-TS-Code.h \
+$(SRCDIR)/MAP-BS-CodeDec.c \
+$(SRCDIR)/MAP-BS-Code.c \
+$(HFILESDIR)/MAP-BS-Code.h \
+$(SRCDIR)/MAP-ExtensionDataTypesDec.c \
+$(SRCDIR)/MAP-ExtensionDataTypes.c \
+$(SRCDIR)/MAP-ExtensionDataTypesTable.c \
+$(HFILESDIR)/MAP-ExtensionDataTypes.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesClass.h \
+$(HFILESDIR)/MAP-ExtensionDataTypesTable.h \
+$(SRCDIR)/MAP-GR-DataTypesDec.c \
+$(SRCDIR)/MAP-GR-DataTypes.c \
+$(HFILESDIR)/MAP-GR-DataTypes.h \
+$(SRCDIR)/MAP-LCS-DataTypesDec.c \
+$(SRCDIR)/MAP-LCS-DataTypes.c \
+$(HFILESDIR)/MAP-LCS-DataTypes.h \
+$(SRCDIR)/MAP-ST-DataTypesDec.c \
+$(SRCDIR)/MAP-ST-DataTypes.c \
+$(HFILESDIR)/MAP-ST-DataTypes.h \
+$(SRCDIR)/MobileDomainDefinitionsDec.c \
+$(SRCDIR)/MobileDomainDefinitions.c \
+$(HFILESDIR)/MobileDomainDefinitions.h \
+$(SRCDIR)/Remote-Operations-Generic-ROS-PDUsDec.c \
+$(SRCDIR)/Remote-Operations-Generic-ROS-PDUs.c \
+$(SRCDIR)/Remote-Operations-Generic-ROS-PDUsTable.c \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h \
+$(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h \
+$(SRCDIR)/Remote-Operations-Information-ObjectsDec.c \
+$(SRCDIR)/Remote-Operations-Information-Objects.c \
+$(HFILESDIR)/Remote-Operations-Information-Objects.h \
+$(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h \
+$(SRCDIR)/Remote-Operations-Useful-DefinitionsDec.c \
+$(SRCDIR)/Remote-Operations-Useful-Definitions.c \
+$(SRCDIR)/Remote-Operations-Useful-DefinitionsTable.c \
+$(HFILESDIR)/Remote-Operations-Useful-Definitions.h \
+$(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h \
+$(SRCDIR)/TCAPMessagesDec.c \
+$(SRCDIR)/TCAPMessages.c \
+$(HFILESDIR)/TCAPMessages.h \
+$(SRCDIR)/TC-Notation-ExtensionsDec.c \
+$(SRCDIR)/TC-Notation-Extensions.c \
+$(SRCDIR)/TC-Notation-ExtensionsTable.c \
+$(HFILESDIR)/TC-Notation-Extensions.h \
+$(HFILESDIR)/TC-Notation-ExtensionsClass.h \
+$(HFILESDIR)/TC-Notation-ExtensionsTable.h \
+$(SRCDIR)/UnidialoguePDUsDec.c \
+$(SRCDIR)/UnidialoguePDUs.c \
+$(HFILESDIR)/UnidialoguePDUs.h \
+$(SRCDIR)/RtClass.c \
+$(HFILESDIR)/RtClass.h \
+$(SRCDIR)/Asn1External.c \
+$(HFILESDIR)/Asn1External.h \
+$(HFILESDIR)/rtkey.h \
+: ./CAP.asn ./CS1-DataTypes.asn ./CS2-datatypes.asn ./DialoguePDUs.asn ./MAP.asn ./MobileDomainDefinitions.asn ./Remote-Operations-Generic-ROS-PDUs.asn ./Remote-Operations-Information-Objects.asn ./Remote-Operations-Useful-Definitions.asn ./TCAPMessages.asn ./TC-Notation-Extensions.asn ./UnidialoguePDUs.asn $(OSROOTDIR)/bin/asn1c$(EXE)
+	../../../../../../../../../../bin/asn1c ./CAP.asn ./CS1-DataTypes.asn ./CS2-datatypes.asn ./DialoguePDUs.asn ./MAP.asn ./MobileDomainDefinitions.asn ./Remote-Operations-Generic-ROS-PDUs.asn ./Remote-Operations-Information-Objects.asn ./Remote-Operations-Useful-Definitions.asn ./TCAPMessages.asn ./TC-Notation-Extensions.asn ./UnidialoguePDUs.asn -c -ber -compact -noencode -tables
+
+clean:
+	$(RM) CAP-datatypesDec.c
+	$(RM) CAP-datatypes.c
+	$(RM) $(HFILESDIR)/CAP-datatypes.h 
+	$(RM) CAP-errortypesDec.c
+	$(RM) CAP-errortypes.c
+	$(RM) CAP-errortypesTable.c
+	$(RM) $(HFILESDIR)/CAP-errortypes.h 
+	$(RM) $(HFILESDIR)/CAP-errortypesTable.h 
+	$(RM) CAP-operationcodesDec.c
+	$(RM) CAP-operationcodes.c
+	$(RM) CAP-operationcodesTable.c
+	$(RM) $(HFILESDIR)/CAP-operationcodes.h 
+	$(RM) $(HFILESDIR)/CAP-operationcodesTable.h 
+	$(RM) CAP-errorcodesDec.c
+	$(RM) CAP-errorcodes.c
+	$(RM) CAP-errorcodesTable.c
+	$(RM) $(HFILESDIR)/CAP-errorcodes.h 
+	$(RM) $(HFILESDIR)/CAP-errorcodesTable.h 
+	$(RM) CAP-classesDec.c
+	$(RM) CAP-classes.c
+	$(RM) CAP-classesTable.c
+	$(RM) $(HFILESDIR)/CAP-classes.h 
+	$(RM) $(HFILESDIR)/CAP-classesClass.h 
+	$(RM) $(HFILESDIR)/CAP-classesTable.h 
+	$(RM) CAP-object-identifiersDec.c
+	$(RM) CAP-object-identifiers.c
+	$(RM) $(HFILESDIR)/CAP-object-identifiers.h 
+	$(RM) CAP-U-ABORT-DataDec.c
+	$(RM) CAP-U-ABORT-Data.c
+	$(RM) CAP-U-ABORT-DataTable.c
+	$(RM) $(HFILESDIR)/CAP-U-ABORT-Data.h 
+	$(RM) $(HFILESDIR)/CAP-U-ABORT-DataTable.h 
+	$(RM) CAP-gsmSSF-gsmSCF-ops-argsDec.c
+	$(RM) CAP-gsmSSF-gsmSCF-ops-args.c
+	$(RM) CAP-gsmSSF-gsmSCF-ops-argsTable.c
+	$(RM) $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-args.h 
+	$(RM) $(HFILESDIR)/CAP-gsmSSF-gsmSCF-ops-argsTable.h 
+	$(RM) CAP-gsmSSF-gsmSCF-pkgs-contracts-acsDec.c
+	$(RM) CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.c
+	$(RM) CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.c
+	$(RM) $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acs.h 
+	$(RM) $(HFILESDIR)/CAP-gsmSSF-gsmSCF-pkgs-contracts-acsTable.h 
+	$(RM) CAP-gsmSCF-gsmSRF-ops-argsDec.c
+	$(RM) CAP-gsmSCF-gsmSRF-ops-args.c
+	$(RM) CAP-gsmSCF-gsmSRF-ops-argsTable.c
+	$(RM) $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-args.h 
+	$(RM) $(HFILESDIR)/CAP-gsmSCF-gsmSRF-ops-argsTable.h 
+	$(RM) CAP-gsmSCF-gsmSRF-pkgs-contracts-acsDec.c
+	$(RM) CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.c
+	$(RM) CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.c
+	$(RM) $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acs.h 
+	$(RM) $(HFILESDIR)/CAP-gsmSCF-gsmSRF-pkgs-contracts-acsTable.h 
+	$(RM) CAP-SMS-ops-argsDec.c
+	$(RM) CAP-SMS-ops-args.c
+	$(RM) CAP-SMS-ops-argsTable.c
+	$(RM) $(HFILESDIR)/CAP-SMS-ops-args.h 
+	$(RM) $(HFILESDIR)/CAP-SMS-ops-argsTable.h 
+	$(RM) CAP-smsSSF-gsmSCF-pkgs-contracts-acsDec.c
+	$(RM) CAP-smsSSF-gsmSCF-pkgs-contracts-acs.c
+	$(RM) CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.c
+	$(RM) $(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acs.h 
+	$(RM) $(HFILESDIR)/CAP-smsSSF-gsmSCF-pkgs-contracts-acsTable.h 
+	$(RM) CAP-gprsSSF-gsmSCF-ops-argsDec.c
+	$(RM) CAP-gprsSSF-gsmSCF-ops-args.c
+	$(RM) CAP-gprsSSF-gsmSCF-ops-argsTable.c
+	$(RM) $(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-args.h 
+	$(RM) $(HFILESDIR)/CAP-gprsSSF-gsmSCF-ops-argsTable.h 
+	$(RM) CAP-GPRS-ReferenceNumberDec.c
+	$(RM) CAP-GPRS-ReferenceNumber.c
+	$(RM) CAP-GPRS-ReferenceNumberTable.c
+	$(RM) $(HFILESDIR)/CAP-GPRS-ReferenceNumber.h 
+	$(RM) $(HFILESDIR)/CAP-GPRS-ReferenceNumberTable.h 
+	$(RM) CAP-gprsSSF-gsmSCF-pkgs-contracts-acsDec.c
+	$(RM) CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.c
+	$(RM) CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.c
+	$(RM) $(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acs.h 
+	$(RM) $(HFILESDIR)/CAP-gprsSSF-gsmSCF-pkgs-contracts-acsTable.h 
+	$(RM) CS1-DataTypesDec.c
+	$(RM) CS1-DataTypes.c
+	$(RM) $(HFILESDIR)/CS1-DataTypes.h 
+	$(RM) CS2-datatypesDec.c
+	$(RM) CS2-datatypes.c
+	$(RM) $(HFILESDIR)/CS2-datatypes.h 
+	$(RM) DialoguePDUsDec.c
+	$(RM) DialoguePDUs.c
+	$(RM) $(HFILESDIR)/DialoguePDUs.h 
+	$(RM) MAP-DialogueInformationDec.c
+	$(RM) MAP-DialogueInformation.c
+	$(RM) $(HFILESDIR)/MAP-DialogueInformation.h 
+	$(RM) MAP-ProtocolDec.c
+	$(RM) MAP-Protocol.c
+	$(RM) MAP-ProtocolTable.c
+	$(RM) $(HFILESDIR)/MAP-Protocol.h 
+	$(RM) $(HFILESDIR)/MAP-ProtocolTable.h 
+	$(RM) MAP-MobileServiceOperationsDec.c
+	$(RM) MAP-MobileServiceOperations.c
+	$(RM) MAP-MobileServiceOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-MobileServiceOperations.h 
+	$(RM) $(HFILESDIR)/MAP-MobileServiceOperationsTable.h 
+	$(RM) MAP-OperationAndMaintenanceOperationsDec.c
+	$(RM) MAP-OperationAndMaintenanceOperations.c
+	$(RM) MAP-OperationAndMaintenanceOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-OperationAndMaintenanceOperations.h 
+	$(RM) $(HFILESDIR)/MAP-OperationAndMaintenanceOperationsTable.h 
+	$(RM) MAP-CallHandlingOperationsDec.c
+	$(RM) MAP-CallHandlingOperations.c
+	$(RM) MAP-CallHandlingOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-CallHandlingOperations.h 
+	$(RM) $(HFILESDIR)/MAP-CallHandlingOperationsTable.h 
+	$(RM) MAP-SupplementaryServiceOperationsDec.c
+	$(RM) MAP-SupplementaryServiceOperations.c
+	$(RM) MAP-SupplementaryServiceOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-SupplementaryServiceOperations.h 
+	$(RM) $(HFILESDIR)/MAP-SupplementaryServiceOperationsTable.h 
+	$(RM) MAP-ShortMessageServiceOperationsDec.c
+	$(RM) MAP-ShortMessageServiceOperations.c
+	$(RM) MAP-ShortMessageServiceOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-ShortMessageServiceOperations.h 
+	$(RM) $(HFILESDIR)/MAP-ShortMessageServiceOperationsTable.h 
+	$(RM) MAP-ErrorsDec.c
+	$(RM) MAP-Errors.c
+	$(RM) MAP-ErrorsTable.c
+	$(RM) $(HFILESDIR)/MAP-Errors.h 
+	$(RM) $(HFILESDIR)/MAP-ErrorsTable.h 
+	$(RM) MAP-Group-Call-OperationsDec.c
+	$(RM) MAP-Group-Call-Operations.c
+	$(RM) MAP-Group-Call-OperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-Group-Call-Operations.h 
+	$(RM) $(HFILESDIR)/MAP-Group-Call-OperationsTable.h 
+	$(RM) MAP-LocationServiceOperationsDec.c
+	$(RM) MAP-LocationServiceOperations.c
+	$(RM) MAP-LocationServiceOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-LocationServiceOperations.h 
+	$(RM) $(HFILESDIR)/MAP-LocationServiceOperationsTable.h 
+	$(RM) MAP-SecureTransportOperationsDec.c
+	$(RM) MAP-SecureTransportOperations.c
+	$(RM) MAP-SecureTransportOperationsTable.c
+	$(RM) $(HFILESDIR)/MAP-SecureTransportOperations.h 
+	$(RM) $(HFILESDIR)/MAP-SecureTransportOperationsTable.h 
+	$(RM) MAP-MS-DataTypesDec.c
+	$(RM) MAP-MS-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-MS-DataTypes.h 
+	$(RM) MAP-OM-DataTypesDec.c
+	$(RM) MAP-OM-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-OM-DataTypes.h 
+	$(RM) MAP-CH-DataTypesDec.c
+	$(RM) MAP-CH-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-CH-DataTypes.h 
+	$(RM) MAP-SS-DataTypesDec.c
+	$(RM) MAP-SS-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-SS-DataTypes.h 
+	$(RM) MAP-SS-CodeDec.c
+	$(RM) MAP-SS-Code.c
+	$(RM) $(HFILESDIR)/MAP-SS-Code.h 
+	$(RM) MAP-SM-DataTypesDec.c
+	$(RM) MAP-SM-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-SM-DataTypes.h 
+	$(RM) MAP-ER-DataTypesDec.c
+	$(RM) MAP-ER-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-ER-DataTypes.h 
+	$(RM) MAP-CommonDataTypesDec.c
+	$(RM) MAP-CommonDataTypes.c
+	$(RM) $(HFILESDIR)/MAP-CommonDataTypes.h 
+	$(RM) MAP-TS-CodeDec.c
+	$(RM) MAP-TS-Code.c
+	$(RM) $(HFILESDIR)/MAP-TS-Code.h 
+	$(RM) MAP-BS-CodeDec.c
+	$(RM) MAP-BS-Code.c
+	$(RM) $(HFILESDIR)/MAP-BS-Code.h 
+	$(RM) MAP-ExtensionDataTypesDec.c
+	$(RM) MAP-ExtensionDataTypes.c
+	$(RM) MAP-ExtensionDataTypesTable.c
+	$(RM) $(HFILESDIR)/MAP-ExtensionDataTypes.h 
+	$(RM) $(HFILESDIR)/MAP-ExtensionDataTypesClass.h 
+	$(RM) $(HFILESDIR)/MAP-ExtensionDataTypesTable.h 
+	$(RM) MAP-GR-DataTypesDec.c
+	$(RM) MAP-GR-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-GR-DataTypes.h 
+	$(RM) MAP-LCS-DataTypesDec.c
+	$(RM) MAP-LCS-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-LCS-DataTypes.h 
+	$(RM) MAP-ST-DataTypesDec.c
+	$(RM) MAP-ST-DataTypes.c
+	$(RM) $(HFILESDIR)/MAP-ST-DataTypes.h 
+	$(RM) MobileDomainDefinitionsDec.c
+	$(RM) MobileDomainDefinitions.c
+	$(RM) $(HFILESDIR)/MobileDomainDefinitions.h 
+	$(RM) Remote-Operations-Generic-ROS-PDUsDec.c
+	$(RM) Remote-Operations-Generic-ROS-PDUs.c
+	$(RM) Remote-Operations-Generic-ROS-PDUsTable.c
+	$(RM) $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUs.h 
+	$(RM) $(HFILESDIR)/Remote-Operations-Generic-ROS-PDUsTable.h 
+	$(RM) Remote-Operations-Information-ObjectsDec.c
+	$(RM) Remote-Operations-Information-Objects.c
+	$(RM) $(HFILESDIR)/Remote-Operations-Information-Objects.h 
+	$(RM) $(HFILESDIR)/Remote-Operations-Information-ObjectsClass.h 
+	$(RM) Remote-Operations-Useful-DefinitionsDec.c
+	$(RM) Remote-Operations-Useful-Definitions.c
+	$(RM) Remote-Operations-Useful-DefinitionsTable.c
+	$(RM) $(HFILESDIR)/Remote-Operations-Useful-Definitions.h 
+	$(RM) $(HFILESDIR)/Remote-Operations-Useful-DefinitionsTable.h 
+	$(RM) TCAPMessagesDec.c
+	$(RM) TCAPMessages.c
+	$(RM) $(HFILESDIR)/TCAPMessages.h 
+	$(RM) TC-Notation-ExtensionsDec.c
+	$(RM) TC-Notation-Extensions.c
+	$(RM) TC-Notation-ExtensionsTable.c
+	$(RM) $(HFILESDIR)/TC-Notation-Extensions.h 
+	$(RM) $(HFILESDIR)/TC-Notation-ExtensionsClass.h 
+	$(RM) $(HFILESDIR)/TC-Notation-ExtensionsTable.h 
+	$(RM) UnidialoguePDUsDec.c
+	$(RM) UnidialoguePDUs.c
+	$(RM) $(HFILESDIR)/UnidialoguePDUs.h 
+	$(RM) RtClass.c
+	$(RM) $(HFILESDIR)/RtClass.h 
+	$(RM) Asn1External.c
+	$(RM) $(HFILESDIR)/Asn1External.h 
+	$(RM) $(HFILESDIR)/rtkey.h 
+	$(RM) *$(OBJ)
+	$(RM) *~

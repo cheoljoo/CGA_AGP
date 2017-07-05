@@ -1,0 +1,1143 @@
+FileName : abprotocol.c
+
+/** @file  abprotocol.c  
+ *  - abprotocol lib
+ * 
+ *  Copyright (c) 2006~ by Upresto Inc, Korea 
+ *  All rights reserved 
+ * 
+ *  $Id: abprotocol_ana.stc,v 1.29 2007/06/27 12:26:17 yhshin Exp $ 
+ * 
+ *  @Author      $Author: yhshin $ 
+ *  @version     $Revision: 1.29 $ 
+ *  @date        $Date: 2007/06/27 12:26:17 $ 
+ *  @warning     +Warning+ 
+ *  @ref          
+ *  @todo        +ToDo+ 
+ * 
+ *  @section     Intro 
+ *  @section     Requirement 
+ *  @li +Requirement+ 
+ * 
+ **/ 
+
+
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+int l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos);
+int avp_l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos);
+int t_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos);
+int tlv_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos);
+void assing_hex_value (unsigned char *pdata, unsigned char *ubuf, int length);
+
+void
+assing_hex_value (unsigned char *pdata, unsigned char *ubuf, int length)
+{
+	int		ii, kk;
+
+	for (ii=0, kk=0; ii < length; ii++, kk += 2) {
+		sprintf (ubuf + kk, "%02X", pdata [ii]);
+	}
+}
+
+
+
+void
+make_string_type_U8 (stFieldFormat *pF, U8 *pdata, int pos, U8 *string, int *spos)
+{
+	if ((pF->islist == LIST_ON) &&
+		(string != NULL)) {
+		sprintf (string + (*spos) , "%s: %d(0x%02x) ", pF->field_desc, pdata[pos], pdata[pos]);
+		*spos = strlen (string);
+	}
+}
+
+void
+make_string_type_U16 (stFieldFormat *pF, U8 *pdata, int pos, U8 *string, int *spos)
+{
+	if ((pF->islist == LIST_ON) &&
+		(string != NULL)) {
+		sprintf (string + (*spos) , "%s: %d ", pF->field_desc, ntohs(*((unsigned short *)(pdata + pos))));
+		*spos = strlen (string);
+	}
+}
+
+void
+make_string_type_U32 (stFieldFormat *pF, U8 *pdata, int pos, U8 *string, int *spos)
+{
+	if ((pF->islist == LIST_ON) &&
+		(string != NULL)) {
+		sprintf (string + (*spos) , "%s: %u ", pF->field_desc, ntohl(*((unsigned int *)(pdata + pos))));
+		*spos = strlen (string);
+	}
+}
+
+void
+make_string_type_HEX (stFieldFormat *pF, U8 *pdata, U8 *string, int *spos, int length)
+{
+	if ((pF->islist == LIST_ON) &&
+		(string != NULL)) {
+		sprintf (string + (*spos) , "%s: 0x", pF->field_desc);
+		*spos = strlen (string);
+		assing_hex_value (pdata, string + (*spos), length);
+		*spos = strlen (string);
+		sprintf (string + (*spos) , " ");
+		*spos += 1;
+	}
+}
+
+void
+make_string_type_IP4 (stFieldFormat *pF, U8 *pdata, int pos, U8 *string, int *spos)
+{
+	if ((pF->islist == LIST_ON) &&
+		(string != NULL)) {
+		sprintf (string + (*spos) , "%s: %d.%d.%d.%d ", pF->field_desc, HIPADDR(ntohl(*((unsigned int *)(pdata + pos)))));
+		*spos = strlen (string);
+	}
+}
+
+
+
+/**	move_data_to_field_disorder 
+ *  
+ *  @Param		pField	:	stFieldFormat 
+ *  @Param		pOData	:	Data
+ *  @Param		iDLen	:	Data length
+ *
+ *  @return 	ii: data 처리 length
+ *
+ *  @exception
+ *  @note		순서가 없는 T.. type들 처리 함수 
+ *
+ */
+int
+move_data_to_field_disorder (stFieldFormat *pField, unsigned char *pOData, int iDLen, int *dec_pos, U8 *pstring, int *spos)
+{
+	stFieldFormat		*pF;
+	int					opos, i;
+	unsigned int		t_value, v_len, ttt;
+	unsigned char		ucTemp, ucTemp2;
+
+	if (pOData == NULL)
+		return 0;
+
+	opos = 0;
+
+	pF = pField;
+
+	while (1) {
+		if (opos >= iDLen)
+			break;
+		
+/*
+		if (pF == NULL) 
+			break;
+*/
+
+		if (pF->uiCase == 99) 
+			break;
+
+	pF = pField;
+
+		while (1) {
+
+			if (pF->uiCase == 99)
+				break;
+
+    		ttt = pOData[opos];                                     /**< Type Value 구하기 */
+    		for (i= 1; i < pF->uiTypeLen; i++)
+        		ttt = (ttt << 8) + (pOData[(opos) + i]);
+
+			if (ttt == pF->uiType) {
+
+				switch (pF->uiCase) {
+				case T_DISORDER:
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					opos += 1;
+					break;
+
+				case TV_U8_DISORDER:		/**< ------------------------------------------ TV type disorder */
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL)
+            			*((unsigned char *)pF->p3) = pOData [opos];
+
+					SB_FUNC_CALL_U8(pF, pOData, opos, pF->uiLength, NULL, pstring, spos);
+					break;
+
+				case TV_STRING_DISORDER:
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL)
+						memcpy ((unsigned char *)pF->p3, pOData + opos, pF->uiLength);
+
+					SB_FUNC_CALL_HEX(pF, pOData, opos, pF->uiLength, NULL, pstring, spos);
+					break;
+
+				case TV_U16_DISORDER:
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL)
+            			*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+					SB_FUNC_CALL_U16(pF, pOData, opos, pF->uiLength, NULL, pstring, spos);
+					break;
+
+				case TV_U32_DISORDER:
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL)
+            			*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pOData + opos)));
+
+					SB_FUNC_CALL_U32(pF, pOData, opos, pF->uiLength, NULL, pstring, spos);
+					break;
+
+				case TV_DIGIT_DISORDER:
+					if ((t_value = t_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL)
+						assing_hex_value (pOData + opos, (unsigned char *)pF->p3, pF->uiLength);
+            			
+					SB_FUNC_CALL_HEX(pF, pOData, opos, pF->uiLength, NULL, pstring, spos);
+					break;
+
+
+				case TLV_U8_DISORDER:		/**< ------------------------------------------ TLV type disorder */
+				case TLV_STRING_DISORDER:
+					if ((v_len = tlv_common_routine (pF, pOData, iDLen, &opos)) < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (v_len == 1) {
+						if (pF->p3 != NULL) 										/**< V */
+            				*((unsigned char *)pF->p3) = pOData [opos];
+						SB_FUNC_CALL_U8(pF, pOData, opos, v_len, NULL, pstring, spos);
+
+					} else {
+						if (pF->p3 != NULL) 										/**< V */
+            				memcpy ((unsigned char *)pF->p3, pOData + opos, v_len);
+						SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+					}
+					break;
+
+				case TLV_U16_DISORDER:
+					if ((v_len = tlv_common_routine (pF, pOData, iDLen, &opos)) < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+				 	if (pF->p3 != NULL)                                         /**< V */
+            			*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+					SB_FUNC_CALL_U16(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+				case TLV_U32_DISORDER:
+					if ((v_len = tlv_common_routine (pF, pOData, iDLen, &opos)) < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+				 	if (pF->p3 != NULL)                                         /**< V */
+            			*(unsigned short *)pF->p3 = ntohl(*((unsigned short *)(pOData + opos)));
+
+					SB_FUNC_CALL_U32(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+				case TLV_DIGIT_DISORDER:
+					if ((v_len = tlv_common_routine (pF, pOData, iDLen, &opos)) < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL) 										/**< V */
+						assing_hex_value (pOData + opos, (unsigned char *)pF->p3, v_len);
+
+					SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+		case AVP_U8_DISORDER:		/**< ------------------------------------------------------ AVP Order Type */
+		case AVP_STRING_DISORDER:
+
+			t_value = t_common_routine (pF, pOData, iDLen, &opos);
+			if (t_value < 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+			avp_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+			if ((v_len = avp_l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+			avp_vender_id_check (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+			if (v_len == 1) {
+				if (pF->p3 != NULL) 										/**< V */
+            		*((unsigned char *)pF->p3) = pOData [opos];
+				SB_FUNC_CALL_U8(pF, pOData, opos, v_len, NULL, pstring, spos);
+
+			} else {
+				if (pF->p3 != NULL) 										/**< V */
+            		memcpy ((unsigned char *)pF->p3, pOData + opos, v_len);
+				SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+			}
+
+			break;
+
+		case AVP_U16_DISORDER:
+			t_value = t_common_routine (pF, pOData, iDLen, &opos);
+			if (t_value < 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+			avp_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+			if ((v_len = avp_l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+			SB_FUNC_CALL_U16(pF, pOData, opos, v_len, NULL, pstring, spos);
+			break;
+
+		case AVP_U32_DISORDER:
+			t_value = t_common_routine (pF, pOData, iDLen, &opos);
+			if (t_value < 0) {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+			avp_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+			if ((v_len = avp_l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pOData + opos)));
+
+			SB_FUNC_CALL_U32(pF, pOData, opos, v_len, NULL, pstring, spos);
+			break;
+
+		case AVP_DIGIT_DISORDER:
+			t_value = t_common_routine (pF, pOData, iDLen, &opos);
+			if (t_value < 0) {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+			avp_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+			if ((v_len = avp_l_common_routine (pF, pOData, iDLen, &opos)) <= 0)  {
+				*dec_pos = opos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+			if (pF->p3 != NULL) 										/**< V */
+				assing_hex_value (pOData + opos, (unsigned char *)pF->p3, v_len);
+
+			SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+			break;
+
+				case AAL2_U8_DISORDER:		/**< ----------------------- AAL2 param Type */
+				case AAL2_STRING_DISORDER:
+
+					t_value = t_common_routine (pF, pOData, iDLen, &opos);
+					if (t_value < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					aal2_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+					if ((v_len = l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (v_len == 1) {
+						if (pF->p3 != NULL) 										/**< V */
+            				*((unsigned char *)pF->p3) = pOData [opos];
+						SB_FUNC_CALL_U8(pF, pOData, opos, v_len, NULL, pstring, spos);
+
+					} else {
+						if (pF->p3 != NULL) 										/**< V */
+            				memcpy ((unsigned char *)pF->p3, pOData + opos, v_len);
+						SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+					}
+
+					break;
+
+				case AAL2_U16_DISORDER:
+					t_value = t_common_routine (pF, pOData, iDLen, &opos);
+					if (t_value < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					aal2_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+		
+					if ((v_len = l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL) 										/**< V */
+            			*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+					SB_FUNC_CALL_U16(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+				case AAL2_U32_DISORDER:
+					t_value = t_common_routine (pF, pOData, iDLen, &opos);
+					if (t_value < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					aal2_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+					if ((v_len = l_common_routine (pF, pOData, iDLen, &opos)) < 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL) 										/**< V */
+            			*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pOData + opos)));
+
+					SB_FUNC_CALL_U32(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+				case AAL2_DIGIT_DISORDER:
+					t_value = t_common_routine (pF, pOData, iDLen, &opos);
+					if (t_value < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					aal2_flags_decode (pF, pOData, iDLen, &opos, NULL, pstring, spos);
+
+					if ((v_len = l_common_routine (pF, pOData, iDLen, &opos)) <= 0)  {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL) 										/**< V */
+						assing_hex_value (pOData + opos, (unsigned char *)pF->p3, v_len);
+		
+					SB_FUNC_CALL_HEX(pF, pOData, opos, v_len, NULL, pstring, spos);
+					break;
+
+
+				default :
+#if DEBUG_PRINT
+					fprintf (stderr, "%s not expected!! %d", __FUNCTION__, pF->uiCase);
+#endif
+					break;
+				}
+				break;
+			} else if (pF->uiCase == Tb_DISORDER) {				/* 9- */
+				ucTemp = (pOData [opos] & 0x0f0) >> 4;
+				ucTemp2 = pOData [opos] & 0x0f;
+				if (ucTemp == pF->uiType) {
+					*((unsigned char *)pF->p1) = ucTemp;    /* T */
+					*((unsigned char *)pF->p2) = ucTemp2;  	/* V */
+					opos ++;
+				}
+				break;
+			}
+			pF++;
+		}
+	} /* while end */
+
+	return opos;
+}
+
+int
+l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos)
+{
+	int		v_len, i;
+
+	if ((pF->uiLengthLen == 0) || (pF->uiLengthLen > 4)) {	/* 최대 4bytes unsigned int */
+#if DEBUG_PRINT
+		printf("L Length is zero or oversize Len:%d -%s\n", pF->uiLengthLen, __FUNCTION__);
+#endif
+		return -1;
+	}
+
+	v_len = pData[*pos];										/**< Value의 Length 구하기 */
+	for (i= 1; i < pF->uiLengthLen; i++)
+		v_len = (v_len << 8) + (pData[*pos + i]);
+
+	if (v_len > (iDLen - *pos))  {
+#if DEBUG_PRINT
+		printf("Value Length is oversize Len:%u -%s\n", v_len, __FUNCTION__);
+#endif
+		return -1;
+	}
+	
+	if (pF->p2 != NULL) {									/**< L */ 
+		switch (pF->uiLengthLen) {
+		case 1:
+			*(unsigned char *)pF->p2 = v_len; break;
+		case 2:
+			*(unsigned short *)pF->p2 = v_len; break;
+		case 3:
+		case 4:
+			*(unsigned int *)pF->p2 = v_len; break;
+		default:
+			memcpy ((unsigned char *)pF->p2, pData + (*pos), pF->uiLengthLen);  break;
+		}
+	}
+	*pos += pF->uiLengthLen;
+
+	return v_len;
+}
+
+int
+avp_l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos)
+{
+	int		v_len, i;
+
+	if ((pF->uiLengthLen == 0) || (pF->uiLengthLen > 4)) {	/* 최대 4bytes unsigned int */
+#if DEBUG_PRINT
+		printf("L Length is zero or oversize Len:%d -%s\n", pF->uiLengthLen, __FUNCTION__);
+#endif
+		return -1;
+	}
+
+	v_len = pData[*pos];										/**< Value의 Length 구하기 */
+	for (i= 1; i < pF->uiLengthLen; i++)
+		v_len = (v_len << 8) + (pData[*pos + i]);
+
+	v_len = v_len - 8;
+
+	if (v_len > (iDLen - *pos))  {
+#if DEBUG_PRINT
+		printf("Value Length is oversize Len:%u -%s\n", v_len, __FUNCTION__);
+#endif
+		return -1;
+	}
+	
+	if (pF->p2 != NULL) {									/**< L */ 
+		switch (pF->uiLengthLen) {
+		case 1:
+			*(unsigned char *)pF->p2 = v_len; break;
+		case 2:
+			*(unsigned short *)pF->p2 = v_len; break;
+		case 3:
+		case 4:
+			*(unsigned int *)pF->p2 = v_len; break;
+		default:
+			memcpy ((unsigned char *)pF->p2, pData + (*pos), pF->uiLengthLen);  break;
+		}
+	}
+	*pos += pF->uiLengthLen;
+
+	return v_len;
+}
+
+
+
+int
+t_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos)
+{
+	int		t_value, i;
+
+	if ((pF->uiTypeLen == 0) || (pF->uiTypeLen > 4)) {
+#if DEBUG_PRINT
+		printf("T Length is zero or oversize Len:%d -%s\n", pF->uiTypeLen, __FUNCTION__);
+#endif
+		return -1;
+	}
+
+	t_value = pData[*pos];                                     /**< Type Value 구하기 */
+	for (i= 1; i < pF->uiTypeLen; i++)
+		t_value = (t_value << 8) + (pData[(*pos) + i]);
+
+	if (t_value != pF->uiType) {                                /**< Type check */
+#if DEBUG_PRINT
+		printf (" Dismatch Type, define:%u - datatype:%u -%s\n", pF->uiType, t_value, __FUNCTION__);
+#endif
+		return -1;
+	}
+	if (pF->p1 != NULL) {                                       /**< T */
+		switch (pF->uiTypeLen) {
+		case 1:
+			*(unsigned char *)pF->p1 = t_value; break;
+			break;
+		case 2:
+			*(unsigned short *)pF->p1 = t_value; break;
+			break;
+		case 3:
+		case 4:
+			*(unsigned int *)pF->p1 = t_value; break;
+			break;
+		default:
+			memcpy ((unsigned char *)pF->p1, pData + (*pos), pF->uiTypeLen);
+			break;
+		}
+	}
+
+	*pos += pF->uiTypeLen;
+
+	return t_value;
+}
+
+int
+tlv_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos)
+{
+	int		t_vlaue, v_len;
+
+	t_vlaue = t_common_routine (pF, pData, iDLen, pos);
+	if (t_vlaue < 0) {
+		return -1;
+	}
+
+	if ((v_len = l_common_routine (pF, pData, iDLen, pos)) < 0)  {
+		return -1;
+	}
+
+	return v_len;
+}
+
+
+Set : function_def{move_data_to_field} = "int move_data_to_field (stFieldFormat *pField, unsigned char *pData, int iDLen, int *dec_pos, unsigned char *pstring, int *str_pos)"
+int move_data_to_field (stFieldFormat *pField, unsigned char *pData, int iDLen, int *dec_pos, unsigned char *pstring, int *str_pos)
+{
+    int     			i, pos, jj, iolen, spos, ik;
+	int					v_len, t_value, temp_val;
+	stFieldFormat		*pF;
+
+    if (pData == NULL)
+        return -1;
+
+    i = jj = 0;
+    pos = *dec_pos;
+	if (str_pos != NULL)
+		spos = *str_pos;
+
+	pF = pField;
+
+    while (1) {
+        if (pF->uiCase == 99)
+            break;
+
+        switch (pF->uiCase) {
+		case BIT8_ORDER:		/**< ---------------------------------------------- V Order type */
+        case V_U8_ORDER:                                             /**< memcpy V type */
+			if (pF->p3 != NULL)
+            	*((unsigned char *)pF->p3) = pData [pos];
+
+			SB_FUNC_CALL_U8(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+
+            break;
+		case V_STRING_ORDER:
+			if (pF->p3 != NULL)
+            	memcpy ((unsigned char *)pF->p3, pData + pos, pF->uiLength);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+
+			break;
+		case V_DIGIT_ORDER:
+			if (pF->p3 != NULL)
+				assing_hex_value (pData + pos, (unsigned char *)pF->p3, pF->uiLength);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case BIT16_ORDER:
+		case V_U16_ORDER:											/**< short에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			SB_FUNC_CALL_U16(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case V_U24_ORDER:											/**< short에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL) {
+				temp_val = pData[pos];										/**< Value의 Length 구하기 */
+				for (ik= 1; ik < pF->uiLength; ik++) {
+					temp_val = (temp_val << 8) + (pData[pos + ik]);
+				}
+				
+            	*(unsigned int *)pF->p3 = temp_val;
+			}
+
+			SB_FUNC_CALL_U32(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+	
+		case V_U32_ORDER:											/**< int에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_U32(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case V_IP4_ORDER:											/**< int에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_IP4(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+
+        case LV_U8_ORDER:		/**< -------------------------------------------------- LV Order type */
+		case LV_STRING_ORDER:
+			if ((v_len = l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+			if (v_len == 1) {
+				if (pF->p3 != NULL) 										/**< V */
+            		*((unsigned char *)pF->p3) = pData [pos];
+				SB_FUNC_CALL_U8(pF, pData, pos, v_len, NULL, pstring, &spos);
+
+			} else {
+				if (pF->p3 != NULL) 										/**< V */
+            		memcpy ((unsigned char *)pF->p3, pData + pos, v_len);
+				SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			}
+            break;
+
+		case LV_U16_ORDER:
+			if ((v_len = l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			SB_FUNC_CALL_U16(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case LV_U32_ORDER:
+			if ((v_len = l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_U32(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case LV_DIGIT_ORDER:
+			if ((v_len = l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+			if (pF->p3 != NULL)
+				assing_hex_value (pData + pos, (unsigned char *)pF->p3, v_len);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case T_ORDER:
+			if ((t_value = t_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				break;
+			}
+			if (pF->p1 != NULL) 										/**< T */
+            	*((unsigned char *)pF->p1) = pData [pos];
+
+			pos += 1;
+
+			break;
+
+		case TV_U8_ORDER:		/**< ---------------------------------------------------- TV Order type */
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*((unsigned char *)pF->p3) = pData [pos];
+
+			SB_FUNC_CALL_U8(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+	
+			break;
+		case TV_STRING_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	memcpy ((unsigned char *)pF->p3, pData + pos, pF->uiLength);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case TV_U16_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			SB_FUNC_CALL_U16(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case TV_U32_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_U32(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+		case TV_DIGIT_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			if (pF->p3 != NULL) 										/**< V */
+				assing_hex_value (pData + pos, (unsigned char *)pF->p3, pF->uiLength);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, pF->uiLength, NULL, pstring, &spos);
+			break;
+
+
+		case TLV_U8_ORDER:		/**< ------------------------------------------------------ TLV Order Type */
+		case TLV_STRING_ORDER:
+			if ((v_len = tlv_common_routine (pF, pData, iDLen, &pos)) < 0) {
+				break;
+			}
+
+			if (v_len == 1) {
+				if (pF->p3 != NULL) 										/**< V */
+            		*((unsigned char *)pF->p3) = pData [pos];
+				SB_FUNC_CALL_U8(pF, pData, pos, v_len, NULL, pstring, &spos);
+
+			} else {
+				if (pF->p3 != NULL) 										/**< V */
+            		memcpy ((unsigned char *)pF->p3, pData + pos, v_len);
+				SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			}
+
+			break;
+
+		case TLV_U16_ORDER:
+			if ((v_len = tlv_common_routine (pF, pData, iDLen, &pos)) < 0) {
+				break;
+			}
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			SB_FUNC_CALL_U16(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case TLV_U32_ORDER:
+			if ((v_len = tlv_common_routine (pF, pData, iDLen, &pos)) < 0) {
+				break;
+			}
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_U32(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case TLV_DIGIT_ORDER:
+			if ((v_len = tlv_common_routine (pF, pData, iDLen, &pos)) < 0) {
+				break;
+			}
+
+			if (pF->p3 != NULL) 										/**< V */
+				assing_hex_value (pData + pos, (unsigned char *)pF->p3, v_len);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case V_USER_FUNCTION:		/**< -------------------------------------------- V_USER_FUNCTION */
+			SB_USER_FUNC_CALL(pF, pData, pos, iDLen, NULL, pstring, &spos);
+			break;
+
+		case AVP_U8_ORDER:		/**< ------------------------------------------------------ AVP Order Type */
+		case AVP_STRING_ORDER:
+
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			avp_flags_decode (pF, pData, iDLen, &pos, NULL, pstring, &spos);
+
+			if ((v_len = l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+			v_len = v_len - 8;
+
+			avp_vender_id_check (pF, pData, iDLen, &pos, NULL, pstring, &spos);
+
+			if (v_len == 1) {
+				if (pF->p3 != NULL) 										/**< V */
+            		*((unsigned char *)pF->p3) = pData [pos];
+				SB_FUNC_CALL_U8(pF, pData, pos, v_len, NULL, pstring, &spos);
+
+			} else {
+				if (pF->p3 != NULL) 										/**< V */
+            		memcpy ((unsigned char *)pF->p3, pData + pos, v_len);
+				SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			}
+
+			break;
+
+		case AVP_U16_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			avp_flags_decode (pF, pData, iDLen, &pos, NULL, pstring, &spos);
+
+			if ((v_len = avp_l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			SB_FUNC_CALL_U16(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case AVP_U32_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			avp_flags_decode (pF, pData, iDLen, &pos, NULL, pstring, &spos);
+
+			if ((v_len = avp_l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+			if (pF->p3 != NULL) 										/**< V */
+            	*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			SB_FUNC_CALL_U32(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+		case AVP_DIGIT_ORDER:
+			t_value = t_common_routine (pF, pData, iDLen, &pos);
+			if (t_value < 0) 
+				break;
+
+			avp_flags_decode (pF, pData, iDLen, &pos, NULL, pstring, &spos);
+
+			if ((v_len = avp_l_common_routine (pF, pData, iDLen, &pos)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+
+	    	v_len = ((v_len+3)/4)*4;	/* 4 bytes aligned */
+//			v_len = v_len - 8;
+
+			if (pF->p3 != NULL) 										/**< V */
+				assing_hex_value (pData + pos, (unsigned char *)pF->p3, v_len);
+
+			SB_FUNC_CALL_HEX(pF, pData, pos, v_len, NULL, pstring, &spos);
+			break;
+
+
+
+		/* Disorder */
+		case T_DISORDER:
+		case TV_U8_DISORDER:
+		case TLV_U8_DISORDER:
+		case Tb_DISORDER:
+		case AVP_U8_DISORDER:
+		case AVP_U16_DISORDER:
+		case AVP_U32_DISORDER:
+		case AVP_STRING_DISORDER:
+		case AVP_DIGIT_DISORDER:
+		case AAL2_U8_DISORDER:
+		case AAL2_U16_DISORDER:
+		case AAL2_U32_DISORDER:
+		case AAL2_STRING_DISORDER:
+		case AAL2_DIGIT_DISORDER:
+
+			iolen = move_data_to_field_disorder (pF, pData + pos, iDLen - pos, dec_pos, pstring, &spos);
+			if (iolen < 0) {
+				return *dec_pos;
+			}
+
+			jj += iolen;
+
+			if (jj >= (iDLen - pos)) {
+				*dec_pos = pos + jj;
+				return (pos + jj);
+			}
+			break;
+
+        default:
+            break;
+        }
+
+        pF++;
+    } /* while end */
+
+	*dec_pos = pos + jj;
+	if (str_pos != NULL)
+		*str_pos = spos;
+    return (pos + jj);
+}
+
+
+/**  
+ *  $Log: abprotocol_ana.stc,v $
+ *  Revision 1.29  2007/06/27 12:26:17  yhshin
+ *  AAL2 type추가
+ *
+ *  Revision 1.28  2007/06/13 07:30:25  jsyoon
+ *  pF 초기화
+ *
+ *  Revision 1.27  2007/06/13 04:14:11  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.26  2007/06/12 01:56:41  yhshin
+ *  disorder bug 수정
+ *
+ *  Revision 1.25  2007/06/11 12:59:28  jsyoon
+ *  *** empty log message ***
+ *
+ *  Revision 1.24  2007/06/11 12:22:16  jsyoon
+ *  *** empty log message ***
+ *
+ *  Revision 1.23  2007/06/11 12:13:22  yhshin
+ *  AVP disorder
+ *
+ *  Revision 1.22  2007/05/21 05:04:54  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.21  2007/05/09 04:24:50  yhshin
+ *  vendor id 처리
+ *
+ *  Revision 1.20  2007/05/08 08:21:34  yhshin
+ *  v_len 계산
+ *
+ *  Revision 1.19  2007/05/08 00:31:35  yhshin
+ *  AVP type 추가
+ *
+ *  Revision 1.18  2007/03/29 17:29:30  yhshin
+ *  IP4 type add
+ *
+ *  Revision 1.17  2007/03/28 08:11:15  yhshin
+ *  V_U24_ORDER add
+ *
+ *  Revision 1.16  2007/03/23 11:58:50  yhshin
+ *  DEBUG_PRINT
+ *
+ *  Revision 1.15  2007/03/15 07:49:06  yhshin
+ *  list 처리 수정
+ *
+ *  Revision 1.14  2007/03/14 07:53:27  yhshin
+ *  SB_FUnC_CALL 통일
+ *
+ *  Revision 1.13  2007/03/14 05:28:08  yhshin
+ *  list string 추가
+ *
+ *  Revision 1.12  2007/03/13 06:41:51  yhshin
+ *  SB_FUNC_CALL 수행
+ *
+ *  Revision 1.11  2007/03/08 13:22:36  yhshin
+ *  T_ORDER 추가
+ *
+ *  Revision 1.10  2007/03/08 04:36:49  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.9  2007/02/16 06:54:24  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.8  2007/02/16 06:29:35  jsyoon
+ *  order는 다음으로 skip하게
+ *
+ *  Revision 1.7  2007/02/08 12:41:46  yhshin
+ *  STRING, DIGIT 추가
+ *
+ *  Revision 1.6  2007/02/08 04:26:06  jsyoon
+ *  U8_ORDER bug 수정
+ *
+ *  Revision 1.5  2007/02/08 01:18:57  yhshin
+ *  V_STRING_ORDER 추가
+ *
+ *  Revision 1.4  2007/01/26 04:23:54  yhshin
+ *   BIT8, BIT16 ORDER 추가
+ *
+ *  Revision 1.3  2007/01/24 04:49:51  yhshin
+ *  func * 적용
+ *
+ *  Revision 1.2  2007/01/23 04:51:11  yhshin
+ *  func * 적용
+ *
+ *  Revision 1.1  2007/01/18 01:44:51  yhshin
+ *  rename abprotocol.stc
+ *
+ *  Revision 1.1  2007/01/16 11:11:10  yhshin
+ *  binary protocol ana
+ *
+ *  Revision 1.2  2006/06/28 04:17:11  yhshin
+ *  structg 적용
+ * 
+ *  **/
+

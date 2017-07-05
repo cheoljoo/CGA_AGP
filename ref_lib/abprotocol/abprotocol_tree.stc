@@ -1,0 +1,1003 @@
+FileName : abprotocol_tree.c
+
+/** @file  abprotocol_tree.c  
+ *  - abprotocol lib
+ * 
+ *  Copyright (c) 2006~ by Upresto Inc, Korea 
+ *  All rights reserved 
+ * 
+ *  $Id: abprotocol_tree.stc,v 1.19 2007/03/29 17:29:30 yhshin Exp $
+ * 
+ *  @Author      $Author: yhshin $ 
+ *  @version     $Revision: 1.19 $ 
+ *  @date        $Date: 2007/03/29 17:29:30 $ 
+ *  @warning     +Warning+ 
+ *  @ref          
+ *  @todo        +ToDo+ 
+ * 
+ *  @section     Intro 
+ *  @section     Requirement 
+ *  @li +Requirement+ 
+ * 
+ **/ 
+
+
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+int tree_l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *list);
+param_node_t * tree_t_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *pnode);
+int tree_tlv_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *list);
+
+/**	make_tree_param_value_disorder 
+ *  
+ *  @Param		pField	:	stFieldFormat 
+ *  @Param		pOData	:	Data
+ *  @Param		iDLen	:	Data length
+ *
+ *  @return 	ii: data 처리 length
+ *
+ *  @exception
+ *  @note		순서가 없는 T.. type들 처리 함수 
+ *
+ */
+int
+make_tree_param_value_disorder (stFieldFormat *pField, unsigned char *pOData, int iDLen, int *dec_pos, dlink_t *pnode)
+{
+	stFieldFormat		*pF;
+	int					opos;
+	unsigned int		v_len;
+	unsigned char		ucTemp, ucTemp2;
+
+	param_node_t		*pn;
+
+	if (pOData == NULL)
+		return 0;
+
+	opos = 0;
+	pF = pField;
+
+	while (1) {
+		if (opos >= iDLen)
+			break;
+		
+		if (pF->uiCase == 99) 
+			break;
+
+		while (1) {
+
+			if (pF->uiCase == 99)
+				break;
+
+			if (pOData [opos] == pF->uiType) {
+
+				switch (pF->uiCase) {
+				case T_DISORDER:
+					pn = add_param_node_to_pnode (pnode, pF->field_desc, opos);		/** +here field_desc 
+																		     		-length : %d */
+
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = 1;
+					break;
+
+				case TV_U8_DISORDER:		/**< ---------------------------------------------------------- TV disorder */
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = pF->uiLength + pF->uiTypeLen;
+
+					if (pF->p3 != NULL) 
+						*((unsigned char *)pF->p3) = pOData [opos];
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, pF->uiLength, &pn->child);
+					} else if (pF->p3 != NULL)
+						add_param_node_to_pnode_U8 (&pn->child, pF->field_desc, pOData[opos], opos, pF->uiLength);
+
+					opos += pF->uiLength;
+					break;
+
+				case TV_U16_DISORDER:
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = pF->uiLength + pF->uiTypeLen;
+
+					if (pF->p3 != NULL) 
+						*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, pF->uiLength, &pn->child);
+					} else if (pF->p3 != NULL)
+						add_param_node_to_pnode_U16 (&pn->child, pF->field_desc, ntohs(*((unsigned short *)(pOData + opos))), opos, pF->uiLength);
+
+					opos += pF->uiLength;
+					break;
+
+				case TV_U32_DISORDER:
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = pF->uiLength + pF->uiTypeLen;
+
+					if (pF->p3 != NULL) 
+						*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pOData + opos)));
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, pF->uiLength, &pn->child);
+					} else if (pF->p3 != NULL)
+						add_param_node_to_pnode_U32 (&pn->child, pF->field_desc, ntohl(*((unsigned int *)(pOData + opos))), opos, pF->uiLength);
+
+					opos += pF->uiLength;
+					break;
+
+				case TV_STRING_DISORDER:
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = pF->uiLength + pF->uiTypeLen;
+
+					if (pF->p3 != NULL) 
+						memcpy ((unsigned char *)pF->p3, pOData + opos, pF->uiLength);
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, pF->uiLength, &pn->child);
+					} else if (pF->p3 != NULL)
+						tree_assing_hex_value (pnode, pOData+opos, pF->field_desc, pF->uiLength, opos, pF->uiLength);
+//						add_param_node_to_pnode_STRING (&pn->child, pF->field_desc, pOData+opos, pF->uiLength, opos, pF->uiLength);
+
+					opos += pF->uiLength;
+					break;
+
+				case TV_DIGIT_DISORDER:
+					pn = tree_t_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (pn == NULL) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+					pn->len = pF->uiLength + pF->uiTypeLen;
+
+					if (pF->p3 != NULL) 
+						tassing_hex_value (pOData+opos, pF->p3, pF->uiLength);
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, pF->uiLength, &pn->child);
+					} else if (pF->p3 != NULL)
+						tree_assing_hex_value (pnode, pOData+opos, pF->field_desc, pF->uiLength, opos, pF->uiLength);
+
+					opos += pF->uiLength;
+					break;
+	
+				case TLV_U8_DISORDER:		/**< ---------------------------------------------- TLV Disorder **/
+					v_len = tree_tlv_common_routine (pF, pOData, iDLen, &opos, pnode);
+					if (v_len == -2)	 /** ttype이 안맞는 경우 */
+						break;
+					else if (v_len < 0) {
+						*dec_pos = opos;
+						return *dec_pos;
+					}
+
+					if (pF->p3 != NULL) 
+						*((unsigned char *)pF->p3) = pOData [opos];
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, v_len, &pn->child);
+					} else if (pF->p3 != NULL)                                         /**< V */
+						add_param_node_to_pnode_U8 (&pn->child, pF->field_desc, pOData[opos], opos, pF->uiLength);
+
+					opos += v_len;
+					break;
+
+				case TLV_U16_DISORDER:
+					TLV_COMMON_ROUTINE(pn, pF, pOData, iDLen, opos, pnode, v_len, dec_pos);
+
+					if (pF->p3 != NULL) 
+						*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pOData + opos)));
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, v_len, &pn->child);
+					} else if (pF->p3 != NULL)                                         /**< V */ 
+						add_param_node_to_pnode_U16 (&pn->child, pF->field_desc, ntohs(*((unsigned short *)(pOData + opos))), opos, v_len);
+
+					opos += v_len;
+					break;
+
+				case TLV_U32_DISORDER:
+					TLV_COMMON_ROUTINE(pn, pF, pOData, iDLen, opos, pnode, v_len, dec_pos);
+
+					if (pF->p3 != NULL) 
+						*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pOData + opos)));
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, v_len, &pn->child);
+					} else if (pF->p3 != NULL)                                         /**< V */
+						add_param_node_to_pnode_U32 (&pn->child, pF->field_desc, ntohl(*((unsigned int *)(pOData + opos))), opos, v_len);
+
+					opos += v_len;
+					break;
+
+				case TLV_STRING_DISORDER:
+					TLV_COMMON_ROUTINE(pn, pF, pOData, iDLen, opos, pnode, v_len, dec_pos);
+
+					if (pF->p3 != NULL) 
+						memcpy ((unsigned char *)pF->p3, pOData + opos, v_len);
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, v_len, &pn->child);
+					} else if (pF->p3 != NULL)                                         /**< V */
+						tree_assing_hex_value (&pn->child, pOData+opos, pF->field_desc, v_len, opos, v_len);
+//						add_param_node_to_pnode_STRING (&pn->child, pF->field_desc, pOData+opos, v_len, opos, v_len);
+
+					opos += v_len;
+					break;
+
+				case TLV_DIGIT_DISORDER:
+					TLV_COMMON_ROUTINE(pn, pF, pOData, iDLen, opos, pnode, v_len, dec_pos);
+
+					if (pF->p3 != NULL) 
+						tassing_hex_value (pOData+opos, pF->p3, v_len);
+
+					if (pF->func != NULL) {
+						SB_FUNC_CALL_TREE(pF, pOData, opos, v_len, &pn->child);
+					} else if (pF->p3 != NULL)                                         /**< V */
+						tree_assing_hex_value (&pn->child, pOData+opos, pF->field_desc, v_len, opos, v_len);
+
+					opos += v_len;
+					break;
+
+				default :
+#if DEBUG_PRINT
+					fprintf (stderr, "%s not expected!! %d", __FUNCTION__, pF->uiCase);
+#endif
+					break;
+				}
+				break;
+			} else if (pF->uiCase == Tb_DISORDER) {				/* 9- */
+				ucTemp = (pOData [opos] & 0x0f0) >> 4;
+				ucTemp2 = pOData [opos] & 0x0f;
+				if (ucTemp == pF->uiType) {
+					*((unsigned char *)pF->p1) = ucTemp;    /* T */
+					*((unsigned char *)pF->p2) = ucTemp2;  	/* V */
+					opos ++;
+				}
+				break;
+			}
+			pF++;
+		}
+	} /* while end */
+
+	return opos;
+}
+
+int
+tree_l_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *list)
+{
+	unsigned int		v_len, i;
+
+	if ((pF->uiLengthLen == 0) || (pF->uiLengthLen > 4)) {	/* 최대 4bytes unsigned int */
+#if DEBUG_PRINT
+		printf("LV_Order: L Length is zero or oversize Len:%d -%s\n", pF->uiLengthLen, __FUNCTION__);
+#endif
+		return -1;
+	}
+
+	v_len = pData[*pos];										/**< Value의 Length 구하기 */
+	for (i= 1; i < pF->uiLengthLen; i++)
+		v_len = (v_len << 8) + (pData[*pos + i]);
+
+	if (v_len > (iDLen - (*pos)))  {
+#if DEBUG_PRINT
+		printf("LV_Order: Value Length is oversize Len:%u, iDlen:%d, pos:%d  -%s\n", v_len, iDLen, *pos, __FUNCTION__);
+#endif
+		return -1;
+	}
+
+
+	add_param_node_to_pnode_U16 (list, "Length", v_len, *pos, pF->uiLengthLen);
+
+
+	/* 이 부분을 넣어야 할지는 고민?? */
+	if (pF->p2 != NULL) {									/**< L */ 
+		switch (pF->uiLengthLen) {
+		case 1:
+			*(unsigned char *)pF->p2 = v_len; break;
+		case 2:
+			*(unsigned short *)pF->p2 = v_len; break;
+		case 4:
+			*(unsigned int *)pF->p2 = v_len; break;
+		default:
+			memcpy ((unsigned char *)pF->p2, pData + (*pos), pF->uiLengthLen);  break;
+		}
+	}
+	*pos += pF->uiLengthLen;
+
+	return v_len;
+}
+
+param_node_t *
+tree_t_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *pnode)
+{
+	unsigned int		t_value, i;
+	param_node_t		*pn;
+
+	if ((pF->uiTypeLen == 0) || (pF->uiTypeLen > 4)) {
+#if DEBUG_PRINT
+		printf("TV_DisOrder: T Length is zero or oversize Len:%d -%s\n", pF->uiTypeLen, __FUNCTION__);
+#endif
+		return NULL;
+	}
+
+	t_value = pData[*pos];                                     /**< Type Value 구하기 */
+	for (i= 1; i < pF->uiTypeLen; i++)
+		t_value = (t_value << 8) + (pData[*pos + i]);
+
+	if (t_value != pF->uiType) {                                /**< Type check */
+#if DEBUG_PRINT
+		printf ("TV_DisOrder: Dismatch Type, define:%u - datatype:%u -%s\n", pF->uiType, t_value, __FUNCTION__);
+#endif
+		return NULL;
+	}
+
+	pn = add_param_node_to_pnode (pnode, pF->field_desc, *pos);		/** +here field_desc ha */
+
+	add_param_node_to_pnode_U16 (&pn->child, "Type", t_value, *pos, pF->uiTypeLen);
+
+	if (pF->p1 != NULL) {                                       /**< T */
+		switch (pF->uiTypeLen) {
+		case 1:
+			*(unsigned char *)pF->p1 = t_value; break;
+			break;
+		case 2:
+			*(unsigned short *)pF->p1 = t_value; break;
+			break;
+		case 4:
+			*(unsigned int *)pF->p1 = t_value; break;
+			break;
+		default:
+			memcpy ((unsigned char *)pF->p1, pData + (*pos), pF->uiTypeLen);
+			break;
+		}
+	}
+
+	*pos += pF->uiTypeLen;
+
+	return pn;
+}
+
+int
+tree_tlv_common_routine (stFieldFormat *pF, unsigned char *pData, int iDLen, int *pos, dlink_t *list)
+{
+	unsigned int		v_len;
+	param_node_t		*pn;
+
+	pn = tree_t_common_routine (pF, pData, iDLen, pos, list);
+	if (pn == NULL) {
+		return -2;
+	}
+
+	if ((v_len = tree_l_common_routine (pF, pData, iDLen, pos, &pn->child)) < 0)  {
+		return -1;
+	}
+	pn->len = v_len + (*pos);
+
+	return v_len;
+}
+
+Set : function_def{add_param_node_to_pnode} = "param_node_t *add_param_node_to_pnode (dlink_t *pnode, unsigned char *desc_string, int pos)"
+param_node_t *add_param_node_to_pnode (dlink_t *pnode, unsigned char *desc_string, int pos)
+{
+	param_node_t		*pn;
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+	sprintf (pn->data, "%s", desc_string);
+	pn->pos = pos;
+	return pn;
+}
+
+Set : function_def{add_param_node_to_pnode_U8} = "void add_param_node_to_pnode_U8 (dlink_t *pnode, unsigned char *desc_string, unsigned char u8data, int pos, int len)"
+void add_param_node_to_pnode_U8 (dlink_t *pnode, unsigned char *desc_string, unsigned char u8data, int pos, int len)
+{
+	param_node_t		*pn;
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+	sprintf (pn->data, "%s : (0x%02x,%d)", desc_string, u8data, u8data);
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+
+Set : function_def{add_param_node_to_pnode_U16} = "void add_param_node_to_pnode_U16 (dlink_t *pnode, unsigned char *desc_string, unsigned short u16data, int pos, int len)"
+void add_param_node_to_pnode_U16 (dlink_t *pnode, unsigned char *desc_string, unsigned short u16data, int pos, int len)
+{
+	param_node_t		*pn;
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+	sprintf (pn->data, "%s : %d", desc_string, u16data);
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+Set : function_def{add_param_node_to_pnode_U32} = "void add_param_node_to_pnode_U32 (dlink_t *pnode, unsigned char *desc_string, unsigned int u32data, int pos, int len)"
+void add_param_node_to_pnode_U32 (dlink_t *pnode, unsigned char *desc_string, unsigned int u32data, int pos, int len)
+{
+	param_node_t		*pn;
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+	sprintf (pn->data, "%s : %u", desc_string, u32data);
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+Set : function_def{add_param_node_to_pnode_IP4} = "void add_param_node_to_pnode_IP4 (dlink_t *pnode, unsigned char *desc_string, unsigned int u32data, int pos, int len)"
+void add_param_node_to_pnode_IP4 (dlink_t *pnode, unsigned char *desc_string, unsigned int u32data, int pos, int len)
+{
+	param_node_t		*pn;
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+	sprintf (pn->data, "%s : %d.%d.%d.%d", desc_string, HIPADDR(u32data));
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+Set : function_def{add_param_node_to_pnode_STRING} = "void add_param_node_to_pnode_STRING (dlink_t *pnode, unsigned char *desc_string, unsigned char *udata, int length, int pos, int len)"
+void add_param_node_to_pnode_STRING (dlink_t *pnode, unsigned char *desc_string, unsigned char *udata, int length, int pos, int len)
+{
+	param_node_t		*pn;
+	unsigned char		string_temp[4096];
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+
+	memcpy (string_temp, udata, length);
+	string_temp[length] = 0x00;
+	sprintf (pn->data, "%s : %s", desc_string, string_temp);
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+
+Set : function_def{tree_assing_hex_value} = "void tree_assing_hex_value (dlink_t *pnode, unsigned char *pdata, unsigned char *pdesc, int length, int pos, int len)"
+void tree_assing_hex_value (dlink_t *pnode, unsigned char *pdata, unsigned char *pdesc, int length, int pos, int len)
+{
+    int     			ii, kk;
+	param_node_t		*pn;
+	unsigned char		string_temp[4096];
+
+	pn = param_node_alloc (MAX_STRING_DESC);
+	dlink_nq (pnode, &pn->sibling);
+
+    for (ii=0, kk=0; ii < length; ii++, kk += 2) {
+        sprintf (string_temp + kk, "%02X", pdata [ii]);
+    }
+	string_temp[kk] = 0x00;
+	sprintf (pn->data, "%s : %s", pdesc, string_temp);
+	pn->pos = pos;
+	pn->len = pos + len;
+}
+
+Set : function_def{tassing_hex_value} = "void tassing_hex_value (unsigned char *pdata, unsigned char *ubuf, int length)"
+void tassing_hex_value (unsigned char *pdata, unsigned char *ubuf, int length)
+{
+    int     			ii, kk;
+
+    for (ii=0, kk=0; ii < length; ii++, kk += 2) {
+        sprintf (ubuf + kk, "%02X", pdata [ii]);
+    }
+	ubuf[kk] = 0x00;
+}
+
+Set : function_def{make_tree_param_value} = "int make_tree_param_value (stFieldFormat *pField, unsigned char *pData, int iDLen, int *dec_pos, dlink_t *pnode)"
+int make_tree_param_value (stFieldFormat *pField, unsigned char *pData, int iDLen, int *dec_pos, dlink_t *pnode)
+{
+    int     			i, pos, jj, iolen, temp_val, ik;
+	unsigned int		v_len;
+	stFieldFormat		*pF;
+
+	param_node_t		*pn;
+
+    if (pData == NULL)
+        return -1;
+
+    i = jj = 0;
+    pos = *dec_pos;
+
+	pF = pField;
+
+    while (1) {
+        if (pF->uiCase == 99)
+            break;
+
+        switch (pF->uiCase) {
+		case BIT8_ORDER:
+        case V_U8_ORDER:   /**< ---------------------------------------------- V type Order */
+
+			if (pF->p3 != NULL) 
+				*((unsigned char *)pF->p3) = pData [pos];
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) {
+				add_param_node_to_pnode_U8 (pnode, pF->field_desc, pData[pos], pos, pF->uiLength);
+			}
+
+            pos += pF->uiLength;
+            break;
+		case BIT16_ORDER:											/**< short에 대한 값을 변경시켜 준다 */
+		case V_U16_ORDER:											/**< short에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+				*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) {
+				add_param_node_to_pnode_U16 (pnode, pF->field_desc, ntohs(*((unsigned short *)(pData + pos))), pos, pF->uiLength);
+			}
+
+            pos += pF->uiLength;
+			break;
+
+		case V_U24_ORDER:											/**< int에 대한 값을 변경시켜 준다 */
+			temp_val = pData[pos];										/**< Value의 Length 구하기 */
+			for (ik= 1; ik < pF->uiLengthLen; ik++)
+				temp_val = (temp_val << 8) + (pData[pos + ik]);
+				
+			if (pF->p3 != NULL) {
+            	*(unsigned int *)pF->p3 = temp_val;
+			}
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) {
+				add_param_node_to_pnode_U32 (pnode, pF->field_desc, temp_val, pos, pF->uiLength);
+			}
+
+            pos += pF->uiLength;
+			break;
+
+		case V_U32_ORDER:											/**< int에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+				*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) {
+				add_param_node_to_pnode_U32 (pnode, pF->field_desc, ntohl(*((unsigned int *)(pData + pos))), pos, pF->uiLength);
+			}
+
+            pos += pF->uiLength;
+			break;
+
+		case V_IP4_ORDER:											/**< int에 대한 값을 변경시켜 준다 */
+			if (pF->p3 != NULL)
+				*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) {
+				add_param_node_to_pnode_IP4 (pnode, pF->field_desc, ntohl(*((unsigned int *)(pData + pos))), pos, pF->uiLength);
+			}
+
+            pos += pF->uiLength;
+			break;
+
+
+
+		case V_STRING_ORDER:
+			if (pF->p3 != NULL)
+				memcpy ((unsigned char *)pF->p3, pData + pos, pF->uiLength);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL) 
+				tree_assing_hex_value (pnode, pData+pos, pF->field_desc, pF->uiLength, pos, pF->uiLength);
+//				add_param_node_to_pnode_STRING (pnode, pF->field_desc, pData+pos, pF->uiLength, pos, pF->uiLength);
+			
+            pos += pF->uiLength;
+			break;
+
+		case V_DIGIT_ORDER:
+			if (pF->p3 != NULL)
+				tassing_hex_value (pData+pos, pF->p3, pF->uiLength);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, pnode);
+			} else if (pF->p3 != NULL)
+				tree_assing_hex_value (pnode, pData+pos, pF->field_desc, pF->uiLength, pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+        case LV_U8_ORDER:	/**<--------------------------------------------------------- LV type */
+			pn = add_param_node_to_pnode (pnode, pF->field_desc, pos);		/** +here field_desc 
+																		     -length : %d */
+
+			if ((v_len = tree_l_common_routine (pF, pData, iDLen, &pos, &pn->child)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+			pn->len = pos + v_len;
+
+			if (pF->p3 != NULL) 
+				*((unsigned char *)pF->p3) = pData [pos];
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U8 (&pn->child, pF->field_desc, pData[pos], pos, pF->uiLength);
+
+            pos += v_len;
+            break;
+
+		case LV_U16_ORDER:
+			pn = add_param_node_to_pnode (pnode, pF->field_desc, pos);		/** +here field_desc 
+																		     -length : %d */
+
+			if ((v_len = tree_l_common_routine (pF, pData, iDLen, &pos, &pn->child)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+			pn->len = pos + v_len;
+
+			if (pF->p3 != NULL) 
+				*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U16 (&pn->child, pF->field_desc, ntohs(*((unsigned short *)(pData + pos))), pos, v_len);
+
+            pos += v_len;
+			break;
+
+		case LV_U32_ORDER:
+			pn = add_param_node_to_pnode (pnode, pF->field_desc, pos);		/** +here field_desc 
+																		     -length : %d */
+
+			if ((v_len = tree_l_common_routine (pF, pData, iDLen, &pos, &pn->child)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+			pn->len = pos + v_len;
+
+			if (pF->p3 != NULL) 
+				*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U32 (&pn->child, pF->field_desc, ntohl(*((unsigned int *)(pData + pos))), pos, v_len);
+
+            pos += v_len;
+			break;
+
+		case LV_STRING_ORDER:
+			pn = add_param_node_to_pnode (pnode, pF->field_desc, pos);		/** +here field_desc 
+																		     -length : %d */
+
+			if ((v_len = tree_l_common_routine (pF, pData, iDLen, &pos, &pn->child)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+			pn->len = pos + v_len;
+
+			if (pF->p3 != NULL)
+				memcpy ((unsigned char *)pF->p3, pData + pos, v_len);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, v_len, pos, v_len);
+//				add_param_node_to_pnode_STRING (&pn->child, pF->field_desc, pData+pos, v_len, pos, v_len);
+			
+            pos += v_len;
+			break;
+
+		case LV_DIGIT_ORDER:
+			pn = add_param_node_to_pnode (pnode, pF->field_desc, pos);		/** +here field_desc 
+																		     -length : %d */
+
+			if ((v_len = tree_l_common_routine (pF, pData, iDLen, &pos, &pn->child)) < 0)  {
+				*dec_pos = pos;
+				return *dec_pos;
+			}
+			pn->len = pos + v_len;
+
+			if (pF->p3 != NULL)
+				tassing_hex_value (pData+pos, pF->p3, v_len);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL)
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, v_len, pos, v_len);
+
+            pos += v_len;
+			break;
+
+		case T_ORDER:
+			if (pF->p1 != NULL)
+				add_param_node_to_pnode_U8 (pnode, pF->field_desc, pData[pos], pos, pF->uiLength);
+			pos += 1;
+			break;
+
+		case TV_U8_ORDER: 		/**< ---------------------------------------------------- TV Order type */
+			pn = tree_t_common_routine (pF, pData, iDLen, &pos, pnode);
+			if (pn == NULL) {
+				break;
+			}
+			pn->len = pF->uiLength + pos;
+
+			if (pF->p3 != NULL) 
+				*((unsigned char *)pF->p3) = pData [pos];
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U8 (&pn->child, pF->field_desc, pData[pos], pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+		case TV_U16_ORDER:
+			pn = tree_t_common_routine (pF, pData, iDLen, &pos, pnode);
+			if (pn == NULL) {
+				break;
+			}
+			pn->len = pF->uiLength + pos;
+
+			if (pF->p3 != NULL) 
+				*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U16 (&pn->child, pF->field_desc, ntohs(*((unsigned short *)(pData + pos))), pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+		case TV_U32_ORDER:
+			pn = tree_t_common_routine (pF, pData, iDLen, &pos, pnode);
+			if (pn == NULL) {
+				break;
+			}
+			pn->len = pF->uiLength + pos;
+
+			if (pF->p3 != NULL) 
+				*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U32 (&pn->child, pF->field_desc, ntohl(*((unsigned int *)(pData + pos))), pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+		case TV_STRING_ORDER:
+			pn = tree_t_common_routine (pF, pData, iDLen, &pos, pnode);
+			if (pn == NULL) {
+				break;
+			}
+			pn->len = pF->uiLength + pos;
+
+			if (pF->p3 != NULL) 
+				memcpy ((unsigned char *)pF->p3, pData + pos, pF->uiLength);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, pF->uiLength, pos, pF->uiLength);
+//				add_param_node_to_pnode_STRING (&pn->child, pF->field_desc, pData+pos, pF->uiLength, pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+		case TV_DIGIT_ORDER:
+			pn = tree_t_common_routine (pF, pData, iDLen, &pos, pnode);
+			if (pn == NULL) {
+				break;
+			}
+			pn->len = pF->uiLength + pos;
+
+			if (pF->p3 != NULL) 
+				tassing_hex_value (pData+pos, pF->p3, pF->uiLength);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, pF->uiLength, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, pF->uiLength, pos, pF->uiLength);
+
+            pos += pF->uiLength;
+			break;
+
+
+
+		case TLV_U8_ORDER:		/**< ---------------------------------------------------- TLV Order type */
+			TLV_COMMON_ROUTINE(pn, pF, pData, iDLen, pos, pnode, v_len, dec_pos);
+
+			if (pF->p3 != NULL) 
+				*((unsigned char *)pF->p3) = pData [pos];
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U8 (&pn->child, pF->field_desc, pData[pos], pos, pF->uiLength);
+
+			pos += v_len;
+
+			break;
+
+		case TLV_U16_ORDER:
+			TLV_COMMON_ROUTINE(pn, pF, pData, iDLen, pos, pnode, v_len, dec_pos);
+
+			if (pF->p3 != NULL) 
+				*(unsigned short *)pF->p3 = ntohs(*((unsigned short *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U16 (&pn->child, pF->field_desc, ntohs(*((unsigned short *)(pData + pos))), pos, v_len);
+
+			pos += v_len;
+			break;
+
+		case TLV_U32_ORDER:
+			TLV_COMMON_ROUTINE(pn, pF, pData, iDLen, pos, pnode, v_len, dec_pos);
+
+			if (pF->p3 != NULL) 
+				*(unsigned int *)pF->p3 = ntohl(*((unsigned int *)(pData + pos)));
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				add_param_node_to_pnode_U32 (&pn->child, pF->field_desc, ntohl(*((unsigned int *)(pData + pos))), pos, v_len);
+
+			pos += v_len;
+			break;
+
+		case TLV_STRING_ORDER:
+			TLV_COMMON_ROUTINE(pn, pF, pData, iDLen, pos, pnode, v_len, dec_pos);
+
+			if (pF->p3 != NULL) 
+				memcpy ((unsigned char *)pF->p3, pData + pos, v_len);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, v_len, pos, v_len);
+//				add_param_node_to_pnode_STRING (&pn->child, pF->field_desc, pData+pos, v_len, pos, v_len);
+
+			pos += v_len;
+			break;
+
+		case TLV_DIGIT_ORDER:
+			TLV_COMMON_ROUTINE(pn, pF, pData, iDLen, pos, pnode, v_len, dec_pos);
+
+			if (pF->p3 != NULL) 
+				tassing_hex_value (pData+pos, pF->p3, v_len);
+
+			if (pF->func != NULL) {
+				SB_FUNC_CALL_TREE(pF, pData, pos, v_len, &pn->child);
+			} else if (pF->p3 != NULL) 										/**< V */
+				tree_assing_hex_value (&pn->child, pData+pos, pF->field_desc, v_len, pos, v_len);
+
+			pos += v_len;
+			break;
+
+        case V_USER_FUNCTION:       /**< -------------------------------------------- V_USER_FUNCTION */
+			SB_USER_FUNC_CALL_TREE(pF, pData, pos, v_len, pnode);
+			break;
+			/* Disorder */
+		case T_DISORDER:
+		case TV_U8_DISORDER:
+		case TLV_U8_DISORDER:
+		case Tb_DISORDER:
+			iolen = make_tree_param_value_disorder (pF, pData + pos, iDLen - pos, dec_pos, pnode);
+			if (iolen < 0) {
+				return *dec_pos;
+			}
+
+			jj += iolen;
+
+			if (jj >= (iDLen - pos)) {
+				*dec_pos = pos + jj;
+				return (pos + jj);
+			}
+			break;
+
+        default:
+            break;
+        }
+
+        pF++;
+    } /* while end */
+
+	*dec_pos = pos + jj;
+    return (pos + jj);
+}
+
+
+/**  
+ *  $Log: abprotocol_tree.stc,v $
+ *  Revision 1.19  2007/03/29 17:29:30  yhshin
+ *  IP4 type add
+ *
+ *  Revision 1.18  2007/03/28 08:12:46  yhshin
+ *  V_U24_ORDER
+ *
+ *  Revision 1.17  2007/03/23 11:58:50  yhshin
+ *  DEBUG_PRINT
+ *
+ *  Revision 1.16  2007/03/20 03:31:39  yhshin
+ *  pos
+ *
+ *  Revision 1.15  2007/03/20 02:46:15  yhshin
+ *  pos, len
+ *
+ *  Revision 1.14  2007/03/19 12:11:28  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.13  2007/03/16 12:05:33  yhshin
+ *  string --> hex string
+ *
+ *  Revision 1.12  2007/03/16 11:10:24  yhshin
+ *  pF3에 값넣기
+ *
+ *  Revision 1.11  2007/03/15 06:31:32  yhshin
+ *  tlv common 처리
+ *
+ *  Revision 1.10  2007/03/15 05:37:18  yhshin
+ *  tlv bug 수정
+ *
+ *  Revision 1.9  2007/03/15 02:39:33  yhshin
+ *  pos, length 추가
+ *
+ *  Revision 1.8  2007/03/13 06:41:55  yhshin
+ *  SB_FUNC_CALL 수행
+ *
+ *  Revision 1.7  2007/03/08 13:23:14  yhshin
+ *  T_ORDER 추가
+ *
+ *  Revision 1.6  2007/03/08 07:01:55  yhshin
+ *  pos point
+ *
+ *  Revision 1.5  2007/02/15 09:53:58  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.4  2007/02/09 01:59:51  yhshin
+ *  tree 구성
+ *
+ *  Revision 1.3  2007/02/08 12:42:17  yhshin
+ *  STRING, DIGIT 추가
+ *
+ *  Revision 1.2  2007/02/08 01:20:29  yhshin
+ *  tree구성
+ *
+ *  Revision 1.1  2007/02/06 23:13:15  yhshin
+ *  tree ana
+ *
+ **/
+
+
+/**
+  TODO
+  . STRING type 만들어야 한다.
+**/

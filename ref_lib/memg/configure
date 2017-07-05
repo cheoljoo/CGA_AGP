@@ -1,0 +1,14 @@
+#!/bin/sh
+case $1 in
+    '') echo "Normal memg Structg........"
+		cvs co structg
+		;;
+	*) echo "Tag memg Structg......";
+		cvs co -r $1 structg
+		;;
+esac
+cp -f ./memg.stg ./structg/userfile.stg
+cd structg
+make
+cd OUTPUT
+make all

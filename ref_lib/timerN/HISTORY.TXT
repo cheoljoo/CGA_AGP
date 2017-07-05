@@ -1,0 +1,113 @@
+=============================================================================
+1. 날자 : 2007.03.19 (월)
+2. 작성자 : 신영호
+3. 내용
+	- timerN_invode routine 수정.
+4. 파일
+	./timerN.c															1.6
+=============================================================================
+1. 날자 : 2006.05.11 (목)
+2. 작성자 : 이철주
+3. 내용
+	- 아래의 timerg로부터 이어 받아서 timeout 시간을 현재부터 1일로 제한하는 프로젝트 
+	- INIT
+		:  timerN 를 구현한 것이다.  이것의 예제와 같이 프로그램을 구성하면 될 것으로 보인다. 
+
+4. 파일
+	./Doxyfile															1.1
+	./HISTORY.TXT														1.1
+	./Makefile															1.1
+	./README.TXT														1.1
+	./configure															1.1 - Binary
+	./makelib.mk														1.1
+	./timerN.c															1.1
+	./timerN.stg														1.1 - Binary
+
+=============================================================================
+1. 날자 : 2006.05.03 (수)
+2. 작성자 : 이철주
+3. 내용
+	- timerg.c
+		: Cnt 문제 해결 
+4. 파일
+	./timerg.c															1.5
+=============================================================================
+1. 날자 : 2006.05.03 (수)
+2. 작성자 : 이철주
+3. 내용
+	- timerg.c
+		: init 함수 의 argument변화 (uitimeout 뺌)
+		: uiNodeCnt의 변경 
+	- timerg.stg
+		:  stTIMERGINFO 변경 (uitimeout 삭제)
+4. 파일
+	./timerg.c															1.3
+	./timerg.stg														1.2 - Binary
+=============================================================================
+1. 날자 : 2006.04.28 (금)
+2. 작성자 : 신영호
+3. 내용
+	- TAF_TIMERG_1_0_0_0_20060428 ktf_ims에서 사용할 tag 생성
+4. 파일
+	./tag.TXT															1.2
+=============================================================================
+1. 날자 : 2006.04.26 (수)
+2. 작성자 : 이철주
+3. 내용
+	- INIT
+		:  timerg 를 구현한 것이다.  이것의 예제와 같이 프로그램을 구성하면 될 것으로 보인다. 
+
+4. 파일
+	./Doxyfile															1.1
+	./HISTORY.TXT														1.1
+	./Makefile															1.1
+	./makefile.lib														1.1
+	./README.TXT														1.1
+	./configure															1.1 - Binary
+	./tag.TXT															1.1
+	./timerg.c															1.1
+	./timerg.stg														1.1 - Binary
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./timerN/timerN 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./timerN 밑에서   
+
+cvs import -m "INIT" timerN upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co timerN 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

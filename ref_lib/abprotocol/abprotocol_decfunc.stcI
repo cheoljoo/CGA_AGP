@@ -1,0 +1,163 @@
+stcI_HASH : SB_PARSING
+stcI_EXTENSION : c
+stcI_FILEPREFIX : STCI_SB_PARSING_
+SetI : STRUCT_NAME = KEY
+
+Set : iterate_comments = ON
+
+/** @file  STCI_SB_PARSING_STRUCT_NAME.c  
+ *  - rfc protocol definition
+ * 
+ *  Copyright (c) 2006~ by Upresto Inc, Korea 
+ *  All rights reserved 
+ * 
+ *  $Id: abprotocol_decfunc.stcI,v 1.9 2007/03/23 12:00:51 yhshin Exp $
+ * 
+ *  @Author      $Author: yhshin $ 
+ *  @version     $Revision: 1.9 $ 
+ *  @date        $Date: 2007/03/23 12:00:51 $ 
+ *  @warning     +Warning+ 
+ *  @ref          
+ *  @todo        +ToDo+ 
+ * 
+ *  @section     Intro 
+ *  @section     Requirement 
+ *  @li +Requirement+ 
+ * 
+ **/ 
+
+
+
+STRUCT_NAME		mSTRUCT_NAME;
+
+stFieldFormat   FF_STRUCT_NAME [MAX_FILED_FORMAT] =
+{   
+
+    ITERATE @SB_PARSING_STRUCT_NAME +<<+ IT2KEY IT2VALUE
+	{ IT2VALUE },
+    +>>+
+
+    {  99, 0, 0, 0, 0, NULL, NULL, NULL, NULL} ,
+};
+
+
+Set : function_def{decode_STRUCT_NAME} = "int decode_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos)"
+int decode_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos) 
+{
+	gWHICH_ANA = WHICH_ANA_BINARY;
+
+	memset ((U8 *)&mSTRUCT_NAME, 0x00, sizeof (STRUCT_NAME));
+	return move_data_to_field ((stFieldFormat *)&FF_STRUCT_NAME, ucBuf, iread, dec_pos, NULL, NULL);
+}
+
+Set : function_def{decode_copy_STRUCT_NAME} = "int decode_copy_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME *pUserBuf)"
+int decode_copy_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME *pUserBuf) 
+{
+	int 	ret;
+
+	gWHICH_ANA = WHICH_ANA_BINARY;
+
+	memset ((U8 *)&mSTRUCT_NAME, 0x00, sizeof (STRUCT_NAME));
+	return move_data_to_field ((stFieldFormat *)&FF_STRUCT_NAME, ucBuf, iread, dec_pos, NULL, NULL);
+	if (ret < 0) 
+		return ret;
+
+	memcpy((U8 *)pUserBuf, (U8 *)&mSTRUCT_NAME, sizeof (STRUCT_NAME));
+	return ret;
+}
+
+Set : function_def{decode_addr_STRUCT_NAME} = "int decode_addr_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME **pUserBuf)"
+int decode_addr_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME **pUserBuf) 
+{
+	gWHICH_ANA = WHICH_ANA_BINARY;
+	
+	memset ((U8 *)&mSTRUCT_NAME, 0x00, sizeof (STRUCT_NAME));
+	(*pUserBuf) = &mSTRUCT_NAME;
+	return move_data_to_field ((stFieldFormat *)&FF_STRUCT_NAME, ucBuf, iread, dec_pos, NULL, NULL);
+}
+
+
+Set : function_def{decode_tree_addr_STRUCT_NAME} = "int make_tree_addr_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME **pUserBuf, dlink_t *pnode)"
+int make_tree_addr_STRUCT_NAME (U8 *ucBuf, int iread, int *dec_pos, STRUCT_NAME **pUserBuf, dlink_t *pnode)
+{   
+    int         ret;
+    pnode_t     *pn;
+    
+	gWHICH_ANA = WHICH_ANA_TREE;
+
+    memset ((U8 *)&mSTRUCT_NAME, 0x00, sizeof (STRUCT_NAME));
+    (*pUserBuf) = &mSTRUCT_NAME;
+    
+    if ((pn = protocol_node_alloc(0)) == NULL) {
+#if DEBUG_PRINT
+        printf ("protocol_node_alloc fail!!\n");
+#endif
+        return -1;
+    }
+    protocol_node_init (pn);
+    dlink_nq (pnode, &pn->sibling);
+    
+	pn->pos = *dec_pos;
+    ret = make_tree_param_value ((stFieldFormat *)&FF_STRUCT_NAME, ucBuf, iread, dec_pos, &pn->child);
+    if (ret < 0) 
+        return ret;
+    
+    sprintf (pn->pdesc, "STRUCT_NAME");
+	pn->pos = *dec_pos;
+    return 1;
+}
+
+
+Set : function_def{STRUCT_NAME_list} = "int STRUCT_NAME_list (U8 *ucBuf, int dlen, void **ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos)"
+int STRUCT_NAME_list (U8 *ucBuf, int dlen, void *ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos)
+{
+	int			string_pos, dRet;
+
+	string_pos = 0;
+	gWHICH_ANA = WHICH_ANA_BINARY;
+	
+	memset ((U8 *)&mSTRUCT_NAME, 0x00, sizeof (STRUCT_NAME));
+
+	(*pUserBuf) = &mSTRUCT_NAME;
+	*decode_struct_size = STRUCT_NAME_SIZE;
+	*decode_struct_type = STG_DEF_STRUCT_NAME;
+
+	dRet = move_data_to_field ((stFieldFormat *)&FF_STRUCT_NAME, ucBuf, dlen, dec_pos, pstring, &string_pos);
+
+	return dRet;
+}
+
+/**  
+ *  $Log: abprotocol_decfunc.stcI,v $
+ *  Revision 1.9  2007/03/23 12:00:51  yhshin
+ *  DEBUG_PRINT
+ *
+ *  Revision 1.8  2007/03/15 02:38:56  yhshin
+ *  pos, length 추가
+ *
+ *  Revision 1.7  2007/03/14 07:54:06  yhshin
+ *  list
+ *
+ *  Revision 1.6  2007/03/14 06:12:34  yhshin
+ *  *** empty log message ***
+ *
+ *  Revision 1.5  2007/03/14 05:28:38  yhshin
+ *  protocol_list 추가
+ *
+ *  Revision 1.4  2007/02/08 01:19:52  yhshin
+ *  gWHICH_ANA 추가
+ *
+ *  Revision 1.3  2007/02/06 23:10:29  yhshin
+ *  make_tree_addr_STRUCT_NAME add
+ *
+ *  Revision 1.2  2007/01/24 04:50:39  yhshin
+ *  decode_addr_STRUCT_NAME 추가
+ *
+ *  Revision 1.1  2007/01/18 01:45:30  yhshin
+ *  add rfc_protocol.stcI
+ *
+ *  Revision 1.1  2007/01/16 11:14:13  yhshin
+ *  tcp header
+ *
+ **/
+

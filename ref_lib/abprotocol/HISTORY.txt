@@ -1,0 +1,788 @@
+
+==============================================================================
+1. 날 짜 : 2007.06.27(수)
+2. 작성자: 신영호
+3. 내 용 :
+	ALCAP decode 추가
+	AAL2 type 추가
+4. 파 일
+	/README.txt															1.13
+	/abprotocol/abprotocol_ana.stc										1.29
+	/abprotocol/ie_func.stc												1.62
+	/abprotocol/sb_protocol.stg											1.84
+==============================================================================
+1. 날 짜 : 2007.06.19(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	GTP_MAP 메세지 테스트 
+	NOTE MS GPRS PRESENT REQUEST 메세지 테스트
+4. 파 일
+	/README.txt															1.13
+	/ie_func.stc														1.61
+	/proto_print.c														1.25
+	/sb_protocol.stg													1.83
+==============================================================================
+1. 날 짜 : 2007.06.13(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	pF 초기화 bug 수정
+4. 파 일
+	/abprotocol/abprotocol_ana.stc										1.28
+==============================================================================
+1. 날 짜 : 2007.01.13(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	Multimedia-Auth-Request 메세지 정의 ORDER로 변경
+4. 파 일
+	/sb_protocol.stg													1.81
+==============================================================================
+1. 날 짜 : 2007.06.12(화)
+2. 작성자: 신영호 
+3. 내 용 :
+	disorder bug 수정 
+	pF위치를 제자리로. 옮겨놓음.
+4. 파 일
+	/abprotocol/abprotocol_ana.stc										1.26
+==============================================================================
+1. 날 짜 : 2007.01.12(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	DEBUG DIAMETER DECODING
+	ADD Command Code: Multimedia-Auth-Answer (303)
+4. 파 일
+	/README.txt															1.11
+	/proto_print.c														1.23
+	/sb_protocol.stg													1.80
+==============================================================================
+1. 날 짜 : 2007.06.11(월)
+2. 작성자: 신영호 
+3. 내 용 :
+	AVP disorder 추가
+4. 파 일
+	/abprotocol/sb_protocol.stg											1.76
+	/abprotocol/abprotocol_ana.stc										1.23
+==============================================================================
+1. 날 짜 : 2007.01.11(월)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD Device-Watchdog-Request/Response
+4. 파 일
+	M README.txt														1.8
+	M proto_print.c														1.21
+	M sb_protocol.stg													1.75
+==============================================================================
+1. 날 짜 : 2007.06.05(화)
+2. 작성자: 신영호 
+3. 내 용 :
+	sccp 오류 수정
+4. 파 일
+	/abprotocol/ie_func.stc												1.57
+	/abprotocol/sb_protocol.stg											1.73
+==============================================================================
+1. 날 짜 : 2007.06.04(월)
+2. 작성자: 신영호 
+3. 내 용 :
+	GT bug 수정
+4. 파 일
+	/abprotocol/ie_func.stc												1.55
+	/abprotocol/sb_protocol.stg											1.71
+==============================================================================
+1. 날 짜 : 2007.05.30(수)
+2. 작성자: 권상득
+3. 내 용 :
+	주석 처리
+	printf ("iCalledLen:%d, iCallingLen:%d, iDataLen = %d\n", iCalledLen, iCallingLen, iDataLen);
+4. 파 일
+	/SBPARSING/abprotocol/ie_func.stc									1.49
+==============================================================================
+1. 날 짜 : 2007.05.27(일)
+2. 작성자: 윤진석
+3. 내 용 :
+	MODIFY GTP_P PROTOCOL
+	ADD SAMPLE CDR PACKET
+4. 파 일
+    /SBPARSING/abprotocol/README.txt                                    1.7
+	/SBPARSING/abprotocol/proto_print.c 								1.20
+	/SBPARSING/abprotocol/sb_protocol.stg 								1.69
+	/SBPARSING/abprotocol/tdata/gtp_p_cdreq.cap							1.1
+	/SBPARSING/abprotocol/tdata/gtp_p_echoreq.cap						1.1
+	/SBPARSING/abprotocol/tdata/gtp_p_nodealivereq.cap					1.1
+==============================================================================
+1. 날 짜 : 2007.05.21(월)
+2. 작성자: 신영호 
+3. 내 용 :
+	sccp decode 추가 
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.67
+	/abprotocol/abprotocol_ana.stc									1.22
+	/abprotocol/abprotocol_proto.h									1.3
+	/abprotocol/ie_func.stc											1.47
+	/abprotocol/sb_protocol.stg										1.68
+==============================================================================
+1. 날 짜 : 2007.05.10(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD User-Authorization-Request/Answer
+	ADD Server-Assignment-Request/Answer
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.67
+==============================================================================
+1. 날 짜 : 2007.05.08(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	CHANGE AVPDATA SIZE
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.66
+============================================================================
+1. 날 짜 : 2007.05.09(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	> AVP flag  처리 
+	> AVP vendor id 처리 중.
+4. 파 일
+	/abprotocol/abprotocol_ana.stc									1.21
+	/abprotocol/abprotocol_proto.h									1.2
+	/abprotocol/ie_func.stc											1.44, 1.45
+	/abprotocol/sb_protocol.stg										1.65
+==============================================================================
+1. 날 짜 : 2007.05.08(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD Location-Info-Request/Answer	1.62
+	ADD DEFINE DIAMETER_MT				
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.64
+	/abprotocol/proto_print.c										1.18
+============================================================================
+1. 날 짜 : 2007.05.08(화)
+2. 작성자: 신영호 
+3. 내 용 :
+	> AVP length 4bytes align 처리
+	> AVP length type, flag, length (8bytes) 감산 처리
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.61
+	/abprotocol/abprotocol_ana.stc									1.20
+==============================================================================
+1. 날 짜 : 2007.05.08(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD AVPs Structures
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.60
+	/abprotocol/ie_func.stc											1.43
+	/abprotocol/proto_print.c										1.17
+============================================================================
+1. 날 짜 : 2007.05.08(화)
+2. 작성자: 신영호 
+3. 내 용 :
+	> AVP_U8_ORDER
+	> AVP_U16_ORDER
+	> AVP_U32_ORDER
+	> AVP_STRING_ORDER
+	> AVP_DIGIT_ORDER
+	type 추가 .. 
+	SCCP decodeing 중.
+4. 파 일
+	/abprotocol/abprotocol_ana.stc									1.19
+	/abprotocol/configure											1.9
+	/abprotocol/ie_func.stc											1.42
+	/abprotocol/sb_protocol.stg										1.58
+	/abprotocol/abprotocol_proto.h									1.1
+==============================================================================
+1. 날 짜 : 2007.05.03(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD GTP_P Messages
+	Node Alive, Redirection Req/Resp..
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.57
+==============================================================================
+1. 날 짜 : 2007.05.02(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD GTP_P Messages Type DEFINE	1.55
+	MOD GTP_P Messages Type DEFINE	1.56
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.56
+==============================================================================
+1. 날 짜 : 2007.05.01(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	ADD GTP` Header and Messages
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.53
+==============================================================================
+1. 날 짜 : 2007.04.24(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	.Add SCTP Header
+	.Add Message Definition 
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.51
+	/abprotocol/proto_print.c										1.15
+==============================================================================
+1. 날 짜 : 2007.04.24(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	.Add SCTP Header
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.50
+==============================================================================
+1. 날 짜 : 2007.04.18(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	.ADD GTP-MAP Messages
+	.PDU Notification Request / Response
+	.PDU Notification Reject Request / Response
+	.Note MS GPRS Present Request / Response
+	.Failure Report Request / Response
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.49
+==============================================================================
+1. 날 짜 : 2007.04.02(월)
+2. 작성자: 윤진석
+3. 내 용 :
+	.Modify ie_func_gtpmsg_msisdn
+4. 파 일
+	/abprotocol/ie_func.stc											1.41
+==============================================================================
+1. 날 짜 : 2007.03.28(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	.MSISDN 필드 함수 수정
+4. 파 일
+	/abprotocol/ie_func.stc											1.39
+============================================================================
+1. 날 짜 : 2007.03.28(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	rtcp decode
+4. 파 일
+	/abprotocol/abprotocol_ana.stc									1.17
+	/abprotocol/abprotocol_tree.stc									1.18
+	/abprotocol/ie_func.stc											1.37
+	/abprotocol/sb_protocol.stg										1.47
+============================================================================
+1. 날 짜 : 2007.03.28(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	rtcp decode
+4. 파 일
+	/abprotocol/ie_func.stc											1.36
+	/abprotocol/sb_protocol.stg										1.46
+==============================================================================
+1. 날 짜 : 2007.03.26(월)
+2. 작성자: 윤진석
+3. 내 용 :
+	.Get MSISDN 
+4. 파 일
+	/abprotocol/ie_func.stc											1.35
+============================================================================
+1. 날 짜 : 2007.03.23(금)
+2. 작성자: 신영호 
+3. 내 용 :
+	printf 문 #if DEBUG_PRINT 처리 
+4. 파 일
+	/abprotocol/abprotocol_ana.stc									1.16
+	/abprotocol/abprotocol_decfunc.stc								1.17
+	/abprotocol/abprotocol_treeprint.stc							1.6
+	/abprotocol/abprotocol_tree.stc									1.17
+	/abprotocol/abprotocol_decfunc.stcI								1.9
+	/abprotocol//makefile.upr										1.2
+============================================================================
+1. 날 짜 : 2007.03.16(금)
+2. 작성자: 신영호 
+3. 내 용 :
+	tree position, length 수정.
+	. 전체 패킷에서의 길이를 저장.
+4. 파 일
+	/abprotocol/abprotocol_decfunc.stc								1.7
+	/abprotocol/abprotocol_tree.stc								1.15 1.16
+	/abprotocol/abprotocol_treeprint.stc							1.5
+============================================================================
+1. 날 짜 : 2007.03.16(금)
+2. 작성자: 신영호 
+3. 내 용 :
+	tree position, length 수정.
+	. 전체 패킷에서의 길이를 저장.
+4. 파 일
+	/abprotocol/abprotocol_decfunc.stc							1.5  1.6
+	/abprotocol/abprotocol_tree.stc								1.15 1.16
+	/abprotocol/abprotocol_treeprint.stc							1.5
+	/abprotocol/ie_func.stc											1.34
+	/abprotocol/sb_protocol.stg										1.44
+============================================================================
+1. 날 짜 : 2007.03.16(금)
+2. 작성자: 신영호 
+3. 내 용 :
+	Packet Viewer(PV)을 위해 tree 함수 제공.
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.40
+	/abprotocol/configure											1.8
+	/abprotocol/abprotocol_decfunc.stc								1.3
+	/abprotocol/abprotocol_treeprint.stc							1.1
+	/abprotocol/proto_print.stc										1.14
+==============================================================================
+1. 날 짜 : 2007.03.15(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	.SB_PARSING 문법 변경에 따른 수정 
+	.IMSI, GSN ADDRESS, TEID, MSISDN 구문 변경
+4. 파 일
+	/abprotocol/ie_func.stc											1.26
+	/abprotocol/sb_protocol.stg										1.39
+============================================================================
+1. 날 짜 : 2007.03.15(목)
+2. 작성자: 신영호 
+3. 내 용 :
+	Packet Viewer(PV)을 위해 list을 만들어야 할 경우가 있다. 
+	user fuction을 호출하는 경우는 LIST_ON 처리 및 null string check을 한후 
+	값을 직접 넣어 주어야 한다. 
+	if ((pF->islist == LIST_ON) && (pstring != NULL)) {
+		sprintf (pstring + (*spos), "IMSI: %s", imsi_value);
+		(*spos) += strlen(pstring);
+	}
+	이런 식이 될것이다. 
+4. 파 일
+	/abprotocol/abprotocol_ana.stc									1.15
+	/abprotocol/ie_func.stc											1.25
+	/abprotocol/sb_protocol.stg										1.35
+============================================================================
+1. 날 짜 : 2007.03.15(목)
+2. 작성자: 신영호 
+3. 내 용 :
+	TV, TLV bug 수정.. type을 안맞는 경우 고려. node을 만들어야 한다. 
+4. 파 일
+	/abprotocol/ie_func.stc											1.24
+	/abprotocol/abprotocol_tree.stc									1.10, 1.11
+	/abprotocol/sb_protocol.stg										1.33, 1.34
+==============================================================================
+1. 날 짜 : 2007.03.15(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	. 구조체 이름 변경 
+4. 파 일
+	/abprotocol/ie_func.stc											1.23
+	/abprotocol/proto_print.c										1.13
+	/abprotocol/sb_protocol.stg										1.32
+============================================================================
+1. 날 짜 : 2007.03.15(목)
+2. 작성자: 신영호 
+3. 내 용 :
+	Tree 구조에 position, length 추가.
+4. 파 일
+	/abprotocol/abprotocol_decfunc.stc								1.2
+	/abprotocol/abprotocol_decfunc.stcI								1.8
+	/abprotocol/abprotocol_tree.stc									1.9
+	/abprotocol/ie_func.stc											1.22
+	/abprotocol/proto_print.c										1.12
+=============================================================================
+1. 날 짜 : 2007.03.14(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	Packet Viewer을 위한 PROTOCOL_list 함수변경. 
+	- string에 대한 length도 리턴. 
+	- decfunc. STC파일로 변경. 
+		- complie time 줄임.
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.31
+	/abprotocol/abprotocol_ana.stc									1.14
+	/abprotocol/ie_func.stc											1.21
+	/abprotocol/abprotocol_decfunc.stcI								1.7
+	/abprotocol/abprotocol_decfunc.stc								1.1
+	/abprotocol/proto_print.c										1.11
+	/abprotocol/configure											1.7
+=============================================================================
+1. 날 짜 : 2007.03.14(수)
+2. 작성자: 신영호 
+3. 내 용 :
+	Packet Viewer을 위한 PROTOCOL_list 함수 추가 . 
+	- stFieldFormat field에 islist 필드 추가.. 
+		@SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL,
+		NULL, &mTCP_Header.usSrcPort , NULL, "Source port", LIST_ON}@
+	처럼 사용하면 사용자가 준 buf에 "Source port : %d" 로 찍어보냄. 
+	TEST- ./proto_print tdata/tcptest_0.test -p IP -v -c
+	중간에. string 이란 부분.
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.30
+	/abprotocol/abprotocol_ana.stc									1.13
+	/abprotocol/ie_func.stc											1.20
+	/abprotocol/abprotocol_decfunc.stcI								1.5
+	/abprotocol/proto_print.c										1.10
+=============================================================================
+1. 날 짜 : 2007.03.13(화)
+2. 작성자: 신영호 
+3. 내 용 :
+	ie_func에 마지막 file에 pF 추가. 
+	- 구조체 멤버들을 각각 넘기지 않고 구조체 통체로 넘김. 
+	- case 같은 값이 필요하여 추가하였음. 
+4. 파 일
+	/abprotocol/sb_protocol.stg										1.28
+	/abprotocol/abprotocol_ana.stc									1.12
+	/abprotocol/abprotocol_tree.stc									1.8
+	/abprotocol/ie_func.stc											1.19
+===============================================================================
+1. 날 짜 : 2007.03.12(월)
+2. 작성자: 윤진석
+3. 내 용 :
+	.proto_print.c 스트럭쳐 변경
+4. 파 일
+	/abprotocol/proto_print.c 	                                    1.9
+===============================================================================
+1. 날 짜 : 2007.03.09(금)
+2. 작성자: 윤진석
+3. 내 용 :
+	. Send Routing Information for GPRS Request / Response 추가 
+	. MSISDN 필드 처리 
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.27
+	/abprotocol/ie_func.stc											1.18
+=============================================================================
+1. 날 짜 : 2007.03.8(목)
+2. 작성자: 신영호 
+3. 내 용 :
+	. MTP3b decode 추가 (1.25)
+	. SCCP decode 추가.
+	. pos값 func call시 point로 처리 
+		- 사용자가 dec_pos를 변경하고자 할때
+	. Tree까지는 완벽하게 고려하지 않았음.
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.25
+	/abprotocol/sb_protocol.stg                                     1.26
+	/abprotocol/ie_func.stc											1.17
+	/abprotocol/abprotocol_ana.stc									1.11
+	/abprotocol/abprotocol_tree.stc									1.7
+==============================================================================
+1. 날 짜 : 2007.02.28()
+2. 작성자: 윤진석
+3. 내 용 :
+	. GTP Header Flags 처리 
+	. SequenceNum, nPDU Number, Extension Header
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.24
+	/abprotocol/ie_func.stc											1.16
+==============================================================================
+1. 날 짜 : 2007.02.28()
+2. 작성자: 윤진석
+3. 내 용 :
+	. Update PDP Req/Resp 메세지 정의 추가
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.23
+==============================================================================
+1. 날 짜 : 2007.02.22(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	. GTP Header 메세지 정의 추가 ( GTP-C )
+	. TODO
+		.IE포맷에 맞게 수정하는 함수들 추가 
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.22
+    /abprotocol/proto_print.c										1.8
+==============================================================================
+1. 날 짜 : 2007.02.21(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	. GTP Header 메세지 정의 추가 
+	. IMSI값 변환 함수 수정 
+	. TODO
+		.IE포맷에 맞게 수정하는 함수들 추가 
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.21
+	/abprotocol/ie_func.stc											1.14
+    /abprotocol/proto_print.c										1.7
+==============================================================================
+1. 날 짜 : 2007.02.21(수)
+2. 작성자: 윤진석
+3. 내 용 :
+	. Create PDP Context Request 변수 타입 및 이름 수정
+	. TODO
+		.IE포맷에 맞게 수정하는 함수들 추가 
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.20
+	/abprotocol/ie_func.stc											1.13
+==============================================================================
+1. 날 짜 : 2007.02.20(화)
+2. 작성자: 윤진석
+3. 내 용 :
+	. Create PDP Context Request 메세지 수정
+	. ie_func.stc 에 IMSI 코드값 수정 함수 추가 
+	. TODO
+		.IE포맷에 맞게 수정하는 함수들 추가 
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.19
+	/abprotocol/ie_func.stc											1.12
+==============================================================================
+1. 날 짜 : 2007.02.16(금)
+2. 작성자: 윤진석
+3. 내 용 :
+	. Create PDP Context Request 메세지 추가
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.18
+==============================================================================
+1. 날 짜 : 2007.02.16(금)
+2. 작성자: 신영호
+3. 내 용 :
+	. RTCP payload type tag 추가
+	. order는 type이 메치가 안되면 다음으로 skip한다.
+4. 파 일
+    /abprotocol/sb_protocol.stg										1.16
+    /abprotocol/abprotocol_ana.stc									1.8
+==============================================================================
+1. 날 짜 : 2007.02.15(목)
+2. 작성자: 신영호
+3. 내 용 :
+	. 구조체 이름이 다름 곳과 충돌을 피하기 위해 끝에 _sb를 붙인다. 
+	. RTCP 추가.
+4. 파 일
+    /abprotocol/sb_protocol.stg										1.15
+    /abprotocol/ie_func.stc											1.11
+    /abprotocol/proto_print.c										1.4
+    /abprotocol/abprotocol_tree.stc									1.5
+==============================================================================
+1. 날 짜 : 2007.02.15(목)
+2. 작성자: 윤진석
+3. 내 용 :
+	. UDP, GTP 프로토콜 추가 
+4. 파 일
+    /abprotocol/ie_func.stc											1.10
+    /abprotocol/proto_print.c										1.3
+    /abprotocol/sb_protocol.stg										1.14
+==============================================================================
+1. 날 짜 : 2007.02.15(목)
+2. 작성자: 신영호
+3. 내 용 :
+	. 구조체 이름이 다름 곳과 충돌을 피하기 위해 끝에 _sb를 붙인다. 
+4. 파 일
+    /abprotocol/sb_protocol.stg										1.11
+    /abprotocol/ie_func.stc											1.8
+==============================================================================
+1. 날 짜 : 2007.02.08(목)
+2. 작성자: 신영호
+3. 내 용 :
+    . Tree function 넘기기 전에 value 할당하게 수정 (pF3..에)
+	. U8 - char 
+	  STRING - char []
+	  DIGIT - hex 
+4. 파 일
+    /abprotocol/configure											1.6
+    /abprotocol/abprotocol_tree.stc									1.4
+    /abprotocol/ie_func.stc											1.7
+    /abprotocol/sb_protocol.stg										1.10
+==============================================================================
+1. 날 짜 : 2007.02.09(금)
+2. 작성자: 윤진석
+3. 내 용 :
+	. IP 헤더 구조 변경 
+	. ie_func.stc 에 Version, IHL, Flags, Fragment offset 함수 추가
+4. 파 일
+	/abprotocol/sb_protocol.stg                                     1.9
+	/abprotocol/ie_func.stc											1.6
+==============================================================================
+1. 날 짜 : 2007.02.08(목)
+2. 작성자: 신영호
+3. 내 용 :
+    . STRING, DIGIT, 추가 중 
+	. dlinkUtil source 정리 및 root print함수 lib구성.
+4. 파 일
+    /abprotocol/Makefile											1.7
+    /abprotocol/abprotocol_ana.stc									1.7
+    /abprotocol/abprotocol_tree.stc									1.3
+    /abprotocol/sb_protocol.stg										1.8
+
+    /CGA/dlinkUtil/dlink.c                                          1.2
+    /CGA/dlinkUtil/dlink.h                                          1.2
+    /CGA/dlinkUtil/Makefile                                         1.2
+    /CGA/dlinkUtil/param_node.c                                     1.2
+    /CGA/dlinkUtil/param_node.h                                     1.2
+    /CGA/dlinkUtil/proot.c                                          1.2
+    /CGA/dlinkUtil/proot.h                                          1.2
+    /CGA/dlinkUtil/protocol_node.c                                  1.2
+    /CGA/dlinkUtil/proot_print.c                                  	1.1
+    /CGA/dlinkUtil/proot_print.h                                  	1.1
+==============================================================================
+1. 날 짜 : 2007.02.08(목)
+2. 작성자: 신영호
+3. 내 용 :
+    . STRING, DIGIT, 추가 중 
+4. 파 일
+    /abprotocol/Makefile											1.7
+    /abprotocol/abprotocol_ana.stc									1.7
+    /abprotocol/abprotocol_tree.stc									1.3
+    /abprotocol/sb_protocol.stg										1.8
+    /abprotocol/ie_func.stc											1.5
+    /abprotocol/proto_print.c										1.1
+	/abprotocol/tdata/rtpsample_0.test								1.1
+==============================================================================
+1. 날 짜 : 2007.02.08(목)
+2. 작성자: 신영호
+3. 내 용 :
+    . STRING, DIGIT, 추가 중 
+	. gWHICH_ANA 변수로 하나의 function에서 decode와 tree 구성할 수 있게 구성 
+		
+4. 파 일
+    /abprotocol/abprotocol_ana.stc									1.5
+    /abprotocol/ie_func.stc											1.4
+    /abprotocol/abprotocol_tree.stc									1.2
+    /abprotocol/abprotocol_decfunc.stcI								1.4
+    /abprotocol/sb_protocol.stg										1.6
+    /abprotocol/test_abana.c										1.6
+==============================================================================
+1. 날 짜 : 2007.02.07(수)
+2. 작성자: 신영호
+3. 내 용 :
+    . Tree 구조 추가 
+	. dlinkUtil lib 사용 하기 때문에 CGA에 dlinkUtil library 추가 
+		- structg에서 dlinkUtil link을 하기 위해 makefile.upr 관리. 
+	. dlinkUtil lib 추가
+		- double linked list library
+		- tree 구조 만드는 부분 사용
+	.TODO
+		- test로 만 진행한 부분들 전체에 적용.
+		- TLV --> TLV 처리 , 
+		- header의 확장 부분은 어떻게 할 것인가? 
+4. 파 일
+	/abprotocol/Makefile											1.6
+	/abprotocol/configure											1.5
+    /abprotocol/abprotocol_decfunc.stcI								1.3
+    /abprotocol/ie_func.stc											1.3
+    /abprotocol/sb_protocol.stg										1.5
+    /abprotocol/abprotocol_ana.stc									1.4
+    /abprotocol/test_abana.c										1.5
+    /abprotocol/abprotocol_tree.stc									1.1 - ADD
+    /abprotocol/makefile.upr										1.1 - ADD
+	/abprotocol/tdata/iptcptest_0.test								1.1 - ADD
+
+	/CGA/dlinkUtil/dlink.c											1.1
+	/CGA/dlinkUtil/dlink.h											1.1
+	/CGA/dlinkUtil/Makefile											1.1
+	/CGA/dlinkUtil/param_node.c										1.1
+	/CGA/dlinkUtil/param_node.h										1.1
+	/CGA/dlinkUtil/proot.c											1.1
+	/CGA/dlinkUtil/proot.h											1.1
+	/CGA/dlinkUtil/protocol_node.c									1.1
+	/CGA/dlinkUtil/protocol_node.h									1.1
+==============================================================================
+1. 날 짜 : 2007.01.26(금)
+2. 작성자: 신영호
+3. 내 용 :
+    . BIT8, BIT16 ana에 추가 
+		- BIT8, BIT16 Type도 SB_PARSING rule에 BIT8_ORDER로 입력하면
+		  V_U8_ORDER로 처리하게 했다.
+4. 파 일
+    /abprotocol/sb_protocol.stg										1.4
+    /abprotocol/abprotocol_ana.stc									1.4
+    /abprotocol/test_abana.c										1.4
+==============================================================================
+1. 날 짜 : 2007.01.23(화)
+2. 작성자: 신영호
+3. 내 용 :
+    . IE 처리
+		- function point로 IE를 추가적인 분석이 필요할 때 callback 모든 case에
+			적용
+	. decode_addr_GMM_ServiceReq 함수 추가. 
+		- user가 정의한 pointer에 값을 할당해 주는 방식
+		- double point로 처리하였음. 
+			- 함수 밖의 공간의 주소값을 변경. (test_abana 확인)
+	.TODD
+		- Type 테스트 남았음. 
+		- 구조 협의
+4. 파 일
+    /abprotocol/abprotocol_ana.stc									1.3
+    /abprotocol/abprotocol_decfunc.stcI								1.2
+    /abprotocol/ie_func.stc											1.2
+    /abprotocol/test_abana.c										1.3
+==============================================================================
+1. 날 짜 : 2007.01.23(화)
+2. 작성자: 신영호
+3. 내 용 :
+    . IE 처리
+		- function point로 IE를 추가적인 분석이 필요할 때 callback
+		  function으로 처리 하게함.
+	.TODD
+		- Type 테스트 남았음. 
+		- 구조 협의
+4. 파 일
+    /abprotocol/Makefile											1.5
+    /abprotocol/configure											1.4
+    /abprotocol/sb_protocol.stg										1.3
+    /abprotocol/abprotocol_ana.stc									1.2
+    /abprotocol/test_abana.c										1.2
+    /abprotocol/ie_func.stc											1.1	- ADD
+==============================================================================
+1. 날 짜 : 2007.01.18(목)
+2. 작성자: 신영호
+3. 내 용 :
+    . GMM, SM message 추가 (Service Req, PDP Activateion Reqeust)
+	.TODD
+		- Type 테스트 남았음. 
+		- IE 구조 추가를 먼저 해야함.
+			.msg {
+				IE_1	Qos;
+				IE_2	IMSI;
+			 } mMsg;
+			구조로 처리하고 func *를 이용하여 한방에 찾아 가게함.
+4. 파 일
+    /abprotocol/Makefile											1.4
+    /abprotocol/sb_protocol.stg										1.2
+    /abprotocol/abprotocol_ana.stc									1.1
+    /abprotocol/abprotocol_decfunc.stcI								1.1
+    /abprotocol/test_abana.c										1.1
+
+	/abprotocol/abprotocol.stc		--del    abprotocol_ana.stc 로 rename
+	/abprotocol/rfc_protocol.stcI	--del    abprotocol_decfunc.stcI 로 rename
+	/abprotocol/test_tcphdr.c		--del    test_abana.c 로 rename
+==============================================================================
+1. 날 짜 : 2007.01.16(화)
+2. 작성자: 신영호
+3. 내 용 :
+    . stcI, stc 적용
+	. TCP Header Test program 추가
+	. mTCP_Header 선언을 어디서 할지 결정???
+		- 현재는 rfc_protocol.stcI에 선언
+		- test_tcphdr.c에서 extern으로 선언 후 사용
+		- 독립적인 library를 위해 미리 memeory 할당 필요
+	.TODO
+		- 각 Type별 테스트 및 보완 작업.
+		- 3gpp protocol 추가.
+		- Tree 구조 추가 작업.
+4. 파 일
+    /abprotocol/Makefile											1.3
+    /abprotocol/abprotocol.stc 										1.1
+    /abprotocol/sb_protocol.stg										1.1
+    /abprotocol/test_tcphdr.c										1.1
+    /abprotocol/rfc_protocol.stcI									1.1
+    /abprotocol/configure											1.2
+==============================================================================
+1. 날 짜 : 2006.08.29(화)
+2. 작성자: 신영호
+3. 내 용 :
+    . BIT operation 추가
+	. order, disorder type 추가. 
+4. 파 일
+    /abprotocol/Makefile											1.2
+    /abprotocol/3gpp_gmmsm.c										1.2
+    /abprotocol/3gpp_gmmsm.h										1.2
+    /abprotocol/abprotocol.c										1.2
+    /abprotocol/abprotocol.h										1.2
+    /abprotocol/rfc_protocol.c										1.2
+    /abprotocol/rfc_protocol.h										1.2
+    /abprotocol/protocol_def.h										1.2
+
+    /abprotocol/3gpp_gmmsm.stg										1.1
+    /abprotocol/rfc_protocol.stg									1.1
+    /abprotocol/userfile.stgL										1.1
+    /abprotocol/configure											1.1
+	/abprotocol/tdata/sm_0.test										1.1
+==============================================================================
+
+
+#protocol 추가 방법
+
+#3gpp_gmmsm.h 과 같이 다른 파일을 추가하고 싶을 때 3개의 파일을 만들고 3개의 파일을 수정해야 한다. 
+--> 만들어야 할 파일. protocolX.h, protocolX.c, protocol.stg  
+		(3gpp_gmmsm.h, 3gpp_gmmsm.c, 3gpp_gmm.stg 참조)
+--> 수정해야 할 파일 
+		protocol_def.h 파일 -> protocolX.h 파일 추가.
+		Configure 파일 -> install ../protocolX.stg ./structg/  줄 추가 
+		userfile.stL 파일 -> protocolX.stg 리스트 추가.
+

@@ -1,0 +1,375 @@
+FileName : clex.c
+Set : iterate_comments = ON
+
+/**		@file  clex.c
+ *      - function collection for string parsing on TAG_AUTO_STRING
+ *
+ *     Copyright (c) 2006~ by Upresto Inc, Korea
+ *     All rights reserved
+ *
+ *		$Id: clex.stc,v 1.6 2007/03/09 08:14:49 cjlee Exp $
+ * 
+ *     @Author      $Author: cjlee $
+ *     @version     $Revision: 1.6 $
+ *     @date        $Date: 2007/03/09 08:14:49 $
+ *     @ref         cilog.c   +<+$FileName+>+
+ *     @todo        Function List --> CLEX[TAG_AUTO_STRING Name]()
+ *
+ *     @section     Intro(¼Ò°³)
+ *      - Usable Range :  TAG_AUTO_STRING 's text  (return defnine value)
+ *      - This is a collection of paring function.
+ *      - this parsing function is made into C code.
+ *      - this parsing function is made into C code.
+ *      - function prefix : CLEX
+ *      - longest matching
+ *
+ *     @section     Requirement
+ *      @li See the Get_TAG_AUTO_STRING_DEF_ITKEY().   ITKEY -> TAG_AUTO_STRING_NAME
+ *
+ **/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+ITERATE %TAG_AUTO_STRING_DEF +<<+ ITKEY ITVALUE
+
+/** CLEX_ITKEY_Depth2 function.
+ *
+ *  Text Parsing Function for CLEX
+ *
+ * @param *input_str 		: input_string pointer
+ * @param input_len 		: input string length (We con't use this parameter. But, want to get enough information.
+ * @param *clex_len 		: matching length (starting pointer is always input_str.
+ *
+ *  @return 	DEF	(defined value by TAG_AUTO_STRING)
+ *  @see    	+<+$FileName+>+
+ *
+ *  @exception  nothing
+ *  @note 		This is used for logging to the file.
+	ITERATE %TAG_DUAL_STRING_ITKEY +<<+ IT2KEY IT2VALUE
+			IT2VALUE   <==   IT2KEY
+	+>>+
+ **/
+Set : function_def{CLEX_ITKEY_Depth2} = "DEF CLEX_ITKEY_Depth2(U8 *input_str, U32	 input_len , U32 *clex_len)"
+DEF CLEX_ITKEY_Depth2(U8 *input_str, U32	 input_len , U32 *clex_len)
+{
+	DEF matching_value = 0;
+	U32	matching_len = 1;
+
+	switch(*input_str++){
+		ITERATE %TAG_DUAL_STRING_ITKEY_L0 +<<+ IT0KEY IT0VALUE
+		case IT0KEY:		// ' IT0KEY IT0VALUE '
+		{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ]
+			/*  +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_string{0}+>+   */
+			NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+,) #{
+				*clex_len =  matching_len ;
+				matching_value = +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ;
+			}#
+
+			// BEGIN
+			matching_len ++;
+			switch(*input_str++){
+				ITERATE %TAG_DUAL_STRING_ITKEY_L0IT0VALUE +<<+ IT1KEY IT1VALUE
+				case IT1KEY:		// ' IT1KEY IT1VALUE '
+				{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ]
+					/*  +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_string{0}+>+   */
+					NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+,) #{
+						*clex_len =  matching_len;
+						matching_value = +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ;
+					}#
+
+					// COPY to Here BEGIN
+					if (0){
+					}
+					ITERATE %TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_substr_size +<<+ MAT1KEY MAT1VALUE
+					else if( !memcmp(input_str,"+<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_substr{MAT1KEY}+>+",MAT1VALUE) ){
+						*clex_len =  matching_len + MAT1VALUE ;
+						return ( +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{MAT1KEY}+>+ ) ;
+					}
+					+>>+
+					return matching_value;
+					// COPY to Here END
+				}
+				break;
+				+>>+
+				default:
+				{
+					return matching_value;
+				}
+				break;
+			}
+			break;
+			// END
+
+		}
+		break;
+		+>>+
+		default:
+		{
+			return matching_value;
+		}
+		break;
+	}
+
+}
+
+
+/** CLEX_ITKEY_Depth3 function.
+ *
+ *  Text Parsing Function for CLEX
+ *
+ * @param *input_str 		: input_string pointer
+ * @param input_len 		: input string length (We con't use this parameter. But, want to get enough information.
+ * @param *clex_len 		: matching length (starting pointer is always input_str.
+ *
+ *  @return 	DEF	(defined value by TAG_AUTO_STRING)
+ *  @see    	+<+$FileName+>+
+ *
+ *  @exception  nothing
+ *  @note 		This is used for logging to the file.
+	ITERATE %TAG_DUAL_STRING_ITKEY +<<+ IT2KEY IT2VALUE
+			IT2VALUE   <==   IT2KEY
+	+>>+
+ **/
+Set : function_def{CLEX_ITKEY_Depth3} = "DEF CLEX_ITKEY_Depth3(U8 *input_str, U32	 input_len , U32 *clex_len)"
+DEF CLEX_ITKEY_Depth3(U8 *input_str, U32	 input_len , U32 *clex_len)
+{
+	DEF matching_value = 0;
+	U32	matching_len = 1;
+
+	switch(*input_str++){
+		ITERATE %TAG_DUAL_STRING_ITKEY_L0 +<<+ IT0KEY IT0VALUE
+		case IT0KEY:		// ' IT0KEY IT0VALUE '
+		{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ]
+			/*  +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_string{0}+>+   */
+			NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+,) #{
+				*clex_len =  matching_len ;
+				matching_value = +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ;
+			}#
+
+			// BEGIN L1
+			matching_len ++;
+			switch(*input_str++){
+				ITERATE %TAG_DUAL_STRING_ITKEY_L0IT0VALUE +<<+ IT1KEY IT1VALUE
+				case IT1KEY:		// ' IT1KEY IT1VALUE '
+				{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ]
+					/*  +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_string{0}+>+   */
+					NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+,) #{
+						*clex_len =  matching_len;
+						matching_value = +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ;
+					}#
+
+					// BEGIN L2
+					matching_len ++;
+					switch(*input_str++){
+						ITERATE %TAG_DUAL_STRING_ITKEY_L1IT1VALUE +<<+ IT2KEY IT2VALUE
+						case IT2KEY:		// ' IT2KEY IT2VALUE '
+						{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+ ]
+							/*  +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_string{0}+>+  */
+							NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+,) #{
+								*clex_len =  matching_len;
+								matching_value = +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+ ;
+							}#
+
+							// COPY to Here BEGIN & change the level
+							if (0){
+							}
+							ITERATE %TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_substr_size +<<+ MAT2KEY MAT2VALUE
+							else if( !memcmp(input_str,"+<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_substr{MAT2KEY}+>+",MAT2VALUE) ){
+								*clex_len =  matching_len + MAT2VALUE ;
+								return ( +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{MAT2KEY}+>+ ) ;
+							}
+							+>>+
+								return matching_value;
+							// COPY to Here END
+						}
+						break;
+						+>>+
+						default:
+						{
+							return matching_value;
+						}
+						break;
+					}
+					break;
+					// END L2
+				}
+				break;
+				+>>+
+				default:
+				{
+					return matching_value;
+				}
+				break;
+			}
+			break;
+			// END L1
+
+		}
+		break;
+		+>>+
+		default:
+		{
+			return matching_value;
+		}
+		break;
+	}
+
+}
+
+
+/** CLEX_ITKEY_Depth5 function.
+ *
+ *  Text Parsing Function for CLEX
+ *
+ * @param *input_str 		: input_string pointer
+ * @param input_len 		: input string length (We con't use this parameter. But, want to get enough information.
+ * @param *clex_len 		: matching length (starting pointer is always input_str.
+ *
+ *  @return 	DEF	(defined value by TAG_AUTO_STRING)
+ *  @see    	+<+$FileName+>+
+ *
+ *  @exception  nothing
+ *  @note 		This is used for logging to the file.
+	ITERATE %TAG_DUAL_STRING_ITKEY +<<+ IT2KEY IT2VALUE
+			IT2VALUE   <==   IT2KEY
+	+>>+
+ **/
+Set : function_def{CLEX_ITKEY_Depth5} = "DEF CLEX_ITKEY_Depth5(U8 *input_str, U32	 input_len , U32 *clex_len)"
+DEF CLEX_ITKEY_Depth5(U8 *input_str, U32	 input_len , U32 *clex_len)
+{
+	DEF matching_value = 0;
+	U32	matching_len = 1;
+
+	switch(*input_str++){
+		ITERATE %TAG_DUAL_STRING_ITKEY_L0 +<<+ IT0KEY IT0VALUE
+		case IT0KEY:		// ' IT0KEY IT0VALUE '
+		{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ]
+			/*  +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_string{0}+>+   */
+			NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+,) #{
+				*clex_len =  matching_len ;
+				matching_value = +<+$TAG_DUAL_STRING_ITKEY_L0_IT0KEY_num_matched{0}+>+ ;
+			}#
+
+			// BEGIN L1
+			matching_len ++;
+			switch(*input_str++){
+				ITERATE %TAG_DUAL_STRING_ITKEY_L0IT0VALUE +<<+ IT1KEY IT1VALUE
+				case IT1KEY:		// ' IT1KEY IT1VALUE '
+				{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ]
+					/*  +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_string{0}+>+   */
+					NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+,) #{
+						*clex_len =  matching_len;
+						matching_value = +<+$TAG_DUAL_STRING_ITKEY_L1IT1VALUE_num_matched{0}+>+ ;
+					}#
+
+					// BEGIN L2
+					matching_len ++;
+					switch(*input_str++){
+						ITERATE %TAG_DUAL_STRING_ITKEY_L1IT1VALUE +<<+ IT2KEY IT2VALUE
+						case IT2KEY:		// ' IT2KEY IT2VALUE '
+						{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+ ]
+							/*  +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_string{0}+>+  */
+							NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+,) #{
+								*clex_len =  matching_len;
+								matching_value = +<+$TAG_DUAL_STRING_ITKEY_L2IT2VALUE_num_matched{0}+>+ ;
+							}#
+
+							// BEGIN L3
+							matching_len ++;
+							switch(*input_str++){
+								ITERATE %TAG_DUAL_STRING_ITKEY_L2IT2VALUE +<<+ IT3KEY IT3VALUE
+								case IT3KEY:		// ' IT3KEY IT3VALUE '
+								{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L3IT3VALUE_num_matched{0}+>+ ]
+									/*  +<+$TAG_DUAL_STRING_ITKEY_L3IT3VALUE_string{0}+>+  */
+									NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L3IT3VALUE_num_matched{0}+>+,) #{
+										*clex_len =  matching_len;
+										matching_value = +<+$TAG_DUAL_STRING_ITKEY_L3IT3VALUE_num_matched{0}+>+ ;
+									}#
+		
+									// BEGIN L4
+									matching_len ++;
+									switch(*input_str++){
+										ITERATE %TAG_DUAL_STRING_ITKEY_L3IT3VALUE +<<+ IT4KEY IT4VALUE
+										case IT4KEY:		// ' IT4KEY IT4VALUE '
+										{					// [ matched : +<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_matched{0}+>+ ]
+											/*  +<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_string{0}+>+  */
+											NOTEQUAL(+<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_matched{0}+>+,) #{
+												*clex_len =  matching_len;
+												matching_value = +<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_matched{0}+>+ ;
+											}#
+				
+											// COPY to Here BEGIN & change the level
+											if (0){
+											}
+											ITERATE %TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_substr_size +<<+ MAT4KEY MAT4VALUE
+											else if( !memcmp(input_str,"+<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_substr{MAT4KEY}+>+",MAT4VALUE) ){
+												*clex_len =  matching_len + MAT4VALUE ;
+												return ( +<+$TAG_DUAL_STRING_ITKEY_L4IT4VALUE_num_matched{MAT4KEY}+>+ ) ;
+											}
+											+>>+
+												return matching_value;
+											// COPY to Here END
+										}
+										break;
+										+>>+
+										default:
+										{
+											return matching_value;
+										}
+										break;
+									}
+									break;
+									// END L4
+								}
+								break;
+								+>>+
+								default:
+								{
+									return matching_value;
+								}
+								break;
+							}
+							break;
+							// END L3
+						}
+						break;
+						+>>+
+						default:
+						{
+							return matching_value;
+						}
+						break;
+					}
+					break;
+					// END L2
+				}
+				break;
+				+>>+
+				default:
+				{
+					return matching_value;
+				}
+				break;
+			}
+			break;
+			// END L1
+
+		}
+		break;
+		+>>+
+		default:
+		{
+			return matching_value;
+		}
+		break;
+	}
+
+}
+
+
++>>+
+
+  

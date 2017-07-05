@@ -1,0 +1,169 @@
+FileName : clisto.h
+
+#ifndef __CLISTO_H__
+#define __CLISTO_H__
+
+
+#define clisto_offset(infoptr, ptr)  (S32) ((U8 *) (ptr==NULL?0:(U8 *)ptr-(U8 *)infoptr))
+#define clisto_ptr(infoptr, offset)  (clist_head *)(U8 *) ((S32) (offset==0?NULL:(S32)offset+(U8 *)infoptr))
+
+/*
+ * Simple doubly linked list implementation.
+ *
+ * Some of the internal functions ("__xxx") are useful when
+ * manipulating whole lists rather than single entries, as
+ * sometimes we already know the next/prev entries and we can
+ * generate better code by using them directly rather than
+ * using the generic single-entry routines.
+ */
+
+typedef struct _clist_head {
+	OFFSET	offset_next;
+	OFFSET	offset_prev;
+} clist_head;
+
+#define CLIST_HEAD_INIT(infoptr, name) { clisto_offset(infoprt, &(name)), clisto_offset(infoptr, &(name)) }
+
+#define CLIST_HEAD(infoptr, name) \
+	struct clist_head name = CLIST_HEAD_INIT(infoptr, name)
+
+#define CINIT_LIST_HEAD(infoptr, ptr) do { \
+	(ptr)->offset_next = clisto_offset(infoptr, ptr); (ptr)->offset_prev = clisto_offset(infoptr, ptr); \
+} while (0)
+
+/*
+ * Insert a new entry between two known consecutive entries. 
+ *
+ * This is only for internal list manipulation where we know
+ * the prev/next entries already!
+ */
+static __inline__ void __clist_add(void *infoptr, clist_head *new, clist_head *prev, clist_head *next)
+{
+	next->offset_prev = clisto_offset(infoptr, new);
+	new->offset_next = clisto_offset(infoptr, next);
+	new->offset_prev = clisto_offset(infoptr, prev);
+	prev->offset_next = clisto_offset(infoptr, new);
+}
+
+/**
+ * list_add - add a new entry
+ * @param infoptr: pointer of base
+ * @param new: new entry to be added
+ * @param head: list head to add it after
+ *
+ * Insert a new entry after the specified head.
+ * This is good for implementing stacks.
+ */
+static __inline__ void clist_add_head(void *infoptr, clist_head *new, clist_head *head)
+{
+	__clist_add(infoptr, new, head, clisto_ptr(infoptr, head->offset_next));
+	// __clist_add(infoptr, new, clisto_ptr(infoptr, head->offset_prev), head);
+	// return new;
+}
+
+/**
+ * list_add_tail - add a new entry
+ * @param infoptr: pointer of base
+ * @param new: new entry to be added
+ * @param head: list head to add it before
+ *
+ * Insert a new entry before the specified head.
+ * This is useful for implementing queues.
+ */
+static __inline__ void clist_add_tail(void *infoptr, clist_head *new, clist_head *head)
+{
+	__clist_add(infoptr, new, clisto_ptr(infoptr, head->offset_prev), head);
+	// return head;
+}
+
+/*
+ * Delete a list entry by making the prev/next entries
+ * point to each other.
+ *
+ * This is only for internal list manipulation where we know
+ * the prev/next entries already!
+ */
+static __inline__ void __clist_del(void *infoptr, clist_head * prev, clist_head * next)
+{
+	next->offset_prev = clisto_offset(infoptr, prev);
+	prev->offset_next = clisto_offset(infoptr, next);
+}
+
+/**
+ * list_del - deletes entry from list.
+ * @param infoptr: pointer of base
+ * @param entry: the element to delete from the list.
+ * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
+ */
+static __inline__ void clist_del(void *infoptr, clist_head *entry)
+{
+	__clist_del(infoptr, clisto_ptr(infoptr, entry->offset_prev), clisto_ptr(infoptr, entry->offset_next));
+	entry->offset_next = entry->offset_prev = 0;
+}
+
+/**
+ * list_del_init - deletes entry from list and reinitialize it.
+ * @param infoptr: pointer of base
+ * @param entry: the element to delete from the list.
+ */
+static __inline__ void clist_del_init(void *infoptr, clist_head *entry)
+{
+	__clist_del(infoptr, clisto_ptr(infoptr, entry->offset_prev), clisto_ptr(infoptr, entry->offset_next));
+	CINIT_LIST_HEAD(infoptr, entry); 
+}
+
+/**
+ * list_empty - tests whether a list is empty
+ * @param infoptr: pointer of base
+ * @param head: the list to test.
+ */
+static __inline__ int clist_empty(void *infoptr, clist_head *head)
+{
+	return head->offset_next == clisto_offset(infoptr, head);
+}
+
+/**
+ * list_splice - join two lists
+ * @param infoptr: pointer of base
+ * @param list: the new list to add.
+ * @param head: the place to add it in the first list.
+ */
+static __inline__ void clist_splice(void *infoptr, clist_head *list, clist_head *head)
+{
+	clist_head *first = clisto_ptr(infoptr, list->offset_next);
+
+	if (first != list) {
+		clist_head *last = clisto_ptr(infoptr, list->offset_prev);
+		clist_head *at = clisto_ptr(infoptr, head->offset_next);
+
+		first->offset_prev = clisto_offset(infoptr, head);
+		head->offset_next = clisto_offset(infoptr, first);
+
+		last->offset_next = clisto_offset(infoptr, at);
+		at->offset_prev = clisto_offset(infoptr, last);
+	}
+}
+
+/**
+ * list_entry - get the struct for this entry
+ * @param ptr:	the &struct list_head pointer.
+ * @param type:	the type of the struct this is embedded in.
+ * @param member:	the name of the list_struct within the struct.
+ */
+#define clist_entry(ptr, type, member) \
+	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+
+/**
+ * list_for_each	-	iterate over a list
+ * @param infoptr: pointer of base
+ * @param pos:	the &struct list_head to use as a loop counter.
+ * @param head:	the head for your list.
+ */
+
+#define clist_for_each_start(infoptr, pos, head) \
+		pos = head; do
+
+#define clist_for_each_end(infoptr, pos, head) \
+		while((pos = clisto_ptr(infoptr, pos->offset_next)) != head); 
+
+#endif

@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <signal.h>
+
+#include <sockdef.h>
+#include <msgdef.h>
+
+#include "si_log_extern.h"
+
+#include "ims_interface.h"
+#include "ims_structg.h"
+
+void Message_Print(st_MsgQ *msgq, st_SockHeader *stHeader)
+{
+
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+	ITVALUE			aITVALUE;
++>>+
+
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+	ITKEY			aITKEY;
++>>+
+
+
+#ifdef DEBUG
+	/* Socket Header */
+	stCom_SockHeader	st_h;
+
+	memset(&st_h, 0x0, stCom_SockHeader_SIZE);
+	memcpy(&st_h, stHeader, stCom_SockHeader_SIZE);
+	stCom_SockHeader_Prt("sockHeader", &st_h);
+#endif
+
+	switch (msgq->ucMsgID) {
+ITERATE %stg_key_hashs +<<+		ITKEY   ITVALUE
+		case ITVALUE_DEF_NUM:
+				if (msgq->usBodyLen != ITVALUE_SIZE) {
+dAppLog(LOG_DEBUG, "ITVALUE: msgid(%d), struct size(%d), SocketHeader BodyLen(%d)", msgq->ucMsgID, ITVALUE_SIZE, msgq->usBodyLen);
+				}
+#ifdef DEBUG
+				else {
+					memset(&aITVALUE, 0x0, ITVALUE_SIZE);
+					memcpy(&aITVALUE, &msgq->szBody, ITVALUE_SIZE);
+					ITVALUE_Dec(&aITVALUE, &aITVALUE);
+					ITVALUE_Prt("ITVALUE", &aITVALUE);
+				}
+#endif
+				break;
+
++>>+
+
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+		case ITKEY_DEF_NUM:
+				if (msgq->usBodyLen != ITKEY_SIZE) {
+dAppLog(LOG_DEBUG, "ITKEY: msgid(%d), struct size(%d), SocketHeader BodyLen(%d)", msgq->ucMsgID, ITKEY_SIZE, msgq->usBodyLen);
+				}
+#ifdef DEBUG
+				else {
+					memset(&aITKEY, 0x0, ITKEY_SIZE);
+					memcpy(&aITKEY, &msgq->szBody, ITKEY_SIZE);
+					ITKEY_Dec(&aITKEY, &aITKEY);
+					ITKEY_Prt("ITKEY", &aITKEY);
+				}
+#endif
+				break;
+
++>>+
+		default:
+				break;
+	}
+}
+
+int LOG_Init(char *fname)
+{
+	LOG_wFP = fopen(fname, "a+");	
+	if (!LOG_wFP) {
+		dAppLog(LOG_CRI, "ERR: Log Save fopen(%s)\n", fname);
+		return -1;
+	}
+}
+
+int LOG_Free(char *fname)
+{
+	fclose(LOG_wFP);
+}
+
+int LOG_Read(void *msg, int size)
+{
+	fgets((void *)msg, size, LOG_wFP);
+}
+
+int LOG_Write(void *msg, int size)
+{
+	fwrite((void *)msg, size, 1, LOG_wFP);
+	fprintf(LOG_wFP, "\n");
+}
+

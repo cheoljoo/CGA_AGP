@@ -1,0 +1,49 @@
+FileName : hash.h
+
+typedef struct _st_AAA {
+	U32	BBB;
+	U32 *CCC;
+	U8	TT[100];
+} stAAA;
+
+
+/** 
+ * hash안의 node들의 structure.
+ * 확장을 가능하게 하기 위해서 key와 data 부분을 분리 하였다.
+ * key와 
+ * @see hash.c  다음 내용을 본다.  
+ */
+typedef struct _st_hashnode {
+    struct _st_hashnode *next  ;  ///< self-pointer 
+    struct _st_hashnode **prev; /**< self-pointer */
+    U8 *pstKey;       ///< struct Key 
+                        /**< 계속 되는 comment를 위한 시험 \n
+                         *    잘 써지겠지요 */
+    U8 *pstData;      ///< struct Data  \n
+                        ///< TTT
+	U32		uiSBS;
+	stAAA	stAaa;
+} stHASHNODE;
+
+#define MAX 	8
+
+/** 
+ * @brief Hash 전체를 관리하는 structure
+ * \brief Hash 전체를 관리하는 structure
+ * */
+typedef struct _st_hashinfo {
+    stHASHNODE **hashnode  ;  ///< self-pointer 
+    U16 usKeyLen;           ///< Node들이 사용할 Key 길이.  Key 비교와 copy를 위해서 사용  
+    U16 usSortKeyLen;       /**< Node들이 Sort시 사용할 길이.
+                                 Key안에서 Sort를 위해서 사용할 앞에서 부터의 길이
+                                 assert(usKeyLen >= usSortKeyLen) */
+    U16 usDataLen;          /**< Node에서 사용할 DataLen
+                                 @exception pstData의 Structure의 type도 필요하면 추가 할수 있어야 할 것이다. */
+    U32 uiHashSize;         /**< Hash 크기. 임의의 설정을 위해서 set */
+	U8	ucIMSI_a[MAX];			/**< 단말 ID : IMSI값 - [15] 마지막에는 항시 NULL을 넣어주어야 한다. */
+	U8	ucIMSI_b[16];			/**< 단말 ID : IMSI값 - [15] 마지막에는 항시 NULL을 넣어주어야 한다. */
+	stHASHNODE	*pstGtp;
+	stHASHNODE	stGtp;
+	U16	usLen[2];
+	IP4	uiIPAddress;
+} stHASHINFO;

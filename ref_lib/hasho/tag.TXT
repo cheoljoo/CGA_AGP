@@ -1,0 +1,23 @@
+
+날짜 : 2006.04.26
+	TAG name : TAF_HASHO_1_0_0_0_20060426
+	- ktf_ims에서 사용 중임. 
+	- hasho, memg, structg에도 같은 tag가 붙음.
+
+날짜 : 2006.04.26
+    TAG tagname : TAF_0_0_0_2_hasho
+	memg , structg에도 같은 tag가 붙음.
+	- hasho 소스가 변경되더라도 이상 없게 동작
+
+날자 : 2006.04.21
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_4_co_hasho_TEST
+	memg , structg에도 같은 tag가 붙음.
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - memg 가 되게 했음.
+    - memg와 structg의 연동 성공까지 
+    - hasho 가 되게 했음.
+    - hasho와 structg의 연동 성공까지

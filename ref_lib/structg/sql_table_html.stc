@@ -1,0 +1,78 @@
+FileName : sql_log_table.html
+Set : iterate_comments = OFF
+
+
+<HTML>
+
+<HEAD>
+<TITLE>SQL LOG TABLE</TITLE>
+</HEAD>
+
+<BODY>
+<br>
+
+
+<H1> SQL </H1>
+
+ITERATE %SQL_TYPEDEF +<<+ ITKEY ITVALUE
+<TABLE border=1> 
+<TR> STG_TYPEDEF : SQL : ITKEY </TR>
+<TD bgcolor=0xFFFFFF> STG_TYPEDEF NAME </TD>         <!--  STG_TYPEDEF NAME  -->
+<TD bgcolor=0xCCFFFF> STG_TYPEDEF VALUE </TD>         <!--  STG_TYPEDEF VALUE  -->
+</TR>   
+ITERATE %SQL_ITKEY_STG_TYPEDEF +<<+ IT2KEY IT2VALUE
+<TR >   
+<TD bgcolor=0xCCFFFF> IT2KEY </TD>          <!--  NAME  -->
+<TD > IT2VALUE </TD>          <!--  VALUE  -->
+</TR>       
++>>+        
+</TABLE>        
+
+
+<TABLE border=1> 
+<TR> SQL : ITKEY </TR>
+<TR bgcolor=0xFFFF00>
+<TD bgcolor=0xCCFFFF> IDX </TD>         <!--  Index  -->
+<TD bgcolor=0xFFFFFF> Field </TD>           <!--  Field Name  -->
+<TD bgcolor=0xFFFFFF> Var Type  </TD>       <!--  type  -->
+<TD bgcolor=0xFFFFFF> Str Size  </TD>   <!--  string define size  -->
+<TD bgcolor=0xFFFFFF> Str Digit </TD>   <!-- define value  -->
+<TD bgcolor=0xFFFFFF> Print Fmt </TD>   <!--  Print format -->
+<TD bgcolor=0xFFFFFF> TAG_DEFINE    </TD>   <!-- cilog_hidden -->
+<TD bgcolor=0xFFFFFF> CHECKING_VALUE    </TD>   <!-- cilog_hidden -->
+<TD bgcolor=0xFFFFFF> HIDDEN    </TD>   <!-- cilog_hidden -->
+	ITERATE %SQL_ITKEY_STG_PARM   +<<+	IT2KEY IT2VALUE
+	<TD bgcolor=0xFFFF00> STG_PARM:IT2KEY    </TD>   <!-- cilog STG_PARM : IT2KEY -->
+	+>>+
+<TD bgcolor=0xFFFFFF> Comments   </TD>   <!--  Comments  -->
+</TR>   
+ITERATE @SQL_ARRAY_ITKEY +<<+ IT2KEY IT2VALUE
+<TR >   
+<TD bgcolor=0xCCFFFF> IT2KEY </TD>          <!--  Index  -->
+<TD> IT2VALUE </TD>         <!--  Field Name  -->   
+<TD bgcolor=0xEEFFFF> +<+$SQL_ITKEY{IT2VALUE}+>+    </TD>       <!--  type  --> 
+<TD> &nbsp; +<+$SQL_ITKEY_array_size{IT2VALUE}+>+  </TD>   <!--  string define size  --> 
+<TD bgcolor=0xEEFFFF> +<+$define_digit{ +<+$SQL_ITKEY_array_size{IT2VALUE }+>+}+>+  </TD>   <!-- define value  --> 
+<TD> &nbsp; +<+$SQL_ITKEY_PrintFormat{IT2VALUE}+>+ </TD>   <!--  Print format -->
+<TD bgcolor=0xEEFFFF> +<+$SQL_ITKEY_tag_define{IT2VALUE}+>+ </TD>   <!-- TAG_DEFINE -->
+<TD> &nbsp; +<+$SQL_ITKEY_CHECK{IT2VALUE}+>+   </TD>   <!-- checking_value --> 
+<TD bgcolor=0xEEFFFF> +<+$SQL_ITKEY_CILOG_HIDDEN{IT2VALUE}+>+   </TD>   <!-- cilog_hidden --> 
+	ITERATE %SQL_ITKEY_STG_PARM   +<<+	IT3KEY IT3VALUE
+	<TD> &nbsp; +<+$SQL_ITKEY_STG_PARM_IT3KEY{IT2VALUE}+>+    </TD>   <!-- cilog STG_PARM : IT2KEY -->
+	+>>+
+<TD bgcolor=0x9999ff> &nbsp; +<+$SQL_ITKEY_TABLE_COMMENTS{IT2VALUE}+>+  </TD>   <!--  Comments  --> 
+</TR>       
++>>+        
+</TABLE>        
+<BR><BR>    
++>>+
+
+
+</BODY>
+
+</HTML>
+
+
+
+
+

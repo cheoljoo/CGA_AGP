@@ -1,0 +1,16 @@
+
+날자 : 2006.04.26
+    TAG tagnanme : TAF_0_0_0_1_hashg
+	ktf_ims에서 사용하기 위해 
+	이 이후 hashg 소스가 바뀌더라도 관계없음...
+	- configure에서 case로 tag 적용 여부 판단 동작
+
+날자 : 2006.04.12
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - hashg 가 되게 했음.
+	- hashg와 structg의 연동 성공까지 

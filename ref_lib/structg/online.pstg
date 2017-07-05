@@ -1,0 +1,2727 @@
+FileName : aqua.h
+STC_FileName : LOG_member_Get_func.stc , BODY.stc , flow.stc
+
+#include <hasho.h>
+#include <timerN.h>
+#include <mems.h>
+#include <nifo.h>
+#include <db.h>
+
+#pragma pack(1)
+
+/* TCP Session, HTTP Trans Count */
+#define CALL_SESS_CNT		500
+#define TCP_SESS_CNT        (CALL_SESS_CNT * 2)
+#define HTTP_TRANS_CNT		(TCP_SESS_CNT * 10)
+
+/* 구조체 멤버들의 길이 */
+#define MAX_BROWSERINFO_LEN			10
+#define MAX_BROWSERINFO_SIZE		(MAX_BROWSERINFO_LEN + 1)
+#define MAX_MODEL_LEN				16
+#define MAX_MODEL_SIZE				(MAX_MODEL_LEN + 1)
+#define MAX_SVCOPTION_LEN			7
+#define MAX_SVCOPTION_SIZE			(MAX_SVCOPTION_LEN + 1)
+#define MAX_MIN_LEN					15
+#define MAX_MIN_SIZE				(MAX_MIN_LEN + 1)
+#define MAX_HOSTNAME_LEN			40
+#define MAX_HOSTNAME_SIZE			(MAX_HOSTNAME_LEN + 1)
+#define MAX_PROTOCOL_LEN			10
+#define MAX_PROTOCOL_SIZE			(MAX_HOSTNAME_LEN + 1)
+#define MAX_URL_LEN					512
+#define MAX_URL_SIZE				(MAX_URL_LEN+1)
+#define MAX_CONTENTSTYPE_LEN		32
+#define MAX_CONTENTSTYPE_SIZE		(MAX_CONTENTSTYPE_LEN + 1)
+#define MAX_APPFAILCODE_LEN			5
+#define MAX_APPFAILCODE_SIZE		(MAX_APPFAILCODE_LEN + 1)
+#define MAX_CPNAME_LEN				8
+#define MAX_CPNAME_SIZE				(MAX_CPNAME_LEN + 1)
+#define MAX_SERVICECODE_LEN			24
+#define MAX_SERVICECODE_SIZE		(MAX_SERVICECODE_LEN + 1)
+#define MAX_MENUTITLE_LEN			32
+#define MAX_MENUTITLE_SIZE			(MAX_MENUTITLE_LEN + 1)
+#define MAX_MENUID_LEN				10
+#define MAX_MENUID_SIZE				(MAX_MENUID_LEN + 1)
+#define MAX_SVCACTION_LEN			15
+#define MAX_SVCACTION_SIZE			(MAX_SVCACTION_LEN + 1)
+#define MAX_CONTENTID_LEN			10
+#define MAX_CONTENTID_SIZE			(MAX_CONTENTID_LEN + 1)
+#define MAX_CATID_LEN				10
+#define MAX_CATID_SIZE				(MAX_CATID_LEN + 1)
+#define MAX_APPLICATION_LEN         10
+#define MAX_APPLICATION_SIZE        (MAX_APPLICATION_LEN + 1)
+#define MAX_EXTVERSION_LEN          10
+#define MAX_EXTVERSION_SIZE         (MAX_EXTVERSION_LEN + 1)
+#define MAX_BSCID_LEN               5
+#define MAX_BSCID_SIZE              (MAX_BSCID_LEN + 1)
+#define MAX_BESTPN_LEN              5
+#define MAX_BESTPN_SIZE             (MAX_BESTPN_LEN + 1)
+#define MAX_MNC_LEN                 2
+#define MAX_MNC_SIZE                (MAX_MNC_LEN + 1)
+#define MAX_COMPATIBLE_LEN			1024
+#define MAX_COMPATIBLE_SIZE			(MAX_COMPATIBLE_LEN + 1)
+
+/* 구조체 번호 */
+<TAG_DEFINE_START:CALL_INPUT>
+#define CAP_HEADER_NUM				1
+#define ETH_DATA_NUM				2
+#define INFO_ETH_NUM				3
+#define TCP_DATA_NUM				4
+#define HTTP_REQ_HDR_NUM			5
+#define HTTP_REQ_BODY_NUM			6
+#define HTTP_RES_HDR_NUM			7
+#define HTTP_RES_BODY_NUM			8
+<TAG_DEFINE_END:CALL_INPUT>
+
+/**
+ * @brief LOG_COMMON : LOG TABLE에 들어가는 COMMON KEY 값
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_COMMON typedef struct _stg_common {
+	STIME 		uiCallTime:STG_Equal(pLOG_COMMON->uiCallTime):FIRST;
+	MTIME		uiCallMTime:STG_Equal(pLOG_COMMON->uiCallMTime):FIRST;
+
+<TAG_KEY>
+	IP4 		uiClientIP:STG_Equal(pLOG_COMMON->uiClientIP):FIRST;
+</TAG_KEY>
+	IP4			uiNASName: STG_Equal(pLOG_COMMON->uiNASName): FIRST;
+	U32			uiBaseID: STG_Equal(pLOG_COMMON->uiBaseID): FIRST;	#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>BASE_ID:{DIGIT}# 
+	U32			usNID:STG_Equal(pLOG_COMMON->usNID):FIRST ;		#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>NID:{DIGIT}# 
+	U32			usSID:STG_Equal(pLOG_COMMON->usSID):FIRST;		#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_SYSTEM_PARAMETER>SID:{DIGIT}#
+	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE]: STG_Equal( pLOG_COMMON->szBrowserInfo): FIRST;	#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<BROWSER_INFO>{STR}:^^:Get_Detailed_Browser_Info# 
+	U8			szModel[MAX_MODEL_SIZE]: STG_Equal( pLOG_COMMON->szModel): FIRST;
+	U8			szSvcOption[MAX_SVCOPTION_SIZE]: STG_Equal( pLOG_COMMON->szSvcOption): FIRST;		#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_CHANNEL_INFO>{STR}#
+	U8			szMIN[MAX_MIN_SIZE]: STG_Equal( pLOG_COMMON->szMIN): FIRST;		#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change#
+} LOG_COMMON;
+
+/* OFFSET 보정 */
+#define	YES									1
+#define	NO									0
+#define	MAX_SEQUENCE						0xffffffff
+#define	MAX_VALID_OFFSET					((unsigned int) (MAX_SEQUENCE / 2))
+#define	OFFSET_SEQ(VALID_SEQ, NOW_SEQ)		((VALID_SEQ <= NOW_SEQ) ? (NOW_SEQ - VALID_SEQ) : (MAX_SEQUENCE + 1 + NOW_SEQ - VALID_SEQ))
+#define	NEXT_SEQ(SEQ, offset)				((SEQ+offset) % (MAX_SEQUENCE+1))
+#define	IS_VALID_SEQ(VALID_SEQ, NOW_SEQ)	((OFFSET_SEQ(VALID_SEQ, NOW_SEQ) < MAX_VALID_OFFSET) ? YES : NO)
+
+/**
+ *	PRE_A, A_HTTP에서 서비스를 구분하기 위한 Filter 정보를 관리 하기 위함
+ *
+ *	######################################################################################################
+ *	- PRE_A Hash Key, Value 설명
+ *		2개의 Hash를 구성
+ *		1) Hash Key: Server IP, Server Port
+ *		   Hash Data: L4Code, AppCode
+ *		2) Hash Key: Server IP
+ *		   Hash Data: L4Code, AppCode
+ *
+ *		1)번 Hash를 체크한 후에 없는 경우에 2)번 Hash를 체크한다.
+ *
+ *		configure file format
+ *			ServerIP		ServerPort	L4Code					AppCode
+ * 		EX)	192.168.1.2		8080		VODSTREAMMING:11		A_VOD:3		<= 1)번 Hash 구성
+ *			192.168.1.2		0			VODDOWN:13				A_DOWN:4	<= 2)번 Hash 구성 (Port = 0)
+ *		=> Port = 0 인 경우를 2)번 Hash로 구성한다.
+ *
+ *	######################################################################################################
+ *	- A_HTTP Hash Key, Value 설명
+ *		4개의 Hash를 구성
+ *		1) Hash Key: Method
+ *		   Hash Data: L7Code, AppCode
+ *		2) Hash Key: Host Name, Contents-type, Redirect_Protocol
+ *		   Hash Data: L7Code, AppCode
+ *		3) Hash Key: Host Name, Contents-type
+ *		   Hash Data: L7Code, AppCode
+ *		4) Hash Key: Host Name
+ *		   Hash Data: L7Code, AppCode
+ *
+ *		Hash 체크 순서는 Hahs 순서와 동일 하며, 순위가 낮은 곳에서 찾는 경우 다음 Hash를 체크 하지 않는다.
+ *
+ *		=> Redirect_Protocol은 VOD DOWN, STREAMMING을 구분하기 위한 Body의 URL Protocol값 (예외처리)
+ *		
+ *		configure file format
+ *			Method	Host Name				Contents-type		Redirect_Protocol	L7Code				AppCode
+ *		EX)	*		m.dosirak.com			audio/k3g			HTTP				DOSIRAKDOWN:21		A_DSR:5
+ *			*		m.dosirak.com			audio/k3g			RTSP				DOSIRAKSTREAM:22	A_DSR:5
+ *			*		ktfwipidc.magicn.com	*					*					WIPI_MENU_DOWN:23	A_WIPI:11
+ *			*		kt68dddsvr.magicn.com	*					*					BREW_MENU_DOWN:23	A_BREW:11
+ *			*		me_kun.magicn.com		application/ndwn	*					ME_KUN_NDWN:23		A_MEKUN:11
+ *			*		me_kun.magicn.com		html/text			*					ME_KUN_MENU:23		A_MEKUN:11
+ *			CONNECT	*						*					*					SSL:100				A_SSL:40
+ *			RESULT	*						*					*					SSL:100				A_SSL:40
+ *			
+ *		=> * 표시는 Hash Key에 포함되지 않음
+ *  #####################################################################################################
+ *
+ *
+ **/
+
+<TAG_AUTO_STRING_DEFINE_START:SVCACTION(400)>
+getfile				SVCACTION_GETFILE
+1310				SVCACTION_1310		(1310)
+1330				SVCACTION_1320		(1330)   
+1300				SVCACTION_1300		(1300)   
+1600				SVCACTION_1600		(1600)   
+1610				SVCACTION_1610		(1610)   
+1640				SVCACTION_1640		(1640)   
+3300				SVCACTION_3300		(3300)   
+<TAG_AUTO_STRING_DEFINE_END:SVCACTION>
+
+<TAG_AUTO_DEFINE_START :METHOD(1)>
+METHOD_GET					#GET#
+METHOD_POST					#POST#
+METHOD_HEAD
+METHOD_OPTIONS
+METHOD_PUT
+METHOD_DELETE
+METHOD_TRACE
+METHOD_CONNECT
+METHOD_RESULT
+METHOD_DESCRIBE
+METHOD_SETUP
+METHOD_PLAY
+METHOD_PAUSE
+METHOD_ANNOUNCE
+METHOD_GET_PARAMETER
+METHOD_RECORD
+METHOD_REDIRECT
+METHOD_SET_PARAMETER
+METHOD_TEARDOWN
+<TAG_AUTO_DEFINE_END:METHOD>
+
+<TAG_AUTO_DEFINE_START:REDIRECT(200)>
+REDIRECT_HTTP
+REDIRECT_RTSP
+<TAG_AUTO_DEFINE_END:REDIRECT>
+
+<TAG_AUTO_DEFINE_START :L4CODE(400)>
+L4_ME					(1100)
+L4_ME_DOWN				(1200)
+L4_KUN					(2100)
+L4_PAS_MBOX				(2200)
+L4_VOD_WEB				(3100)
+L4_VOD_STREAM			(3200)
+L4_VOD_STREAM_MULTI		(3300)
+L4_VOD_LIVE				(3400)
+L4_VOD_SKYLIFE			(3500)
+L4_VOD_DN				(3600)
+L4_PAS_VOD				(3700)
+L4_DOSIRAK_WEB			(4100)
+L4_DOSIRAK_STREAM		(4200)
+L4_DOSIRAK_STREAMGW		(4300)
+L4_DOSIRAK_AUTH			(4400)
+L4_DOSIRAK_DN			(4500)
+L4_PAS_DOSIRAK			(4600)
+L4_BREW_MACS_COMMON		(6100)
+L4_BREW_MACS_VOD		(6200)
+L4_BREW_MACS_PAID		(6300)
+L4_BREW_ICUP			(6400)
+L4_BREW_ADS_DOWN		(6500)
+L4_PAS_BREW				(6600)
+L4_WIPI_WIGCS_COMMON	(7100)
+L4_WIPI_WICGS_VOD		(7200)
+L4_WIPI_WICGS_PAID		(7300)
+L4_WIPI_WICGS_POPUP		(7400)
+L4_WIPI_MARS_DOWN		(7500)
+L4_PAS_WIPI				(7600)
+<TAG_AUTO_DEFINE_END:L4CODE>
+
+<TAG_AUTO_DEFINE_START :L7CODE(1)>
+APP_MENU
+APP_SSL
+APP_DOWN
+APP_STREAM
+APP_ONLINE
+<TAG_AUTO_DEFINE_END:L7CODE>
+
+<TAG_AUTO_DEFINE_START :MSGQKEY(8000)>
+S_MSGQ_CHSMD
+S_MSGQ_COND
+S_MSGQ_MMCD
+S_MSGQ_ALMD
+S_MSGQ_PRE_A
+S_MSGQ_A_TCP
+S_MSGQ_A_UDP
+S_MSGQ_A_HTTP
+S_MSGQ_A_MEKUN
+S_MSGQ_A_BREW
+S_MSGQ_A_WIPI
+S_MSGQ_A_ONLINE
+S_MSGQ_A_RTSP
+S_MSGQ_A_VOD
+S_MSGQ_A_CALL
+S_MSGQ_CILOG
+<TAG_AUTO_DEFINE_END:MSGQKEY>
+
+<TAG_AUTO_DEFINE_START :SEQ_PROC(0)>
+SEQ_PROC_CHSMD
+SEQ_PROC_COND
+SEQ_PROC_MMCD
+SEQ_PROC_ALMD
+SEQ_PROC_PRE_A
+SEQ_PROC_A_TCP
+SEQ_PROC_A_UDP
+SEQ_PROC_A_HTTP
+SEQ_PROC_A_MEKUN
+SEQ_PROC_A_BREW
+SEQ_PROC_A_WIPI
+SEQ_PROC_A_ONLINE
+SEQ_PROC_A_RTSP
+SEQ_PROC_A_VOD
+SEQ_PROC_A_CALL
+SEQ_PROC_CILOG
+SEQ_PROC_CAPD
+<TAG_AUTO_DEFINE_END:SEQ_PROC>
+
+<TAG_AUTO_DEFINE_START :SSHMKEY(10000)>
+S_SSHM_FIDB
+S_SSHM_NIFO
+S_SSHM_A_TCP
+S_SSHM_A_TSESS
+S_SSHM_A_HTTP
+S_SSHM_L4CODE
+S_SSHM_MNIP
+S_SSHM_LMEKUNCODE
+S_SSHM_A_CALL
+S_SSHM_LHTTPMETHOD
+S_SSHM_LHTTPHOST
+S_SSHM_LWIPICODE
+S_SSHM_LBREWCODE
+S_SSHM_LVODCODE
+S_SSHM_LDOSIRAKCODE
+S_SSHM_A_ONLINE
+<TAG_AUTO_DEFINE_END:SSHMKEY>
+
+<TAG_AUTO_DEFINE_START :SEMAKEY(11000)>
+S_SEMA_NIFO
+<TAG_AUTO_DEFINE_END:SEMAKEY>
+
+/* TAG_AUTO_STRING_DEFINE 에서 뽑아내야 할 값들 
+   ==> define TYPE_DESC      101     
+   ... 등의 define된 값들
+   Print_ContentsType(101) -> print the "application/vnd.oma.dd" string
+   Get_Define_ContentsType(char *s); ==> return TYPE_DESC;
+ */
+<TAG_AUTO_STRING_DEFINE_START:ContentsType(400)>			 $CASE_IGNORE$ 
+application/vnd.oma.dd                  CTYPE_DESC          /* ?? */
+text/html                               CTYPE_HTML
+text/x-html                             CTYPE_HTML
+text/xml                                CTYPE_XML
+text/vnd.wap.wml                        CTYPE_WML
+application/xhtml+xml                   CTYPE_WML
+text/css                                CTYPE_STYLE
+text/plain                              CTYPE_LMSG
+image/sis                               CTYPE_SIS
+map/sis                                 CTYPE_SIS
+application/ndwn                        CTYPE_NDWN
+application/vnd-qualcomm.qis.pkg        CTYPE_BREWDOWN
+application/x-msdownload                CTYPE_WIPIDOWN
+audio/ma2                               CTYPE_MA2
+audio/ma3                               CTYPE_MA3
+audio/ma5                               CTYPE_MA5
+audio/k3g                               CTYPE_VOD
+video/k3g                               CTYPE_VOD
+audio/ak3g                              CTYPE_VOD
+video/ak3g                              CTYPE_VOD
+application/x-skt-lbs                   CTYPE_SOUND
+application/x-smaf                      CTYPE_SOUND
+application/vnd.smaf                    CTYPE_SOUND
+multipart/                              CTYPE_MMSG
+application/                            CTYPE_APPLICATION
+text/                                   CTYPE_TEXT
+image/                                  CTYPE_IMAGE
+audio/                                  CTYPE_SOUND
+<TAG_AUTO_STRING_DEFINE_END:ContentsType>
+
+#define CONF_CNT			100
+
+/**
+ * @brief L4_MNIP : IP 로 유효한 단말인지 판단 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_CONF_MN {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:MN			\([ \t]*MN
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+    IP4     CIP;          #PARSING_RULE:^^:GRASP:^^:<MN>IP={VALUE}#
+</TAG_KEY>
+
+    IP4     NetMask;        #PARSING_RULE:^^:GRASP:^^:<MN>Mask={VALUE}#
+} MN_CONF;
+
+
+/**
+ * @brief LPREA_CODE_KEY : IP, PORT로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LPREACode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LPREA		\([ \t]*LPREA
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+    IP4     SIP;          #PARSING_RULE:^^:GRASP:^^:<LPREA>ServerIP={VALUE}#
+    U32     SPort;        #PARSING_RULE:^^:GRASP:^^:<LPREA>ServerPort={VALUE}#
+</TAG_KEY>
+
+    DEF     <TAG_DEFINE:L4CODE>L4Code;             #PARSING_RULE:^^:GRASP:^^:<LPREA>L4Code={VALUE}#
+    DEF     <TAG_DEFINE:MSGQKEY>AppCode;    #PARSING_RULE:^^:GRASP:^^:<LPREA>AppCode={VALUE}#
+    DEF     <TAG_DEFINE:L7CODE>L7Code;             #PARSING_RULE:^^:GRASP:^^:<LPREA>L7Code={VALUE}#
+} LPREA_CONF;
+
+/**
+ * @brief LHTTPHOST_CODE_KEY : HOST, Content-Type, Redirect Protocol, METHOD로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LHTTPHOSTCode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LHTTPHOST			\([ \t]*LHTTPHOST
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	U8				szHost[MAX_HOSTNAME_SIZE];		/**< Host Name */ #PARSING_RULE:^^:GRASP:^^:<LHTTPHOST>Host={VALUE}#
+</TAG_KEY>
+	DEF				<TAG_DEFINE:L4CODE>NewL4Code;		#PARSING_RULE:^^:GRASP:^^:<LHTTPHOST>NEWL4Code={VALUE}#
+	DEF				<TAG_DEFINE:MSGQKEY>AppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<LHTTPHOST>AppCode={VALUE}#
+} LHTTPHOST_CONF;
+
+/**
+ * @brief LHTTPMETHOD_CODE_KEY : HOST, Content-Type, Redirect Protocol, METHOD로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LHTTPMETHODCode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LHTTPMETHOD			\([ \t]*LHTTPMETHOD
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	DEF		<TAG_DEFINE:METHOD>Method;			#PARSING_RULE:^^:GRASP:^^:<LHTTPMETHOD>Method={VALUE}#
+</TAG_KEY>
+	DEF				<TAG_DEFINE:L7CODE>L7Code;		#PARSING_RULE:^^:GRASP:^^:<LHTTPMETHOD>L7Code={VALUE}#
+	DEF				<TAG_DEFINE:MSGQKEY>AppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<LHTTPMETHOD>AppCode={VALUE}#
+} LHTTPMETHOD_CONF;
+/**
+ * @brief LMEKUN : Contents_Type로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_LMEKUN_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LMEKUN		\([ \t]*LMEKUN
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	DEF				<TAG_DEFINE:ContentsType>ContentType;					/**< Content Type 추후 정의 */ #PARSING_RULE:^^:GRASP:^^:<LMEKUN>Contents_Type={VALUE}#
+</TAG_KEY>
+
+    DEF     <TAG_DEFINE:L7CODE>L7Code;             #PARSING_RULE:^^:GRASP:^^:<LMEKUN>L7Code={VALUE}#
+    DEF     <TAG_DEFINE:MSGQKEY>AppCode;    #PARSING_RULE:^^:GRASP:^^:<LMEKUN>AppCode={VALUE}#
+} LMEKUN_CONF;
+
+STG_LOG_TEXT_PARSING typedef struct _st_LVODCode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LVOD			\([ \t]*LVOD
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	DEF				<TAG_DEFINE:ContentsType>uiContentType;					/**< Content Type 추후 정의 */ #PARSING_RULE:^^:GRASP:^^:<LVOD>Contents_Type={VALUE}#
+	DEF				<TAG_DEFINE:REDIRECT>Redirect_Protocol;	/**< Redirect Protocol */ #PARSING_RULE:^^:GRASP:^^:<LVOD>Redirect_Protocol={VALUE}#
+</TAG_KEY>
+	DEF				<TAG_DEFINE:L7CODE>L7Code;		#PARSING_RULE:^^:GRASP:^^:<LVOD>L7Code={VALUE}#
+	DEF				<TAG_DEFINE:MSGQKEY>AppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<LVOD>AppCode={VALUE}#
+} LVOD_CONF;
+
+STG_LOG_TEXT_PARSING typedef struct _st_LBREWCode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LBREW			\([ \t]*LBREW
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	DEF				<TAG_DEFINE:SVCACTION>URL;					/**< Content Type 추후 정의 */ #PARSING_RULE:^^:GRASP:^^:<LBREW>URL={VALUE}#
+</TAG_KEY>
+	DEF				<TAG_DEFINE:L7CODE>L7Code;		#PARSING_RULE:^^:GRASP:^^:<LBREW>L7Code={VALUE}#
+	DEF				<TAG_DEFINE:MSGQKEY>AppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<LBREW>AppCode={VALUE}#
+} LBREW_CONF;
+
+STG_LOG_TEXT_PARSING typedef struct _st_LWIPICode_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:LWIPI			\([ \t]*LWIPI
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+	DEF				<TAG_DEFINE:SVCACTION>URL;					/**< Content Type 추후 정의 */ #PARSING_RULE:^^:GRASP:^^:<LWIPI>URL={VALUE}#
+</TAG_KEY>
+	DEF				<TAG_DEFINE:L7CODE>L7Code;		#PARSING_RULE:^^:GRASP:^^:<LWIPI>L7Code={VALUE}#
+	DEF				<TAG_DEFINE:MSGQKEY>AppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<LWIPI>AppCode={VALUE}#
+} LWIPI_CONF;
+
+/**
+ *
+ *		TCP
+ *
+ */
+
+/**
+ * @brief TCP_SESS_KEY : TCP 세션 관리를 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_TCP_SESS_KEY {
+	IP4				uiSIP;				/**< Source IP */
+	IP4				uiDIP;				/**< Destination IP */
+	U16				usSPort;			/**< Source Port */
+	U16				usDPort;			/**< Destination Port */
+	U8				szReserved[4];		/**< Reserved */
+} TCP_SESS_KEY;
+
+<TAG_DEFINE_START:RTX>
+#define DEF_FROM_CLIENT     1			/**< UP : From Client */
+#define DEF_FROM_SERVER     2			/**< DOWN : From Server */
+<TAG_DEFINE_END:RTX>	
+
+<TAG_DEFINE_START:STATUS>
+#define DEF_STATUS_SYN		1
+#define DEF_STATUS_SYNACK	2
+#define DEF_STATUS_ACK		3
+<TAG_DEFINE_END:STATUS>
+
+<TAG_DEFINE_START:FINSTATUS>
+#define DEF_FIN_0			0			/**< FIN 이 없는 경우 */
+#define DEF_FIN_1			1			/**< 첫번째 FIN 을 받은 경우 */
+#define DEF_FIN_2			2			/**< 두번째 FIN 을 받은 경우 */
+#define DEF_FIN_3			3			/**< 두번째 FIN 에 대한 ACK를 받은 경우 */
+<TAG_DEFINE_END:FINSTATUS>
+
+<TAG_DEFINE_START:ENDSTATUS>
+#define DEF_END_NORMAL		1
+#define DEF_END_ABNORMAL	2
+#define DEF_END_LONGLAST	3
+#define DEF_END_RST			4
+<TAG_DEFINE_END:ENDSTATUS>
+
+<TAG_DEFINE_START:L4FAILCODE>
+#define TCP_NOERR_FIN_E1				1
+#define TCP_NOERR_FIN_E2				2
+#define ABNORMAL_TRANS					15
+#define LONGLAST_SYN_TRANS				31
+#define LONGLAST_SYNACK_TRANS			32
+#define LONGLAST_NOFIN_TRANS			33
+#define LONGLAST_FIN_E1					34
+#define LONGLAST_FIN_E2					35
+#define TCP_ERR_RST_E1_SYN				41
+#define TCP_ERR_RST_E1_SYNACK			42
+#define TCP_ERR_RST_E1_NOFIN			43
+#define TCP_ERR_RST_E1_FIN_E1			44
+#define TCP_ERR_RST_E1_FIN_E2			45
+#define TCP_ERR_RST_E2_SYN				51
+#define TCP_ERR_RST_E2_SYNACK			52
+#define TCP_ERR_RST_E2_NOFIN			53
+#define TCP_ERR_RST_E2_FIN_E1			54
+#define TCP_ERR_RST_E2_FIN_E2			55
+<TAG_DEFINE_END:L4FAILCODE>
+
+
+
+/**
+ * @brief TCP_SESS : TCP 세션 관리를 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_TCP_SESS {
+	STIME	uiLastUpdateTime;	/**< 초기값 생성시간, 이후 패킷받은 시간 */
+	MTIME	uiLastUpdateMTime;	/**< 초기값 생성시간, 이후 패킷받은 시간 */
+	STIME	uiSessCreateTime;	/**< 세션 생성 시간 */
+	MTIME	uiSessCreateMTime;	/**< 세션 생성 시간 */
+
+	U8		<TAG_DEFINE:STATUS>ucStatus;	/**< 세션 상태  */ 
+	U8		<TAG_DEFINE:FINSTATUS>ucFinStatus; /**< 세션 종료 상태 */
+	U8		<TAG_DEFINE:ENDSTATUS>ucEndStatus;	/**< 어떤 조건에 의해서 종료 되었는가? */
+	U8		<TAG_DEFINE:RTX>ucSynRtx;			/**< Syn의 방향 */
+	U8		<TAG_DEFINE:RTX>ucFinRtx;			/**< 첫번째 Fin의 방향 */
+	U8		<TAG_DEFINE:RTX>ucRstRtx;			/**< Rst의 방향 */
+
+	U32		uiSynSeq;		/**< TCP SYN SEQ No. */
+	U32		uiSynAckSeq;	/**< TCP SYNACK SEQ No. */
+	U32		uiSynAckAck;	/**< TCP SYNACK ACK No. */
+
+	OFFSET 	offset_LOG;
+
+	U32		uiReqCount;		/**< Request Packet Count */
+	OFFSET	offset_ReqData;		/**< Request Packet First Node */
+
+	U32		uiResCount;		/**< Response Packet Count */
+	OFFSET	offset_ResData;		/**< Response Packet First Node */
+
+	S32		dSndMsgQ;		/**< 보내야 할 서비스블럭의 메시지큐아이디 */
+	U32		uiFinChk1Seq;	/**< FIN PACKET의 재전송을 체크하기 위함 */
+	U32		uiFinChk2Seq;	/**< FIN PACKET의 재전송을 체크하기 위함 */
+	U32		uiFinChkAck;	/**< FIN PACKET에 대한 ACK PACKET 번호 */
+
+	U32		uiLastReqSeq;	/**< 마지막에 처리한 SEQ 번호 : REQ */
+	U32		uiLastResSeq;	/**< 마지막에 처리한 SEQ 번호 : RES */
+
+	U16		usL4Code;
+	U16		usL7Code;
+	U16		usAppCode;
+	U16		<TAG_DEFINE:L4FAILCODE>usL4FailCode;
+
+	U64		timerNID;
+
+	U8		ucTcpClientStatus;
+	U8		ucTcpServerStatus;
+
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} TCP_SESS;
+
+<TAG_DEFINE_START:CLI>
+#define DEF_CLI_ETC				99
+#define DEF_CLI_SYN				11
+#define DEF_CLI_ACK				12
+#define DEF_CLI_DATA			23
+#define DEF_CLI_RST				34
+#define DEF_CLI_FIN				35
+#define DEF_CLI_FINACK			36
+<TAG_DEFINE_END:CLI>
+<TAG_DEFINE_START:SVR>
+#define DEF_SVR_ETC				99
+#define DEF_SVR_SYNACK			11
+#define DEF_SVR_DATA			22
+#define DEF_SVR_RST				33
+#define DEF_SVR_FIN				34
+#define DEF_SVR_FINACK			35
+<TAG_DEFINE_END:SVR>
+<TAG_DEFINE_START:PLATFORMTYPE>
+#define DEF_PLATFORM_ME         1000
+#define DEF_PLATFORM_KUN        2000
+#define DEF_PLATFORM_VOD        3000
+#define DEF_PLATFORM_DOSIRAK    4000
+#define DEF_PLATFORM_MBOX       5000
+#define DEF_PLATFORM_BREW       6000
+#define DEF_PLATFORM_WIPI       7000
+<TAG_DEFINE_END:PLATFORMTYPE>
+/**
+ * @brief TCP_SESS_LOG : TCP 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Tcp_Sess_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	U16		<TAG_DEFINE:PLATFORMTYPE>usPlatformType;				/**< usSvcL4Type / 1000 * 1000 */
+	DEF		<TAG_DEFINE:L4CODE>usSvcL4Type;				/**< IP, PORT로 판단한 Service type */
+	U8		ucSubSysNo;					/**< Sub System No. */
+	U16		usClientPort;				/**< 단말 Port */
+	IP4		uiServerIP;					/**< Server IP */
+	U16		usServerPort;				/**< Server Port */
+	STIME	uiTcpSynTime;				/**< Tcp Syn Time */
+	MTIME	uiTcpSynMTime;				/**< Tcp Syn Micro Time */
+	STIME	uiTcpSynAckTime;			/**< Tcp SynAck Time */
+	MTIME	uiTcpSynAckMTime;			/**< Tcp SynAck Micro Time */
+	STIME	uiTcpSynAckAckTime;			/**< Syn => SynAck => Ack의 Ack Time */
+	MTIME	uiTcpSynAckAckMTime;		/**< Syn => SynAck => Ack의 Ack Micro Time */
+	S64		llConnSetupGapTime;			/**< TcpConnEndTime - CallTime */
+	STIME	uiTcpFinTime;				/**< 첫번째 Tcp Fin, RST Time */
+	MTIME	uiTcpFinMTime;				/**< 첫번째 Tcp Fin, RST Micro Time */
+	STIME	uiTcpFinAckTime;			/**< 마지막 Tcp Fin Ack Time */
+	MTIME	uiTcpFinAckMTime;			/**< 마지막 Tcp Fin Ack Micro Time */
+	STIME	uiTcpUpLastPktTime;			/**< MN => Server, Last Packet Time */
+	MTIME	uiTcpUpLastPktMTime;		/**< MN => Server, Last Packet Micro Time */
+	STIME	uiTcpDnLastPktTime;			/**< Server => MN, Last Packet Time */
+	MTIME	uiTcpDnLastPktMTime;		/**< Server => MN, Last Packet Micro Time */
+	STIME	uiTcpLastPktTime;			/**< Last Packet Time */
+	MTIME	uiTcpLastPktMTime;			/**< Last Packet Micro Time */
+	S64		llTcpSessGapTime;			/**< Last Packet Time - CallTime */
+	U8		<TAG_DEFINE:CLI>ucTcpClientStatus;			/**< 단말 상태 */
+	U8		<TAG_DEFINE:SVR>ucTcpServerStatus;			/**< 서버 상태 */
+	U16		<TAG_DEFINE:L4FAILCODE>usL4FailCode;		/**< TCP Fail Code */
+	U8		ucTcpSynCnt;				/**< Syn Count */
+	U8		ucTcpSynAckCnt;				/**< SynAck Count */
+	U8		ucTcpUpFinCnt;				/**< MN => Server, Fin Count */
+	U8		ucTcpDnFinCnt;				/**< Server => MN, Fin Count */
+	U8		ucTcpUpRstCnt;				/**< MN => Server, Rst Count */
+	U8		ucTcpDnRstCnt;				/**< Server => MN, Rst Count */
+	U32		uiIPDataUpPktCnt;			/**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32		uiIPDataDnPktCnt;			/**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32		uiIPTotUpPktCnt;			/**< MN => Server, 전구간에서 패킷 개수 */
+	U32		uiIPTotDnPktCnt;			/**< Server => MN, 전구간에서 패킷 개수 */
+	U32		uiIPDataUpRetransCnt;		/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiIPDataDnRetransCnt;		/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiIPTotUpRetransCnt;		/**< MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		uiIPTotDnRetransCnt;		/**< Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		uiIPDataUpPktSize;			/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		uiIPDataDnPktSize;			/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		uiIPTotUpPktSize;			/**< MN => Server, 전구간에서 데이터 사이즈 */
+	U32		uiIPTotDnPktSize;			/**< Server => MN, 전구간에서 데이터 사이즈 */
+	U32		uiIPDataUpRetransSize;		/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiIPDataDnRetransSize;		/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiIPTotUpRetransSize;		/**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiIPTotDnRetransSize;		/**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTcpUpBodySize;			/**< MN => Server, Tcp Payload 사이즈 */
+	U32		uiTcpDnBodySize;			/**< Server => MN, Tcp Payload 사이즈 */
+	U32		uiTcpUpRetransBodySize;		/**< MN => Server, Tcp Payload 사이즈, 재전송 포함 */
+	U32		uiTcpDnRetransBodySize;		/**< Server => MN, Tcp Payload 사이즈, 재전송 포함 */
+	U16		usTcpUpMSS;					/**< MN => Server, Syn의 MSS */
+	U16		usTcpDnMSS;					/**< Server => MN, SynAck의 MSS */
+	U16		usTcpUpFirstWindowSize;		/**< MN => Server, 최초 패킷의 Window Size */
+	U16		usTcpDnFirstWindowSize;		/**< Server => MN, 최초 패킷의 Window Size */
+	STIME	uiOpStartTime;				/**< 분석 시작 Time */
+	MTIME	uiOpStartMTime;				/**< 분석 시작 Micro Time */
+	STIME	uiOpEndTime;				/**< 마지막 처리 Time */
+	MTIME	uiOpEndMTime;				/**< 마지막 처리 Micro Time */
+} LOG_TCP_SESS;
+
+/**
+ *
+ *		HTTP
+ *
+ */
+
+#define DEF_PROTOCOL_TCP	6
+#define DEF_PROTOCOL_UDP	17
+
+<TAG_DEFINE_START:TCPFLAG>
+#define DEF_TCP_START		1
+#define DEF_TCP_DATA		2
+#define DEF_TCP_END			3
+<TAG_DEFINE_END:TCPFLAG>
+
+<TAG_DEFINE_START:RETRANS>
+#define DEF_RETRANS_OFF		0
+#define DEF_RETRANS_ON		1
+<TAG_DEFINE_END:RETRANS>
+
+#define DEF_DELETE_OFF      0
+#define DEF_DELETE_ON       1
+
+/**
+ * @brief st_TcpInfo : TCP Session 정보를 HTTP에 전달하기 위한 structure이다.
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+
+/*
+ * st_HttpPkt => st_TcpInfo 
+ */
+typedef struct _st_TcpInfo {
+	U32		uiDataSize;		/**< TCP Payload Size */
+	U32		uiSrvIP;		/**< Server IP Address */
+
+	U32		uiCliIP;		/**< 단말 IP Address */
+	U16		usSrvPort;		/**< Server Port */
+	U16		usCliPort;		/**< 단말 Port */
+
+	U32		uiSeqNum;		/**< Packet Seq No. */
+	U32		uiAckNum;		/**< Ack Packet의 Ack No. */
+
+	OFFSET	uiSOffset;
+
+    STIME	uiCapTime;		/**< 캡쳐된 시간 */
+    MTIME	uiCapMTime;		/**< 캡쳐된 Micro 시간 */
+    STIME	uiAckTime;		/**< Ack Packet을 받은 시간 */
+    MTIME	uiAckMTime;		/**< Ack Packet을 받은 Micro 시간 */
+
+	U16		usAppCode;
+	U16		usL4Code;		/**< L4Code */
+	U16		usL7Code;		/**< L7Code */
+	U16		<TAG_DEFINE:L4FAILCODE>usL4FailCode;	/**< L4 Error Code */
+	U8		<TAG_DEFINE:RTX>ucRtx;		/**< UP/Down 방향 1: UP, 2: Down */
+	S8		<TAG_DEFINE:TCPFLAG>cTcpFlag;	/**< [O] TCP State */
+	S8		<TAG_DEFINE:RETRANS>cRetrans;		/**< [O] 재전송 Flag */
+	U8		ucProtocol;		/**< [O] 현재 사용되는 곳 없음, 향후 기능 확장에서 사용될 가능성 있음 */
+
+	U8		ucTcpClientStatus;
+	U8		ucTcpServerStatus;
+
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} TCP_INFO;
+
+#define MAX_K3G_SIZE		1024
+/**
+ * @brief MSG_INFO : A_HTTP에서 임시로 데이터 처리 하기 위한 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_msg_info {
+	U32		uiLastSeq;
+	U32		uiNextSeq;			/**< 다음에 받을 것으로 예상되는 Seq No. */
+	STIME	uiStartTime;
+	MTIME	uiStartMTime;
+	STIME	uiLastUpdateTime;
+	MTIME	uiLastUpdateMTime;
+	STIME	uiAckTime;
+	MTIME	uiAckMTime;
+	U32		uiHdrLen;
+	U32		uiBodyLen;
+	U8		ucLenType;
+	U32		uiLen;
+	U32		uiMaxLen;
+	U8		<TAG_DEFINE:BUFFERING>ucIsBuffering;	/**< Buffering 여부를 결정 */
+	U8		<TAG_DEFINE:HDR_BODY>ucStatus;		/**< 현재 HDR/BODY 상태를 표시 */
+	U8		<TAG_DEFINE:END_STATE>ucEndStatus;	/**< pReqData의 상태 값 */
+	OFFSET	offset_HDR;
+	OFFSET	offset_CurHDR;			/**< REQ 현재 Active 상태에 있는 Node */
+	OFFSET	offset_BODY;				/**< REQ END_STATE_0D0A0D0A 찾기 전까지 임시 보관 (Node Header) */
+	OFFSET	offset_CurBODY;
+} MSG_INFO;
+
+#define MSG_INFO_CNT		2
+
+/**
+ * @brief st_TcpHashKey : A_HTTP에서 TCP Session 관리를 Hash Key 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_Http_TSess_Key {
+	U32				uiCliIP;				/**< 단말 IP Address */
+	U16				usCliPort;				/**< 단말 Port */
+	U16				usReserved;				/**< 0x00으로 초기화 할 것 */
+} HTTP_TSESS_KEY;
+
+#define METHOD_RESPONSE				100
+
+<TAG_DEFINE_START:URL_TYPE>
+#define URL_TYPE_HOST_PORT			1
+#define URL_TYPE_HOST_NOPORT		2
+#define URL_TYPE_NOHOST_NOPORT		3
+#define URL_TYPE_CONNECT			4
+<TAG_DEFINE_END:URL_TYPE>
+
+<TAG_DEFINE_START:END_STATE>
+#define END_STATE_EMPTY				0
+#define END_STATE_0D				1
+#define END_STATE_0D0A				2
+#define END_STATE_0D0A0D			3
+#define END_STATE_0D0A0D0A			4
+#define END_STATE_30				5
+<TAG_DEFINE_END:END_STATE>
+<TAG_DEFINE_START:HDR_BODY>
+#define TSESS_STATUS_HDRWAIT		0
+#define TSESS_STATUS_HDRDOING		1
+#define TSESS_STATUS_BODYWAIT		2
+#define TSESS_STATUS_BODYDOING		3
+<TAG_DEFINE_END:HDR_BODY>
+<TAG_DEFINE_START:BUFFERING>
+#define TSESS_BUFFERING_ON			0
+#define TSESS_BUFFERING_OFF			1
+<TAG_DEFINE_END:BUFFERING>
+<TAG_DEFINE_START:LENTYPE>
+#define LEN_TYPE_CONTENTLENGTH		1
+#define LEN_TYPE_CHUNKED			2
+<TAG_DEFINE_END:LENTYPE>
+<TAG_DEFINE_START:SSL>
+#define SSL_OFF						0
+#define SSL_ON						1
+<TAG_DEFINE_END:SSL>
+/**
+ * @brief st_TcpHashData : A_HTTP에서 TCP Session 관리를 Hash Data 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_Http_TSess {
+	U32		uiSrvIP;				/**< 서버 IP Address */
+	U16		usSrvPort;    			/**< 서버 Port */
+	STIME	uiTcpSynTime;			/**< TCP Session 시작 시간 */
+	MTIME	uiTcpSynMTime;			/**< TCP Session 시작 시간 */
+	U16		usNextTransID;			/**< 할당될 Http Transaction ID */
+	U16		usFirstTransID;			/**< HASH에 있는 첫번째 Http Transaction ID */
+	U16		usLastTransID;			/**< HASH에 있는 마지막 Http Transaction ID */
+	U16		usCurTransCnt;			/**< 현재 갖고 있는 Http Transaction 개수 */
+	U16		usTotTransCnt;			/**< 처리한 Http Transaction 개수 */
+	U8		ucSynRtx;				/**< SYN UP/Down 방향 1: UP, 2: Down */
+
+	U16		usL4FailCode;
+	U16		usAppCode;
+	U16		usL4Code;
+	U16		usL7Code;
+
+	U8		<TAG_DEFINE:SSL>ucSSL;
+	U8		<TAG_DEFINE:METHOD>ucMethod;			/**< Http Request Method Type  */
+	U32		usResCode;
+	U16		hostNameLen;
+	U8		szHostName[MAX_HOSTNAME_SIZE];
+	U16		<TAG_DEFINE:URL_TYPE>urlType;
+	U16		usUrlSize;				/**< URL size */
+	U8		szUrl[MAX_URL_SIZE];	/**< URL */
+	U16		usContentsType;			/**< Content-Type */
+
+	U8		ucTcpClientStatus;
+	U8		ucTcpServerStatus;
+
+	MSG_INFO	MSGINFO[MSG_INFO_CNT];
+
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} HTTP_TSESS;
+
+/**
+ * @brief st_HttpHashKey : A_HTTP에서 HTTP Transaction 관리를 Hash Key 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+typedef struct _st_Http_Trans_Key {
+	U32				uiCliIP;		/**< 단말 IP Address */
+	U16				usCliPort;		/**< 단말 Port */
+	U16				usHttpTransID;	/**< HTTP Transaction ID */
+} HTTP_TRANS_KEY;
+
+<TAG_DEFINE_START:HTTP_TRANS_STATUS>
+#define HTTP_TRANS_STATUS_NULL				0
+#define	HTTP_TRANS_STATUS_REQHDRING			11
+#define HTTP_TRANS_STATUS_REQHDR				12	/* REQ HDR를 다 받은 상태 */
+#define	HTTP_TRANS_STATUS_REQBODYING			13
+#define	HTTP_TRANS_STATUS_REQBODY				14	/* REQ BODY를 다 받은 상태 */
+#define HTTP_TRANS_STATUS_RESHDRING			21
+#define HTTP_TRANS_STATUS_RESHDR				22	/* RES HDR를 다 받은 상태 */
+#define HTTP_TRANS_STATUS_RESBODYING			23
+#define HTTP_TRANS_STATUS_RESBODY				24	/* RES BODY를 다 받은 상태 */
+#define HTTP_TRANS_STATUS_ACKHDRING			31
+#define HTTP_TRANS_STATUS_ACKHDR				32
+#define HTTP_TRANS_STATUS_ACKBODYING			33
+#define HTTP_TRANS_STATUS_ACKBODY				34
+<TAG_DEFINE_END:HTTP_TRANS_STATUS>
+
+/* 
+ * 우선 순위는 왼쪽에 위치한 것이 높다. 두개의 에러가 발생할 경우 왼쪽의 값을 세팅한다.
+ * 970 > 911 > 941 > 910 > 920 > 930 > 940 > 950 > 960 > 900
+ */
+<TAG_DEFINE_START:USER_ERROR>
+#define HTTP_UERR_EMPTY	0
+#define HTTP_UERR_900	900 /* 서버로부터 오류를 나타내는 응답 코드가 온 경우 (응답 코드 400 이상) */
+#define HTTP_UERR_910	910 /* Req 메시지가 완료되지 않고 Transaction이 종료된 경우 */
+#define HTTP_UERR_911	911 /* Req 메시지가 예정된 크기보다 작게 전송된 후 그 다음 Req메시지가 전송된 경우 */
+#define HTTP_UERR_920	920 /* 완료된 Req 메시지에 대해 서버 측의 ACK가 전송되지 않은 경우 */
+#define HTTP_UERR_930	930 /* 서버 측의 ACK가 전송되었으나 응답메시지의 전송이 시작되지 않은 경우 */
+#define HTTP_UERR_940	940	/* 응답메시지가 시작된 후 응답메시지 전송이 완료되지 않고 Transaction이 종료된 경우 */
+#define HTTP_UERR_941	941 /* Res 메시지가 예정된 크기보다 작게 전송된 후 그 다음 Res 메시지가 전송된 경우 */
+#define HTTP_UERR_950	950 /* 응답메시지가 완료되었지만 MN에서 ACK가 전송되지 않고 트랜잭션이 종료된 경우 */
+#define HTTP_UERR_960	960 /* Req 메시지에서 잘못된 Method 또는 알수 없는 Method가 있는 경우 */
+#define HTTP_UERR_970	970	/* Seq 번호가 맞지 않아서 정리된 경우 */
+<TAG_DEFINE_END:USER_ERROR>
+/**
+ * @brief st_HttpHashData : A_HTTP에서 HTTTP Transaction 관리를 Hash Data 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+typedef struct _st_Http_Trans {
+	U16					usL4FailCode;			/**< L4 Error Code */
+	U16					usL7FailCode;
+
+	U16					usL4Code;				/**< L4Code L4(IP, Port)로 판단한 Service Code */
+	U16					usL7Code;				/**< L7Code L7(URL)로 판단한 Service Code */
+	U16					usAppCode;				/**< 해당 메시지 처리 프로세스 코드 */
+
+	U8					<TAG_DEFINE:HTTP_TRANS_STATUS>ucStatus;		/**< Http Transaction 상태 값 */
+
+	S32					dSndMsgQ;		/**< 보내야 할 서비스블럭의 메시지큐아이디 */
+
+#define HTTP_MSGTYPE_REQHDR			0
+#define HTTP_MSGTYPE_REQBODY		1
+#define HTTP_MSGTYPE_RESHDR			2
+#define HTTP_MSGTYPE_RESBODY		3
+#define HTTP_MSGTYPE_ACKHDR			4
+#define HTTP_MSGTYPE_ACKBODY		5
+#define HTTP_MSGTYPE_CNT			6
+
+	OFFSET				offset_Node[HTTP_MSGTYPE_CNT];				/**< Ack Header 버퍼링 메모리 주소 */
+	OFFSET				offset_LOG;
+} HTTP_TRANS;
+
+<TAG_DEFINE_START:LOG_HTTP_STATUS>
+#define LOG_HTTP_REQ_DOING			11		/* REQUEST 상태 */
+#define LOG_HTTP_REQ_DONE			21		/* REQUEST 전송 완료 상태 */	
+#define LOG_HTTP_REQ_ACK			31		/* REQUEST 전송 완료 후 서버 ACK 상태 */
+#define LOG_HTTP_RES_DOING			41		/* RESPONSE 상태 */
+#define LOG_HTTP_RES_DONE			51		/* RESPONSE 전송 완료 상태 */
+#define LOG_HTTP_RES_ACK			61		/* RESPONSE 전송 완료 후 단말 ACK 상태 */
+#define LOG_HTTP_STATUS_UNKNOWN		91		/* 기타 상태 */
+<TAG_DEFINE_END:LOG_HTTP_STATUS>
+
+
+/**
+ * @brief HTTP_LOG : HTTP 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_LOG_TEXT_PARSING typedef struct _st_Http_Log {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*GET[ \t]+
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*POST[ \t]+
+	STATE	WIPI_REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:COUNTER				COUNTER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:BROWSER_INFO				User-Agent[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_CHANNEL_INFO		CHANNEL_INFO[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_NUMBER				HTTP_PHONE_NUMBER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:CDU				CDU[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:CSEQ			CSeq[ \t]*:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:HTTP			^[ \t]*HTTP[/.0-9]+[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CPDATA					CPdata:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:LOCATION				Location:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:BILLINFO				BILL_INFO:[ \t]*
+	TOKEN	STR 				[^\r\n]+
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&;: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+
+	<STG_COMMON:LOG_COMMON>
+
+	U16		usClientPort;			/**< 단말 Port */
+	IP4		uiServerIP;				/**< Server IP */
+	U16		usServerPort;			/**< Server Port */
+	STIME	uiTcpSynTime;			/**< Tcp Syn Time */
+	MTIME	uiTcpSynMTime;			/**< Tcp Syn Micro Time */
+	U16		usTransID;				/**< HTTP Transaction ID */
+	U32		uiPageID;				/**< PAGE ID */
+	U16		usPlatformType;			/**< usSvcL4Type / 1000 * 1000 */
+	DEF		<TAG_DEFINE:L4CODE>usSvcL4Type;			/**< IP, PORT로 판단한 Service type */
+	DEF		<TAG_DEFINE:L7CODE>usSvcL7Type;			/**< URL, HostName으로 판단한 Service type */
+	U8		ucSubSysNo;				/**< Sub System No. */
+	DEF		<TAG_DEFINE:ContentsType>usContentsType; 		/**< Content-Type */			/* HTTP level */ #PARSING_RULE:^^:WIPI_RESP_HDR:^^:<CONTENT_TYPE>{VALUE}#
+	DEF		<TAG_DEFINE:METHOD>ucMethod;		/**< Method Code 값 */			/* HTTP level */
+	STIME	uiReqStartTime;			/**< GET/POST Request Start Time */
+	MTIME	uiReqStartMTime;		/**< GET/POST Request Start Micro Time */
+	STIME	uiReqEndTime;			/**< GET/POST Request End Time */
+	MTIME	uiReqEndMTime;			/**< GET/POST Request End Micro Time */
+	STIME	uiReqAckTime;			/**< Request에 대한 서버 측의 Ack Time */
+	MTIME	uiReqAckMTime;			/**< Request에 대한 서버 측의 Ack Micro Time */
+	STIME	uiResStartTime;			/**< Response Start Time */
+	MTIME	uiResStartMTime;		/**< Response Start Micro Time */
+	STIME	uiResEndTime;			/**< Response End Time */
+	MTIME	uiResEndMTime;			/**< Response End Micro Time */
+	STIME	uiMNAckTime;			/**< 단말 Ack Time */
+	MTIME	uiMNAckMTime;			/**< 단말 Ack Micro Time */
+	STIME	uiLastPktTime;			/**< Last Packet Time */
+	MTIME	uiLastPktMTime;			/**< Last Packet Micro Time */
+	S64		llTransGapTime;			/**< LastPktTime - ReqStartTime */
+	U32		usResCode;				/**< HTTP Response Code */		#PARSING_RULE:^^:WIPI_RESP_HDR:^^:<HTTP>{DIGIT}#
+	U8		<TAG_DEFINE:CLI>ucTcpClientStatus;			/**< 단말 상태 */
+	U8		<TAG_DEFINE:SVR>ucTcpServerStatus;			/**< 서버 상태 */
+	U8		<TAG_DEFINE:LOG_HTTP_STATUS>ucStatus;	/**< HTTP 서비스 상태 */
+	U16		usUserErrorCode;		/**< NTAS Error Code */
+	U16		<TAG_DEFINE:L4FAILCODE>usL4FailCode;	/**< TCP Fail Code */
+	U16		usL7FailCode;			/**< HTTP Fail Code */
+	U8		szAppFailCode[MAX_APPFAILCODE_SIZE];	/**< MARS Application Fail Code */			/* will be implementing */
+	U16		usURLSize;				/**< URL Size */				/* HTTP level */
+	U8		szURL[MAX_URL_SIZE];	/**< URL */						/* HTTP level */ /*< 추후 삭제요망 */ #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<METHOD>{STR}:^^:Get_Detailed_URL#
+	U8		Location[MAX_URL_SIZE];	/**< URL */						/* HTTP level */ /*< 추후 삭제요망 */ #PARSING_RULE:^^:WIPI_RESP_HDR:^^:<LOCATION>{STR}#
+	U32		uiIPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32		uiIPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32		uiIPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 */
+	U32		uiIPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 */
+	U32		uiIPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiIPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiIPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		uiIPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		uiIPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		uiIPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		uiIPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 */
+	U32		uiIPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 */
+	U32		uiIPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiIPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiIPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiIPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTcpUpBodySize;		/**< MN => Server, TCP Payload Size */
+	U32		uiTcpDnBodySize;		/**< Server => MN, TCP Payload Size */
+	U32		uiUpHeaderSize;			/**< MN => Server, HTTP Header Size */
+	U32		uiDnHeaderSize;			/**< Server => MN, HTTP Header Size */
+	U32		uiUpBodySize;			/**< MN => Server, HTTP Body Size */
+	U32		uiDnBodySize;			/**< Server => MN, HTTP Body Size */
+	U32		uiContentLength;		/**< HTTP Response Header의 ContentLength 필드 값 */  	/* HTTP Level */ #PARSING_RULE:^^:WIPI_RESP_HDR:^^:<CONTENT_LENGTH>{DIGIT}#
+	U8		szCPName[MAX_CPNAME_SIZE];	/**< 업체명 */ 	#PARSING_RULE:^^:WIPI_RESP_HDR:^^:<CPDATA>cpname={VALUE}#
+	U8		szServiceCode[MAX_SERVICECODE_SIZE]; /**< ServiceName + MenuCode */ #PARSING_RULE:^^:WIPI_RESP_HDR:^^:<CPDATA>svccode={VALUE}#
+	U8		szHostName[MAX_HOSTNAME_SIZE];	/**< Host Name */			/* HTTP level */  #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HOST>{ID}#   
+	U32		usCounter;				/**< HTTP 헤더의 Counter 필드 값 */ #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COUNTER>{DIGIT}#
+				ALTERNATIVE_RULE		#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<CSEQ>{DIGIT}#
+	U8		szMenuTitle[MAX_MENUTITLE_SIZE];	/**< 메뉴명 */			/* 추후 : will be implementing */
+	U8		MenuID[MAX_MENUID_SIZE];	/* 아래 URL_ANALYSIS참조 */
+												/**< VOD/Dosirak => Menu ID 
+											 	BREW ADS/PAS-BREW => :Application ID
+											 	WIPI MARS => Application ID */			/* will be implementing */
+	U8		SvcAction[MAX_SVCACTION_SIZE];		/* 아래 URL_ANALYSIS참조 */
+												/**< VOD/Dosirak => SvcType 
+												 BREW ADS/PAS-BREW => getFile
+												 WIPI MARS => 요청 코드 */			/* will be implementing */
+	U8		ContentID[MAX_CONTENTID_SIZE];	/* 아래 URL_ANALYSIS참조 */
+												/**< VOD/Dosirak Download인 경우 Contents ID */ 
+	U8		CATID[MAX_CATID_SIZE];		#PARSING_RULE:^^:WIPI_RESP_HDR:^^:<BILLINFO>PGID={VALUE}#
+											/* 아래 URL_ANALYSIS참조 */		
+												/**< VOD/Dosirak Download 인 경우 CATID
+												BREW ADS/PAS-BREW Type 인 경우 PKGID
+												WIPI MARS인 경우 product ID */
+	STIME	uiOpStartTime;			/** 분석 시작 Time */
+	MTIME	uiOpStartMTime;			/** 분석 시작 Micro Time */
+	STIME	uiOpEndTime;			/** 마지막 처리 Time */
+	MTIME	uiOpEndMTime;			/** 마지막 처리 Micro Time */
+	U32		isCDU;	/**< isCDU */ 	#PARSING_RULE:^^:WIPI_REQ_HDR:^^:<CDU>{VALUE}:^^:Get_Is_CDU#
+} LOG_HTTP_TRANS;
+
+STG_LOG_TEXT_PARSING typedef struct _st_url_analysis {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	URL_S:^^:URL_T		[?]+
+	TOKEN	VALUE 				[^?=&;: \t\r\n]+
+
+	U8		MenuID[MAX_MENUID_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>MenuID={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>appId={VALUE}#
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>applicationid={VALUE}#
+			/**< VOD/Dosirak => Menu ID 
+			  BREW ADS/PAS-BREW => :Application ID
+			  WIPI MARS => Application ID */			/* will be implementing */
+	U8		szSvcAction[MAX_SVCACTION_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>SvcType={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>action={VALUE}#
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>c={VALUE}#
+			/**< VOD/Dosirak => SvcType 
+			  BREW ADS/PAS-BREW => getFile
+			  WIPI MARS => 요청 코드 */			/* will be implementing */
+	U8		ContentID[MAX_CONTENTID_SIZE];	#PARSING_RULE:^^:URL_S:^^:<URL_T>id={VALUE}# 
+							/**< VOD/Dosirak Download인 경우 Contents ID : return BODY안의 URL안에 */ 
+	U8		CATID[MAX_CATID_SIZE];		#PARSING_RULE:^^:URL_S:^^:<URL_T>pkgID={VALUE}# 
+		ALTERNATIVE_RULE		#PARSING_RULE:^^:URL_S:^^:<URL_T>productid={VALUE}#
+			/**< VOD/Dosirak Download 인 경우 CATID : resp hdr BILL_INFO
+			  BREW ADS/PAS-BREW Type 인 경우 PKGID pkgID=
+			  WIPI MARS인 경우 product ID : productid= */
+} URL_ANALYSIS;
+
+/**
+ * @brief RTSP_TRANS_LOG : RTSP 정보를 DB Log
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_Rtsp_Log {
+
+	<STG_COMMON:LOG_COMMON>
+
+	U16     usClientPort;           /**< 단말 Port */
+	IP4     uiServerIP;             /**< Server IP */
+	U16     usServerPort;           /**< Server Port */
+	STIME   uiTcpSynTime;           /**< Tcp Syn Time */
+	MTIME   uiTcpSynMTime;          /**< Tcp Syn Micro Time */
+	U16     usTransID;              /**< HTTP Transaction ID */
+	U32     uiPageID;               /**< PAGE ID */
+	U16     usPlatformType;         /**< usSvcL4Type / 1000 * 1000 */
+	DEF     <TAG_DEFINE:L4CODE>usSvcL4Type; /**< IP, PORT로 판단한 Service type */
+	DEF     <TAG_DEFINE:L7CODE>usSvcL7Type; /**< URL, HostName으로 판단한 Service type */
+	U8      ucSubSysNo;             /**< Sub System No. */
+	DEF     <TAG_DEFINE:ContentsType>usContentsType;    /**< Content-Type *//* HTTP level */
+	DEF     <TAG_DEFINE:METHOD>ucMethod;        /**< Method Code 값 *//* HTTP level */
+	STIME   uiReqStartTime;         /**< GET/POST Request Start Time */
+	MTIME   uiReqStartMTime;        /**< GET/POST Request Start Micro Time */
+	STIME   uiReqEndTime;           /**< GET/POST Request End Time */
+	MTIME   uiReqEndMTime;          /**< GET/POST Request End Micro Time */
+	STIME   uiReqAckTime;           /**< Request에 대한 서버 측의 Ack Time */
+	MTIME   uiReqAckMTime;          /**< Request에 대한 서버 측의 Ack Micro Time */
+	STIME   uiResStartTime;         /**< Response Start Time */
+	MTIME   uiResStartMTime;        /**< Response Start Micro Time */
+	STIME   uiResEndTime;           /**< Response End Time */
+	MTIME   uiResEndMTime;          /**< Response End Micro Time */
+	STIME   uiMNAckTime;            /**< 단말 Ack Time */
+	MTIME   uiMNAckMTime;           /**< 단말 Ack Micro Time */
+	STIME   uiLastPktTime;          /**< Last Packet Time */
+	MTIME   uiLastPktMTime;         /**< Last Packet Micro Time */
+	S64     llTransGapTime;         /**< LastPktTime - ReqStartTime */
+	U32     usResCode;              /**< HTTP Response Code */
+	U8      <TAG_DEFINE:CLI>ucTcpClientStatus;          /**< 단말 상태 */
+	U8      <TAG_DEFINE:SVR>ucTcpServerStatus;          /**< 서버 상태 */
+	U8      <TAG_DEFINE:LOG_HTTP_STATUS>ucStatus;   /**< HTTP 서비스 상태 */
+	U16     usUserErrorCode;        /**< NTAS Error Code */
+	U16     <TAG_DEFINE:L4FAILCODE>usL4FailCode;    /**< TCP Fail Code */
+	U16     usL7FailCode;           /**< HTTP Fail Code */
+	U8      szAppFailCode[MAX_APPFAILCODE_SIZE];    /**< MARS Application Fail Code */          /* will be implementing */
+	U16     usURLSize;              /**< URL Size */            /* HTTP level */
+	U8      szURL[MAX_URL_SIZE];    /**< URL */                 /* HTTP level */
+	U8      Location[MAX_URL_SIZE]; /**< URL */                 /* HTTP level */
+	U32     uiIPDataUpPktCnt;       /**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32     uiIPDataDnPktCnt;       /**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32     uiIPTotUpPktCnt;        /**< MN => Server, 전구간에서 패킷 개수 */
+	U32     uiIPTotDnPktCnt;        /**< Server => MN, 전구간에서 패킷 개수 */
+	U32     uiIPDataUpRetransCnt;   /**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32     uiIPDataDnRetransCnt;   /**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32     uiIPTotUpRetransCnt;    /**< MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32     uiIPTotDnRetransCnt;    /**< Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32     uiIPDataUpPktSize;      /**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32     uiIPDataDnPktSize;      /**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32     uiIPTotUpPktSize;       /**< MN => Server, 전구간에서 데이터 사이즈 */
+	U32     uiIPTotDnPktSize;       /**< Server => MN, 전구간에서 데이터 사이즈 */
+	U32     uiIPDataUpRetransSize;  /**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32     uiIPDataDnRetransSize;  /**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32     uiIPTotUpRetransSize;   /**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32     uiIPTotDnRetransSize;   /**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32     uiTcpUpBodySize;        /**< MN => Server, TCP Payload Size */
+	U32     uiTcpDnBodySize;        /**< Server => MN, TCP Payload Size */
+	U32     uiUpHeaderSize;         /**< MN => Server, HTTP Header Size */
+	U32     uiDnHeaderSize;         /**< Server => MN, HTTP Header Size */
+	U32     uiUpBodySize;           /**< MN => Server, HTTP Body Size */
+	U32     uiDnBodySize;           /**< Server => MN, HTTP Body Size */
+	U32     usCounter;              /**< HTTP 헤더의 Counter 필드 값 */
+	U8      szMenuTitle[MAX_MENUTITLE_SIZE];    /**< 메뉴명 */          /* 추후 : will be implementing */
+	U8      CATID[MAX_CATID_SIZE];
+	STIME   uiOpStartTime;          /** 분석 시작 Time */
+	MTIME   uiOpStartMTime;         /** 분석 시작 Micro Time */
+	STIME   uiOpEndTime;            /** 마지막 처리 Time */
+	MTIME   uiOpEndMTime;           /** 마지막 처리 Micro Time */
+} LOG_RTSP_TRANS;
+
+/**
+ * @brief PAGE_SESS_LOG : PAGE 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_ASSOCIATION typedef struct _st_Page_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	STIME	FirstTcpSynTime:STG_Equal(pLOG_HTTP_TRANS->uiTcpSynTime):FIRST;			/**< First Tcp Syn Time */
+	MTIME	FirstTcpSynMTime:STG_Equal(pLOG_HTTP_TRANS->uiTcpSynMTime):FIRST;			/**< First Tcp Syn Micro Time */
+	U32		PageID;				/**< PAGE ID */
+	U16		FirstPlatformType:STG_Equal(pLOG_HTTP_TRANS->usPlatformType):FIRST;			/**< First usSvcL4Type / 1000 * 1000 */
+	DEF     <TAG_DEFINE:L4CODE>FirstSvcL4Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL4Type):FIRST;			/**< First IP, PORT로 판단한 Service type */
+	DEF     <TAG_DEFINE:L7CODE>FirstSvcL7Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL7Type):FIRST;			/**< First URL, HostName으로 판단한 Service type */
+	U8		SubSysNo;				/**< Sub System No. */
+	U16		FirstTransID:STG_Equal(pLOG_HTTP_TRANS->usTransID):FIRST;				/**< First HTTP Transaction ID */
+	U16		PredictReqCnt;				/**< PAGE의 예상 req수 : body안의 link수 */
+	U16		TrialReqCnt:STG_INC(LOG_HTTP_TRANS):LAST;				/**< 시도된 req 수 */
+	U16		ExecuteReqCnt;				/**< RESP까지 처리된 수 ::???::  */
+	DEF		<TAG_DEFINE:METHOD>FirstMethod:STG_Equal(pLOG_HTTP_TRANS->ucMethod):FIRST;		/**< First Method Code 값 */
+	U16		MenuURLSize:STG_Equal(pLOG_HTTP_TRANS->usURLSize):FIRST;				/**< MENU URL Size */
+	U8		MenuURL[MAX_URL_SIZE]:STG_Equal(pLOG_HTTP_TRANS->szURL):FIRST;	/**< MENU URL */
+	DEF		<TAG_DEFINE:ContentsType>FirstContentsType:STG_Equal(pLOG_HTTP_TRANS->usContentsType):FIRST; 		/**< First Content-Type */
+	STIME	FirstL7ReqStartTime:STG_Equal(pLOG_HTTP_TRANS->uiReqStartTime):FIRST;			/**< First GET/POST Request Start Time */
+	MTIME	FirstL7ReqStartMTime:STG_Equal(pLOG_HTTP_TRANS->uiReqStartMTime):FIRST;		/**< First GET/POST Request Start Micro Time */
+	STIME	LastL7MNAckTime:STG_Equal(pLOG_HTTP_TRANS->uiMNAckTime):LAST;			/**< 마지막 L7 Transaction의 MN Ack Time */
+	MTIME	LastL7MNAckMTime:STG_Equal(pLOG_HTTP_TRANS->uiMNAckMTime):LAST;			/**< 마지막 L7 Transaction의 MN Ack Micro Time */
+	STIME	LastL7LastPktTime:STG_Equal(pLOG_HTTP_TRANS->uiLastPktTime):LAST;			/**< 마지막 L7 Transaction의 Last Packet Time */
+	MTIME	LastL7LastPktMTime:STG_Equal(pLOG_HTTP_TRANS->uiLastPktMTime):LAST;			/**< 마지막 L7 Transaction의 Last Packet Micro Time */
+	STIME	FirstNotRedirectReqTime;		/**< 응답이 Redirection인 Req에서 응답이 Redirection이 아닌
+												요청이 나올 때까지 걸리는 시간의 합(micro 단위) 
+												Delay = FirstNotRedirectREqTime ? FirstL7ReqStartTime */
+	MTIME	FirstNotRedirectReqMTime;		/**< 응답이 Redirection인 Req 시간 */
+	U32		IPDataUpPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpPktCnt):LAST;				/**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPDataDnPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnPktCnt):LAST;				/**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPTotUpPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpPktCnt):LAST;				/**< MN => Server, 전구간에서 패킷 개수 */
+	U32		IPTotDnPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnPktCnt):LAST;				/**< Server => MN, 전구간에서 패킷 개수 */
+	U32		IPDataUpRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpRetransCnt):LAST;			/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPDataDnRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnRetransCnt):LAST;			/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPTotUpRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpRetransCnt):LAST;			/**< MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		IPTotDnRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnRetransCnt):LAST;			/**< Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		IPDataUpPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpPktSize):LAST;			/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPDataDnPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnPktSize):LAST;			/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPTotUpPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpPktSize):LAST;				/**< MN => Server, 전구간에서 데이터 사이즈 */
+	U32		IPTotDnPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnPktSize):LAST;				/**< Server => MN, 전구간에서 데이터 사이즈 */
+	U32		IPDataUpRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpRetransSize):LAST;		/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPDataDnRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnRetransSize):LAST;		/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPTotUpRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpRetransSize):LAST;			/**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		IPTotDnRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnRetransSize):LAST;			/**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		RTPUpPktCnt;				/**< UDP 총 패킷수 (단말 -> 서버) */
+	U32		RTPDnPktCnt;				/**< UDP 총 패킷수 (서버 -> 단말) */
+	U32		RTPIPUpPktSize;				/**< IP 패킷 크기 (단말 -> 서버) */
+	U32		RTPIPDnPktSize;				/**< IP 패킷 크기 (단말 <- 서버) */
+	U32		RTPUDPUpBodySize;			/**< UDP 패킷 크기 (단말 -> 서버) */
+	U32		RTPUDPDnBodySize;			/**< UDP 패킷 크기 (단말 <- 서버) */
+	U32		TcpUpBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiTcpUpBodySize):LAST;				/**< MN => Server, TCP Payload Size */
+	U32		TcpDnBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiTcpDnBodySize):LAST;				/**< Server => MN, TCP Payload Size */
+	U32		L7UpHeaderSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiUpHeaderSize):LAST;				/**< MN => Server, HTTP/RTSP Header Size */
+	U32		L7DnHeaderSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiDnHeaderSize):LAST;				/**< Server => MN, HTTP/RTSP Header Size */
+	U32		L7UpBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiUpBodySize):LAST;				/**< MN => Server, HTTP/RTSP Body Size */
+	U32		L7DnBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiDnBodySize):LAST;				/**< Server => MN, HTTP/RTSP Body Size */
+	U8		<TAG_DEFINE:CLI>TcpClientStatus:STG_Equal(pLOG_HTTP_TRANS->ucTcpClientStatus):LAST;		/**< 단말 상태 */
+	U8		<TAG_DEFINE:SVR>TcpServerStatus:STG_Equal(pLOG_HTTP_TRANS->ucTcpServerStatus):LAST;		/**< 서버 상태 */
+	U8		<TAG_DEFINE:LOG_HTTP_STATUS>LastL7Status:STG_Equal(pLOG_HTTP_TRANS->ucStatus):LAST;		/**< HTTP 서비스 상태 */
+	U8		PageStatus;					/**< Page Status - 1: Redirection Status  
+									         			   2: Redirect 가 아닌 것 */
+	U16		LastUserErrorCode;			/**< NTAS Error Code : HTTP가 올때마다 PAGE에서 처리 */
+	U16		<TAG_DEFINE:L4FAILCODE>LastL4FailCode:STG_Equal(pLOG_HTTP_TRANS->usL4FailCode):LAST;	/**< TCP Fail Code */
+	U16		LastL7FailCode:STG_Equal(pLOG_HTTP_TRANS->usL7FailCode):LAST;					/**< HTTP Fail Code */
+	U8		LastAppFailCode[MAX_APPFAILCODE_SIZE]:STG_Equal(pLOG_HTTP_TRANS->szAppFailCode):LAST;	/**< Last MARS Application Fail Code */
+	U16		LastResCode:STG_Equal(pLOG_HTTP_TRANS->usResCode):LAST;				/**< HTTP Response Code */
+	U16		RedirectCnt;				/**< RedirectTransaction의 개수 (응답코드 3XX를 Redirect로 간주) */
+	U8		FirstCPName[MAX_CPNAME_SIZE]:STG_Equal(pLOG_HTTP_TRANS->szCPName):FIRST;	/**< First 업체명 : cpname=k_daum; */
+	U8		FirstServiceCode[MAX_SERVICECODE_SIZE]:STG_Equal(pLOG_HTTP_TRANS->szServiceCode):FIRST; /**< WIPI/BREW : svccode=daumportal200 */
+	U16 	TransCnt:STG_INC(pLOG_HTTP_TRANS):LAST;					/**< 이 페이지를 구성하는 전체 트랜젝션 수 */
+	U16 	TransFailCnt;					/**< 이 페이지를 구성하는 전체 실패 트랜젝션 수 */
+	U8		FirstMenuID[MAX_MENUID_SIZE]:STG_Equal(pLOG_HTTP_TRANS->MenuID):FIRST;	
+											/**< VOD/Dosirak => Menu ID 
+											 BREW ADS/PAS-BREW => :Application ID
+											 WIPI MARS => Application ID */
+	U8		FirstSvcAction[MAX_SVCACTION_SIZE]:STG_Equal(pLOG_HTTP_TRANS->SvcAction):FIRST;	
+												/**< VOD/Dosirak => SvcType 
+												 BREW ADS/PAS-BREW => getFile
+												 WIPI MARS => 요청 코드 */
+	U8		FirstContentID[MAX_CONTENTID_SIZE]:STG_Equal(pLOG_HTTP_TRANS->ContentID):FIRST;	/**< VOD/Dosirak Download인 경우 Contents ID */
+	U8		FirstCATID[MAX_CATID_SIZE]:STG_Equal(pLOG_HTTP_TRANS->CATID):FIRST;		
+												/**< VOD/Dosirak Download 인 경우 CATID
+												BREW ADS/PAS-BREW Type 인 경우 PKGID
+												WIPI MARS인 경우 product ID */
+	S64		PageGapTime:STG_DiffTIME64(pthis->LastL7LastPktTime,pthis->LastL7LastPktMTime,pthis->FirstL7ReqStartTime,pthis->FirstL7ReqStartMTime):LAST;				/**< LastL7LastPktTime - FirstL7ReqStartTime */
+	S64		MaidenGapTime:STG_DiffTIME64(pthis->LastL7LastPktTime,pthis->LastL7LastPktMTime,pthis->FirstTcpSynTime,pthis->FirstTcpSynMTime):LAST;				/**< 초기접속화면사용시간을 위한 값 (LastL7LastPktTime - TcpSynTime) */
+	STIME	OpStartTime;			/** 분석 시작 Time */
+	MTIME	OpStartMTime;			/** 분석 시작 Micro Time */
+	STIME	OpEndTime;			/** 마지막 처리 Time */
+	MTIME	OpEndMTime;			/** 마지막 처리 Micro Time */
+	U32		isCDU:STG_Equal(pLOG_HTTP_TRANS->isCDU):LAST;	/**< isCDU */
+} LOG_PAGE_TRANS;
+
+/**
+ * @brief CALL_SESS_LOG : CALL 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_ASSOCIATION typedef struct _st_Call_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	STIME	LastPktTime:STG_Equal(pLOG_HTTP_TRANS->uiLastPktTime):LAST;			/**< Last Packet Time : 호 종료시간 */
+	MTIME	LastPktMTime:STG_Equal(pLOG_HTTP_TRANS->uiLastPktMTime):LAST;			/**< Last Packet Micro Time : 호 종료시간 */
+	U16		FirstPlatformType:STG_Equal(pLOG_HTTP_TRANS->usPlatformType):FIRST;			/**< First usSvcL4Type / 1000 * 1000 */
+	DEF     <TAG_DEFINE:L4CODE>FirstSvcL4Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL4Type):FIRST;			/**< First IP, PORT로 판단한 Service type */
+	DEF     <TAG_DEFINE:L7CODE>FirstSvcL7Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL7Type):FIRST;			/**< First URL, HostName으로 판단한 Service type */
+	U16		LastPlatformType:STG_Equal(pLOG_HTTP_TRANS->usPlatformType):LAST;			/**< Last usSvcL4Type / 1000 * 1000 */
+	DEF     <TAG_DEFINE:L4CODE>LastSvcL4Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL4Type):LAST;			/**< Last IP, PORT로 판단한 Service type */
+	DEF     <TAG_DEFINE:L7CODE>LastSvcL7Type:STG_Equal(pLOG_HTTP_TRANS->usSvcL7Type):LAST;			/**< Last URL, HostName으로 판단한 Service type */
+	U8		SubSysNo;				/**< Sub System No. */
+	U32		IPDataUpPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpPktCnt):LAST;				/**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPDataDnPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnPktCnt):LAST;				/**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPTotUpPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpPktCnt):LAST;				/**< MN => Server, 전구간에서 패킷 개수 */
+	U32		IPTotDnPktCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnPktCnt):LAST;				/**< Server => MN, 전구간에서 패킷 개수 */
+	U32		IPDataUpRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpRetransCnt):LAST;			/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPDataDnRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnRetransCnt):LAST;			/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPTotUpRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpRetransCnt):LAST;			/**< MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		IPTotDnRetransCnt:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnRetransCnt):LAST;			/**< Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		IPDataUpPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpPktSize):LAST;			/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPDataDnPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnPktSize):LAST;			/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPTotUpPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpPktSize):LAST;				/**< MN => Server, 전구간에서 데이터 사이즈 */
+	U32		IPTotDnPktSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnPktSize):LAST;				/**< Server => MN, 전구간에서 데이터 사이즈 */
+	U32		IPDataUpRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataUpRetransSize):LAST;		/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPDataDnRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPDataDnRetransSize):LAST;		/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPTotUpRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotUpRetransSize):LAST;			/**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		IPTotDnRetransSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiIPTotDnRetransSize):LAST;			/**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		RTPUpPktCnt;				/**< UDP 총 패킷수 (단말 -> 서버) */
+	U32		RTPDnPktCnt;				/**< UDP 총 패킷수 (서버 -> 단말) */
+	U32		RTPIPUpPktSize;				/**< IP 패킷 크기 (단말 -> 서버) */
+	U32		RTPIPDnPktSize;				/**< IP 패킷 크기 (단말 <- 서버) */
+	U32		RTPUDPUpBodySize;			/**< UDP 패킷 크기 (단말 -> 서버) */
+	U32		RTPUDPDnBodySize;			/**< UDP 패킷 크기 (단말 <- 서버) */
+	U32		TcpUpBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiTcpUpBodySize):LAST;				/**< MN => Server, TCP Payload Size */
+	U32		TcpDnBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiTcpDnBodySize):LAST;				/**< Server => MN, TCP Payload Size */
+	U32		L7UpHeaderSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiUpHeaderSize):LAST;				/**< MN => Server, HTTP/RTSP Header Size */
+	U32		L7DnHeaderSize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiDnHeaderSize):LAST;				/**< Server => MN, HTTP/RTSP Header Size */
+	U32		L7UpBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiUpBodySize):LAST;				/**< MN => Server, HTTP/RTSP Body Size */
+	U32		L7DnBodySize:STG_ACCUMULATE(pLOG_HTTP_TRANS->uiDnBodySize):LAST;				/**< Server => MN, HTTP/RTSP Body Size */
+	U8		<TAG_DEFINE:CLI>TcpClientStatus:STG_Equal(pLOG_TCP_SESS->ucTcpClientStatus):LAST;		/**< 단말 상태 */
+	U8		<TAG_DEFINE:SVR>TcpServerStatus:STG_Equal(pLOG_TCP_SESS->ucTcpServerStatus):LAST;		/**< 서버 상태 */
+	U8		<TAG_DEFINE:LOG_HTTP_STATUS>LastL7Status:STG_Equal(pLOG_HTTP_TRANS->ucStatus):LAST;		/**< HTTP 서비스 상태 */
+	U8		LastPageStatus;					/**< Last Page Status - 1: Redirection Status  
+									         			   2: Redirect 가 아닌 것 */
+	U16		<TAG_DEFINE:L4FAILCODE>LastL4FailCode:STG_Equal(pLOG_HTTP_TRANS->usL4FailCode):LAST;	/**< TCP Fail Code */
+	U16		LastL7FailCode:STG_Equal(pLOG_HTTP_TRANS->usL7FailCode):LAST;					/**< HTTP Fail Code */
+	U16		LastUserErrorCode:STG_Equal(pLOG_HTTP_TRANS->usUserErrorCode):LAST;			/**< NTAS Error Code */
+	S64		CallGapTime:STG_DiffTIME64(pthis->LastPktTime,pthis->LastPktMTime,pthis->uiCallTime,pthis->uiCallMTime):LAST;	/**< LastPktTime - CallTime */
+	STIME	OpStartTime;			/**< 분석 시작 Time */
+	MTIME	OpStartMTime;			/**< 분석 시작 Micro Time */
+	STIME	OpEndTime;			/**< 마지막 처리 Time */
+	MTIME	OpEndMTime;			/**< 마지막 처리 Micro Time */
+} LOG_CALL_TRANS;
+
+<TAG_AUTO_DEFINE_START :PAGE_STATE(500)>
+STS_INIT
+STS_NEW_PAGE
+STS_NOTMODFIED
+STS_REDIRECT
+STS_RED_NOTMODIFIED
+STS_RED_MATCH
+STS_OK
+STS_SSL
+STS_STREAM
+STS_STREAMMENU
+STS_STREAMMENU_HOLD
+STS_STREAMMENU_COM
+STS_RTSP
+STS_RTSP_TD
+STS_MENU
+STS_TEXT
+STS_TEXT_COM
+STS_DOWNLOAD
+STS_APP_DOWN
+STS_DL_TYPE
+STS_CDU_CHECK
+STS_FIMM_DOWN_HOLD
+STS_FIMM_DOWN
+STS_SAME_URL
+STS_LAST_CDU
+STS_SAME_TRN
+<TAG_AUTO_DEFINE_END:PAGE_STATE>
+
+<TAG_AUTO_DEFINE_START :L7CTYPE(200)>
+L7CTYPE_VOD_STREAMING
+L7CTYPE_NDWN
+L7CTYPE_DOSIRAK_VOD_DN
+L7CTYPE_HTML
+L7CTYPE_SIS
+<TAG_AUTO_DEFINE_END:L7CTYPE>
+
+
+#define     MAX_BODY_STR_SIZE       100
+#define     MAX_BODY_STR_LEN       MAX_BODY_STR_SIZE-1
+#define     MAX_URL_CNT             30
+
+typedef struct _st_BODY_STR {
+	U16     type;   
+	U16     len;    
+	U8      str[MAX_BODY_STR_SIZE];
+} STR_LIST;
+
+typedef struct _st_List {
+	U32         listcnt;
+	STR_LIST    strlist[MAX_URL_CNT];
+} LIST;
+
+typedef struct _st_Body {
+	U16			<TAG_DEFINE:REDIRECT>redirect_url_type;		/**< 꼭 필요한 값인가....		**/
+	U16			redirect_url_len;							/**< aURLList를 사용하면 안되나....??? **/
+	U8			redirect_url[MAX_BODY_STR_SIZE];			/**< aURLList를 사용하면 안되나... ???? **/
+	LIST		aLIST;
+} BODY;
+
+typedef struct _st_page_data {
+	BODY 		*pBODY;			/**< PAGE 정보에 가지고 있는 BODY 정보 ????? **/
+	BODY		*pInBODY;		/**< 이번 LOG_HTTP_TRANS에 같이 넘어온 데이터 BODY : 꼭 필요하네요. **/
+	U16			szLastURLLen;		/**< FIMM DOWNLOAD에서 사용되는 Last URL Len **/
+	U8			szLastURL[MAX_URL_SIZE]; /**< FIMM DOWNLOAD에서 사용되는 Last URL **/
+	U16			LocationLen;		/**< FIMM DOWNLOAD에서 사용되는 Last URL Len **/
+	U8			Location[MAX_URL_SIZE]; /**< FIMM DOWNLOAD에서 사용되는 Last URL **/
+} PAGE_DATA;
+
+/* TAG_FLOW_START에서 사용할 structure에는 
+이름 PAGE (여기서는 PAGE사용)
+이름_STATE 라는 변수가 꼭 사용되어져야 한다. */
+typedef struct _st_call_session_hash_DATA {
+	U64					timerNID; 			/**< TIMERNID */
+	DEF					<TAG_DEFINE:PAGE_STATUS>PAGE_STATE;
+	DEF					<TAG_DEFINE:PAGE_STATUS>PAGE_OLD_STATE;
+	U32					PAGE_ID;
+	stMEMSINFO 			*pMEMSINFO;
+	stHASHOINFO 		*pHASHOINFO;
+	stTIMERNINFO 		*pTIMERNINFO;
+	LOG_COMMON			aLOG_COMMON;
+	LOG_CALL_TRANS		*pLOG_CALL_TRANS;
+	LOG_PAGE_TRANS		*pLOG_PAGE_TRANS;
+	PAGE_DATA			aPAGE_DATA;
+	S32 				(*func1)(void *);		/**< Send_Page_Session_LOG */
+} CALL_SESSION_HASH_DATA;
+
+
+<TAG_FLOW_START:PAGE(pTHIS-CALL_SESSION_HASH_DATA,pINPUT-LOG_HTTP_TRANS)>
+%STS_INIT  :OTHERMSG:(D)1:(Y)1:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s :  INIT\n" , (char *)__FUNCTION__);
+	}#
+%STS_NEW_PAGE   :CONTINUE:(D)pINPUT->usResCode/100:(Y)3:STS_NOTMODFIED%  ##
+%STS_NEW_PAGE   :CONTINUE:(D)pINPUT->usResCode/100:(N)0:STS_OK%  #{
+	FPRINTF(LOG_LEVEL, "%s : new_page default\n" , (char *)__FUNCTION__);
+    if(pTHIS->pLOG_PAGE_TRANS != NULL) {
+
+        // Update Call Log (Update해야 하는 값으로는 LastPageStatus 값만 존재함.)
+		pTHIS->pLOG_CALL_TRANS->LastPageStatus = pTHIS->PAGE_STATE;
+		// 이 값은 action보다 먼저 set을 하기에 항시 STS_INIT가 될텐데??? (순서를 바꿔주어야 하나요?) 
+
+		// Send Page Log 
+		// Send_Page_Session_LOG(pTHIS);
+		pTHIS->func1(pTHIS);
+    }
+    }#
+%STS_NOTMODFIED :CONTINUE:(D)pINPUT->usResCode:(Y)304:STS_OK%  ##
+%STS_NOTMODFIED :CONTINUE:(D)pINPUT->usResCode:(N)0:STS_REDIRECT% #{
+	FPRINTF(LOG_LEVEL, "%s : pINPUT [RESCODE:%d]\n", (char *)__FUNCTION__, pINPUT->usResCode); 
+	}#
+%STS_REDIRECT   :OTHERMSG:(D)pINPUT->usResCode/100:(Y)3:STS_RED_NOTMODIFIED%  ##
+%STS_REDIRECT   :OTHERMSG:(D)pINPUT->usResCode/100:(N)0:STS_RED_MATCH%  #{
+	 FPRINTF(LOG_LEVEL, "%s : redirect 1 check: [%d] URL[%.*s]\n", 
+	 	(char *)__FUNCTION__, pINPUT->usResCode, MAX_URL_SIZE, pINPUT->szURL);
+	// pTHIS->aPAGE_DATA.Location[MAX_URL_LEN] = 0;
+	// pINPUT->Location[MAX_URL_LEN] = 0;
+	//  memcpy(pTHIS->aPAGE_DATA.Location,pINPUT->Location,MAX_URL_SIZE);
+	{
+		U32 dRet;
+		U16 usURLSize = strlen(pINPUT->szURL);
+		U16 usLocSize = strlen(pINPUT->Location);
+		// Remove URL Port 
+		dRet = Make_Absolute_URL_Buf(usURLSize, pINPUT->szURL, usLocSize, pINPUT->Location, &pTHIS->aPAGE_DATA.LocationLen, pTHIS->aPAGE_DATA.Location);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s MAKE_ABSO_URL_BUF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.LocationLen = 0;
+			pTHIS->aPAGE_DATA.Location[0] = 0x00;
+		} else {
+			FPRINTF(LOG_LEVEL, "%s MAKE_ABSO_URL_BUF ORG[%d][%.*s]", (char *)__FUNCTION__, dRet, 
+				MAX_URL_SIZE, pINPUT->Location);
+			FPRINTF(LOG_LEVEL, "%s MAKE_ABSO_URL_BUF DST[%d][%.*s]", (char *)__FUNCTION__, dRet, 
+				MAX_URL_SIZE, pTHIS->aPAGE_DATA.Location);
+		}
+	}
+	}#
+%STS_RED_NOTMODIFIED :CONTINUE:(D)pINPUT->usResCode:(Y)304:STS_RED_MATCH%  ##
+%STS_RED_NOTMODIFIED :CONTINUE:(D)pINPUT->usResCode:(N)0:STS_REDIRECT%  #{
+	FPRINTF(LOG_LEVEL, "%s : STS_RED_NOTMODIFIED pINPUT->usResCode[%d]\n", (char *)__FUNCTION__, pINPUT->usResCode);
+	}#
+%STS_RED_MATCH  :CONTINUE:(S)pTHIS->aPAGE_DATA.Location:(Y)pTHIS->aPAGE_DATA.szLastURL:STS_OK%  ##
+%STS_RED_MATCH  :CONTINUE:(S)pTHIS->aPAGE_DATA.Location:(N)pTHIS->aPAGE_DATA.szLastURL:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : red_match : [%.*s] check [%.*s]\n", (char *)__FUNCTION__, MAX_URL_SIZE,pINPUT->szURL, MAX_URL_SIZE,pTHIS->aPAGE_DATA.Location);
+	{
+		U32 dRet;
+		U16 usSize = strlen(pINPUT->szURL);
+		// Remove URL Port 
+	 	dRet = Remake_URL_Buf(
+					usSize, pINPUT->szURL, &pTHIS->aPAGE_DATA.szLastURLLen, pTHIS->aPAGE_DATA.szLastURL);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s REMAKE_URL_BUF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.szLastURLLen = 0;
+			pTHIS->aPAGE_DATA.szLastURL[0] = 0x00;
+		}
+	}
+	}#
+%STS_OK     :CONTINUE:(D)pINPUT->usSvcL7Type:(Y)APP_SSL:STS_SSL%  ##
+%STS_OK     :CONTINUE:(D)pINPUT->usSvcL7Type:(Y)APP_MENU:STS_MENU%  ##
+%STS_OK     :CONTINUE:(D)pINPUT->usSvcL7Type:(Y)APP_DOWN:STS_DOWNLOAD%  ##
+%STS_OK     :CONTINUE:(D)pINPUT->usSvcL7Type:(Y)APP_STREAM:STS_STREAM%  ##
+%STS_OK     :CONTINUE:(D)pINPUT->usSvcL7Type:(N)0:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : ok - l7code = %d\n",(char *)__FUNCTION__, pINPUT->usSvcL7Type); 
+	}#
+%STS_SSL    :CONTINUE:(D)1:(Y)1:STS_INIT%  #{
+	FPRINTF(LOG_LEVEL, "%s : ssl : dont care\n",(char *)__FUNCTION__); 
+	}#
+%STS_STREAM :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_VOD_WEB:STS_STREAMMENU%  ##
+%STS_STREAM :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_PAS_VOD:STS_STREAMMENU%  ##
+%STS_STREAM :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_DOSIRAK_WEB:STS_STREAMMENU%  ##
+%STS_STREAM :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_PAS_DOSIRAK:STS_STREAMMENU%  ##
+%STS_STREAM :CONTINUE:(D)pINPUT->usSvcL4Type:(N)0:STS_RTSP%  #{
+	FPRINTF(LOG_LEVEL, "%s : STREAM L4Code=[%d]\n", (char *)__FUNCTION__, pINPUT->usSvcL4Type); 
+	}#
+%STS_STREAMMENU :CONTINUE:(C)pTHIS->aPAGE_DATA.pBODY:(Y)0:STS_NEW_PAGE%  ##
+%STS_STREAMMENU :CONTINUE:(C)pTHIS->aPAGE_DATA.pBODY:(N)0:STS_STREAMMENU_HOLD%  #{
+	FPRINTF(LOG_LEVEL, "%s : A: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+
+	if(pTHIS->aPAGE_DATA.pBODY != NULL){
+		FPRINTF(LOG_LEVEL,"%s : ERROR\n",(char *)__FUNCTION__);
+		//		pTHIS->aPAGE_DATA.pBODY 메모리 해제
+		U8 *__pNODE;
+		__pNODE = (U8 *) nifo_ptr(pTHIS->pMEMSINFO, nifo_get_offset_node(pTHIS->pMEMSINFO, (U8 *) pTHIS->aPAGE_DATA.pBODY));
+		nifo_node_delete(pTHIS->pMEMSINFO, __pNODE);
+	}
+
+	pTHIS->aPAGE_DATA.pBODY = pTHIS->aPAGE_DATA.pInBODY;		// PAGE 정보에 BODY정보 Assign
+	pTHIS->aPAGE_DATA.pInBODY = NULL;
+	FPRINTF(LOG_LEVEL, "%s : B: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+	}#
+%STS_STREAMMENU_HOLD :OTHERMSG:(C)pTHIS->aPAGE_DATA.pBODY:(Y)0:STS_NEW_PAGE%  #{
+%STS_STREAMMENU_HOLD :OTHERMSG:(C)pTHIS->aPAGE_DATA.pBODY:(N)0:STS_STREAMMENU_COM%  ##
+	FPRINTF(LOG_LEVEL, "%s : URL[%.*s] PAGERETURL[%.*s]\n", 
+		(char *)__FUNCTION__, MAX_URL_SIZE, pINPUT->szURL, MAX_BODY_STR_SIZE,pTHIS->aPAGE_DATA.pBODY->redirect_url);
+	{
+		U32 dRet;
+		pTHIS->aPAGE_DATA.pBODY->redirect_url_len = strlen(pTHIS->aPAGE_DATA.pBODY->redirect_url);
+		// Remove URL Port 
+		dRet = Remake_URL(&pTHIS->aPAGE_DATA.pBODY->redirect_url_len, pTHIS->aPAGE_DATA.pBODY->redirect_url);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s STRAMMENU_HOLD REMAKE_URLF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.pBODY->redirect_url[0] = 0x00;
+			pTHIS->aPAGE_DATA.pBODY->redirect_url_len = 0;
+		}
+	}
+	}#
+%STS_STREAMMENU_COM :CONTINUE:(S)pTHIS->aPAGE_DATA.pBODY->redirect_url:(Y)pTHIS->aPAGE_DATA.szLastURL:STS_RTSP%  ##
+%STS_STREAMMENU_COM :CONTINUE:(S)pTHIS->aPAGE_DATA.pBODY->redirect_url:(N)pTHIS->aPAGE_DATA.szLastURL:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : URL[%.*s] PAGERETURL[%.*s]\n", 
+		(char *)__FUNCTION__, MAX_URL_SIZE, pINPUT->szURL, MAX_BODY_STR_SIZE,pTHIS->aPAGE_DATA.pBODY->redirect_url);
+	{
+		U32 dRet;
+		U16 usSize = strlen(pINPUT->szURL);
+		// Remove URL Port 
+	 	dRet = Remake_URL_Buf(
+					usSize, pINPUT->szURL, &pTHIS->aPAGE_DATA.szLastURLLen, pTHIS->aPAGE_DATA.szLastURL);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s STREAMMENU_COM REMAKE_URL_BUF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.szLastURLLen = 0;
+			pTHIS->aPAGE_DATA.szLastURL[0] = 0x00;
+		}
+	}
+	}#
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_DESCRIBE:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_DESCRIBE:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_SETUP:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_PLAY:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_PAUSE:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_ANNOUNCE:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_GET_PARAMETER:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_OPTIONS:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_RECORD:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_REDIRECT:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_SET_PARAMETER:STS_RTSP%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_TEARDOWN:STS_RTSP_TD%  ##
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(N)0:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : rtsp : method = %d\n",(char *)__FUNCTION__, pINPUT->ucMethod);
+	}#
+%STS_RTSP_TD	:CONTINUE:(D)1:(Y)1:STS_INIT%  #{ 
+	FPRINTF(LOG_LEVEL, "%s : RTSP_TD : dont care\n", (char *)__FUNCTION__); 
+	}#
+%STS_MENU   :CONTINUE:(D)pINPUT->usContentsType:(Y)CTYPE_HTML:STS_TEXT%  ##
+%STS_MENU   :CONTINUE:(D)pINPUT->usContentsType:(Y)CTYPE_WML:STS_TEXT%  ##
+%STS_MENU   :CONTINUE:(D)pINPUT->usContentsType:(N)0:STS_INIT%  #{
+	FPRINTF(LOG_LEVEL, "%s : MENU : cType=[%d]\n", (char *)__FUNCTION__, pINPUT->usContentsType); 
+	}#
+%STS_TEXT   :CONTINUE:(C)pTHIS->aPAGE_DATA.pBODY:(Y)0:STS_INIT%  ##
+%STS_TEXT   :CONTINUE:(C)pTHIS->aPAGE_DATA.pBODY:(N)0:STS_TEXT_COM%  #{
+	FPRINTF(LOG_LEVEL, "%s : A: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+	
+	if(pTHIS->aPAGE_DATA.pBODY != NULL){
+		FPRINTF(LOG_LEVEL,"STS_TEXT %s : ERROR\n",(char *)__FUNCTION__);
+		//		pTHIS->aPAGE_DATA.pBODY 메모리 해제
+		U8 *__pNODE;
+		__pNODE = (U8 *) nifo_ptr(pTHIS->pMEMSINFO, nifo_get_offset_node(pTHIS->pMEMSINFO, (U8 *) pTHIS->aPAGE_DATA.pBODY));
+		nifo_node_delete(pTHIS->pMEMSINFO, __pNODE);
+	}
+
+	pTHIS->aPAGE_DATA.pBODY = pTHIS->aPAGE_DATA.pInBODY;		// PAGE 정보에 BODY정보 Assign
+	pTHIS->aPAGE_DATA.pInBODY = NULL;
+	FPRINTF(LOG_LEVEL, "%s : B: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+//	A_MEKUN, A_VOD, A_WIPI, A_BREW에서 선 처리함.
+//	if(pTHIS->aPAGE_DATA.pBODY != NULL && pTHIS->aPAGE_DATA.pBODY->aLIST.listcnt != 0) {
+//		U32 dRet;
+//		U16 usLen = strlen(pINPUT->szURL);
+//		dRet = Make_Absolute_URL(usLen, pINPUT->szURL, &pTHIS->aPAGE_DATA.pBODY->aLIST);
+//		if(dRet < 0) {
+//			FPRINTF(LOG_LEVEL, "STS_TEXT MAKE %s : MAKE ABOSULTE URL ERR[%d]\n", (char *)__FUNCTION__, dRet);
+//			U8 *__pNODE;
+//			__pNODE = (U8 *) nifo_ptr(pTHIS->pMEMSINFO, nifo_get_offset_node(pTHIS->pMEMSINFO, (U8 *) pTHIS->aPAGE_DATA.pBODY));
+//			nifo_node_delete(pTHIS->pMEMSINFO, __pNODE);
+//			pTHIS->aPAGE_DATA.pBODY = NULL;
+//		}
+//	}
+	}#
+%STS_TEXT_COM   :OTHERMSG:(L)pTHIS->aPAGE_DATA.pBODY->aLIST:(Y)pINPUT->szURL:STS_TEXT_COM%  ##
+%STS_TEXT_COM   :OTHERMSG:(L)pTHIS->aPAGE_DATA.pBODY->aLIST:(N)pINPUT->szURL:STS_NEW_PAGE%  #{
+	// 여기서는 pBODY는 꼭  존재함.
+	FPRINTF(LOG_LEVEL, "%s : text : url [%.*s] ",(char *)__FUNCTION__, MAX_URL_SIZE,pINPUT->szURL);
+	FPRINTF(LOG_LEVEL, "%s : text : Body Url Count[%d]",(char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY->aLIST.listcnt);
+	}#
+%STS_DOWNLOAD   :CONTINUE:(D)pINPUT->usSvcL4Type/1000:(Y)3:STS_DL_TYPE%  ##
+%STS_DOWNLOAD   :CONTINUE:(D)pINPUT->usSvcL4Type/1000:(Y)4:STS_DL_TYPE%  ##
+%STS_DOWNLOAD   :CONTINUE:(D)pINPUT->usSvcL4Type/1000:(N)0:STS_APP_DOWN%  #{
+	FPRINTF(LOG_LEVEL, "%s : DL_TYPE: (LOG_PAGE_TRANS *)pINPUT->L4Code=[%d]", (char *)__FUNCTION__, pINPUT->usSvcL4Type); 
+	}#
+%STS_APP_DOWN   :CONTINUE:(D)1:(Y)1:STS_INIT%  #{
+	FPRINTF(LOG_LEVEL, "%s : APP_DOWN : dont care\n",(char *)__FUNCTION__);
+	}#
+%STS_DL_TYPE    :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_VOD_DN:STS_SAME_URL%  ##
+%STS_DL_TYPE    :CONTINUE:(D)pINPUT->usSvcL4Type:(Y)L4_DOSIRAK_DN:STS_SAME_URL%  ##
+%STS_DL_TYPE    :CONTINUE:(D)pINPUT->usSvcL4Type:(N)0:STS_CDU_CHECK%  #{
+	FPRINTF(LOG_LEVEL, "%s : DL_TYPE: (LOG_PAGE_TRANS *)pINPUT->L4Code=[%d]", (char *)__FUNCTION__, pINPUT->usSvcL4Type);
+	}#
+%STS_CDU_CHECK  :CONTINUE:(D)pINPUT->isCDU:(Y)1:STS_INIT%  ##
+%STS_CDU_CHECK  :CONTINUE:(D)pINPUT->isCDU:(N)0:STS_FIMM_DOWN_HOLD%  #{
+	FPRINTF(LOG_LEVEL, "%s : CDU_CHECK : (LOG_PAGE_TRANS *)pINPUT->isCDU=[%d]", (char *)__FUNCTION__, pINPUT->isCDU);
+	}#
+%STS_FIMM_DOWN_HOLD  :OTHERMSG:(C)pTHIS->aPAGE_DATA.pBODY:(Y)0:STS_NEW_PAGE%  #{
+%STS_FIMM_DOWN_HOLD  :OTHERMSG:(C)pTHIS->aPAGE_DATA.pBODY:(N)0:STS_FIMM_DOWN% ##
+	FPRINTF(LOG_LEVEL, "%s : A: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+	if(pTHIS->aPAGE_DATA.pBODY != NULL){
+		FPRINTF(LOG_LEVEL,"STS_FIMM_DOWN %s : ERROR\n",(char *)__FUNCTION__);
+		//		pTHIS->aPAGE_DATA.pBODY 메모리 해제
+		U8 *__pNODE;
+		__pNODE = (U8 *) nifo_ptr(pTHIS->pMEMSINFO, nifo_get_offset_node(pTHIS->pMEMSINFO, (U8 *) pTHIS->aPAGE_DATA.pBODY));
+		nifo_node_delete(pTHIS->pMEMSINFO, __pNODE);
+	}
+	pTHIS->aPAGE_DATA.pBODY = pTHIS->aPAGE_DATA.pInBODY;		// PAGE 정보에 BODY정보 Assign
+	pTHIS->aPAGE_DATA.pInBODY = NULL;
+	FPRINTF(LOG_LEVEL, "%s : B: pBODY[%p]\n", (char *)__FUNCTION__, pTHIS->aPAGE_DATA.pBODY);
+	if(pTHIS->aPAGE_DATA.pBODY != NULL) {
+		U32 dRet;
+		U16 usSize = strlen(pTHIS->aPAGE_DATA.pBODY->redirect_url);
+	 	dRet = Remake_URL_Buf(usSize, pTHIS->aPAGE_DATA.pBODY->redirect_url, 
+					&pTHIS->aPAGE_DATA.szLastURLLen, pTHIS->aPAGE_DATA.szLastURL);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s STREAMMENU_COM REMAKE_URL_BUF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.szLastURLLen = 0;
+			pTHIS->aPAGE_DATA.szLastURL[0] = 0x00;
+		} else {
+			FPRINTF(LOG_LEVEL, "%s : URL[%.*s] PAGERETURL[%.*s]", 
+				(char *)__FUNCTION__, MAX_URL_SIZE, pINPUT->szURL, MAX_BODY_STR_SIZE,pTHIS->aPAGE_DATA.pBODY->redirect_url);
+		}
+	}
+	}#
+%STS_FIMM_DOWN  :CONTINUE:(S)pTHIS->aPAGE_DATA.szLastURL:(Y)pINPUT->szURL:STS_SAME_URL%  ##
+%STS_FIMM_DOWN  :CONTINUE:(S)pTHIS->aPAGE_DATA.szLastURL:(N)pINPUT->szURL:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : FIMM_DOWN URL[%.*s] PAGERETURL[%.*s]\n", 
+		(char *)__FUNCTION__, MAX_URL_SIZE, pINPUT->szURL, MAX_BODY_STR_SIZE,pTHIS->aPAGE_DATA.pBODY->redirect_url);
+	{
+		U32 dRet;
+		U16 usSize = strlen(pINPUT->szURL);
+		// Remove URL Port 
+	 	dRet = Remake_URL_Buf(
+					usSize, pINPUT->szURL, &pTHIS->aPAGE_DATA.szLastURLLen, pTHIS->aPAGE_DATA.szLastURL);
+		if(dRet < 0) {
+			FPRINTF(LOG_LEVEL, "%s FIMM_DOWN REMAKE_URL_BUF Err[%d]", (char *)__FUNCTION__, dRet);
+			pTHIS->aPAGE_DATA.szLastURLLen = 0;
+			pTHIS->aPAGE_DATA.szLastURL[0] = 0x00;
+		} else {
+			FPRINTF(LOG_LEVEL, "%s FIMM_DOWN REMAKE_URL_BUF [%.%s]", 
+				(char *)__FUNCTION__, dRet, MAX_URL_SIZE, pTHIS->aPAGE_DATA.szLastURL);
+		}
+	}
+	}#
+%STS_RTSP   :OTHERMSG:(D)pINPUT->ucMethod:(Y)METHOD_DESCRIBE:STS_RTSP%  ##
+
+%STS_SAME_URL   :OTHERMSG:(D)pINPUT->isCDU:(Y)1:STS_LAST_CDU%  ##
+%STS_SAME_URL   :OTHERMSG:(D)pINPUT->isCDU:(N)0:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : SAME_URL : pINPUT->isCDU=[%d] URL[%.*s]", 
+		(char *)__FUNCTION__, pINPUT->isCDU, MAX_URL_SIZE, pINPUT->szURL);
+	memcpy(pTHIS->aPAGE_DATA.szLastURL,pINPUT->szURL, MAX_URL_SIZE);
+	pTHIS->aPAGE_DATA.szLastURL[MAX_URL_LEN] = 0;
+	pTHIS->aPAGE_DATA.szLastURLLen = pINPUT->usURLSize;
+	}#
+%STS_LAST_CDU   :CONTINUE:(S)pTHIS->aPAGE_DATA.szLastURL:(Y)pINPUT->szURL:STS_SAME_TRN%  ##
+%STS_LAST_CDU   :CONTINUE:(S)pTHIS->aPAGE_DATA.szLastURL:(N)pINPUT->szURL:STS_NEW_PAGE%  #{
+	FPRINTF(LOG_LEVEL, "%s : LAST_CDU : url=[%.*s]\n",(char *)__FUNCTION__, MAX_URL_SIZE, pINPUT->szURL);
+	FPRINTF(LOG_LEVEL, "%s : LAST_CDU : Lasturl=[%.*s]\n",(char *)__FUNCTION__, MAX_URL_SIZE, pTHIS->aPAGE_DATA.szLastURL);
+	}#
+%STS_SAME_TRN   :CONTINUE:(D)1:(Y)1:STS_INIT%  #{
+	FPRINTF(LOG_LEVEL, "%s : SAME_TRN : dont care\n",(char *)__FUNCTION__); 
+	}#
+<TAG_FLOW_END:PAGE>
+
+/** 설명
+  (D)1:(Y(1)   --> Don't Care
+  (N) 0        --> 나열된 것 이외의 DEFAULT
+  D : 도시락
+  V : VOD
+  K : KUN
+  M : ME
+  TD : Tear_down
+  DN : Download
+**/
+
+/* ONLINE을 위한 정의 절대 수정 불가 */
+#define DEF_BREWAPIVER_LEN  10
+#define DEF_BREWEXTVER_LEN  10
+#define DEF_HANDSET_LEN     10
+#define DEF_CHNL_LEN        2
+#define DEF_SID_LEN         5
+#define DEF_NID_LEN         5
+#define DEF_BID_LEN         5
+#define DEF_BSCID_LEN       5
+#define DEF_MARSBESTPN_LEN  4
+#define DEF_QOS_LEN         5
+
+#define DEF_MARSMIN_LEN     16
+
+#define DEF_CONTENTSID_LEN  12
+#define DEF_BREWCHARGENUM_LEN   12
+#define DEF_SIGNATURE2_LEN  4
+
+#define DEF_APPID_LEN       10
+#define DEF_KTFPAPIVER_LEN  10
+#define DEF_KTFPEXTVER_LEN  10
+#define DEF_BESTPN_LEN      5
+
+#define DEF_IMSI_LEN        16
+
+#define DEF_CHARGENUM_LEN   16
+#define DEF_MNC_LEN			2
+/*********************************/
+
+typedef struct _st_MacsBillCom {
+	S32         dPacketLen;
+	S32         dClassID;
+	U8        	szBREWApiVer[DEF_BREWAPIVER_LEN];
+	U8        szBREWExtVer[DEF_BREWEXTVER_LEN];
+	U8        szHandSet[DEF_HANDSET_LEN];
+	U8        szMIN[DEF_MARSMIN_LEN];
+	U8        szChnl[DEF_CHNL_LEN];
+	U8        szSID[DEF_SID_LEN];
+	U8        szNID[DEF_NID_LEN];
+	U8        szBID[DEF_BID_LEN];
+	U8        szBSCID[DEF_BSCID_LEN];
+	U8        szBestPN[DEF_MARSBESTPN_LEN];
+	IP4        uiDestIP;
+	U16      usDestPort;
+	U8        szQos[DEF_QOS_LEN];
+	U8        szReserved[5];
+} st_MacsBillCom;
+
+typedef struct _st_Macs {
+    S32         dSignature1;
+    U8        szContentsID[DEF_CONTENTSID_LEN];
+    U8        szChargeNumber[DEF_BREWCHARGENUM_LEN];
+    U8        szReserved[12];
+    U32        uiLen;
+    U8        szSignature2[DEF_SIGNATURE2_LEN];
+} st_Macs;
+
+typedef struct _st_WicgsBillCom {
+    S32         dPacketLen;
+    U8        szAppID[DEF_APPID_LEN];
+    U8        szKTFPApiVer[DEF_KTFPAPIVER_LEN];
+    U8        szKTFPExtVer[DEF_KTFPEXTVER_LEN];
+    U8        szHandSet[DEF_HANDSET_LEN];
+    U8        szMIN[DEF_IMSI_LEN];
+    U8        szChnl[DEF_CHNL_LEN];
+    U8        szSID[DEF_SID_LEN];
+    U8        szNID[DEF_NID_LEN];
+    U8        szBID[DEF_BID_LEN];
+    U8        szBestPN[DEF_BESTPN_LEN];
+    U16      usDestPort;
+    IP4        uiDestIP;
+    S32         dSockConnTime;
+    U8        szQos[DEF_QOS_LEN];
+    U8        szMNC[DEF_MNC_LEN];
+    U8        szReserved[9];
+} st_WicgsBillCom;
+
+typedef struct _st_Wicgs {
+    S32         dSignature1;
+    U8        szContentsID[DEF_CONTENTSID_LEN];
+    U8        szChargeNumber[DEF_CHARGENUM_LEN];
+    S32         dSMFlag;
+    U8        szReserved[12];
+    U32        uiLen;
+    U8        szSignature2[DEF_SIGNATURE2_LEN];
+} st_Wicgs;
+
+typedef struct _st_Online_Log {
+
+    <STG_COMMON:LOG_COMMON>
+
+    U16     usClientPort;           /**< 단말 Port */
+    IP4     uiServerIP;             /**< Server IP */
+    U16     usServerPort;           /**< Server Port */
+    IP4     uiAppDestIP;            /**< Billcom Header의 Application Server IP */
+    U16     usAppDestPort;          /**< Billcom Header의 Application Server Port */
+    STIME   uiTcpSynTime;           /**< Tcp Syn Time */
+    MTIME   uiTcpSynMTime;          /**< Tcp Syn Micro Time */
+    U16     usPlatformType;         /**< usSvcL4Type / 1000 * 1000 */
+    DEF     <TAG_DEFINE:L4CODE>usSvcL4Type;         /**< IP, PORT로 판단한 Service type */
+    DEF     <TAG_DEFINE:L7CODE>usSvcL7Type;         /**< URL, HostName으로 판단한 Service type */
+    U8      ucSubSysNo;             /**< Sub System No. */
+
+    U8      szApplicationID[MAX_APPLICATION_SIZE];
+    U8      szExtVersion[MAX_EXTVERSION_SIZE];
+    U8      szBSCID[MAX_BSCID_SIZE];
+    U8      szBestPN[MAX_BESTPN_SIZE];
+    U8      szMNC[MAX_MNC_SIZE];
+
+    STIME   uiFirstReqStartTime;            /**< GET/POST Request Start Time */
+    MTIME   uiFirstReqStartMTime;       /**< GET/POST Request Start Micro Time */
+    STIME   uiFirstResStartTime;            /**< Response Start Time */
+    MTIME   uiFirstResStartMTime;       /**< Response Start Micro Time */
+    STIME   uiLastPktTime;          /**< Last Packet Time */
+    MTIME   uiLastPktMTime;         /**< Last Packet Micro Time */
+    S64     llUseGapTime;           /**< LastPktTime - FirstReqStartTime */
+
+    U16     usUserErrorCode;        /**< NTAS Error Code */
+    U16     <TAG_DEFINE:L4FAILCODE>usL4FailCode;    /**< TCP Fail Code */
+
+    U32     uiIPDataUpPktCnt;       /**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+    U32     uiIPDataDnPktCnt;       /**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+    U32     uiIPTotUpPktCnt;        /**< MN => Server, 전구간에서 패킷 개수 */
+    U32     uiIPTotDnPktCnt;        /**< Server => MN, 전구간에서 패킷 개수 */
+    U32     uiIPDataUpRetransCnt;   /**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+    U32     uiIPDataDnRetransCnt;   /**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+    U32     uiIPTotUpRetransCnt;    /**< MN => Server, 전구간에서 재전송 패킷 개수 */
+    U32     uiIPTotDnRetransCnt;    /**< Server => MN, 전구간에서 재전송 패킷 개수 */
+    U32     uiIPDataUpPktSize;      /**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+    U32     uiIPDataDnPktSize;      /**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+    U32     uiIPTotUpPktSize;       /**< MN => Server, 전구간에서 데이터 사이즈 */
+    U32     uiIPTotDnPktSize;       /**< Server => MN, 전구간에서 데이터 사이즈 */
+    U32     uiIPDataUpRetransSize;  /**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+    U32     uiIPDataDnRetransSize;  /**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+    U32     uiIPTotUpRetransSize;   /**< MN => Server, 전구간에서 재전송 데이터 사이즈 */
+    U32     uiIPTotDnRetransSize;   /**< Server => MN, 전구간에서 재전송 데이터 사이즈 */
+    U32     uiTcpUpBodySize;        /**< MN => Server, TCP Payload Size */
+    U32     uiTcpDnBodySize;        /**< Server => MN, TCP Payload Size */
+
+    U32     uiTcpUpRetransBodySize;     /**< MN => Server, 재전송만의 TCP Payload Size의 합 */
+    U32     uiTcpDnRetransBodySize;     /**< Server => MN, 재전송만의 TCP Payload Size의 합 */
+
+    U16     usBillcomHeaderCnt;     /**< MN => Server, Billcom Header Count (UP) */
+    U16     usServerHeaderCnt;      /**< Server => MN, Wicgs/Macs Header Count (Down) */
+
+    U32     uiL7UpBodySize;         /**< MN => Server, TCP Payload Data중 Billcom Header를 제외한 Data Size */
+    U32     uiL7DnBodySize;         /**< Server => MN, TCP Payload Data중 Wicgs/Macs Header를 제외한 Data Size */
+
+    STIME   uiOpStartTime;          /** 분석 시작 Time */
+    MTIME   uiOpStartMTime;         /** 분석 시작 Micro Time */
+    STIME   uiOpEndTime;            /** 마지막 처리 Time */
+    MTIME   uiOpEndMTime;           /** 마지막 처리 Micro Time */
+} LOG_ONLINE_TRANS;
+
+typedef struct _st_Online_TSess_Key {
+    U32             uiCliIP;                /**< 단말 IP Address */
+    U16             usCliPort;              /**< 단말 Port */
+    U16             usReserved;             /**< 0x00으로 초기화 할 것 */
+} ONLINE_TSESS_KEY;
+
+<TAG_AUTO_DEFINE_START :ONLINE_STATE(700)>
+STS_DATA_WAIT
+STS_STATE_CHECK
+STS_CHECK_HDR_SIZE
+STS_SET_HDR
+STS_CHECK_DATA_SIZE
+STS_SET_DATA
+<TAG_AUTO_DEFINE_END:ONLINE_STATE>
+
+<TAG_AUTO_DEFINE_START :ONLINE_FLAG(0)>
+ONLINE_NO
+ONLINE_YES
+<TAG_AUTO_DEFINE_END:ONLINE_FLAG>
+
+<TAG_AUTO_DEFINE_START :ONLINE_CHECK_STATUS(1)>
+ONLINE_HDR_WAIT
+ONLINE_DATA_WAIT
+<TAG_AUTO_DEFINE_END:ONLINE_STATUS>
+
+<TAG_AUTO_DEFINE_START :ONLINE_TYPE(1)>
+ONLINE_WICGS
+ONLINE_MACS
+<TAG_AUTO_DEFINE_END:ONLINE_TYPE>
+
+<TAG_AUTO_DEFINE_START :ONLINE_UPDOWN(0)>
+ONLINE_UP
+ONLINE_DOWN
+<TAG_AUTO_DEFINE_END:ONLINE_UPDOWN>
+
+<TAG_AUTO_DEFINE_START :ONLINE_SVCTYPE(1)>
+ONLINE_WICGS_BILL
+ONLINE_WICGS_HDR
+ONLINE_MACS_BILL
+ONLINE_MACS_HDR
+<TAG_AUTO_DEFINE_END:ONLINE_SVCTYPE>
+
+#define MAX_ONLINE_HDR		108
+
+TABLE_LOG typedef struct _st_Node_Info {
+	S32			<TAG_DEFINE:ONLINE_UPDOWN>updown;
+    S32         dataSize;
+	S32			svcType;
+    S32         <TAG_DEFINE:ONLINE_FLAG>isValidSize;
+    S32         <TAG_DEFINE:ONLINE_FLAG>haveRcvSize;
+    OFFSET      offset_DATA;
+    OFFSET      offset_TCPINFO;
+    OFFSET      offset_NODE;
+    stMEMSINFO  *pMEMSINFO;
+} NODE_INFO;
+
+typedef struct _st_Online_Info {
+    S32         <TAG_DEFINE:ONLINE_CHECK_STATUS>isState;
+    S32         checkHdrSize;
+    S32         checkDataSize;
+    S32         oldDataSize;
+	S32			remainHDRSize;
+    U8          szHDR[MAX_ONLINE_HDR];
+} ONLINE_INFO;
+
+typedef struct _st_Online_TSess {
+	S32			<TAG_DEFINE:ONLINE_TYPE>type;
+	DEF			<TAG_DEFINE:ONLINE_STATUS>ONLINE_STATE;
+	DEF			<TAG_DEFINE:ONLINE_STATUS>ONLINE_OLD_STATE;
+    ONLINE_INFO ONLINEINFO[2];
+    OFFSET      offset_LOG;
+	U32			uiUpNextSeq;
+	U32			uiDnNextSeq;
+	U8			ucSynRtx;
+	U8			ucBroken;
+} ONLINE_TSESS;
+
+<TAG_FLOW_START:ONLINE(pTHIS-ONLINE_TSESS,pINPUT-NODE_INFO)>
+%STS_DATA_WAIT  :OTHERMSG:(D)1:(Y)1:STS_STATE_CHECK%  #{
+    FPRINTF(LOG_LEVEL, "=== %s :  DATA_WAIT" , (char *)__FUNCTION__);
+    }#
+
+%STS_STATE_CHECK    :CONTINUE:(D)pTHIS->ONLINEINFO[pINPUT->updown].isState:(Y)ONLINE_HDR_WAIT:STS_CHECK_HDR_SIZE%  ##
+%STS_STATE_CHECK    :CONTINUE:(D)pTHIS->ONLINEINFO[pINPUT->updown].isState:(Y)ONLINE_DATA_WAIT:STS_CHECK_DATA_SIZE%  ##
+%STS_STATE_CHECK    :CONTINUE:(D)pTHIS->ONLINEINFO[pINPUT->updown].isState:(N)0:STS_DATA_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "=== %s : STATE CHECK [%d]" , (char *)__FUNCTION__, pTHIS->ONLINEINFO[pINPUT->updown].isState);
+    }#
+
+%STS_CHECK_HDR_SIZE    :CONTINUE:(D)pINPUT->isValidSize:(Y)ONLINE_YES:STS_SET_HDR%  ##
+%STS_CHECK_HDR_SIZE    :CONTINUE:(D)pINPUT->isValidSize:(Y)ONLINE_NO:STS_DATA_WAIT%  #{
+	// 사이즈 비교 후 isValidSize 세팅
+	ONLINE_INFO		*pONLINEINFO;
+	TCP_INFO		*pTCPINFO;
+	U8				*pDATA;
+	S32				copySize;
+
+
+	pTCPINFO = (TCP_INFO *)nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_TCPINFO);
+	pDATA = nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_DATA);
+
+	pONLINEINFO = &pTHIS->ONLINEINFO[pINPUT->updown];
+
+    FPRINTF(LOG_LEVEL, "=== %s : CHECK HDR SIZE [%d]" , (char *)__FUNCTION__, pONLINEINFO->isState);
+
+    FPRINTF(LOG_LEVEL, "=@= %s : CHECK HDR SIZE [%d] copySize[%d] dataSize[%d] isValidSize[%d]" , 
+		(char *)__FUNCTION__, pONLINEINFO->isState, copySize, pINPUT->dataSize, pINPUT->isValidSize);
+
+	if(pONLINEINFO->remainHDRSize + pINPUT->dataSize >= pONLINEINFO->checkHdrSize) {
+		copySize = pONLINEINFO->checkHdrSize - pONLINEINFO->remainHDRSize;
+		pINPUT->isValidSize = ONLINE_YES;
+	} else {
+		copySize = pINPUT->dataSize;
+		pINPUT->isValidSize = ONLINE_NO;
+	}
+	
+	memcpy(&pONLINEINFO->szHDR[pONLINEINFO->remainHDRSize], pDATA, copySize);
+	pONLINEINFO->remainHDRSize += copySize;
+	pINPUT->dataSize = (pINPUT->dataSize - copySize);
+	pINPUT->offset_DATA = (pINPUT->offset_DATA + copySize);
+
+    FPRINTF(LOG_LEVEL, "=@@ %s : CHECK HDR SIZE [%d] copySize[%d] dataSize[%d] isValidSize[%d]" , 
+		(char *)__FUNCTION__, pONLINEINFO->isState, copySize, pINPUT->dataSize, pINPUT->isValidSize);
+
+    }#
+
+%STS_SET_HDR   :CONTINUE:(D)pINPUT->haveRcvSize:(Y)ONLINE_YES:STS_STATE_CHECK%  ##
+%STS_SET_HDR   :CONTINUE:(D)pINPUT->haveRcvSize:(Y)ONLINE_NO:STS_DATA_WAIT%  #{
+    // 세팅
+	ONLINE_INFO		*pONLINEINFO;
+	TCP_INFO		*pTCPINFO;
+	U8				*pDATA;
+	S32				copySize;
+	LOG_ONLINE_TRANS	*pLOGTRANS;
+	st_Macs			*pMACS;
+	st_MacsBillCom	*pMACSBILL;
+	st_Wicgs		*pWICGS;
+	st_WicgsBillCom	*pWICGSBILL;
+
+
+	pONLINEINFO = &pTHIS->ONLINEINFO[pINPUT->updown];
+	pTCPINFO = (TCP_INFO *)nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_TCPINFO);
+	pDATA = nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_DATA);
+	pLOGTRANS = (LOG_ONLINE_TRANS *)nifo_ptr(pINPUT->pMEMSINFO, pTHIS->offset_LOG);
+	
+    FPRINTF(LOG_LEVEL, "=== %s : SET HDR [%d] SVCTYPE[%d]" , (char *)__FUNCTION__, pONLINEINFO->isState, pINPUT->svcType);
+
+	switch(pINPUT->svcType)
+	{
+	case ONLINE_WICGS_BILL:
+		pWICGSBILL = (st_WicgsBillCom *)pONLINEINFO->szHDR;
+		pLOGTRANS->uiTcpUpBodySize += pONLINEINFO->checkHdrSize;
+
+		if(pLOGTRANS->uiAppDestIP == 0) 
+			pLOGTRANS->uiAppDestIP = ntohl(pWICGSBILL->uiDestIP);
+		if(pLOGTRANS->usAppDestPort == 0)
+			pLOGTRANS->usAppDestPort = ntohs(pWICGSBILL->usDestPort);
+		if(pLOGTRANS->szApplicationID[0] == 0x00) {
+			memcpy(pLOGTRANS->szApplicationID, pWICGSBILL->szAppID, MAX_APPLICATION_LEN);
+			pLOGTRANS->szApplicationID[MAX_APPLICATION_LEN] = 0x00;
+		}
+		if(pLOGTRANS->szExtVersion[0] == 0x00) {
+			memcpy(pLOGTRANS->szExtVersion, pWICGSBILL->szKTFPExtVer, MAX_EXTVERSION_LEN);
+			pLOGTRANS->szExtVersion[MAX_EXTVERSION_LEN] = 0x00;
+		}
+		if(pLOGTRANS->szBestPN[0] == 0x00) {
+			memcpy(pLOGTRANS->szBestPN, pWICGSBILL->szBestPN, MAX_BESTPN_LEN);
+			pLOGTRANS->szBestPN[MAX_BESTPN_LEN] = 0x00;
+		}
+		if(pLOGTRANS->szMNC[0] = 0x00) {
+			memcpy(pLOGTRANS->szMNC, pWICGSBILL->szMNC, MAX_MNC_LEN);
+			pLOGTRANS->szMNC[MAX_MNC_LEN] = 0x00;	
+		}
+		if(pLOGTRANS->uiFirstReqStartTime == 0) {
+			pLOGTRANS->uiFirstReqStartTime = pTCPINFO->uiCapTime;
+			pLOGTRANS->uiFirstReqStartMTime = pTCPINFO->uiCapMTime;
+		}
+		if(pLOGTRANS->uiBaseID == 0) {
+			pLOGTRANS->uiBaseID = atoi(pWICGSBILL->szBID);
+		}
+		if(pLOGTRANS->usNID == 0) {
+			pLOGTRANS->usNID = atoi(pWICGSBILL->szNID);
+		}
+		if(pLOGTRANS->usSID == 0) {
+			pLOGTRANS->usSID = atoi(pWICGSBILL->szSID);
+		}
+		if(pLOGTRANS->szMIN[0] == 0x00) {
+			memcpy(pLOGTRANS->szMIN, pWICGSBILL->szMIN, MAX_MIN_LEN);
+			pLOGTRANS->szMIN[MAX_MIN_LEN] = 0x00;
+		}
+
+		pLOGTRANS->usBillcomHeaderCnt++;
+
+		pONLINEINFO->isState = ONLINE_DATA_WAIT;
+
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] WICGS BILL packetLen[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, ntohl(pWICGSBILL->dPacketLen));
+		pONLINEINFO->checkDataSize = ntohl(pWICGSBILL->dPacketLen) - st_WicgsBillCom_SIZE;
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] WICGS BILL checkDataSize[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize);
+		pONLINEINFO->remainHDRSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	case ONLINE_WICGS_HDR:
+		pWICGS = (st_Wicgs *)pONLINEINFO->szHDR;
+		pLOGTRANS->uiTcpDnBodySize += pONLINEINFO->checkHdrSize;
+
+		if(pLOGTRANS->uiFirstResStartTime == 0) {
+			pLOGTRANS->uiFirstResStartTime = pTCPINFO->uiCapTime;
+			pLOGTRANS->uiFirstResStartMTime = pTCPINFO->uiCapMTime;
+		}
+
+		pLOGTRANS->usServerHeaderCnt++;
+
+		pONLINEINFO->isState = ONLINE_DATA_WAIT;
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] WICGS packetLen[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, ntohl(pWICGS->uiLen));
+		pONLINEINFO->checkDataSize = ntohl(pWICGS->uiLen);
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] WICGS checkDataSize[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize);
+		pONLINEINFO->remainHDRSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+		break;
+
+	case ONLINE_MACS_BILL:
+		pMACSBILL = (st_MacsBillCom *)pONLINEINFO->szHDR;
+		pLOGTRANS->uiTcpUpBodySize += pONLINEINFO->checkHdrSize;
+
+		if(pLOGTRANS->uiAppDestIP == 0) 
+			pLOGTRANS->uiAppDestIP = ntohl(pMACSBILL->uiDestIP);
+		if(pLOGTRANS->usAppDestPort == 0)
+			pLOGTRANS->usAppDestPort = ntohs(pMACSBILL->usDestPort);
+		if(pLOGTRANS->szApplicationID[0] == 0x00) {
+			sprintf(pLOGTRANS->szApplicationID, "%u", ntohl(pMACSBILL->dClassID));
+		}
+		if(pLOGTRANS->szExtVersion[0] == 0x00) {
+			memcpy(pLOGTRANS->szExtVersion, pMACSBILL->szBREWExtVer, MAX_EXTVERSION_LEN);
+			pLOGTRANS->szExtVersion[MAX_EXTVERSION_LEN] = 0x00;
+		}
+		if(pLOGTRANS->szBSCID[0] == 0x00) {
+			memcpy(pLOGTRANS->szBSCID, pMACSBILL->szBSCID, MAX_BSCID_LEN);
+			pLOGTRANS->szBSCID[MAX_BSCID_LEN] = 0x00;
+		}
+		if(pLOGTRANS->szBestPN[0] == 0x00) {
+			memcpy(pLOGTRANS->szBestPN, pMACSBILL->szBestPN, MAX_BESTPN_LEN-1);
+			pLOGTRANS->szBestPN[MAX_BESTPN_LEN-1] = 0x00;
+		}
+		if(pLOGTRANS->uiFirstReqStartTime == 0) {
+			pLOGTRANS->uiFirstReqStartTime = pTCPINFO->uiCapTime;
+			pLOGTRANS->uiFirstReqStartMTime = pTCPINFO->uiCapMTime;
+		}
+		if(pLOGTRANS->uiBaseID == 0) {
+			pLOGTRANS->uiBaseID = atoi(pMACSBILL->szBID);
+		}
+		if(pLOGTRANS->usNID == 0) {
+			pLOGTRANS->usNID = atoi(pMACSBILL->szNID);
+		}
+		if(pLOGTRANS->usSID == 0) {
+			pLOGTRANS->usSID = atoi(pMACSBILL->szSID);
+		}
+		if(pLOGTRANS->szMIN[0] == 0x00) {
+			memcpy(pLOGTRANS->szMIN, pMACSBILL->szMIN, MAX_MIN_LEN);
+			pLOGTRANS->szMIN[MAX_MIN_LEN] = 0x00;
+		}
+
+		pLOGTRANS->usBillcomHeaderCnt++;
+
+		pONLINEINFO->isState = ONLINE_DATA_WAIT;
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] MACS BILL packetLen[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, ntohl(pMACSBILL->dPacketLen));
+		pONLINEINFO->checkDataSize = ntohl(pMACSBILL->dPacketLen) - st_MacsBillCom_SIZE;
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] MACS BILL checkDataSize[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize);
+		pONLINEINFO->remainHDRSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	case ONLINE_MACS_HDR:
+		pMACS = (st_Macs *)pONLINEINFO->szHDR;
+		pLOGTRANS->uiTcpDnBodySize += pONLINEINFO->checkHdrSize;
+
+		if(pLOGTRANS->uiFirstResStartTime == 0) {
+			pLOGTRANS->uiFirstResStartTime = pTCPINFO->uiCapTime;
+			pLOGTRANS->uiFirstResStartMTime = pTCPINFO->uiCapMTime;
+		}
+
+		pLOGTRANS->usServerHeaderCnt++;
+
+		pONLINEINFO->isState = ONLINE_DATA_WAIT;
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] MACS packetLen[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, ntohl(pMACS->uiLen));
+		pONLINEINFO->checkDataSize = ntohl(pMACS->uiLen);
+    	FPRINTF(LOG_LEVEL, "=@= %s : SET HDR [%d] MACS checkDataSize[%d]" , 
+			(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize);
+		pONLINEINFO->remainHDRSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	default:
+		break;
+	}
+
+    FPRINTF(LOG_LEVEL, "=@@ %s : SET HDR [%d] checkDataSize[%d] remainHDRSize[%d] oldDataSize[%d] havaRcvSize[%d]", 
+		(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize, 
+		pONLINEINFO->remainHDRSize, pONLINEINFO->oldDataSize, pINPUT->haveRcvSize);
+
+    }#
+
+%STS_CHECK_DATA_SIZE    :CONTINUE:(D)pINPUT->isValidSize:(Y)ONLINE_YES:STS_SET_DATA%  ##
+%STS_CHECK_DATA_SIZE    :CONTINUE:(D)pINPUT->isValidSize:(Y)ONLINE_NO:STS_DATA_WAIT%  #{
+        // 사이즈 비교 후 isValidSize 세팅
+	ONLINE_INFO		*pONLINEINFO;
+	TCP_INFO		*pTCPINFO;
+	U8				*pDATA;
+	S32				copySize;
+
+
+	pTCPINFO = (TCP_INFO *)nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_TCPINFO);
+	pDATA = nifo_ptr(pINPUT->pMEMSINFO, pINPUT->offset_DATA);
+	pONLINEINFO = &pTHIS->ONLINEINFO[pINPUT->updown];
+
+    FPRINTF(LOG_LEVEL, "=== %s : CHECK DATA SIZE [%d]" , (char *)__FUNCTION__, pONLINEINFO->isState);
+
+    FPRINTF(LOG_LEVEL, "=@= %s : CHECK DATA SIZE [%d] copySize[%d] dataSize[%d] isValidSize[%d]", 
+		(char *)__FUNCTION__, pONLINEINFO->isState, copySize, pINPUT->dataSize, pINPUT->isValidSize);
+
+	if(pONLINEINFO->oldDataSize + pINPUT->dataSize >= pONLINEINFO->checkDataSize) {
+		copySize = pONLINEINFO->checkDataSize - pONLINEINFO->oldDataSize;
+		pINPUT->isValidSize = ONLINE_YES;
+	} else {
+		copySize = pINPUT->dataSize;
+		pINPUT->isValidSize = ONLINE_NO;
+	}
+	
+	pONLINEINFO->oldDataSize += copySize;
+	pINPUT->dataSize = (pINPUT->dataSize - copySize);
+	pINPUT->offset_DATA = (pINPUT->offset_DATA + copySize);
+
+    FPRINTF(LOG_LEVEL, "=@@ %s : CHECK DATA SIZE [%d] copySize[%d] dataSize[%d] isValidSize[%d]", 
+		(char *)__FUNCTION__, pONLINEINFO->isState, copySize, pINPUT->dataSize, pINPUT->isValidSize);
+
+    }#
+
+%STS_SET_DATA   :CONTINUE:(D)pINPUT->haveRcvSize:(Y)ONLINE_YES:STS_STATE_CHECK%  ##
+%STS_SET_DATA   :CONTINUE:(D)pINPUT->haveRcvSize:(Y)ONLINE_NO:STS_DATA_WAIT%  #{
+        // 세팅
+	ONLINE_INFO		*pONLINEINFO;
+	TCP_INFO		*pTCPINFO;
+	U8				*pDATA;
+	S32				copySize;
+	LOG_ONLINE_TRANS	*pLOGTRANS;
+
+	pLOGTRANS = (LOG_ONLINE_TRANS *)nifo_ptr(pINPUT->pMEMSINFO, pTHIS->offset_LOG);
+	pONLINEINFO = &pTHIS->ONLINEINFO[pINPUT->updown];
+	
+    FPRINTF(LOG_LEVEL, "=== %s : SET DATA [%d]" , (char *)__FUNCTION__, pONLINEINFO->isState);
+
+	switch(pINPUT->svcType)
+	{
+	case ONLINE_WICGS_BILL:
+		pLOGTRANS->uiL7UpBodySize += pONLINEINFO->checkDataSize;
+		pLOGTRANS->uiTcpUpBodySize += pONLINEINFO->checkDataSize;
+
+		pONLINEINFO->isState = ONLINE_HDR_WAIT;
+		pONLINEINFO->checkDataSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	case ONLINE_WICGS_HDR:
+		pLOGTRANS->uiL7DnBodySize += pONLINEINFO->checkDataSize;
+		pLOGTRANS->uiTcpDnBodySize += pONLINEINFO->checkDataSize;
+
+		pONLINEINFO->isState = ONLINE_HDR_WAIT;
+		pONLINEINFO->checkDataSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+		break;
+
+	case ONLINE_MACS_BILL:
+		pLOGTRANS->uiL7UpBodySize += pONLINEINFO->checkDataSize;
+		pLOGTRANS->uiTcpUpBodySize += pONLINEINFO->checkDataSize;
+
+		pONLINEINFO->isState = ONLINE_HDR_WAIT;
+		pONLINEINFO->checkDataSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	case ONLINE_MACS_HDR:
+		pLOGTRANS->uiL7DnBodySize += pONLINEINFO->checkDataSize;
+		pLOGTRANS->uiTcpDnBodySize += pONLINEINFO->checkDataSize;
+
+		pONLINEINFO->isState = ONLINE_HDR_WAIT;
+		pONLINEINFO->checkDataSize = 0;
+		pONLINEINFO->oldDataSize = 0;
+		if(pINPUT->dataSize > 0) {
+			pINPUT->haveRcvSize = ONLINE_YES;
+		} else {
+			pINPUT->haveRcvSize = ONLINE_NO;
+		}
+
+		break;
+
+	default:
+		break;
+	}
+
+    FPRINTF(LOG_LEVEL, "=@@ %s : SET DATA [%d] checkDataSize[%d] remainHDRSize[%d] oldDataSize[%d] havaRcvSize[%d]", 
+		(char *)__FUNCTION__, pONLINEINFO->isState, pONLINEINFO->checkDataSize, 
+		pONLINEINFO->remainHDRSize, pONLINEINFO->oldDataSize, pINPUT->haveRcvSize);
+
+    }#
+
+<TAG_FLOW_END:ONLINE>
+
+#pragma pack()
+
+/*
+ * $Log: online.pstg,v $
+ * Revision 1.3  2006/10/30 09:00:53  cjlee
+ * if_var if_val을 어떤 값이든 쓸수 있게 변경
+ *
+ * Revision 1.2  2006/10/30 08:13:53  dark264sh
+ * *** empty log message ***
+ *
+ * Revision 1.30  2006/10/17 05:28:50  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.29  2006/10/17 05:16:46  cjlee
+ * aqua.pstg 와 flow.stg를 합침 -> aqua.pstg
+ *
+ * Revision 1.28  2006/10/17 03:54:17  cjlee
+ * flow action 내용 수정 : compile 완료
+ *
+ * Revision 1.27  2006/10/16 15:32:24  shlee
+ * UPDATE Structure for FLOW
+ *
+ * Revision 1.26  2006/10/16 08:47:47  cjlee
+ * flow 반영중
+ *
+ * Revision 1.40  2006/10/11 06:13:38  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.39  2006/10/11 05:45:54  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.38  2006/10/11 03:16:50  cjlee
+ * SIZE 는 선언 , LEN은 실제 사용
+ *
+ * Revision 1.37  2006/10/10 08:55:17  cjlee
+ * PAGE CALL 의 field들 내용 추가
+ *
+ * Revision 1.36  2006/10/09 13:27:26  dark264sh
+ * URL을 http://hostname/path 형태로 만드는 부분 추가 (Port 번호를 뺀 값)
+ *
+ * Revision 1.35  2006/10/09 10:30:57  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.34  2006/10/09 10:02:08  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.33  2006/10/09 08:54:31  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.32  2006/10/09 07:50:27  shlee
+ * t
+ *
+ * Revision 1.31  2006/10/04 08:40:28  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.30  2006/10/04 07:37:00  dark264sh
+ * 필터 읽는 방법 변경, define PATH_FILTER
+ *
+ * Revision 1.29  2006/10/04 06:24:13  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.28  2006/10/04 06:16:55  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.27  2006/10/04 05:24:40  dark264sh
+ * APPCODE 대신에 MSGQKEY 추가
+ *
+ * Revision 1.26  2006/10/04 01:48:39  dark264sh
+ * define 이름 변경(유사한 이름 사용으로 헷갈림)
+ *
+ * Revision 1.25  2006/10/04 01:48:05  cjlee
+ * conf 완료
+ *
+ * Revision 1.24  2006/10/04 00:11:53  cjlee
+ * conf-new에 맞춘 aqua.pstg
+ *
+ * Revision 1.23  2006/10/02 00:14:54  dark264sh
+ * 디버깅을 목적으로 uiLastSeq 추가
+ *
+ * Revision 1.22  2006/10/01 23:59:45  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.21  2006/10/01 23:55:50  cjlee
+ * HASH추가
+ *
+ * Revision 1.20  2006/09/29 08:50:38  dark264sh
+ * FIN 재전송 체크를 위한 필드 추가
+ *
+ * Revision 1.19  2006/09/29 01:46:27  cjlee
+ * *** empty log message ***
+ *
+ * Revision 1.18  2006/09/28 06:42:53  cjlee
+ * service option의 자리수 늘려줌
+ *
+ * Revision 1.17  2006/09/28 04:23:28  cjlee
+ * URL PARSE 추가
+ *
+ * Revision 1.16  2006/09/27 05:15:29  dark264sh
+ * 이름 변경
+ *
+ * Revision 1.15  2006/09/27 04:08:19  cjlee
+ * ASSOCIATION을 포함한 새로운 update :
+ * - HTTP , CALL , PAGE
+ *
+ * Revision 1.14  2006/09/26 09:46:57  dark264sh
+ * no message
+ *
+ * Revision 1.13  2006/09/26 09:27:41  dark264sh
+ * HTTP_TRANS 멤버 변경
+ * 필요없는 필드 삭제
+ *
+ * Revision 1.12  2006/09/25 02:53:49  dark264sh
+ * http req/res header/body 구분 번호 변경
+ *
+ * Revision 1.11  2006/09/22 07:02:30  dark264sh
+ * no message
+ *
+ * Revision 1.10  2006/09/21 05:32:18  dark264sh
+ * http body 끝을 판단하는 방법 변경
+ *
+ * Revision 1.9  2006/09/19 07:21:20  dark264sh
+ * no message
+ *
+ * Revision 1.8  2006/09/18 03:04:52  dark264sh
+ * no message
+ *
+ * Revision 1.7  2006/09/13 05:05:30  dark264sh
+ * TCP Session, HTTP Transaction Count 변경
+ * - 현재 시스템에서 메모리 사이즈 부족으로 할당을 못하는 문제 발생
+ *    상용 시스템에 설치시에 알맞은 값으로 변경해야 함.
+ *
+ * Revision 1.6  2006/09/11 02:14:49  dark264sh
+ * no message
+ *
+ * Revision 1.5  2006/09/11 02:07:37  dark264sh
+ * no message
+ *
+ * Revision 1.4  2006/09/11 01:55:19  dark264sh
+ * no message
+ *
+ * Revision 1.3  2006/09/08 06:06:59  cjlee
+ * debug : U32로 맞춰줌
+ *
+ * Revision 1.2  2006/09/08 05:59:44  cjlee
+ * CONF UPDATE
+ *
+ * Revision 1.1  2006/09/08 01:56:55  dark264sh
+ * INIT
+ *
+ * Revision 1.21  2006/09/07 09:07:56  cjlee
+ * L4 , L7 , MN CONF 변경 및 추가
+ *
+ * Revision 1.20  2006/09/07 06:04:33  dark264sh
+ * PRE_A
+ * filter 정보 검색 추가
+ *
+ * Revision 1.19  2006/09/06 11:25:28  dark264sh
+ * uiSndQID => dSndQID로 변경
+ *
+ * Revision 1.18  2006/09/06 09:32:03  dark264sh
+ * 구조체 번호 선정
+ *
+ * Revision 1.17  2006/09/05 04:57:27  dark264sh
+ * 에러 핸들링, 에러 코드 부분 수정
+ *
+ * Revision 1.16  2006/09/04 06:56:33  dark264sh
+ * no message
+ *
+ * Revision 1.15  2006/09/04 05:31:10  dark264sh
+ * Data Cnt, Size를 HTTP에 전송하기 위한 부분 수정
+ *
+ * Revision 1.14  2006/08/29 04:27:39  dark264sh
+ * no message
+ *
+ * Revision 1.13  2006/08/29 01:46:06  dark264sh
+ * no message
+ *
+ * Revision 1.12  2006/08/29 01:30:33  dark264sh
+ * no message
+ *
+ * Revision 1.11  2006/08/29 01:25:09  dark264sh
+ * no message
+ *
+ * Revision 1.10  2006/08/29 01:23:01  dark264sh
+ * no message
+ *
+ * Revision 1.9  2006/08/28 12:16:42  dark264sh
+ * no message
+ *
+ * Revision 1.8  2006/08/28 04:04:20  dark264sh
+ * no message
+ *
+ * Revision 1.7  2006/08/28 02:22:59  dark264sh
+ * no message
+ *
+ * Revision 1.6  2006/08/28 02:12:25  dark264sh
+ * no message
+ *
+ * Revision 1.5  2006/08/28 01:29:23  dark264sh
+ * no message
+ *
+ * Revision 1.4  2006/08/28 00:53:49  dark264sh
+ * 오타 수정
+ *
+ * Revision 1.3  2006/08/25 07:14:48  dark264sh
+ * no message
+ *
+ * Revision 1.2  2006/08/24 04:08:23  dark264sh
+ * HTTP 기본 Flow 구성
+ *
+ * Revision 1.1  2006/08/22 01:51:45  dark264sh
+ * aqua.stg => aqua.pstg
+ *
+ * Revision 1.12  2006/08/22 01:44:30  dark264sh
+ * no message
+ *
+ * Revision 1.11  2006/08/22 01:41:29  dark264sh
+ * no message
+ *
+ * Revision 1.10  2006/08/21 09:22:41  dark264sh
+ * L4FailCode 설정 함수 추가
+ *
+ * Revision 1.9  2006/08/21 07:35:34  dark264sh
+ * TCP_SESS struct timeval => STIME, MTIME으로 변경
+ * structg에서 struct timeval 처리를 못함.
+ *
+ * Revision 1.8  2006/08/21 06:22:56  dark264sh
+ * no message
+ *
+ * Revision 1.7  2006/08/21 04:32:29  dark264sh
+ * no message
+ *
+ * Revision 1.6  2006/08/21 04:15:02  dark264sh
+ * no message
+ *
+ * Revision 1.5  2006/08/21 01:32:32  dark264sh
+ * LOG_COMMON 추가
+ *
+ * Revision 1.4  2006/08/18 10:18:03  dark264sh
+ * no message
+ *
+ * Revision 1.3  2006/08/16 05:32:03  dark264sh
+ * no message
+ *
+ * Revision 1.2  2006/08/16 05:07:55  dark264sh
+ * no message
+ *
+ * Revision 1.1  2006/08/16 05:07:22  dark264sh
+ * INIT
+ *
+ */

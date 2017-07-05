@@ -1,0 +1,869 @@
+FileName : ie_func.c
+
+Set : iterate_comments = ON
+
+/**< variable parameter 방식으로 연습해 보았다. 이것으로 안쓰는 것이 효율적일 것이다. */
+#include <stdarg.h>
+
+#include "../abprotocol_proto.h"
+
+int 	gWHICH_ANA;			/**< binaryy or tree 
+								WHICH_ANA_BINARY
+								WHICH_ANA_TREE */
+
+param_node_t *
+add_param_node_to_pnode_child (dlink_t *pnode, int pos, int len)
+{
+    param_node_t            *pn;
+
+    pn = param_node_alloc(MAX_STRING_DESC);
+    dlink_nq (pnode, &pn->sibling);
+	pn->pos = pos;
+	pn->len = pos + len;
+    return pn;
+}
+
+Set : function_def{avp_flags_decode} = "void avp_flags_decode (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)"
+void avp_flags_decode (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)
+{
+	U8 	*pflag;
+
+	pflag = ((U8 *)pF->p1) + 4;
+
+	pflag [0] = pData[(*pos)];
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		;
+	}
+
+	(*pos) += 1;
+}
+
+Set : function_def{aal2_flags_decode} = "void aal2_flags_decode (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)"
+void aal2_flags_decode (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)
+{
+	U8 	*pflag;
+
+	pflag = ((U8 *)pF->p1) + 1;
+
+	pflag [0] = pData[(*pos)];
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		;
+	}
+
+	(*pos) += 1;
+}
+
+Set : function_def{avp_vender_id_check} = "void avp_vender_id_check (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)"
+void avp_vender_id_check (stFieldFormat *pF, U8 *pData, int iDLen, int *pos, void *dlink, U8 *pstring, int *spos)
+{
+	U32 	*vendorid;
+	U8	pflag;
+
+	pflag = pData[(*pos)-4];
+
+	if (((pflag >> 7) & 0x01) == 1) {
+
+		vendorid = (U32 *)(((U8 *)pF->p2) + 4);
+
+		*vendorid = ntohl(*((U32 *)(pData + (*pos))));
+		if (gWHICH_ANA == WHICH_ANA_TREE) {
+			;
+		}
+	
+		(*pos) += 4;
+	}
+}
+
+
+Set : function_def{ie_func_mobile_identity} = "void ie_func_mobile_identity (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_mobile_identity (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+#if 0
+	int				j, k;
+	dlink_t			*list;
+	param_node_t	*pn, *pn1;
+	
+	if ( LV_STRING_ORDER
+	mGMM_ServiceReq_sb->MobileID.ID_Type = pd[0] & 0x07;
+
+
+	pMobile_id->EvenOdd = (pd[0] >> 3) & 0x01;
+	printf  ("MobileID: %d,%d %d, %d\n", pMobile_id->ID_Type, pMobile_id->EvenOdd, v_len, ll2);
+
+	j = 0;
+	sprintf (pMobile_id->value, "%X", ((pd[0] >> 4) & 0x0f)); j++;
+
+	if (pMobile_id->ID_Type == 4) 		/**< TMSI, P-TMSI */
+		j = 0;
+
+	for (k=1; k < (v_len); k++) {
+		sprintf (pMobile_id->value + j, "%X", (pd[k] & 0x0f)); j++;
+		sprintf (pMobile_id->value + j, "%X", ((pd[k] >> 4) & 0x0f)); j++;
+	}
+
+	if ( (pMobile_id->ID_Type == 1) ||
+		 (pMobile_id->ID_Type == 2) ||
+		 (pMobile_id->ID_Type == 3)) {
+		if (pMobile_id->ID_Type == 0) {
+			pMobile_id->value [j -1] = 0x00;
+		}
+	}
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+    	pn = add_param_node_to_pnode_child (list);
+		sprintf (pn->data, "Mobile ID Value: %s", pMobile_id->value);
+
+    	pn1 = add_param_node_to_pnode_child (&pn->child);
+	    sprintf (pn1->data, "MobileID Type: %d", pMobile_id->ID_Type);
+
+    	pn1 = add_param_node_to_pnode_child (&pn->child);
+	    sprintf (pn1->data, "Even(0)/Odd(1): %d", pMobile_id->EvenOdd);
+
+    	pn1 = add_param_node_to_pnode_child (&pn->child);
+	    sprintf (pn1->data, "MobileID: %s", pMobile_id->value);
+	}
+
+   	va_end (marker);              /* Reset variable arguments.      */
+#endif
+	;
+}
+
+
+Set : function_def{ie_func_pdp_cxt_stauts} = "void ie_func_pdp_cxt_stauts (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_pdp_cxt_stauts (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+#if 0
+	va_list 				marker;
+	IE_pdp_context_status	*pCxtStatus;
+	int						v_len, pos;	
+	int						j;
+
+	va_start (marker, pd);
+	v_len = va_arg (marker, int);
+	pos = va_arg (marker, int);
+	pCxtStatus = va_arg (marker, IE_pdp_context_status *);
+
+	for (j=0; j < 8; j++) 
+		sprintf (pCxtStatus->pdp_context_status + j, "%X", (pd[0] >> j) & 0x01);
+
+	for (j=0; j < 8; j++) 
+		sprintf (pCxtStatus->pdp_context_status + (8 +j), "%X", (pd[1] >> j) & 0x01);
+
+	pCxtStatus->pdp_context_status [8+j] = 0x00;
+
+//	printf ("v_len: %d, pos: %d. %s\n", v_len, pos, __FUNCTION__);
+
+	va_end (marker);
+#endif 
+	;
+}
+
+Set : function_def{ie_func_tcphdr_bitfiled} = "void ie_func_tcphdr_bitfiled (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_tcphdr_bitfiled (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn, *node;
+    unsigned short          udata, data_offset, reserved, ECN, ControlBits;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	/*value assign */
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+
+		udata = ntohs (*(unsigned short *)pdata);
+		data_offset = (udata >> 12) & 0x0f;
+		reserved    = (udata >> 9) & 0x07;
+		ECN         = (udata >> 6) & 0x07;
+		ControlBits = (udata) & 0x3f;
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Dataoffset: %d", data_offset);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Reserved: %d", reserved);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "ECN: %d", ECN);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "ControlBits: %d", ControlBits);
+
+		/**< Control bits 세부 **/
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "URG: %d", ((ControlBits >> 5) & 0x01));
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "ACK: %d", ((ControlBits >> 4) & 0x01));
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "PSH: %d", ((ControlBits >> 3) & 0x01));
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "RST: %d", ((ControlBits >> 2) & 0x01));
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "SYN: %d", ((ControlBits >> 1) & 0x01));
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "FIN: %d", ((ControlBits) & 0x01));
+
+	}
+}
+
+Set : function_def{ie_func_iphdr_ver_ihl} = "void ie_func_iphdr_ver_ihl (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_iphdr_ver_ihl (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+       pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+	   sprintf (pn->data, "Version : %d", (pdata[0] >> 4) & 0x0f);
+
+       pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+   	   sprintf (pn->data, "IHL : %d", pdata[0] & 0x0f);
+	}
+}
+
+Set : function_def{ie_func_iphdr_fragment} = "void ie_func_iphdr_fragment (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_iphdr_fragment (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+    unsigned short          udata;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	udata = ntohs (*(unsigned short *)pdata);
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+       pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+	   sprintf (pn->data, "Flags : %d", (udata >> 13) & 0x07);
+
+       pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+   	   sprintf (pn->data, "Fragment Offset : %d", udata & 0x01ff);
+	}
+}
+
+Set : function_def{ie_func_csrc_count} = "void ie_func_csrc_count (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_csrc_count (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (mRTP_Header_sb.sbRTPH1.B.CC == 0) 
+		return;
+
+	/**< CC 값 * 4만큼 skip **/
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+	}
+}
+
+
+Set : function_def{ie_func_rtphdr_bits1} = "void ie_func_rtphdr_bits1 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_rtphdr_bits1 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Version : (0x%02x), %d", mRTP_Header_sb.sbRTPH1.B.V, mRTP_Header_sb.sbRTPH1.B.V);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Padding : (0x%02x), %d", mRTP_Header_sb.sbRTPH1.B.P, mRTP_Header_sb.sbRTPH1.B.P);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Extenstion : (0x%02x), %d", mRTP_Header_sb.sbRTPH1.B.X, mRTP_Header_sb.sbRTPH1.B.X);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "CSRC Count : (0x%02x), %d", mRTP_Header_sb.sbRTPH1.B.CC, mRTP_Header_sb.sbRTPH1.B.CC);
+	}
+}
+
+Set : function_def{ie_func_rtphdr_bits2} = "void ie_func_rtphdr_bits2 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_rtphdr_bits2 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Mark : (0x%02x), %d", mRTP_Header_sb.sbRTPH2.B.M, mRTP_Header_sb.sbRTPH2.B.M);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Payload Type : (0x%02x), %d", mRTP_Header_sb.sbRTPH2.B.PT, mRTP_Header_sb.sbRTPH2.B.PT);
+	}
+}
+
+Set : function_def{ie_func_rtcp_sdes} = "void ie_func_rtcp_sdes (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_rtcp_sdes (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+	int						buflen, idx, ii;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	buflen = (mRTCP_Header_sb.usLength * 4) - 4 /*RTCP header uiSSRC */;
+	ii = idx = 0;
+
+	mRTCP_SDES_sb.uiSSRC = mRTCP_Header_sb.uiSSRC;
+
+	mRTCP_SDES_sb.uname = pdata[idx]; idx += 1;
+	mRTCP_SDES_sb.length = pdata[idx]; idx += 1;
+	memcpy (mRTCP_SDES_sb.value1, pdata + idx, mRTCP_SDES_sb.length);
+	idx += mRTCP_SDES_sb.length;
+
+	*pos += buflen;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		;
+	}
+}
+
+
+
+/**<  GTP Header **/
+
+Set : function_def{ie_func_gtphdr_flags} = "void ie_func_gtphdr_flags (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtphdr_flags (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	param_node_t		*pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Version : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bVersion, mGTP_Header_sb.GtpH1.B.bVersion);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "ProtocolType : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bProtocolType, mGTP_Header_sb.GtpH1.B.bProtocolType);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Reserved : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bReserved, mGTP_Header_sb.GtpH1.B.bReserved);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "ExtensionFlag : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bExtensionFlag, mGTP_Header_sb.GtpH1.B.bExtensionFlag);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "SequenceFlag : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bSequenceFlag, mGTP_Header_sb.GtpH1.B.bSequenceFlag);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "NpduNum : (0x%02x), %d", mGTP_Header_sb.GtpH1.B.bNpduNum, mGTP_Header_sb.GtpH1.B.bNpduNum);
+	}
+}
+
+/**<  iSequenceNum **/
+Set : function_def{ie_func_gtphdr_seqnum} = "void ie_func_gtphdr_seqnum (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtphdr_seqnum (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	param_node_t		*pn;
+	unsigned short		SeqNum;
+	unsigned char 		nPDUNum, NextExtHdr;
+	dlink_t				*pnode;
+	stFieldFormat		*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if ( mGTP_Header_sb.GtpH1.B.bSequenceFlag == 0 )
+	{
+		return;
+	}
+	
+	/* memcpy(&SeqNum, pdata, 2); */
+	SeqNum = ntohs(*((unsigned short *)pdata));
+
+	mGTP_Header_sb.iSequenceNum = SeqNum;
+
+	NextExtHdr = nPDUNum = 0x00;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, 2);
+		sprintf(pn->data, "Sequence Number : (0x%02x), %d", SeqNum, SeqNum);
+		(*pos) += 2;
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, 1);
+		sprintf(pn->data, "N-PDU Number : (0x%02x), %d", nPDUNum, nPDUNum);
+		(*pos) += 1;
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, 1);
+		sprintf(pn->data, "Next Extension Header Type : (0x%02x), %d", NextExtHdr, NextExtHdr);
+		(*pos) += 1;
+
+	} else {
+		(*pos) += 4;
+	}
+}
+
+
+/**<  IMSI **/
+Set : function_def{ie_func_gtpmsg_IMSI} = "void ie_func_gtpmsg_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtpmsg_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char   ucIMSI [16];
+    int             i, j;
+    param_node_t    *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+
+    for (i=0, j= 0; i < 8; i++) {
+        sprintf (ucIMSI +j, "%X", pdata [i] & 0x0f); j++;
+        sprintf (ucIMSI +j, "%X", (pdata [i] >> 4) & 0x0f); j++;
+    }
+
+    ucIMSI [j-1] = 0x00;
+
+	strncpy(mGTP_CrtPDPCxtReq_sb.stIMSI.IMSI, ucIMSI, strlen(ucIMSI));
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "IMSI : %s", mGTP_CrtPDPCxtReq_sb.stIMSI.IMSI);	
+	}
+}
+
+Set : function_def{ie_func_gtpmap_req_IMSI} = "void ie_func_gtpmap_req_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtpmap_req_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char   ucIMSI [16];
+    int             i, j;
+    param_node_t    *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+
+    for (i=0, j= 0; i < 8; i++) {
+        sprintf (ucIMSI +j, "%X", pdata [i] & 0x0f); j++;
+        sprintf (ucIMSI +j, "%X", (pdata [i] >> 4) & 0x0f); j++;
+    }
+
+    ucIMSI [j-1] = 0x00;
+
+	strncpy(mGTP_SendRoutInfoGPRSReq_sb.stIMSI.IMSI, ucIMSI, strlen(ucIMSI));
+
+}
+
+Set : function_def{ie_func_gtpmap_resp_IMSI} = "void ie_func_gtpmap_resp_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtpmap_resp_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char   ucIMSI [16];
+    int             i, j;
+    param_node_t    *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+
+    for (i=0, j= 0; i < 8; i++) {
+        sprintf (ucIMSI +j, "%X", pdata [i] & 0x0f); j++;
+        sprintf (ucIMSI +j, "%X", (pdata [i] >> 4) & 0x0f); j++;
+    }
+
+    ucIMSI [j-1] = 0x00;
+
+	strncpy(mGTP_SendRoutInfoGPRSResp_sb.stIMSI.IMSI, ucIMSI, strlen(ucIMSI));
+
+}
+
+Set : function_def{ie_func_gtpmap_nreq_IMSI} = "void ie_func_gtpmap_nreq_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtpmap_nreq_IMSI (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char   ucIMSI [16];
+    int             i, j;
+    param_node_t    *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+
+    for (i=0, j= 0; i < 8; i++) {
+        sprintf (ucIMSI +j, "%X", pdata [i] & 0x0f); j++;
+        sprintf (ucIMSI +j, "%X", (pdata [i] >> 4) & 0x0f); j++;
+    }
+
+    ucIMSI [j-1] = 0x00;
+
+	strncpy(mGTP_NoteMSGPRSPresentReq_sb.stIMSI.IMSI, ucIMSI, strlen(ucIMSI));
+
+}
+
+/**<  mGTP_CrtPDPCxtReq_sb.MSISDN **/
+
+Set : function_def{ie_func_gtpmsg_msisdn} = "void ie_func_gtpmsg_msisdn (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_gtpmsg_msisdn (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char       ucMSISDN [MAX_MIN_SIZE * 2];
+    int                 length, i,j;
+    param_node_t        *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+
+	length = mGTP_CrtPDPCxtReq_sb.stMSISDN.MSISDNLen;
+/*
+    for (i=0, j=0; i < length; i++) {
+        sprintf (ucMSISDN +j, "%02X", pdata [i]); 
+        j+=2;
+    }
+*/
+    for (i=1, j= 0; i < length; i++) {
+		if ( pdata[i] == 0xFFFFFFFF )
+			continue;
+        sprintf (ucMSISDN +j, "%X", pdata [i] & 0x0f); j++;
+        sprintf (ucMSISDN +j, "%X", (pdata [i] >> 4) & 0x0f); j++;
+    }
+
+    ucMSISDN[j] = 0x00;	
+
+	strncpy(mGTP_CrtPDPCxtReq_sb.stMSISDN.MSISDN, ucMSISDN, strlen(ucMSISDN));
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "MSISDN : %s", mGTP_CrtPDPCxtReq_sb.stMSISDN.MSISDN);	
+	}
+}
+
+
+/** 
+  RTCP Header 
+  -Vesrion(2bit), Padding(1), RC(5) 처리 
+ **/
+Set : function_def{ie_func_rtcphdr_bits1} = "void ie_func_rtcphdr_bits1 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_rtcphdr_bits1 (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn;
+	dlink_t					*pnode;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+	if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Version : (0x%02x), %d", mRTCP_Header_sb.RTCPH1.B.V, mRTCP_Header_sb.RTCPH1.B.V);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Padding: (0x%02x), %d", mRTCP_Header_sb.RTCPH1.B.P, mRTCP_Header_sb.RTCPH1.B.P);
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "Report Blcok Count: (0x%02x), %d", mRTCP_Header_sb.RTCPH1.B.RC, mRTCP_Header_sb.RTCPH1.B.RC);
+	}
+}
+
+/**
+	MTP3b Header
+**/
+Set : function_def{ie_func_mtp3_sio} = "void ie_func_mtp3_sio (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_mtp3_sio (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    param_node_t            *pn, *node;
+	dlink_t					*pnode;
+	
+
+    if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pnode = (dlink_t *)ppnode;
+
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "SIO: %d(0x%02x)", mMTP3_sb.MTP3SIO.A, mMTP3_sb.MTP3SIO.A);
+
+		/**< SIO bits 세부 **/
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "SSF: %d(0x%02x)", mMTP3_sb.MTP3SIO.B.SSF, mMTP3_sb.MTP3SIO.B.SSF);
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "SI: %d(0x%02x)", mMTP3_sb.MTP3SIO.B.SI, mMTP3_sb.MTP3SIO.B.SI);
+	
+    } else {
+		/**< List 처리 **/
+		if (pstring != NULL) {
+			sprintf(pstring + (*spos), "SI:%d(0x%02x), ", mMTP3_sb.MTP3SIO.B.SI, mMTP3_sb.MTP3SIO.B.SI);
+			*spos = strlen(pstring);
+		}
+	}
+}
+
+
+Set : function_def{ie_func_mtp3_dpc_opc} = "void ie_func_mtp3_dpc_opc (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_mtp3_dpc_opc (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	unsigned short			opc,dpc, idx;
+	dlink_t					*pnode;
+    param_node_t            *pn, *node;
+	stFieldFormat			*pf;
+
+	pnode = (dlink_t *)ppnode;
+	pf = (stFieldFormat *)ppf;
+
+    memcpy((char *)&dpc, pdata, 2);
+    mMTP3_sb.DPC = dpc & 0x3FFF;
+	idx = 2;
+    
+    memcpy((char *)&opc, (pdata+idx), 2);
+    mMTP3_sb.SLS = pdata[idx+1] & 0xF0;
+    mMTP3_sb.SLS = mMTP3_sb.SLS >> 4;
+    idx += 2;
+    
+    opc = opc << 4;
+    opc = opc >> 2;                                                                                       
+    opc = opc & 0xFFFC;                                                                                   
+    dpc = dpc >> 14;                                                                                      
+    mMTP3_sb.OPC = opc & 0x3FFF;                                                                              
+    mMTP3_sb.OPC += dpc; 
+
+
+    if (gWHICH_ANA == WHICH_ANA_TREE) {
+		pn = add_param_node_to_pnode_child (pnode, *pos, v_len);
+		sprintf (pn->data, "SIF:(OPC:%u, DPC:%u)", mMTP3_sb.OPC, mMTP3_sb.DPC);
+		pn->len = (*pos) + 4;
+
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "DPC: %u", mMTP3_sb.DPC);
+		node->len = (*pos) + 4;
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "OPC: %u", mMTP3_sb.OPC);
+		node->len = (*pos) + 4;
+		node = add_param_node_to_pnode_child (&pn->child, *pos, v_len);
+		sprintf (node->data, "SLS: %u", mMTP3_sb.SLS);
+		node->len = (*pos) + 4;
+    } else {
+		if (pstring != NULL) {
+			sprintf(pstring + (*spos), "OPC:%u, DPC:%u ", mMTP3_sb.OPC, mMTP3_sb.DPC);
+			*spos = strlen(pstring);
+		}
+	}
+   	(*pos) += 4;
+}
+
+/**<  Diameter ie functions ----------------------------- START **/
+
+Set : function_def{ie_func_diahdr_len} = "void ie_func_diahdr_len (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_diahdr_len (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	unsigned int		uiLength;
+
+	memcpy(&uiLength, pdata, 3);
+
+	mDIAMETER_Header_sb.uiLength = ntohl((unsigned int)uiLength << 8);
+
+	(*pos) += 3;
+}
+
+Set : function_def{ie_func_diahdr_cmdcode} = "void ie_func_diahdr_cmdcode (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_diahdr_cmdcode (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	unsigned int		uiCmdCode;
+
+	memcpy(&uiCmdCode, pdata, 3);
+
+	mDIAMETER_Header_sb.uiCommandCode = ntohl((unsigned int)uiCmdCode << 8);
+
+	(*pos) += 3;
+}
+
+/**<  Diameter ie functions -----------------------------   END **/
+
+
+int get_GT(SCCP_ADDR_cp *addr, U8 *data, int *dec_pos, int other_len)
+{
+    int         pos = *dec_pos;
+    int         rtn = DEC_SUCCESS;
+
+
+    switch(addr->GT_indi)
+    {
+    case 1:
+        memcpy((char *)&addr->G.gt_0001, data, other_len );
+        pos += other_len;
+        break;
+    case 2:
+        memcpy((char *)&addr->G.gt_0010, data, other_len );
+        pos += other_len;
+        break;
+    case 3:
+        memcpy((char *)&addr->G.gt_0011, data, other_len );
+        pos += other_len;
+        break;
+    case 4:
+        memcpy((char *)&addr->G.gt_0100, data, other_len );
+        pos += other_len;
+        break;
+
+    case 0:
+        break;
+
+    default:
+        rtn = DEC_SCCP_UNKNOWN_GT_INDI;
+        break;
+    }
+
+    *dec_pos = pos;
+    return rtn;
+}
+
+
+Set : function_def{ie_func_sccp_addr} = "void ie_func_sccp_addr (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_sccp_addr (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+	SCCP_ADDRd		*psccp_addr;
+	SCCP_ADDR_cp	*paddr;
+
+	int				rtn, ix = 0;
+
+	psccp_addr = (SCCP_ADDRd *)pdata;
+	paddr = (SCCP_ADDR_cp *)uf3;
+
+	paddr->pc_indi = psccp_addr->pc_indi;
+	paddr->ssn_indi = psccp_addr->ssn_indi;
+	paddr->GT_indi = psccp_addr->GT_indi;
+	paddr->route_indi = psccp_addr->route_indi;
+
+/*	(*pos) = (*pos) + 1; */
+	ix++;
+
+	if (psccp_addr->pc_indi) {
+		paddr->pc = *((U16 *)&(pdata [ix])); 
+		/* (*pos) =  (*pos) + 2; */
+		ix += 2;
+	}
+
+	if (psccp_addr->ssn_indi) {
+		paddr->ssn = pdata [ix];  ix++; 
+		/* (*pos) = (*pos) + 1; */
+	} 
+
+	if (psccp_addr->GT_indi) {
+		
+		memcpy ((U8 *)&paddr->G.GT_addr, pdata + ix, v_len - ix);
+
+		switch(paddr->GT_indi)
+   		{
+   		case 1:
+   		case 2:
+			paddr->GT_addr_len = (v_len -ix) - 1;
+			break;
+		case 3:
+			paddr->GT_addr_len = (v_len -ix) - 2;
+			break;
+		case 4:
+			paddr->GT_addr_len = (v_len -ix) - 3;
+			break;
+		}
+
+		/* (*pos) = (*pos) + (v_len -ix); */
+
+#if 0
+		if ((rtn = get_GT (paddr, pdata + ix, &ix, v_len - ix)) != 1) {
+			printf ("ie_func_sccp_addr decode error! ix:%d\n", ix);
+			return;
+		}
+		(*pos) = (*pos) + ix;
+#endif
+	}
+}
+
+
+Set : function_def{ie_func_UDT_UDTS} = "void ie_func_UDT_UDTS (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_UDT_UDTS (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char           *pTrace;
+	unsigned int			iCalledLen, iCallingLen, iDataLen;
+	int						dec_pos, ix;
+
+    pTrace = (U8 *)pdata;
+
+	ix = dec_pos = 0;
+	iCalledLen = pTrace[ix]; ix ++;
+
+	ie_func_sccp_addr (pTrace + ix, iCalledLen, &dec_pos, (void *)&mSCCP_UDT_sb.called_addr, ppnode, ppf, pstring, spos);
+	(*pos) = (*pos) + iCalledLen + 1 /* Len byte */;
+	ix += iCalledLen;
+	dec_pos = 0;
+	iCallingLen = pTrace[ix]; ix ++;
+	ie_func_sccp_addr (pTrace + ix, iCallingLen, &dec_pos, (void *)&mSCCP_UDT_sb.calling_addr, ppnode, ppf, pstring, spos);
+	(*pos) = (*pos) + iCallingLen + 1;
+	ix += iCallingLen;
+
+	iDataLen = pTrace [ix]; ix ++;
+	mSCCP_UDT_sb.DataLen = iDataLen;
+	memcpy ((U8 *)&mSCCP_UDT_sb.Data, pTrace + ix, iDataLen);
+	(*pos) = (*pos) + iDataLen + 1;
+
+/*	printf ("iCalledLen:%d, iCallingLen:%d, iDataLen = %d\n", iCalledLen, iCallingLen, iDataLen); */
+}
+
+Set : function_def{ie_func_XUDT_XUDTS} = "void ie_func_XUDT_XUDTS (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)"
+void ie_func_XUDT_XUDTS (char *pdata, int v_len, int *pos, void *uf3, void *ppnode, void *ppf, U8 *pstring, int *spos)
+{
+    unsigned char           *pTrace;
+	unsigned int			iCalledLen, iCallingLen, iDataLen;
+	int						dec_pos, ix;
+
+    pTrace = (U8 *)pdata;
+
+	iCalledLen =  mSCCP_XUDT_sb.V2Pos - mSCCP_XUDT_sb.V1Pos +1; 
+	iCallingLen =  mSCCP_XUDT_sb.V3Pos - mSCCP_XUDT_sb.V2Pos +1;
+	iDataLen = mSCCP_XUDT_sb.V4Pos - mSCCP_XUDT_sb.V3Pos + 1;
+
+/*	printf ("iCalledLen:%d, iCallingLen:%d, iDataLen = %d\n", iCalledLen, iCallingLen, iDataLen); */
+
+	ix = dec_pos = 0;
+	iCalledLen = pTrace[ix]; ix++;
+	ie_func_sccp_addr (pTrace + ix, iCalledLen, &dec_pos, (void *)&mSCCP_XUDT_sb.called_addr, ppnode, ppf, pstring, spos);
+	(*pos) = (*pos) + iCalledLen + 1;
+	ix += iCalledLen;
+
+	dec_pos = 0;
+	iCallingLen = pTrace[ix]; ix++;
+	ie_func_sccp_addr (pTrace + ix, iCallingLen, &dec_pos, (void *)&mSCCP_XUDT_sb.calling_addr, ppnode, ppf, pstring, spos);
+	(*pos) = (*pos) + iCallingLen + 1;
+	ix += iCallingLen;
+
+	iDataLen = pTrace [ix]; ix++;
+	mSCCP_XUDT_sb.DataLen = iDataLen;
+	memcpy ((U8 *)&mSCCP_XUDT_sb.Data, pTrace + ix, iDataLen);
+	(*pos) = (*pos) + iDataLen + 1;
+}

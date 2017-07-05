@@ -1,0 +1,92 @@
+FileName : hasho.h
+
+
+/** @mainpage Offset형 Hash.
+ \dot
+ digraph example {
+ fontname=Helvetica;
+ label="Work Flow";
+ rankdir=LR;
+ node [shape=record, fontname=Helvetica, fontsize=10,style=rounded];
+ a [ label="structg" URL="http://192.203.140.245/aaa/cjlee/structg"];
+ b [ label="hashg" URL="http://192.203.140.245/aaa/cjlee/hashg"];
+ c1 [ label="memg" URL="http://192.203.140.245/aaa/cjlee/memg"];
+ c2 [ label="hasho" URL="http://192.203.140.245/aaa/cjlee/hasho"];
+ c3 [ label="timerg" URL="http://192.203.140.245/aaa/cjlee/timerg"];
+ a -> b [label="Define the TYPEDEF", arrowhead="normal", style="dashed", fontname=Helvetica, fontsize=10];
+ b -> c2 [label="memory management", arrowhead="normal", style="dashed", fontname=Helvetica, fontsize=10];
+ c1 -> c2 [label="apply for \n the offset definition", arrowhead="normal", style="dashed", fontname=Helvetica, fontsize=10];
+ c2 -> c3 [label="Define the PRIMITIVEs", fontname=Helvetica, fontsize=10];
+}
+ \enddot
+
+hash를 memory에 구현하는 것 뿐이 아닌 shared memory에 구현을 해야 할것이다.
+shared memory에 구현할때는 pointer를 사용하지 말고 offset을 사용해야 한다. 
+그래야 다른 것도 볼때 같이 공유해서 볼수 있기 때문이다.  
+
+이 project가 hasho로써 offset을 사용하여 처리하는 것을 구하게 될 것이다.  
+
+ */
+
+
+#define HASHO_OFFSET(INFOPTR, ptr)  ((S32) (((U8 *) (ptr)) - ((U8 *) INFOPTR)) )
+#define HASHO_PTR(INFOPTR, offset)  ((U8 *) (((S32) (offset)) + ((S32) INFOPTR)) )
+
+
+/** 
+ * @brief stHASHONODE : hash안의 node들의 structure.
+ *
+ * 현 HASH는 doubly linked list로 구성된다. 
+ * node들간의 연결에서 offset을 보고 처리하여야 한다. 
+ *
+ * @see hasho.h 
+ *
+ *  @note 		hash의 NODE (offset개념)
+ *
+ */
+typedef struct _st_hasho_node {
+    OFFSET offset_next;  		///< next node의 offset from stHASHOINFO
+    OFFSET offset_prev;  		///< prev node의 offset from stHASHOINFO
+    OFFSET offset_Key;       /**< Key  Structure Offset */
+    OFFSET offset_Data;      /**< Data Structure Offset */
+} stHASHONODE;
+
+
+/** 
+ *  @brief stHASHOINFO : 보통 hash에서 사용하는 node들을 관리하는 structure이다. 
+ *
+ * 보통 hash에서 사용하는 node들을 관리하는 structure이다. 
+ * key의 size와 key안에서 sort하기 위한 부분만을 위한  size를 구별하였다.
+ * sortkeylen은 key의 앞 부분만을 가리킨다. 
+ *
+ * @see hasho.h 
+ *
+ *  @note 		hash node들의 정보를 관리해준다. 
+ */
+typedef struct _st_hashoinfo {
+	U32	version;
+    OFFSET offset_psthashnode  ;  /**< HASH Node array의 pointer */
+    U16 usKeyLen;           /**< Node들이 사용할 Key 길이.  Key 비교와 copy를 위해서 사용   */
+    U16 usDataLen;          /**< Node에서 사용할 DataLen
+                                 @exception pstData의 Structure의 type은 외부에서만 알면 된다. */
+    U32 uiHashSize;         /**< Hash 크기. 임의의 설정을 위해서 set
+							 *   Hash Node Array의 크기  */
+	OFFSET	offset_memginfo;	/**< value : minus */
+} stHASHOINFO;
+
+/**
+ *  hasho project : External Functions.
+ *   */
+extern int hasho_dump_DebugString(char *debug_str,char *s,int len);
+extern U32 hasho_func_default(void *pa,U8 *pb);
+extern stHASHOINFO * hasho_init(U32 uiShmKey, U16 usKeyLen, U16 usSortKeyLen, U16 usDataLen, U32 uiHashSize, U32 (*func)(void*,U8*));
+extern void hasho_link_node(stHASHOINFO *pstHASHOINFO , stHASHONODE *p);
+extern void hasho_unlink_node(stHASHOINFO *pstHASHOINFO, stHASHONODE *p);
+extern stHASHONODE * hasho_find(stHASHOINFO *pstHASHOINFO, U8 *pKey);
+extern stHASHONODE * hasho_add(stHASHOINFO *pstHASHOINFO, U8 *pKey, U8 *pData);
+extern void hasho_del(stHASHOINFO *pstHASHOINFO, U8 *pKey);
+extern void hasho_print_info(S8 *pcPrtPrefixStr,stHASHOINFO *pstHASHOINFO);
+extern void hasho_print_node(S8 *pcPrtPrefixStr,stHASHOINFO *pstHASHOINFO,stHASHONODE *pstHASHONODE);
+extern void hasho_print_all(S8 *pcPrtPrefixStr,stHASHOINFO *pstHASHOINFO);
+extern void hasho_draw_all(S8 *filename,S8 *labelname,stHASHOINFO *pstHASHOINFO);
+extern U32 hasho_get_occupied_node_count(stHASHOINFO *pstHASHOINFO);

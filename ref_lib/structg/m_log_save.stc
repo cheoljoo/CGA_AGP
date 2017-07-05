@@ -1,0 +1,78 @@
+#include "m_log_extern.h"
+
+/** Proc_TIM_CFLOW function.
+ *
+ *  CFLOW 처리 함수
+ *
+ *  @param		p_msg : Protocol 메세지
+ *
+ *  @return		None
+ *  @see		m_log_global.h, flat_ims_interface.h, flat_ims_structg.h
+ *
+ *  @exception	None
+ *  @note		MsgID별로 해당 구조체 데이타를 Decoding 하고 DB Insert 함수를 호출한다.
+ *				구조체가 추가되면 MsgID별로 함수를 추가해야 한다.
+ * 				STRUCTG에서 자동으로 생성하게 해 줄 것이다. 이팀장님이...
+ *
+**/
+ITERATE %table +<<+ 	ITKEY    ITVALUE
+void Proc_ITKEY(void)
+{
+	int			i, dRet, dErrNo;
+	char		date_buf[20];
+	struct 		timeval tm;
+
+#ifndef PARTITION
+	/// Table 날짜 설정 
+	memset(date_buf, 0x0, sizeof(date_buf));
+	if (strlen(gucCTimeChk_ITKEY) > 0) {
+		strncpy(date_buf, gucCTimeChk_ITKEY, 8);
+	}
+	else {
+		/// stgCoInfollTimetime 없으면 현재 날짜로 Table 생성 
+		MakeDate(time(NULL), date_buf, 8);	
+	}
+	date_buf[8] = '\0';
+#endif
+
+#ifdef TEST
+	printf("ITKEY: MsgCnt(%d), gucCTimeChk_ITKEY(%s), date_buf(%s)\n", gdMsgCnt_ITKEY, gucCTimeChk_ITKEY, date_buf);
+#endif
+
+	for (i=0;i<2;i++) {
+		/// DB Insert 
+		dRet = DBInsert_stFlat_ITKEY(gdMsgCnt_ITKEY, gastFlat_ITKEY, date_buf, &dErrNo);
+		if (dRet == 0) {
+			break;
+		}
+		else if (dRet < 0) {
+			dAppLog(LOG_CRI, "ERR: ITKEY: insert ret(%d)", dRet);
+#ifdef TEST
+			printf("ERR: ITKEY: insert ret(%d))\n", dRet);
+#endif
+			/// 만약 테이블이 없으면 테이블 생성 
+			if (abs(dRet) == NO_TABLE) {
+#ifdef TEST
+				printf("ERR: ITKEY: table is not exist(%d)\n", dRet);
+#endif
+
+#ifndef PARTITION
+				Create_Table(FNAME_ITKEY, "ITKEY", date_buf);
+#else
+				Create_Table(FNAME_ITKEY, "ITKEY", "");
+#endif
+			}
+			/// DB not log on 이면  reconnect 
+			if (abs(dRet) == NOT_LOG_ON) {
+				for (;;) {
+					dRet = dESQLConnect();
+					if (dRet >= 0) break;
+					sleep(RECONNECT_TIME);
+				}
+			}
+		}
+	}
+}
+
++>>+
+

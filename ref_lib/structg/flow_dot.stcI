@@ -1,0 +1,37 @@
+stcI_HASH : FLOW
+stcI_EXTENSION : c
+stcI_FILEPREFIX : STC/STCI_flow_dot_
+SetI : ITFLOWNAME = KEY
+
+
+
+Set : iterate_comments = OFF
+/**
+\dot 
+digraph G_ITFLOWNAME {  
+    fontname=Helvetica;     
+    label="State Diagram";
+    nodesep=.05;    
+    node [fontname=Helvetica,shape=record,width=.1,height=.1];  
+ITERATE %FLOW_ITFLOWNAME_STATE +<<+ ITKEY  ITVALUE
+	IFEQUAL(+<+$FLOW_ITFLOWNAME_STATE_ITKEY{msg}+>+,OTHERMSG) ITKEY[shape=box,color=blue,style=bold,fontsize=10];
+	IFEQUAL(+<+$FLOW_ITFLOWNAME_STATE_ITKEY{msg}+>+,CONTINUE) ITKEY[shape=box,fontsize=10];
++>>+
+
+ITERATE %FLOW_ITFLOWNAME_STATE +<<+ ITKEY  ITVALUE
+
+	ITERATE %FLOW_ITFLOWNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+		+<+$FLOW_ITFLOWNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$FLOW_ITFLOWNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [fontsize=9,label= "( +<+$FLOW_ITFLOWNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$FLOW_ITFLOWNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+	+>>+
+
+	ITERATE %FLOW_ITFLOWNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+		+<+$FLOW_ITFLOWNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$FLOW_ITFLOWNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [fontsize=9,label= "( +<+$FLOW_ITFLOWNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$FLOW_ITFLOWNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+	+>>+
++>>+
+}
+\enddot 
+*/
+void __ITFLOWNAME_state_diagram()
+{
+		return ;
+}

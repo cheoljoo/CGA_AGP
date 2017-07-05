@@ -1,0 +1,126 @@
+=============================================================================
+1. 날자 : 2006.04.26 (수)
+2. 작성자 : 신영호
+3. 내용
+	- memg_shm_free () 함수 수정
+		.primitive에서 삭제 TEST에 넣었음
+4. 파일
+	./memg.c															1.11
+=============================================================================
+1. 날자 : 2006.04.26 (수)
+2. 작성자 : 신영호
+3. 내용
+	- shared memroy option추가 
+	- makefile.lib mv--> cp 로 바꿈
+	- memg test 실행 방법
+	 >memg  		: maim memory 사용
+	 >memg shm 		: shm memory 사용
+	 >memg shm del	: shm memory 사용 후 지우기
+4. 파일
+	./makefile.lib														1.5
+	./memg.c															1.6
+	./memg.c															1.9
+													1.7 ~ 1.8은 miss
+=============================================================================
+1. 날자 : 2006.04.21 (금)
+2. 작성자 : 이철주
+3. 내용
+	- libary에서 DEBUG가 안들어가게 하여 print를 적게 바꿈.
+4. 파일
+	./makefile.lib														1.2
+	./memg.c															1.5
+=============================================================================
+1. 날자 : 2006.04.20 (목)
+2. 작성자 : 이철주
+3. 내용
+	- define change : ()으로 묶어주어야 더 정확한 계산을 한다.
+4. 파일
+	./hash.stg															1.6 - Binary
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 이철주
+3. 내용
+	. memg에서 -DTEST를 붙인 msmg 실행 화일 생성 (Makefile)
+	. memg에서 -DTEST가 없을때 libmemg.a 생성 (makefile.lib)
+4. 파일
+	./Makefile															1.3
+	./makefile.lib														1.1
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 신영호
+3. 내용
+	. structg 변경에 따른 수정 
+		- make --> make all 로 (configure)
+		- library이름 변경 (Makefile)
+	. structg에서 사용하는 stg 이름 변경. 
+		- userfile.stg
+4. 파일
+	./configure															1.2 - Binary
+	./Makefile															1.2
+=============================================================================
+1. 날자 : 2006.04.17 (월)
+2. 작성자 : 이철주
+3. 내용
+	- INIT
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_3_co_memg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - memg 가 되게 했음.
+	- memg와 structg의 연동 성공까지 
+4. 파일
+	./Doxyfile															1.1
+	./HISTORY.TXT														1.1
+	./Makefile															1.1
+	./README.TXT														1.1
+	./tag.TXT															1.1
+	./configure															1.1 - Binary
+	./memg.c															1.1
+	./hash.stg															1.1 - Binary
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./memg/memg 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./memg 밑에서   
+
+cvs import -m "INIT" memg upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co memg 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

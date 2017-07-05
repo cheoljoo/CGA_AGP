@@ -1,0 +1,325 @@
+FileName : abprotocol_decfunc.c
+Set : iterate_comments = OFF
+
+/** @file  STCI_SB_PARSING_ITKEY.c  
+ *  - rfc protocol definition
+ * 
+ *  Copyright (c) 2006~ by Upresto Inc, Korea 
+ *  All rights reserved 
+ * 
+ *  $Id: abprotocol_decfunc.stc,v 1.8 2007/03/23 11:58:50 yhshin Exp $
+ * 
+ *  @Author      $Author: yhshin $ 
+ *  @version     $Revision: 1.8 $ 
+ *  @date        $Date: 2007/03/23 11:58:50 $ 
+ *  @warning     +Warning+ 
+ *  @ref          
+ *  @todo        +ToDo+ 
+ * 
+ *  @section     Intro 
+ *  @section     Requirement 
+ *  @li +Requirement+ 
+ * 
+ **/ 
+#define WIDTH   16          
+extern int dump(char *s,int len);
+
+
+ITERATE %SB_PARSING	+<<+ ITKEY ITVALUE
+ITKEY		mITKEY;
++>>+
+SCCP_MSG_sb mSCCP_MSG_sb;
+
+
+ITERATE %SB_PARSING	+<<+ ITKEY ITVALUE
+stFieldFormat   FF_ITKEY [MAX_FILED_FORMAT] =
+{   
+
+    ITERATE @SB_PARSING_ITKEY +<<+ IT2KEY IT2VALUE
+	{ IT2VALUE },
+    +>>+
+
+    {  99, 0, 0, 0, 0, NULL, NULL, NULL, NULL} ,
+};
++>>+
+
+
+ITERATE %SB_PARSING	+<<+ ITKEY ITVALUE
+Set : function_def{decode_ITKEY} = "int decode_ITKEY (U8 *ucBuf, int iread, int *dec_pos)"
+int decode_ITKEY (U8 *ucBuf, int iread, int *dec_pos) 
+{
+	gWHICH_ANA = WHICH_ANA_BINARY;
+
+	memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+	return move_data_to_field ((stFieldFormat *)&FF_ITKEY, ucBuf, (iread), dec_pos, NULL, NULL);
+}
+
+Set : function_def{decode_copy_ITKEY} = "int decode_copy_ITKEY (U8 *ucBuf, int iread, int *dec_pos, ITKEY *pUserBuf)"
+int decode_copy_ITKEY (U8 *ucBuf, int iread, int *dec_pos, ITKEY *pUserBuf) 
+{
+	int 	ret;
+
+	gWHICH_ANA = WHICH_ANA_BINARY;
+
+	memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+	return move_data_to_field ((stFieldFormat *)&FF_ITKEY, ucBuf, (iread - (*dec_pos)), dec_pos, NULL, NULL);
+	if (ret < 0) 
+		return ret;
+
+	memcpy((U8 *)pUserBuf, (U8 *)&mITKEY, sizeof (ITKEY));
+	return ret;
+}
+
+Set : function_def{decode_addr_ITKEY} = "int decode_addr_ITKEY (U8 *ucBuf, int iread, int *dec_pos, ITKEY **pUserBuf)"
+int decode_addr_ITKEY (U8 *ucBuf, int iread, int *dec_pos, ITKEY **pUserBuf) 
+{
+	gWHICH_ANA = WHICH_ANA_BINARY;
+	
+	memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+	(*pUserBuf) = &mITKEY;
+	return move_data_to_field ((stFieldFormat *)&FF_ITKEY, ucBuf, (iread), dec_pos, NULL, NULL);
+}
+
+
+Set : function_def{decode_tree_addr_ITKEY} = "int make_tree_addr_ITKEY (U8 *ucBuf, int iread, int *dec_pos, void **pUserBuf, dlink_t *pnode)"
+int make_tree_addr_ITKEY (U8 *ucBuf, int iread, int *dec_pos, void **pUserBuf, dlink_t *pnode)
+{   
+    int         ret;
+    pnode_t     *pn;
+    
+	gWHICH_ANA = WHICH_ANA_TREE;
+
+    memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+    (*pUserBuf) = &mITKEY;
+    
+    if ((pn = protocol_node_alloc(0)) == NULL) {
+#if DEBUG_PRINT
+        printf ("protocol_node_alloc fail!!\n");
+#endif
+        return -1;
+    }
+    protocol_node_init (pn);
+    dlink_nq (pnode, &pn->sibling);
+	pn->pos = (*dec_pos);
+    
+    ret = make_tree_param_value ((stFieldFormat *)&FF_ITKEY, ucBuf, (iread), dec_pos, &pn->child);
+    if (ret < 0) 
+        return ret;
+    
+    sprintf (pn->pdesc, "ITKEY");
+	pn->len = (*dec_pos);
+    return 1;
+}
+
+
+Set : function_def{ITKEY_list} = "int ITKEY_list (U8 *ucBuf, int dlen, void **ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos)"
+int ITKEY_list (U8 *ucBuf, int dlen, void **pUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos) 
+{
+	int			dRet;
+
+	gWHICH_ANA = WHICH_ANA_BINARY;
+	
+	memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+	(*pUserBuf) = &mITKEY;
+
+	*decode_struct_size = ITKEY_SIZE;
+	*decode_struct_type = STG_DEF_ITKEY;
+
+	dRet = move_data_to_field ((stFieldFormat *)&FF_ITKEY, ucBuf, (dlen), dec_pos, pstring, str_pos);
+
+	return dRet;
+}
+
+Set : function_def{ITKEY_tree} = "int ITKEY_tree (U8 *ucBuf, int dlen, void **ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos, int *line)"
+int ITKEY_tree (U8 *ucBuf, int dlen, void **pUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos, int *line) 
+{
+	int			dRet;
+	proot_t     mRoot;
+
+	memset ((U8 *)&mITKEY, 0x00, sizeof (ITKEY));
+	(*pUserBuf) = &mITKEY;
+
+	*decode_struct_size = ITKEY_SIZE;
+	*decode_struct_type = STG_DEF_ITKEY;
+
+
+	proot_node_init (&mRoot);
+//	make_tree_addr_ITKEY (ucBuf, (dlen-(*dec_pos)), dec_pos, pUserBuf, &mRoot.child);
+	dRet = make_tree_addr_ITKEY (ucBuf, (dlen), dec_pos, pUserBuf, &mRoot.child);
+
+	print_packet_view_tree (&mRoot, pstring, line);
+	(*str_pos) = strlen (pstring);
+
+	proot_node_free (&mRoot);
+	return dRet;
+}
+
++>>+
+
+Set : function_def{SCCP_MSG_sb_tree} = "int SCCP_MSG_sb_tree (U8 *ucBuf, int dlen, void **ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos, int *line)"
+int SCCP_MSG_sb_tree (U8 *ucBuf, int dlen, void **pUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos, int *line) 
+{
+	int			dRet;
+	U8			msg_type;
+
+	memset ((U8 *)&mSCCP_MSG_sb, 0x00, sizeof (SCCP_MSG_sb));
+
+	msg_type = ucBuf[(*dec_pos)];
+	switch (msg_type) {
+	case DEF_SCCP_MSG_TYPE_CR:
+		dRet = SCCP_CR_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CR_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_CC:
+		dRet = SCCP_CC_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CC_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_CREF:
+		dRet = SCCP_CREF_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CREF_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_RLSD:
+		dRet = SCCP_RLSD_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_RLSD_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_RLC:
+		dRet = SCCP_RLC_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_RLC_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_DT1:
+		dRet = SCCP_DT1_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_DT1_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_DT2:
+		dRet = SCCP_DT2_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_DT2_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_AK:
+		dRet = SCCP_AK_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_AK_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_UDT:
+		dRet = SCCP_UDT_sb_tree (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos, line);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_UDT_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_UDTS:
+	case DEF_SCCP_MSG_TYPE_ED:
+	case DEF_SCCP_MSG_TYPE_EA:
+	case DEF_SCCP_MSG_TYPE_RSR:
+	case DEF_SCCP_MSG_TYPE_RSC:
+	case DEF_SCCP_MSG_TYPE_ERR:
+	case DEF_SCCP_MSG_TYPE_IT:
+	case DEF_SCCP_MSG_TYPE_XUDT:
+	case DEF_SCCP_MSG_TYPE_XUDTS:
+	case DEF_SCCP_MSG_TYPE_LUDT:
+	case DEF_SCCP_MSG_TYPE_LUDTS:
+	default:
+#if DEBUG_PRINT
+		printf ("Not Yet Decode function!! %d, %s\n", msg_type, __FUNCTION__);
+#endif
+		break;
+	}
+
+	(*pUserBuf) = &mSCCP_MSG_sb;
+	return dRet;
+}
+
+
+Set : function_def{SCCP_MSG_sb_list} = "int SCCP_MSG_sb_list (U8 *ucBuf, int dlen, void **ppUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos)"
+int SCCP_MSG_sb_list (U8 *ucBuf, int dlen, void **pUserBuf, int *dec_pos, int *decode_struct_size, int *decode_struct_type, U8 *pstring, int *str_pos)
+{
+	int			dRet;
+	U8			msg_type;
+
+	memset ((U8 *)&mSCCP_MSG_sb, 0x00, sizeof (SCCP_MSG_sb));
+
+	msg_type = ucBuf[(*dec_pos)];
+	switch (msg_type) {
+	case DEF_SCCP_MSG_TYPE_CR:
+		dRet = SCCP_CR_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CR_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_CC:
+		dRet = SCCP_CC_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CC_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_CREF:
+		dRet = SCCP_CREF_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_CREF_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_RLSD:
+		dRet = SCCP_RLSD_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_RLSD_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_RLC:
+		dRet = SCCP_RLC_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_RLC_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_DT1:
+		dRet = SCCP_DT1_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_DT1_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_DT2:
+		dRet = SCCP_DT2_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_DT2_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_AK:
+		dRet = SCCP_AK_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_AK_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_UDT:
+		dRet = SCCP_UDT_sb_list (ucBuf, dlen, pUserBuf, dec_pos, decode_struct_size, decode_struct_type, pstring, str_pos);
+		ASSOCIATION_SCCP_MSG_sb(&mSCCP_MSG_sb , SCCP_UDT_sb_DEF_NUM , (U8 *)(*pUserBuf));
+		break;
+	case DEF_SCCP_MSG_TYPE_UDTS:
+	case DEF_SCCP_MSG_TYPE_ED:
+	case DEF_SCCP_MSG_TYPE_EA:
+	case DEF_SCCP_MSG_TYPE_RSR:
+	case DEF_SCCP_MSG_TYPE_RSC:
+	case DEF_SCCP_MSG_TYPE_ERR:
+	case DEF_SCCP_MSG_TYPE_IT:
+	case DEF_SCCP_MSG_TYPE_XUDT:
+	case DEF_SCCP_MSG_TYPE_XUDTS:
+	case DEF_SCCP_MSG_TYPE_LUDT:
+	case DEF_SCCP_MSG_TYPE_LUDTS:
+	default:
+#if DEBUG_PRINT
+		printf ("Not Yet Decode function!! %d, %s\n", msg_type, __FUNCTION__);
+#endif
+		break;
+	}
+
+	return dRet;
+}
+
+
+
+/**  
+ *  $Log: abprotocol_decfunc.stc,v $
+ *  Revision 1.8  2007/03/23 11:58:50  yhshin
+ *  DEBUG_PRINT
+ *
+ *  Revision 1.7  2007/03/20 04:22:12  yhshin
+ *  SCCP tree, list
+ *
+ *  Revision 1.6  2007/03/20 03:31:31  yhshin
+ *  pos
+ *
+ *  Revision 1.5  2007/03/20 02:45:38  yhshin
+ *  pos 수정
+ *
+ *  Revision 1.4  2007/03/16 11:38:47  yhshin
+ *  dec_pos
+ *
+ *  Revision 1.3  2007/03/16 01:02:39  yhshin
+ *  ITKEY_tree 추가
+ *
+ *  Revision 1.2  2007/03/15 02:37:32  yhshin
+ *  pos, length 추가
+ *
+ *  Revision 1.1  2007/03/14 07:55:29  yhshin
+ *  stc
+ *
+ *
+ **/
+

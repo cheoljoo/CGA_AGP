@@ -1,0 +1,110 @@
+FileName : mems.h
+
+
+/** @mainpage Memory Management 
+malloc(total size);
+\dot
+ digraph example {
+ fontname=Helvetica;
+ label="Memory Architecture";
+	rankdir=LR; 	
+	node [shape=record,fontname=Helvetica,width=.1,height=.1]; 	
+	node0 [label = "<f0> stMEMSINFO | <f1> header\ room | <f2> memg_node_hdr | <f3> memg_node_data | ... | memg_node_hdr | memg_node_data",height = 2.5];
+}
+\enddot
+ */
+
+#define MEMS_OFFSET(INFO,ptr)  ((U32) (((U8 *) (ptr)) - ((U8 *) INFO)) )
+#define MEMS_PTR(INFO,offset)  ((U8 *) (((S32) (offset)) + ((S32) INFO)) ) 
+
+<TAG_DEFINE_START:MEM>
+#define 	MEMS_MAIN_MEM		1
+#define 	MEMS_SHARED_MEM		2
+<TAG_DEFINE_END:MEM>
+
+#define MEMS_MAX_DEBUG_STR	11
+#define MEMS_ID				0x10101010
+
+<TAG_DEFINE_START:FREE_ALLOCED>
+#define MEMS_FREE			0
+#define MEMS_ALLOCED		1
+<TAG_DEFINE_END:FREE_ALLOCED>
+
+<TAG_DEFINE_START:SEMA>
+#define MEMS_SEMA_ON		1
+#define MEMS_SEMA_OFF		0
+<TAG_DEFINE_END:SEMA>
+/** 
+ * @brief stMEMGNODE : mem안의 node들의 structure.
+ *
+ * 현 MEM는 doubly linked list로 구성된다. 
+ * 앞에는 mem node header가 오게 되고 뒤에 mem node body가 오게 된다.  
+ * mem node header + body = mem node 가 되는 것이다.  
+\dot
+digraph G {
+	fontname=Helvetica;
+	label="Memory Node Architecture";
+	rankdir = LR;
+	node [shape=record,style=filled,color=lightgray,fontname=Helvetica];
+	b [label = "<f0> Node\ Hdr2 | <f1> Node\ Body2"];
+	a [label = "<f0> Node\ Hdr1 | <f1> Node\ Body1"];
+}
+\enddot
+ *
+ * @see memg.h 
+ *
+ *  @note 		 Hdr뒤에 Body가 오게 될 것이며, Body부분을 실제 유저들이 사용하게 될 것이다.
+ *
+ */
+typedef struct _st_memsnodehdr {
+	U32	uiID;			/**< MEMS_ID : mem debug를 위한 부분 : free시 확인 */ 
+	STIME	TimeSec;	/**< Debug나 garbage collection을 위한 시간 저장 */
+	U8	<TAG_DEFINE:FREE_ALLOCED>ucIsFree;			/**< Free:0 , Alloc : 1 */
+	S8	DebugStr[MEMS_MAX_DEBUG_STR];	/**< debugging을 위해서 사용된 CREATE */
+	S8	DelStr[MEMS_MAX_DEBUG_STR];	/**< debugging을 위해서 사용된 DELETE */
+} stMEMSNODEHDR;
+
+
+/** 
+ *  @brief stMEMSINFO : 보통 memg에서 사용하는 memory을 관리하는 structure이다. 
+ *
+ *
+ * @see memg.h 
+ *
+ *  @note 	사용해야 할 memory에 대한 전체적인 관리.
+ */
+typedef struct _st_memsinfo {
+    U32 <TAG_DEFINE:MEM>uiType;		/**<  Main Memory = 1 , Shared Memory = 2  */
+    U32 uiShmKey;		/**<  uiType ==  Shared Memory : shared mem Key */
+	U32	<TAG_DEFINE:SEMA>uiSemFlag;	/**< Semaphore 사용 여부 */
+	U32	uiSemKey;			/**< Semaphore Key 값 */
+	S32	iSemID;				/**< Semaphore ID 값 */ 
+    U32 uiTotMemSize;		/**< 전체 사용가능한 memory (alloc또는 shared mem size */
+    U32 uiHeadRoomSize;		/**< 실제로 node들이 놓이기 전에 빈 공간내지는 다른 내용을 사용하기 위한 공간 */
+    U32 uiMemNodeHdrSize; 	/**< sizeof(stMEMSNODEHDR) */
+    U32 uiMemNodeBodySize; 	/**< Node안의 hdr뒤에 붙는 Body의 Size :\n이 Body의 Size가 실제로 원하는 Size가 될 것임 */
+    U32 uiMemNodeAllocedCnt;	/**< 이미 alloc되어진 갯수 */
+    U32 uiMemNodeTotCnt;		/**< 전체 노드의 갯수 */
+    OFFSET offsetHeadRoom;			/**< HeadRoom의 위치 */
+    OFFSET offsetNodeStart;		/**< Node들의 처음 위치 */
+    OFFSET offsetFreeList;			/**< Free된 Node의 위치 */
+    OFFSET offsetNodeEnd;			/**< Node의 마지막 Offset */
+	U64	createCnt;
+	U64	delCnt;
+} stMEMSINFO;
+
+
+/**
+ * memg project : External Functions.
+ */
+extern int mems_dump_DebugString(char *debug_str,char *s,int len);
+extern stMEMSINFO *mems_init(U32 uiType,U32 uiShmKey, U32 uiSemFlag, U32 uiSemKey, U32 uiHeadRoomSize, U32 uiMemNodeBodySize,U32 uiMemNodeTotCnt);
+extern U8 *mems_alloc(stMEMSINFO *pstMEMSINFO , U32 uiSize, U8 *pDbgPtr);
+extern S32 mems_free(stMEMSINFO *pstMEMSINFO , U8 *pFree, U8 *pDbgPtr);
+extern void mems_print_info(S8 *pcPrtPrefixStr,stMEMSINFO *pstMEMSINFO);
+extern void mems_print_node(S8 *pcPrtPrefixStr,stMEMSNODEHDR *pstMEMSNODEHDR);
+extern void mems_print_all(S8 *pcPrtPrefixStr,stMEMSINFO *pstMEMSINFO);
+extern void mems_draw_all(S8 *filename,S8 *labelname,stMEMSINFO *pstMEMSINFO);
+extern void mems_garbage_collector(S8 *pcPrtPrefixStr,stMEMSINFO *pstMEMSINFO,int timegap, void (*print_func)(stMEMSINFO *pmem, stMEMSNODEHDR *pmemhdr));
+extern void mems_view(S8 *pcPrtPrefixStr,stMEMSINFO *pstMEMSINFO,int timegap, void (*print_func)(stMEMSINFO *pmem, stMEMSNODEHDR *pmemhdr));
+extern S32 mems_alloced_cnt(stMEMSINFO *pstMEMSINFO);

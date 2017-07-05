@@ -1,0 +1,20 @@
+#!/bin/sh
+rm -rf structg
+case $1 in
+    '') echo "Normal Structg ........"
+		cvs co structg
+		;;
+		*) echo "Tag Structg ......";
+		cvs co -r $1 structg
+		;;
+esac
+cp -f ./hashg.stg ./structg/userfile.stg
+cd structg
+make
+cd OUTPUT
+make
+cd ../../
+#make -f makelib.mk
+#cd ../
+#cp -f ./*.h ../../INC/
+#cp -f ./*.a ../../LIB/

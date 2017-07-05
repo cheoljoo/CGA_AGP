@@ -1,0 +1,180 @@
+=============================================================================
+1. 날자 : 2006.11.15
+2. 작성자 : 이철주
+3. 내용 : MaxNodeCnt 설정 
+	- MaxNodeCnt 설정 (   hashg_set_MaxNodeCnt() 함수 사용)
+		기존 hashg_init을 변경하지 않고 해결
+		stHASHGINFO 에 추가
+	- hashg_add()에서 노드 수가 Max를 넘으면 return 0
+	- tiemr의 해결 방법 
+		U64 Timer를 둘것이고, 이 tiemr가 0인지를 보고 
+		create할지 update할지를 결정하면될 것이다.
+4. 파일
+	./hash.c															1.17
+	./hashg.stg															1.3
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용 : hashg default 함수 변경
+	-  4 byte , 2 byte , 1 byte도 큰 것 부터 되는데로 해서 더했음.
+	  12byte히면 4byte로 3번 더 할 것이고
+	  15 byte이면 4 byte 3번 , 2byte 1번 , 1 byte 1번 을 더할 것이다.
+	-  U32 hashg_get_occupied_node_count(stHASHGINFO *pstHASHGINFO) 추가
+4. 파일
+	./hash.c															1.16
+	./hashg.stg															1.2
+=============================================================================
+1. 날자 : 2006.05.03 (수) 
+2. 작성자 : 이철주
+3. 내용 : 
+	- hash.c
+		: link_node에서 NODE의 처음에 나오는 member인 pstHASHGINFO에 삽입되는 것으로 추가함.
+  		: 이려면 추후 unlink등에서 node에 딸린 pstHASHGINFO를 사용하게 됨. (올바른 곳을 가리키게 바꾸어주는 것임)
+4. 파일
+	./hash.c															1.12
+=============================================================================
+1. 날자 : 2006.05.03 (수) 
+2. 작성자 : 이철주
+3. 내용 : 
+	- hash.c
+		: unlink_node시에 p->prev 가 없는 부분은 node가 어디에 붙어있지 않다는 것을 의미하므로
+			p->prev가 NULL일땐는 uiLinkedCnt 를 감소시키지 않음.
+4. 파일
+	./hash.c															1.11
+=============================================================================
+1. 날자 : 2006.04.26 (수) 
+2. 작성자 : 이철주
+3. 내용 : TIMERG관련 수정 
+	- hash.c
+		: hashg_init - sortkeylen을 없애고 , , S32 (*print_key)(S8*,S8*,S32)를 추가
+			print_key함수는 없으면 dump로 찍어주게 된다. 자신이원하는 모양으로 찍을수 있게끔 지원해준다.
+		: hashg_del_from_key 함수 추가
+		: hashg_del , hashg_unlink_node 의 argument 조정 (make시 warning들에 대해서 .h와 비교후 수정요)
+	- hash.stg
+		:  extern선언문 변경 - hash.c가 변함에 따라.
+		: stHASHGNODE에 stHASHGINFO를 가리키게 했다. 
+			이유 1: 같은 node모양의 hash를 여러개 있을때 node가 hash를 마음대로 옮겨다닐수 있게 한다.  
+			이유 2: unlink or free 함수에서 hashinfo pointer없이도 delete가 가능하게 한다. 
+4. 파일
+	./hash.c															1.8
+	./hash.stg															1.5 - Binary
+=============================================================================
+1. 날자 : 2006.04.26 (수) 
+2. 작성자 : 신영호
+3. 내용
+	- case 적용해서 cvs co -r $1 적용할 수 있게 수정
+	- $1이 없으면 cvs co 으로 동작
+4. 파일
+	./configure															1.5
+=============================================================================
+1. 날자 : 2006.04.24 (월) 
+2. 작성자 : 이철주
+3. 내용
+	- hash.c :  unlink의 argument 추가 (사용하지는 않으나 hasho와 맞춰주기 위해서)
+	- hash.stg : extern 함수 선언 
+4. 파일
+	./hash.c															1.7
+	./hash.stg															1.4 - Binary
+=============================================================================
+1. 날자 : 2006.04.21 (금) 
+2. 작성자 : 이철주
+3. 내용
+	- Makefile : library path변경 (structg의 결과를 ../.. 으로 move를 하기 때문 ) 
+	- configure : make all -> make
+	- makefile.lib : (INIT) library를 만들기 위해서 사용 (이 hashg를 library로 사용하기 원할때)
+	- hash.c :  comment의 hash.c -> hashg.c 로 바꿈  : include hashg.h 로 바꿈  
+	- hash.stg :  결과 file name 변경 : hash.h -> hashg.h 로 바꿈 
+4. 파일
+	./configure															1.4
+	./Makfile															1.3
+	./makefile.lib														1.1
+	./hash.c															1.6
+	./hash.stg															1.3 - Binary
+=============================================================================
+1. 날자 : 2006.04.19 (수)
+2. 작성자 : 신영호
+3. 내용
+	- structg 변경에 따른 configure 파일 수정 
+		. make --> make all
+	- structg에서 생성된 library이름을 Makefile에서 수정해 주어야 한다.
+4. 파일
+	./configure															1.2
+	./Makfile															1.2
+=============================================================================
+1. 날자 : 2006.04.11 (화)
+2. 작성자 : 이철주
+3. 내용
+	- hash로 prefix를 가지는 모든 것을 hashg로 바꿈
+		hash -> hashg
+		HASH -> HASHG
+	이유 : hasho 를 따로 만들 예정임 (Pointer는 안 가지고 offset으로만 처리하는 것임) 
+4. 파일
+	./hash.c															1.4
+	./hash.stg															1.2 - Binary
+=============================================================================
+1. 날자 : 2006.04.11 (화)
+2. 작성자 : 이철주
+3. 내용
+	- INIT
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_2_co_hashg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - hashg 가 되게 했음.
+	- hashg와 structg의 연동 성공까지 
+4. 파일
+	./Doxyfile															1.1
+	./HISTORY.TXT														1.1
+	./Makefile															1.1
+	./README.TXT														1.1
+	./tag.TXT															1.1
+	./configure															1.1 - Binary
+	./hash.c															1.1
+	./hash.stg															1.1 - Binary
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./hashg/hashg 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./hashg 밑에서   
+
+cvs import -m "INIT" hashg upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co hashg 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

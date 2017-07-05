@@ -1,0 +1,13 @@
+
+
+1. 날자 : 2006.04.17 (월)
+2. 작성자 : 이철주
+3. 내용
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_3_co_memg_TEST
+    변화 : ProC 처리 / 전체적 모양 변경                                 
+    - Decode/Encode/Print/ProC 까지 처리                                
+    - Flat 처리                                                         
+    - structg.pl 한개로 통합                                            
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)       
+    - memg 가 되게 했음.
+    - memg와 structg의 연동 성공까지 

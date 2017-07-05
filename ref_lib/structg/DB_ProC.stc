@@ -1,0 +1,102 @@
+FileName : DB_ProC.pc
+Set : iterate_comments = ON
+Set : filelist{STC/DB_ProC.pc} = "ProC"
+
+/**		file  DB_ProC.pc
+ *      - +Intro+
+ *
+ *     Copyright (c) 2006~ by Upresto Inc, Korea
+ *     All rights reserved
+ *
+ *		$Id: DB_ProC.stc,v 1.6 2007/03/27 02:07:41 yhshin Exp $
+ * 
+ *     @Author      $Author: yhshin $
+ *     @version     $Revision: 1.6 $
+ *     @date        $Date: 2007/03/27 02:07:41 $
+ *     @warning     NTAM용으로 만드는 앞에 flat_st 가 모두 들어갈 것이다.
+ *     @ref         DB_ProC.pc
+ *     @todo        
+ *
+ *     @section     Intro(소개)
+ *      - +Intro+
+ *
+ *     @section     Requirement
+ *      @li +Requirement+
+ *
+ **/
+
+
+
+#ifndef _STG_PROC_
+#define _STG_PROC_
+#include    <sqlca.h>
+#include    <oraca.h>
+#include 	"DB_ProC.h"
+#endif
+
+
+
+ITERATE %ANALYSIS_TYPEDEF +<<+ ITKEY ITVALUE
+
+/** DBInsert_ITKEY function.
+ *
+ *  DB함수 : ITKEY 을 DB에 넣는 함수
+ *
+ * 	@param   dCount	 	Structure의 연속된 갯수 
+ * 	@param   pstData	ITKEY 으로 선언된 pointer
+ * 	@param   pszName	Table명의 DAY 값  : ITKEY_%s
+ * 	@param   pdErrRow	Error 번호 
+ *
+ *  @return     0 : Success , Negative : Fail
+ *  @see        ITKEY
+ *
+ *  @Warning  	DB Table의 마지막에 (sysdate,'YYYYMMDDHH24MISS') 을 꼭 추가해주어야 한다. \n v? 마지막 번호와 field의 수가 맞는지 정도는 약간 확인해 주기 바란다. (혹시 모르니) 
+ *  @note       DB의 실제 TableName 앞에 st를 붙여서 typdef strct ... { } TableName; 으로 만들어주어야 한다.
+ **/
+int DBInsert_stFlat_ITKEY(int dCount, stFlat_ITKEY *pstData, char *pszName, int *pdErrRow)
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+	int         dRet;
+	char        szSqlStmt[1024 * 3];
+	EXEC SQL END DECLARE SECTION;
+
+	oraca.orastxtf = ORASTFERR;
+	*pdErrRow = 0;
+
+	if (pszName) {
+		sprintf(szSqlStmt, "INSERT INTO ITKEY_%s VALUES ( \
+	ITERATE @SQL_ARRAY_ITKEY +<<+ IT2KEY IT2VALUE
+		:vIT2KEY, \
+	+>>+
+		to_char(sysdate,'YYYYMMDDHH24MISS'))",
+					 pszName);
+	} else {
+		sprintf(szSqlStmt, "INSERT INTO ITKEY VALUES ( \
+	ITERATE @SQL_ARRAY_ITKEY +<<+ IT2KEY IT2VALUE
+		:vIT2KEY, \
+	+>>+
+		to_char(sysdate,'YYYYMMDDHH24MISS'))");
+	}
+
+	EXEC SQL DECLARE INSERT_stFlat_ITKEY STATEMENT;
+	EXEC SQL PREPARE INSERT_stFlat_ITKEY FROM :szSqlStmt;
+	EXEC SQL FOR :dCount EXECUTE INSERT_stFlat_ITKEY USING
+			:pstData;
+
+	dRet = sqlca.sqlcode;
+	if(dRet < 0)
+	{
+			*pdErrRow = sqlca.sqlerrd[2];
+			EXEC SQL ROLLBACK WORK;
+			return dRet;
+	}
+	EXEC SQL COMMIT WORK;
+
+	return 0;
+}
+
++>>+
+
+
+
+

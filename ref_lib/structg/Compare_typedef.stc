@@ -1,0 +1,40 @@
+FileName : Compare_typedef.c
+Set : iterate_comments = ON
+
+#include <netinet/in.h>
+
+
+ITERATE %save_typedef_name +<<+ ITKEY  ITVALUE
+void 
+Compare_ITVALUE(char *prefix_string, ITVALUE *pprev, ITVALUE *pnext){
+Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,ITVALUE *pprev, ITVALUE *pnext)"
+
+	ITERATE %save_typedef_name_ITVALUE +<<+ IT2KEY  IT2VALUE
+	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,U8) #{
+	if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
+		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
+		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+	}
+	}#
+	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,S8) #{
+	if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
+		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
+		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+	}
+	}#
+	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,) #{
+	if( pprev->IT2KEY != pnext->IT2KEY){
+		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %d\n",prefix_string,(int) pprev->IT2KEY);
+		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %d\n",prefix_string,(int) pnext->IT2KEY);
+	}
+	}#
+	+>>+
+
+	return ;
+}
+
++>>+
+
+
+
+

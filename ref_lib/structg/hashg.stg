@@ -1,0 +1,82 @@
+FileName : hashg.h
+
+
+/** @mainpage Work_Flow & Hash_Table
+ \dot
+ digraph example {
+ fontname=Helvetica;
+ label="Work Flow";
+ rankdir=LR;
+ node [shape=record, fontname=Helvetica, fontsize=10,style=rounded];
+ a [ label="structg" URL="http://192.203.140.245/aaa/cjlee/structg"];
+ b [ label="hashg" URL="http://192.203.140.245/aaa/cjlee/hashg"];
+ d [ label="hasho" URL="http://192.203.140.245/aaa/cjlee/hasho"];
+ c [ label="timerg" URL="http://192.203.140.245/aaa/cjlee/timerg"];
+ a -> b [label="Define the TYPEDEF", arrowhead="normal", style="dashed", fontname=Helvetica, fontsize=10];
+ b -> d [label="apply for \n the offset definition", arrowhead="normal", style="dashed", fontname=Helvetica, fontsize=10];
+ d -> c [label="Define the PRIMITIVEs", fontname=Helvetica, fontsize=10];
+}
+ \enddot
+
+ */
+
+
+/** 
+ * @brief stHASHGNODE : hash안의 node들의 structure.
+ *
+ * 현 HASH는 doubly linked list로 구성된다. 
+ * 확장을 가능하게 하기 위해서 key와 data 부분을 분리 하였다.
+ *
+ * @see hash.h 
+ *
+ *  @note 		+Note+ 
+ *
+ */
+typedef struct _st_hashgnode {
+	U8 *pstHASHGINFO;				///< 같은 모양의 node이면 hash간의 이동이 가능하게 하기 위해서
+    struct _st_hashgnode *next  ;  	///< self-pointer 
+    struct _st_hashgnode **prev; 	/**< self-pointer */
+    U8 *pstKey;       /**< Key  Structure Pointer */
+    U8 *pstData;      /**< Data Structure Pointer */
+} stHASHGNODE;
+
+
+/** 
+ *  @brief stHASHGINFO : 보통 hash에서 사용하는 node들을 관리하는 structure이다. 
+ *
+ * 보통 hash에서 사용하는 node들을 관리하는 structure이다. 
+ * key의 size와 key안에서 sort하기 위한 부분만을 위한  size를 구별하였다.
+ * sortkeylen은 key의 앞 부분만을 가리킨다. 
+ *
+ * @see hash.h 
+ *
+ *  @note 		hash node들의 정보를 관리해준다. 
+ */
+typedef struct _st_hashginfo {
+    stHASHGNODE *psthashnode  ;  ///< HASH Node array의 pointer
+    U16 usKeyLen;           ///< Node들이 사용할 Key 길이.  Key 비교와 copy를 위해서 사용  
+    U16 usDataLen;          /**< Node에서 사용할 DataLen
+                                 @exception pstData의 Structure의 type은 외부에서만 알면 된다. */
+    U32 uiHashSize;         /**< Hash 크기. 임의의 설정을 위해서 set Hash Node Array의 크기  */
+	U32 (*func)(void*,U8*);     ///< stHASHGINFO* , stKey* : hash_function pointer - init에서 set
+	S32 (*print_key)(S8*,S8*,S32);     ///< stHASHGINFO* , stKey* : hash_function pointer - init에서 set
+	U32	uiLinkedCnt;		///< link로 매달린 node의 갯수 
+} stHASHGINFO;
+
+
+/**
+ * hashg project : External Functions.
+ */
+extern void hashg_print_info(S8 *pcPrtPrefixStr,stHASHGINFO *pstHASHGINFO);
+extern void hashg_print_node(S8 *pcPrtPrefixStr,stHASHGINFO *pstHASHGINFO,stHASHGNODE *pstHASHGNODE);
+extern void hashg_print_all(S8 *pcPrtPrefixStr,stHASHGINFO *pstHASHGINFO);
+extern void hashg_draw_all(S8 *filename,S8 *labelname,stHASHGINFO *pstHASHGINFO);
+extern S32 hashg_dump_DebugString(S8 *debug_str,S8 *s,S32 len);
+extern U32 hashg_func_default(void *pa,U8 *pb);
+extern stHASHGINFO * hashg_init(U32 (*hashg_func)(void*,U8*),U16 usKeyLen, S32 (*print_key)(S8*,S8*,S32), U16 usDataLen, U32 uiHashSize);
+extern void hashg_link_node(stHASHGINFO *pstHASHGINFO , stHASHGNODE *p);
+extern void hashg_unlink_node(stHASHGNODE *p);
+extern stHASHGNODE * hashg_find(stHASHGINFO *pstHASHGINFO, U8 *pKey);
+extern stHASHGNODE * hashg_add(stHASHGINFO *pstHASHGINFO, U8 *pKey, U8 *pData);
+extern void hashg_del_from_key(stHASHGINFO *pstHASHGINFO,U8 *pKey);
+extern void hashg_del(stHASHGNODE *pstHASHGNODE);

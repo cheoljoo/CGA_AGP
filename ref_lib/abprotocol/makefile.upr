@@ -1,0 +1,96 @@
+#
+# $Id: makefile.upr,v 1.2 2007/03/23 12:00:51 yhshin Exp $
+#
+
+
+SHELL 	= /bin/sh
+
+CC 		= gcc
+AR 		= ar 
+RM 		= /bin/rm
+MV 		= /bin/mv
+CP 		= /bin/cp
+DEPEND	= makedepend
+LINT 	= lint
+INSTALL = install
+
+TOP_BIN = 
+
+INCLUDES=  +INCLUDES+
+DEFINES = 
+OPTIMIZE= 
+
+# printf 문 찍기
+#-DDEBUG_PRINT
+#
+ifeq ($(AQUA_DEBUG),)
+DEBUG   = -g3 -Wall
+else
+DEBUG   = $(AQUA_DEBUG)
+endif
+
+CFLAGS 	= $(OPTIMIZE) $(INCLUDES) $(DEFINES) $(DEBUG) -I../../ -I../../../dlinkUtil
+SFLAGS 	= $(INCLUDES) $(DEFINES) $(DEBUG)
+DEPOPTS = $(INCLUDES) $(DEFINES) 
+
+HDRS 	= +HDRS+
+
+SRCS 	= +SRCS+
+
+TARGET 	= +TARGET+
+
+OBJS 	= $(SRCS:.c=.o)
+
+#
+#-----------------------------------------------------------
+#
+
+#
+.SUFFIXES: .c .s s.o c.o p.o q.o .i .u .H
+.s.o:
+	$(CC) $(CFLAGS) -c $<
+.c.s:
+	$(CC) $(SFLAGS) -S $<
+.c.u:
+	$(CC) $(CFLAGS) -j $<
+.c.i:
+	$(CC) $(CFLAGS) -P $<
+
+all: $(TARGET) $(HADS)
+
+$(TARGET): $(SRCS) $(HDRS) $(OBJS) 
+	$(RM) -f $@
+	$(AR) clq $@ $(OBJS)
+	$(AR) ts $@ 
+	$(MV) -f $@ ../../
+	$(MV) -f *.h ../../
+
++LEXS+
+
+clean:
+	$(RM) -f *.s *.u *.o *.i core $(TARGET)
+
+depend: $(SRCS)
+	$(DEPEND) -o.o -f Makefile -- $(DEPOPTS) -- $(SRCS)
+
+lint:
+	$(LINT) $(INCLUDES) -h -v -a -u -x -m $(SRCS)
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+
+
+#
+# $Log: makefile.upr,v $
+# Revision 1.2  2007/03/23 12:00:51  yhshin
+# DEBUG_PRINT
+#
+# Revision 1.1  2007/02/06 23:13:42  yhshin
+# *** empty log message ***
+#
+# Revision 1.2  2006/03/19 01:06:28  yhshin
+# pc용과 일반용으로 구분
+#
+# Revision 1.1  2006/03/19 00:13:28  yhshin
+# structg lib add
+#
+#

@@ -1,0 +1,135 @@
+FileName : TAG_DEF.c
+Set : iterate_comments = ON
+
+#include <netinet/in.h>
+
+
+
+ITERATE %TAG_DEF_ALL +<<+ ITKEY  ITVALUE
+char *
+print_TAG_DEF_ALL_ITKEY(char *prefixstring, int type){
+Set : function_def{print_TAG_DEF_ALL_ITKEY} = "char * print_TAG_DEF_ALL_ITKEY(char *prefixstring, int type)"
+	switch(type){
+	ITERATE %TAG_DEF_ALL_ITKEY +<<+ IT2KEY  IT2VALUE
+		case IT2KEY:
+			FPRINTF(LOG_LEVEL,"%s : ITKEY definition name : %s  (%d)\n",prefixstring,"IT2KEY",type);
+			return "IT2KEY";
+	+>>+
+		default :
+			FPRINTF(LOG_LEVEL,"%s : ITKEY type name : unknown\n",prefixstring);
+			return "UNKNOWN";
+	}
+	return "UNKNOWN";
+}
+
++>>+
+
+
+
+
+ITERATE %TAG_DEF_ALL +<<+ ITKEY  ITVALUE
+char *
+PRINT_TAG_DEF_ALL_ITKEY(int type){
+Set : function_def{PRINT_TAG_DEF_ALL_ITKEY} = "char * PRINT_TAG_DEF_ALL_ITKEY(int type)"
+	switch(type){
+	ITERATE %TAG_DEF_ALL_ITKEY +<<+ IT2KEY  IT2VALUE
+		case IT2KEY:
+			NOTEQUAL(+<+$abbreviation_define_name{IT2KEY}+>+,) return "+<+$abbreviation_define_name{IT2KEY}+>+";
+			IFEQUAL(+<+$abbreviation_define_name{IT2KEY}+>+,) return "IT2KEY"; 
+	+>>+
+		default :
+			return "UNKNOWN";
+	}
+	return "UNKNOWN";
+}
+
++>>+
+
+
+
+
+ITERATE %TAG_AUTO_STRING_DEF +<<+ ITKEY  ITVALUE
+void
+print_TAG_AUTO_STRING_DEF_ITKEY(char *prefixstring, int type){
+Set : function_def{print_TAG_AUTO_STRING_DEF_ITKEY} = "void print_TAG_AUTO_STRING_DEF_ITKEY(char *prefixstring, int type)"
+	ITERATE %TAG_DUAL_STRING_ITKEY +<<+ IT2KEY  IT2VALUE
+	if(IT2VALUE == type){  
+		FPRINTF(LOG_LEVEL,"%s : ITKEY STRING definition name : %s  (%d)\n",prefixstring,"IT2KEY",type);
+	}
+	+>>+
+	return ;
+}
+
++>>+
+
+
+
+ITERATE %TAG_AUTO_STRING_DEF +<<+ ITKEY  ITVALUE
+int 
+Get_TAG_AUTO_STRING_DEF_ITKEY(char *comp_str){
+Set : function_def{Get_TAG_AUTO_STRING_DEF_ITKEY} = "int Get_TAG_AUTO_STRING_DEF_ITKEY(char *comp_str)"
+	int size1,size2;
+	int size;
+
+	size2 = strlen(comp_str);
+
+	IFEQUAL(+<+$TAG_AUTO_STRING_DEF_CASE_IGNORE{ITKEY}+>+,YES) #{
+	{
+		int __i;
+		for(__i = 0; __i < size2 ; __i++){
+			comp_str[__i] = tolower(comp_str[__i]);
+		}
+	}
+	}#
+
+	ITERATE %TAG_DUAL_STRING_ITKEY +<<+ IT2KEY  IT2VALUE
+	size1 = strlen("IT2KEY");
+	size = (size1 > size2) ? size2 : size1;		/// Minimum
+	if((size1 <= size2) && (!memcmp(comp_str,"IT2KEY",size)) ){
+		FPRINTF(LOG_LEVEL,"%s : %d : %s\n",(char *)__FUNCTION__,IT2VALUE,"IT2KEY");
+		return  IT2VALUE;
+	}
+	+>>+
+
+	return 0;
+}
+
++>>+
+
+int 
+Get_TAG_DEF_ALL_0(char *comp_str){
+Set : function_def{Get_TAG_DEF_ALL_0} = "int Get_TAG_DEF_ALL_0(char *comp_str)"
+	return 0;
+}
+
+
+
+ITERATE %TAG_DEF_ALL +<<+ ITKEY  ITVALUE
+int 
+Get_TAG_DEF_ALL_ITKEY(char *comp_str){
+Set : function_def{Get_TAG_DEF_ALL_ITKEY} = "int Get_TAG_DEF_ALL_ITKEY(char *comp_str)"
+	int size1,size2;
+	int size;
+
+	size2 = strlen(comp_str);
+
+	ITERATE %TAG_DEF_ALL_ITKEY +<<+ IT2KEY  IT2VALUE
+	size1 = strlen("IT2KEY");
+	size = (size1 > size2) ? size2 : size1;		/// Minimum
+	if((size1 <= size2) && (!memcmp(comp_str,"IT2KEY",size)) ){
+		FPRINTF(LOG_LEVEL,"%s : %d : %s\n",(char *)__FUNCTION__,IT2VALUE,"IT2KEY");
+		return  IT2VALUE;
+	}
+	+>>+
+
+	return 0;
+}
+
++>>+
+
+
+
+
+
+
+

@@ -1,0 +1,8 @@
+FileName : AQUA.h
+STG_FileName : AQUA.stg
+# STG_FileName은 $outputdir/$STG_FileName 으로 아래의 stg들을 모아 두고 ,
+#    이것으로 structg.pl을 돌릴 것이다.
+# stg file들의 list를 나열하는 것
+# pstg에 대한 처리는 precompile을 수동으로 먼저 한후에 처리하는 것으로 한다.
+test.stg
+flow.stg

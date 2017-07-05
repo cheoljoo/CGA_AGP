@@ -1,0 +1,180 @@
+FileName : conf.h
+STC_FileName : LOG_ME.stc , makefile.stc
+
+/* 
+ * $Id: conf.pstg,v 1.7 2006/09/08 05:42:00 cjlee Exp $
+ */
+
+#define     HOST_MAX    200
+
+typedef struct _st_MN_data {
+<TAG_KEY>
+    IP4     ip;
+</TAG_KEY>
+    U32     Mask;
+} MNCONF;
+
+typedef struct _st_L7Method_data {
+<TAG_KEY>
+    U32     method;
+</TAG_KEY>
+    U32     L7Code;
+    U32     Appcode;
+} L7MethodCONF;
+
+typedef struct _st_L7URL_data {
+<TAG_KEY>
+    U32     Host_len;
+    U8      Host[HOST_MAX];
+    U32     Context_Type;
+    U32     Redirect_Protocol;
+</TAG_KEY>
+    U32     L7Code;
+    U32     Appcode;
+} L7URLCONF;
+
+<TAG_AUTO_DEFINE_START :METHOD(100)>
+METHOD_GET
+METHOD_POST
+METHOD_HEAD
+METHOD_OPTIONS
+METHOD_PUT
+METHOD_DELETE
+METHOD_TRACE
+METHOD_CONNECT
+METHOD_RESULT
+<TAG_AUTO_DEFINE_END:METHOD>
+
+<TAG_AUTO_DEFINE_START:REDIRECT(100)>
+HTTP
+RTSP
+<TAG_AUTO_DEFINE_END:REDIRECT>
+
+<TAG_AUTO_DEFINE_START :APPCODE(100)>
+APPCODE_HTTP
+APPCODE_ME
+APPCODE_KUN
+APPCODE_BREW
+APPCODE_MARS
+APPCODE_RTSP
+APPCODE_VOD
+APPCODE_SSL
+<TAG_AUTO_DEFINE_END:APPCODE>
+
+/* TAG_AUTO_STRING_DEFINE 에서 뽑아내야 할 값들 
+  ==> define TYPE_DESC      101     
+  ... 등의 define된 값들
+  Print_ContentsType(101) -> print the "application/vnd.oma.dd" string
+  Get_Define_ContentsType(char *s); ==> return TYPE_DESC;
+*/
+<TAG_AUTO_STRING_DEFINE_START:ContentsType(100)>
+application/vnd.oma.dd                  CTYPE_DESC          /* ?? */
+text/html                               CTYPE_HTML
+text/x-html                             CTYPE_HTML
+text/xml                                CTYPE_XML
+text/vnd.wap.wml                        CTYPE_WML
+application/xhtml+xml                   CTYPE_WML
+text/css                                CTYPE_STYLE
+text/plain                              CTYPE_LMSG
+image/sis                               CTYPE_SIS
+map/sis                                 CTYPE_SIS
+application/ndwn                        CTYPE_NDWN
+application/vnd-qualcomm.qis.pkg        CTYPE_BREWDOWN
+application/x-msdownload                CTYPE_WIPIDOWN
+audio/ma2                               CTYPE_MA2
+audio/ma3                               CTYPE_MA3
+audio/ma5                               CTYPE_MA5
+audio/k3g                               CTYPE_VOD
+video/k3g                               CTYPE_VOD
+application/x-skt-lbs                   CTYPE_SOUND
+application/x-smaf                      CTYPE_SOUND
+application/vnd.smaf                    CTYPE_SOUND
+multipart/                              CTYPE_MMSG
+application/                            CTYPE_APPLICATION
+text/                                   CTYPE_TEXT
+image/                                  CTYPE_IMAGE
+audio/                                  CTYPE_SOUND
+<TAG_AUTO_STRING_DEFINE_END:ContentsType>
+
+STG_LOG_TEXT_PARSING typedef struct _st_CONF_MN {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:MN			\([ \t]*MN
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+    IP4     ip;          #PARSING_RULE:^^:GRASP:^^:<MN>IP={VALUE}#
+</TAG_KEY>
+
+    IP4     mask;        #PARSING_RULE:^^:GRASP:^^:<MN>Mask={VALUE}#
+} CONFMN;
+
+STG_LOG_TEXT_PARSING typedef struct _st_CONF_L4 {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:L4			\([ \t]*L4
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+<TAG_KEY>
+    IP4     ipport_ip;          #PARSING_RULE:^^:GRASP:^^:<L4>ServerIP={VALUE}#
+    U32     ipport_port;        #PARSING_RULE:^^:GRASP:^^:<L4>ServerPort={VALUE}#
+</TAG_KEY>
+
+    U32     L4Code;             #PARSING_RULE:^^:GRASP:^^:<L4>L4Code={VALUE}#
+    DEF     <TAG_DEFINE:APPCODE>Appcode;    #PARSING_RULE:^^:GRASP:^^:<L4>AppCode={VALUE}#
+    U32     L7Code;             #PARSING_RULE:^^:GRASP:^^:<L4>L7Code={VALUE}#
+} CONFL4;
+
+#define MAX_HOSTNAME_SIZE 100
+
+STG_LOG_TEXT_PARSING typedef struct _st_L7Code_Key {
+    LINEFEED            [ \t]*(\)\r\n)
+    FORMFEED            [ \t]*\)
+    STATE				GRASP:^^:L7			\([ \t]*L7
+    TOKEN   ID                  [^<> \t\r\n]+
+    TOKEN   VALUE               [^=&: \t\r\n]+
+    TOKEN   DIGIT               [ \t]*[0-9]+
+
+	<TAG_KEY>
+	DEF				<TAG_DEFINE:METHOD>Method; #PARSING_RULE:^^:GRASP:^^:<L7>Method={VALUE}#
+	U32				HostLen;
+	U8				szHost[MAX_HOSTNAME_SIZE];		/**< Host Name */ #PARSING_RULE:^^:GRASP:^^:<L7>Host={VALUE}#
+	DEF				<TAG_DEFINE:ContentsType>uiContentType;					/**< Content Type 추후 정의 */ #PARSING_RULE:^^:GRASP:^^:<L7>Contents_Type={VALUE}#
+	DEF				<TAG_DEFINE:REDIRECT>Redirect_Protocol;	/**< Redirect Protocol */ #PARSING_RULE:^^:GRASP:^^:<L7>Redirect_Protocol={VALUE}#
+	</TAG_KEY>
+	DEF				<TAG_DEFINE:APPCODE>uiAppCode;					/**< 처리 프로세스 ID */ #PARSING_RULE:^^:GRASP:^^:<L7>AppCode={VALUE}#
+	U32				uiL7Code;		#PARSING_RULE:^^:GRASP:^^:<L7>L7Code={VALUE}#
+} CONFL7;
+
+
+/*
+ * $Log: conf.pstg,v $
+ * Revision 1.7  2006/09/08 05:42:00  cjlee
+ * conf 더 잘 나오게
+ *
+ * Revision 1.6  2006/09/08 05:27:42  cjlee
+ * Configuration File 처리
+ *
+ * Revision 1.5  2006/09/08 00:01:22  cjlee
+ * no message
+ *
+ * Revision 1.4  2006/09/07 06:36:39  cjlee
+ * stcI : OCONF library compile 완료
+ *
+ * Revision 1.3  2006/09/07 06:23:46  cjlee
+ * stcI 관련 추가
+ *
+ * Revision 1.2  2006/09/06 08:16:25  cjlee
+ * GET_TAG_DEF 추가
+ *
+ * Revision 1.1  2006/09/06 06:56:03  cjlee
+ * <TAG_KEY> 어디서 사용할수 있게 추가
+ * structg.pl 에서도 이것을 보면 처리할수 있게 해준다. : 여기서는 .h에만 추가
+ * pstg.pl 에서도 뒤에 추가해주지만, structg.pl을 또 돌려야 하므로 이 KEY들로 정의된 여러가지 strucuture들의 dec,enc,prt등의 다양한 함수들이 제공되어짐.
+ *
+ *
+ */

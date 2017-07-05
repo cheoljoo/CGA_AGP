@@ -1,0 +1,432 @@
+# makefile to build generated files
+
+#include platform.mk
+#%ASN-E-FILNOTFOU, File 'platform.mk' not found
+
+ASN1C_PATH=/usr/local/asn1c-v583
+include $(ASN1C_PATH)/c/platform.mk
+
+# include directories
+OSROOTDIR = ?
+%ASN-E-FILNOTFOU, File 'rtsrc' not found
+LIBDIR  = $(OSROOTDIR)/c/lib
+RTSRCDIR = $(OSROOTDIR)/rtsrc
+PERSRCDIR = $(OSROOTDIR)/rtpersrc
+SRCDIR = .
+HFILESDIR = .
+HFILES = $(RTSRCDIR)/asn1type.h $(PERSRCDIR)/asn1per.h 
+# compiler defs
+CFLAGS = -c $(CVARS_) $(CFLAGS_) $(CBLDTYPE_) -D_TRACE
+IPATHS = -I$(SRCDIR) -I$(OSROOTDIR) -I$(RTSRCDIR) -I$(PERSRCDIR) $(IPATHS_)
+LINKOPT = $(LINKOPT_)
+
+# run-time libraries
+LIBS = $(LIBDIR)/libasn1per.a $(LIBDIR)/libasn1rt.a
+LLIBS = -lasn1per -lasn1rt
+LPATHS = $(LPPFX)$(LIBDIR) $(XMLLPATHS)
+
+OBJECTS =  \
+NBAP-PDU-Discriptions$(OBJ) \
+NBAP-PDU-Contents$(OBJ) \
+NBAP-IEs$(OBJ) \
+NBAP-CommonDataTypes$(OBJ) \
+NBAP-Constants$(OBJ) \
+NBAP-Containers$(OBJ)
+
+ENCOBJECTS =  \
+NBAP-PDU-DiscriptionsEnc$(OBJ) \
+NBAP-PDU-ContentsEnc$(OBJ) \
+NBAP-IEsEnc$(OBJ) \
+NBAP-CommonDataTypesEnc$(OBJ) \
+NBAP-ConstantsEnc$(OBJ) \
+NBAP-ContainersEnc$(OBJ)
+
+DECOBJECTS =  \
+NBAP-PDU-DiscriptionsDec$(OBJ) \
+NBAP-PDU-ContentsDec$(OBJ) \
+NBAP-IEsDec$(OBJ) \
+NBAP-CommonDataTypesDec$(OBJ) \
+NBAP-ConstantsDec$(OBJ) \
+NBAP-ContainersDec$(OBJ)
+
+PRTOBJECTS =  \
+NBAP-PDU-DiscriptionsPrint$(OBJ) \
+NBAP-PDU-ContentsPrint$(OBJ) \
+NBAP-IEsPrint$(OBJ) \
+NBAP-CommonDataTypesPrint$(OBJ) \
+NBAP-ConstantsPrint$(OBJ) \
+NBAP-ContainersPrint$(OBJ)
+
+TESTOBJECTS =  \
+NBAP-PDU-DiscriptionsTest$(OBJ) \
+NBAP-PDU-ContentsTest$(OBJ) \
+NBAP-IEsTest$(OBJ) \
+NBAP-CommonDataTypesTest$(OBJ) \
+NBAP-ConstantsTest$(OBJ) \
+NBAP-ContainersTest$(OBJ)
+
+all : $(OBJECTS) $(ENCOBJECTS) $(DECOBJECTS) $(PRTOBJECTS) \
+$(TESTOBJECTS) writer$(EXE) reader$(EXE)
+
+WRITEROBJ = writer$(OBJ) $(OBJECTS) $(ENCOBJECTS) $(TESTOBJECTS) $(PRTOBJECTS)
+
+writer$(EXE) : $(WRITEROBJ) $(LIBS)
+	$(LINK) $(WRITEROBJ) $(LINKOPT) $(LPATHS) $(LLIBS)
+
+READEROBJ = reader$(OBJ) $(OBJECTS) $(DECOBJECTS) \
+$(PRTOBJECTS)
+
+reader$(EXE) : $(READEROBJ) $(LIBS)
+	$(LINK) $(READEROBJ) $(LINKOPT) $(LPATHS) $(LLIBS)
+
+RWHFILES = $(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-CommonDataTypes.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+writer$(OBJ) : writer.c $(RWHFILES)
+reader$(OBJ) : reader.c $(RWHFILES)
+
+# .c -> .obj rules
+# common file rules
+NBAP-PDU-Discriptions$(OBJ) : $(SRCDIR)/NBAP-PDU-Discriptions.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-Discriptions.c
+
+# decode file rules
+NBAP-PDU-DiscriptionsDec$(OBJ) : $(SRCDIR)/NBAP-PDU-DiscriptionsDec.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-DiscriptionsDec.c
+
+# encode file rules
+NBAP-PDU-DiscriptionsEnc$(OBJ) : $(SRCDIR)/NBAP-PDU-DiscriptionsEnc.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-DiscriptionsEnc.c
+
+# print file rules
+NBAP-PDU-DiscriptionsPrint$(OBJ) : $(SRCDIR)/NBAP-PDU-DiscriptionsPrint.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-DiscriptionsPrint.c
+
+# test file rules
+NBAP-PDU-DiscriptionsTest$(OBJ) : $(SRCDIR)/NBAP-PDU-DiscriptionsTest.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-DiscriptionsTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-PDU-Contents.h \
+$(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# common file rules
+NBAP-PDU-Contents$(OBJ) : $(SRCDIR)/NBAP-PDU-Contents.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-Contents.c
+
+# decode file rules
+NBAP-PDU-ContentsDec$(OBJ) : $(SRCDIR)/NBAP-PDU-ContentsDec.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-ContentsDec.c
+
+# encode file rules
+NBAP-PDU-ContentsEnc$(OBJ) : $(SRCDIR)/NBAP-PDU-ContentsEnc.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-ContentsEnc.c
+
+# print file rules
+NBAP-PDU-ContentsPrint$(OBJ) : $(SRCDIR)/NBAP-PDU-ContentsPrint.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-ContentsPrint.c
+
+# test file rules
+NBAP-PDU-ContentsTest$(OBJ) : $(SRCDIR)/NBAP-PDU-ContentsTest.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-PDU-ContentsTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h $(HFILESDIR)/NBAP-IEs.h \
+$(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/NBAP-Constants.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# common file rules
+NBAP-IEs$(OBJ) : $(SRCDIR)/NBAP-IEs.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-IEs.c
+
+# decode file rules
+NBAP-IEsDec$(OBJ) : $(SRCDIR)/NBAP-IEsDec.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-IEsDec.c
+
+# encode file rules
+NBAP-IEsEnc$(OBJ) : $(SRCDIR)/NBAP-IEsEnc.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-IEsEnc.c
+
+# print file rules
+NBAP-IEsPrint$(OBJ) : $(SRCDIR)/NBAP-IEsPrint.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-IEsPrint.c
+
+# test file rules
+NBAP-IEsTest$(OBJ) : $(SRCDIR)/NBAP-IEsTest.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-IEsTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-IEs.h $(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/NBAP-Containers.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# common file rules
+NBAP-CommonDataTypes$(OBJ) : $(SRCDIR)/NBAP-CommonDataTypes.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-CommonDataTypes.c
+
+# decode file rules
+NBAP-CommonDataTypesDec$(OBJ) : $(SRCDIR)/NBAP-CommonDataTypesDec.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-CommonDataTypesDec.c
+
+# encode file rules
+NBAP-CommonDataTypesEnc$(OBJ) : $(SRCDIR)/NBAP-CommonDataTypesEnc.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-CommonDataTypesEnc.c
+
+# print file rules
+NBAP-CommonDataTypesPrint$(OBJ) : $(SRCDIR)/NBAP-CommonDataTypesPrint.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-CommonDataTypesPrint.c
+
+# test file rules
+NBAP-CommonDataTypesTest$(OBJ) : $(SRCDIR)/NBAP-CommonDataTypesTest.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-CommonDataTypesTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h \
+$(HFILES)
+
+# common file rules
+NBAP-Constants$(OBJ) : $(SRCDIR)/NBAP-Constants.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-Constants.c
+
+# decode file rules
+NBAP-ConstantsDec$(OBJ) : $(SRCDIR)/NBAP-ConstantsDec.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ConstantsDec.c
+
+# encode file rules
+NBAP-ConstantsEnc$(OBJ) : $(SRCDIR)/NBAP-ConstantsEnc.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ConstantsEnc.c
+
+# print file rules
+NBAP-ConstantsPrint$(OBJ) : $(SRCDIR)/NBAP-ConstantsPrint.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ConstantsPrint.c
+
+# test file rules
+NBAP-ConstantsTest$(OBJ) : $(SRCDIR)/NBAP-ConstantsTest.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ConstantsTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# common file rules
+NBAP-Containers$(OBJ) : $(SRCDIR)/NBAP-Containers.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-Containers.c
+
+# decode file rules
+NBAP-ContainersDec$(OBJ) : $(SRCDIR)/NBAP-ContainersDec.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ContainersDec.c
+
+# encode file rules
+NBAP-ContainersEnc$(OBJ) : $(SRCDIR)/NBAP-ContainersEnc.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ContainersEnc.c
+
+# print file rules
+NBAP-ContainersPrint$(OBJ) : $(SRCDIR)/NBAP-ContainersPrint.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ContainersPrint.c
+
+# test file rules
+NBAP-ContainersTest$(OBJ) : $(SRCDIR)/NBAP-ContainersTest.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+	$(CC) $(CFLAGS) -c $(IPATHS) $(SRCDIR)/NBAP-ContainersTest.c
+
+# reader file rules
+reader$(OBJ) : $(SRCDIR)/reader.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# writer file rules
+writer$(OBJ) : $(SRCDIR)/writer.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/NBAP-CommonDataTypes.h $(HFILESDIR)/rtkey.h $(HFILES)
+
+# .asn -> .c .h rules
+$(SRCDIR)/NBAP-PDU-DiscriptionsEnc.c \
+$(SRCDIR)/NBAP-PDU-DiscriptionsDec.c \
+$(SRCDIR)/NBAP-PDU-Discriptions.c \
+$(SRCDIR)/NBAP-PDU-DiscriptionsPrint.c \
+$(SRCDIR)/NBAP-PDU-DiscriptionsTest.c \
+$(HFILESDIR)/NBAP-PDU-Discriptions.h \
+$(SRCDIR)/NBAP-PDU-ContentsEnc.c \
+$(SRCDIR)/NBAP-PDU-ContentsDec.c \
+$(SRCDIR)/NBAP-PDU-Contents.c \
+$(SRCDIR)/NBAP-PDU-ContentsPrint.c \
+$(SRCDIR)/NBAP-PDU-ContentsTest.c \
+$(HFILESDIR)/NBAP-PDU-Contents.h \
+$(SRCDIR)/NBAP-IEsEnc.c \
+$(SRCDIR)/NBAP-IEsDec.c \
+$(SRCDIR)/NBAP-IEs.c \
+$(SRCDIR)/NBAP-IEsPrint.c \
+$(SRCDIR)/NBAP-IEsTest.c \
+$(HFILESDIR)/NBAP-IEs.h \
+$(SRCDIR)/NBAP-CommonDataTypesEnc.c \
+$(SRCDIR)/NBAP-CommonDataTypesDec.c \
+$(SRCDIR)/NBAP-CommonDataTypes.c \
+$(SRCDIR)/NBAP-CommonDataTypesPrint.c \
+$(SRCDIR)/NBAP-CommonDataTypesTest.c \
+$(HFILESDIR)/NBAP-CommonDataTypes.h \
+$(SRCDIR)/NBAP-ConstantsEnc.c \
+$(SRCDIR)/NBAP-ConstantsDec.c \
+$(SRCDIR)/NBAP-Constants.c \
+$(SRCDIR)/NBAP-ConstantsPrint.c \
+$(SRCDIR)/NBAP-ConstantsTest.c \
+$(HFILESDIR)/NBAP-Constants.h \
+$(SRCDIR)/NBAP-ContainersEnc.c \
+$(SRCDIR)/NBAP-ContainersDec.c \
+$(SRCDIR)/NBAP-Containers.c \
+$(SRCDIR)/NBAP-ContainersPrint.c \
+$(SRCDIR)/NBAP-ContainersTest.c \
+$(HFILESDIR)/NBAP-Containers.h \
+$(HFILESDIR)/rtkey.h \
+: ./nbap_definitions.asn $(OSROOTDIR)/bin/asn1c$(EXE)
+	../../../../../../../../../../bin/asn1c ./nbap_definitions.asn -c -per -print -prtfmt details -reader -test -trace -writer
+
+clean:
+	$(RM) NBAP-PDU-DiscriptionsEnc.c
+	$(RM) NBAP-PDU-DiscriptionsDec.c
+	$(RM) NBAP-PDU-Discriptions.c
+	$(RM) NBAP-PDU-DiscriptionsPrint.c
+	$(RM) NBAP-PDU-DiscriptionsTest.c
+	$(RM) $(HFILESDIR)/NBAP-PDU-Discriptions.h 
+	$(RM) NBAP-PDU-ContentsEnc.c
+	$(RM) NBAP-PDU-ContentsDec.c
+	$(RM) NBAP-PDU-Contents.c
+	$(RM) NBAP-PDU-ContentsPrint.c
+	$(RM) NBAP-PDU-ContentsTest.c
+	$(RM) $(HFILESDIR)/NBAP-PDU-Contents.h 
+	$(RM) NBAP-IEsEnc.c
+	$(RM) NBAP-IEsDec.c
+	$(RM) NBAP-IEs.c
+	$(RM) NBAP-IEsPrint.c
+	$(RM) NBAP-IEsTest.c
+	$(RM) $(HFILESDIR)/NBAP-IEs.h 
+	$(RM) NBAP-CommonDataTypesEnc.c
+	$(RM) NBAP-CommonDataTypesDec.c
+	$(RM) NBAP-CommonDataTypes.c
+	$(RM) NBAP-CommonDataTypesPrint.c
+	$(RM) NBAP-CommonDataTypesTest.c
+	$(RM) $(HFILESDIR)/NBAP-CommonDataTypes.h 
+	$(RM) NBAP-ConstantsEnc.c
+	$(RM) NBAP-ConstantsDec.c
+	$(RM) NBAP-Constants.c
+	$(RM) NBAP-ConstantsPrint.c
+	$(RM) NBAP-ConstantsTest.c
+	$(RM) $(HFILESDIR)/NBAP-Constants.h 
+	$(RM) NBAP-ContainersEnc.c
+	$(RM) NBAP-ContainersDec.c
+	$(RM) NBAP-Containers.c
+	$(RM) NBAP-ContainersPrint.c
+	$(RM) NBAP-ContainersTest.c
+	$(RM) $(HFILESDIR)/NBAP-Containers.h 
+	$(RM) $(HFILESDIR)/rtkey.h 
+	$(RM) *$(OBJ)
+	$(RM) *~

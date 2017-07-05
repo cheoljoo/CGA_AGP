@@ -1,0 +1,94 @@
+FileName : pstg.h
+STC_FileName : stg_call_mlog_timer_h.stc
+
+
+
+<TAG_DEFINE_START:PLATFORMTYPE>
+#define DEF_PLATFORM_ME         1000
+#define DEF_PLATFORM_KUN        2000
+#define DEF_PLATFORM_VOD        3000
+#define DEF_PLATFORM_DOSIRAK    4000
+#define DEF_PLATFORM_MBOX       5000
+#define DEF_PLATFORM_BREW       6000
+#define DEF_PLATFORM_WIPI       7000
+<TAG_DEFINE_END:PLATFORMTYPE>
+
+STG_COMMON typedef struct _stg_common {
+	DEF			<TAG_DEFINE:PLATFORMTYPE>CallCmd;	
+	STIME       CallTime:STG_Equal(pLOG_COMMON->CallTime):FIRST;
+	MTIME       CallMTime:STG_Equal(pLOG_COMMON->CallMTime):FIRST;
+
+<TAG_KEY>
+	STRING      TMSI[MAX_TMSI_SIZE]: STG_Equal(pLOG_COMMON->TMSI): FIRST;   @STG_PAR_ARRAY:CALL_HASH_KEY:0:KEY0@
+	STRING      IMSI[MAX_IMSI_SIZE]: STG_Equal(pLOG_COMMON->IMSI): FIRST;   @STG_PAR_ARRAY:CALL_HASH_KEY:1:KEY1@
+	IP4         ClientIP:STG_Equal(pLOG_COMMON->ClientIP):FIRST;        @CHECKING_VALUE:10. , 61.@ @STG_PAR_ARRAY:CALL_HASH_KEY:2:KEY2@
+</TAG_KEY>
+	STRING      MIN[MAX_MIN_SIZE]: STG_Equal(pLOG_COMMON->MIN): FIRST;     #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change# @CHECKING_VALUE:01@
+		ALTERNATIVE_RULE        #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COOKIE>MIN={DIGIT}#
+} LOG_COMMON;
+
+/**
+ * @brief TCP_SESS_LOG : TCP 세션 정보를 DB Log
+ *
+ *
+ * @see	common_stg.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Tcp_Sess_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	DEF		<TAG_DEFINE:PLATFORMTYPE>usPlatformType;	/**< PlatformType usSvcL4Type / 1000 * 1000 */
+	DEF		<TAG_DEFINE:L4CODE>usSvcL4Type;				/**< Server IP, PORT로 판단한 Service type */
+	U8		ucSubSysNo;					/**< Sub System No. */
+} LOG_TCP_SESS;
+
+
+STG_LOG_TEXT_PARSING typedef struct _st_Http_Log {
+	LINEFEED			[ \t]*(\r\n)
+	FORMFEED			[ \t]*(\r\n\r\n)
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*GET[ \t]+
+	STATE	WIPI_REQ_HDR:^^:METHOD				^[ \t]*POST[ \t]+
+	STATE	WIPI_REQ_HDR:^^:HOST				Host[ \t]*:[ \t]*
+
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_SYSTEM_PARAMETER		HTTP_PHONE_SYSTEM_PARAMETER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:COUNTER				COUNTER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:BROWSER_INFO				User-Agent[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_CHANNEL_INFO		CHANNEL_INFO[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:HTTP_PHONE_NUMBER				HTTP_PHONE_NUMBER[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:CDU				CDU[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:CSEQ			CSeq[ \t]*:[ \t]*
+	STATE	WIPI_REQ_HDR:^^:COOKIE			Cookie[ \t]*:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:HTTP			^[ \t]*HTTP[/.0-9]+[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_LENGTH			Content-Length:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CONTENT_TYPE			Content-Type:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:CPDATA					CPdata:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:LOCATION				Location:[ \t]*
+	STATE	WIPI_RESP_HDR:^^:BILLINFO				BILL_INFO:[ \t]*
+	TOKEN	STR 				[^\r\n]+
+	TOKEN	ID 					[^<> \t\r\n]+
+	TOKEN	VALUE 				[^=&;: \t\r\n]+
+	TOKEN	DIGIT 				[ \t]*[0-9]+
+
+
+	<STG_COMMON:LOG_COMMON>
+
+	U16		usClientPort;			/**< 단말 Port */
+	IP4		uiServerIP;				/**< Server IP */
+} LOG_HTTP_TRANS;				$PARSING_CASE_IGNORE$
+
+
+
+STG_ASSOCIATION typedef struct _st_Page_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	STIME	FirstTcpSynTime:STG_Equal(pLOG_HTTP_TRANS->uiTcpSynTime):FIRST;			/**< First Tcp Syn Time */
+	MTIME	FirstTcpSynMTime:STG_Equal(pLOG_HTTP_TRANS->uiTcpSynMTime):FIRST;		/**< First Tcp Syn Micro Time */
+	STRING	HostName[MAX_HOSTNAME_SIZE]:STG_Equal(pLOG_HTTP_TRANS->szHostName):FIRST;	/**< Host Name */
+} LOG_PAGE_TRANS;
+
+
+
+

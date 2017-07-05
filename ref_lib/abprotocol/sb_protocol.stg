@@ -1,0 +1,1812 @@
+FileName : sb_protocol_stg.h
+STC_FileName : abprotocol_decfunc.stc, abprotocol_ana.stc, abprotocol_tree.stc, ie_func.stc, abprotocol_treeprint.stc
+
+#pragma pack(1)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+#include "protocol_node.h"
+#include "proot.h"
+#include "param_node.h"
+#include "abprotocol_proto.h"
+
+#define  MAX_TYPE_LEN       (8 - 3)         /* 4bytes  align */ 
+#define  MAX_FILED_FORMAT   30
+
+#define  WHICH_ANA_BINARY			1
+#define  WHICH_ANA_TREE				2
+extern 	int gWHICH_ANA;						/**< binary 분석인지 tree 구성인지 구분 
+											 	WHICH_ANA_BINARY, 
+											 	WHICH_ANA_TREE */
+
+<TAG_AUTO_DEFINE_START :BR_TYPE(10)>
+V_U8_ORDER
+V_U16_ORDER
+V_U24_ORDER
+V_U32_ORDER
+V_IP4_ORDER
+V_STRING_ORDER
+V_DIGIT_ORDER
+LV_U8_ORDER
+LV_U16_ORDER
+LV_U32_ORDER
+LV_STRING_ORDER
+LV_DIGIT_ORDER
+TV_U8_ORDER
+TV_U16_ORDER
+TV_U32_ORDER
+TV_STRING_ORDER
+TV_DIGIT_ORDER
+TLV_U8_ORDER
+TLV_U16_ORDER
+TLV_U32_ORDER
+TLV_STRING_ORDER
+TLV_DIGIT_ORDER
+AVP_U8_ORDER
+AVP_U16_ORDER
+AVP_U32_ORDER
+AVP_STRING_ORDER
+AVP_DIGIT_ORDER
+BIT8_ORDER
+BIT16_ORDER
+T_ORDER
+T_DISORDER
+Tb_DISORDER
+T_U8_DISORDER
+T_U16_DISORDER
+T_U32_DISORDER
+TV_U8_DISORDER
+TV_U16_DISORDER
+TV_U32_DISORDER
+TV_STRING_DISORDER
+TV_DIGIT_DISORDER
+TLV_U8_DISORDER
+TLV_U16_DISORDER
+TLV_U32_DISORDER
+TLV_STRING_DISORDER
+TLV_DIGIT_DISORDER
+AVP_U8_DISORDER
+AVP_U16_DISORDER
+AVP_U32_DISORDER
+AVP_STRING_DISORDER
+AVP_DIGIT_DISORDER
+AAL2_U8_DISORDER
+AAL2_U16_DISORDER
+AAL2_U32_DISORDER
+AAL2_STRING_DISORDER
+AAL2_DIGIT_DISORDER
+V_USER_FUNCTION
+<TAG_AUTO_DEFINE_END:BR_TYPE>
+
+#define     DEC_SUCCESS     1           /* Decoding Success */
+#define     PROTO_ERROR     -1
+#define     PROTO_NOT_SUPPORT   -10
+#define     PACKET_ERROR        -11
+
+
+#define 	LIST_OFF				0
+#define 	LIST_ON					1
+
+/** 
+ **  @brief stFiedlFormat : Protocol Mandantory & Option 처리 구조체
+ **/
+
+typedef struct _st_FieldFormat__ {
+    U32        uiCase;                 	/**< Case Type : 어떤 구조로 되어 있는지 정의 
+											V_U8_ORDER ~ TLV_U32_DISORDER */
+
+    U32         uiTypeLen;              /**< ucType의 길이, (T가 1, 2, 4 bytes를 가질 수 있다) */
+    U32         uiType;                 /**< T에 해당되는 Information Element 값 (Int로 표시) **/
+
+    U32         uiLengthLen;            /**< uiLength의 Length (L를 나타내는 길이 1, 2, 4 bytes를 가질 수 있다)*/
+    U32         uiLength;               /**< Value의 Length */
+
+    void        *p1;                    /**< Structure Member Point : T */
+    void        *p2;                    /**< Structure Member Point : L */
+    void        *p3;                    /**< Structure Member Point : V */
+    void        (*func)(char *, int, int *, void *, void *, void *, U8 *, int *);    /**< IE 처리 function Point */
+
+	U8          field_desc[63];
+	U8			islist;					/**< Packet View의 List에 표현할 것인가 LIST_OFF/LIST_ON **/
+} stFieldFormat;
+
+#define SB_FUNC_CALL(pF, pdata, pos, vlen, dlink)			do { 			\
+ 		if ((pF)->func != NULL) {                                   \
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF));    \
+		} 															\
+		pos += vlen;												\
+	}while(0);
+
+#define SB_FUNC_CALL_U8(pF, pdata, pos, vlen, dlink, pstring, spos)	 			\
+ 		if ((pF)->func != NULL) {                                   \
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    \
+		} else {															\
+			make_string_type_U8 (pF, pdata, pos, pstring, spos);					\
+		}																			\
+		pos += vlen;
+
+#define SB_FUNC_CALL_U16(pF, pdata, pos, vlen, dlink, pstring, spos)	 			\
+ 		if ((pF)->func != NULL) {                                   				\
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    	\
+		} else {																	\
+			make_string_type_U16 (pF, pdata, pos, pstring, spos);					\
+		}																			\
+		pos += vlen;
+
+#define SB_FUNC_CALL_U32(pF, pdata, pos, vlen, dlink, pstring, spos)	 			\
+ 		if ((pF)->func != NULL) {                                   				\
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    	\
+		} else {																	\
+			make_string_type_U32 (pF, pdata, pos, pstring, spos);					\
+		}																			\
+		pos += vlen;
+
+#define SB_FUNC_CALL_HEX(pF, pdata, pos, vlen, dlink, pstring, spos)	 			\
+ 		if ((pF)->func != NULL) {                                   				\
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    	\
+		} else {																	\
+			make_string_type_HEX (pF, pdata +pos, pstring, spos, vlen);				\
+		}																			\
+		pos += vlen;
+
+#define SB_FUNC_CALL_IP4(pF, pdata, pos, vlen, dlink, pstring, spos)	 			\
+ 		if ((pF)->func != NULL) {                                   				\
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    	\
+		} else {																	\
+			make_string_type_IP4 (pF, pdata, pos, pstring, spos);					\
+		}																			\
+		pos += vlen;
+
+
+
+
+
+
+#define SB_FUNC_CALL_TREE(pF, pdata, pos, vlen, dlink)		do { 	\
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), NULL, 0);    \
+	}while(0);
+
+#define SB_USER_FUNC_CALL(pF, pdata, pos, vlen, dlink, pstring, spos)			do { 			\
+ 		if ((pF)->func != NULL) {                                   \
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), (pstring), (spos));    \
+		} 															\
+	}while(0);
+
+#define SB_USER_FUNC_CALL_TREE(pF, pdata, pos, vlen, dlink)			do { 			\
+ 		if ((pF)->func != NULL) {                                   \
+			(pF)->func((pdata)+(pos), (vlen), &(pos), (pF)->p3, (dlink), (pF), NULL, 0);    \
+		} 															\
+	}while(0);
+
+#define TLV_COMMON_ROUTINE(pn, pF, pdata, dlen, pos, dlink, v_len, dec_pos)			\
+		pn = tree_t_common_routine (pF, pdata, dlen, &pos, dlink);					\
+		if (pn == NULL) {															\
+			break;																	\
+		}																			\
+		if ((v_len = tree_l_common_routine (pF, pdata, dlen, &pos, &pn->child)) < 0)  {	\
+			*dec_pos = pos;															\
+			return *dec_pos;														\
+		}																			\
+		pn->len = v_len + pos;						
+
+
+/** SCCP MSG TYPE */
+#define DEF_SCCP_MSG_TYPE_CR            0x01
+#define DEF_SCCP_MSG_TYPE_CC            0x02
+#define DEF_SCCP_MSG_TYPE_CREF          0x03
+#define DEF_SCCP_MSG_TYPE_RLSD          0x04
+#define DEF_SCCP_MSG_TYPE_RLC           0x05
+#define DEF_SCCP_MSG_TYPE_DT1           0x06
+#define DEF_SCCP_MSG_TYPE_DT2           0x07
+#define DEF_SCCP_MSG_TYPE_AK            0x08
+#define DEF_SCCP_MSG_TYPE_UDT           0x09
+#define DEF_SCCP_MSG_TYPE_UDTS          0x0a
+#define DEF_SCCP_MSG_TYPE_ED            0x0b
+#define DEF_SCCP_MSG_TYPE_EA            0x0c
+#define DEF_SCCP_MSG_TYPE_RSR           0x0d
+#define DEF_SCCP_MSG_TYPE_RSC           0x0e
+#define DEF_SCCP_MSG_TYPE_ERR           0x0f
+#define DEF_SCCP_MSG_TYPE_IT            0x10
+#define DEF_SCCP_MSG_TYPE_XUDT          0x11
+#define DEF_SCCP_MSG_TYPE_XUDTS         0x12
+#define DEF_SCCP_MSG_TYPE_LUDT          0x13
+#define DEF_SCCP_MSG_TYPE_LUDTS         0x14
+
+
+typedef struct _stmacHeader_ {
+    U8          Destination[6]; @SB_PARSING{ V_STRING_ORDER, 0, 0, 0,  6, NULL, NULL, &mMAC_Header_sb.Destination , NULL, "Destination"}@
+    U8          Source[6]; 		@SB_PARSING{ V_STRING_ORDER, 0, 0, 0,  6, NULL, NULL, &mMAC_Header_sb.Source , NULL, "Source"}@
+    U8          type[2]; 		@SB_PARSING{ V_STRING_ORDER, 0, 0, 0,  2, NULL, NULL, &mMAC_Header_sb.type , NULL, "Type", LIST_ON}@
+} MAC_Header_sb;
+extern MAC_Header_sb mMAC_Header_sb;
+
+typedef struct _stIpHeader_ {
+    BIT8        bVersion (4: IPH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &mIP_Header_sb.IPH1.A , ie_func_iphdr_ver_ihl, "Version"}@
+    BIT8	bIHL (4: IPH1);
+    U8          uTOS;   @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mIP_Header_sb.uTOS , NULL, "TOS"}@
+    U16         usTotalLen;     @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mIP_Header_sb.usTotalLen , NULL, "Total Length"}@
+    U16         usIdentification;   @SB_PARSING{ V_DIGIT_ORDER, 0, 0, 0,  2, NULL, NULL, &mIP_Header_sb.usIdentification , NULL, "Identification"}@
+    BIT16       bFlags (3: IPH2);    @SB_PARSING{ BIT16_ORDER, 0, 0, 0,  2, NULL, NULL, &mIP_Header_sb.IPH2.A , ie_func_iphdr_fragment, "Fragment Offset"}@
+    BIT16	bFragmentOffset (13: IPH2);
+    U8          ucTTL;      @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mIP_Header_sb.ucTTL , NULL, "TTL"}@
+    U8          ucProtocol; @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mIP_Header_sb.ucProtocol , NULL, "Protocol"}@
+    U16         ucCheckSum; @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mIP_Header_sb.ucCheckSum , NULL, "Header checksum"}@
+    U32         iSrcIPAddr; @SB_PARSING{ V_IP4_ORDER, 0, 0, 0,  4, NULL, NULL, &mIP_Header_sb.iSrcIPAddr , NULL, "Source IP address", LIST_ON}@
+    U32         iDestIPAddr; @SB_PARSING{ V_IP4_ORDER, 0, 0, 0,  4, NULL, NULL, &mIP_Header_sb.iDestIPAddr , NULL, "Destiation IP address", LIST_ON}@
+} IP_Header_sb;
+extern IP_Header_sb mIP_Header_sb;
+
+
+typedef struct _stTcpHeader_ {
+    U16         usSrcPort;      @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mTCP_Header_sb.usSrcPort , NULL, "Source port", LIST_ON}@
+    U16         usDstPort;      @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mTCP_Header_sb.usDstPort , NULL, "Destination port", LIST_ON}@
+    U32         iSequenceNum;   @SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mTCP_Header_sb.iSequenceNum , NULL, "Sequence Number", LIST_ON}@
+    U32         iAckNum;        @SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mTCP_Header_sb.iAckNum , NULL, "AckNum"}@
+    BIT16       bDataOffset (4: TcpH1); @SB_PARSING{ BIT16_ORDER,  0, 0, 0, 2, NULL, NULL, &mTCP_Header_sb.TcpH1.A, ie_func_tcphdr_bitfiled, "Flag"}@
+    BIT16       bReserved (3: TcpH1);
+    BIT16       bECN (3: TcpH1);
+    BIT16       bCtlBits (6: TcpH1);
+    U16         usWindow;       @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mTCP_Header_sb.usWindow , NULL, "Window Size"}@
+    U16         usChecksum;     @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mTCP_Header_sb.usChecksum , NULL, "Checksum"}@
+    U16         usUrgentPointer; @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mTCP_Header_sb.usUrgentPointer , NULL, "UrgentPointer"}@
+} TCP_Header_sb;
+extern TCP_Header_sb mTCP_Header_sb;
+
+
+typedef struct _stUdpHeader_ {
+    U16         usSrcPort;      @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mUDP_Header_sb.usSrcPort , NULL, "Source port", LIST_ON}@
+    U16         usDstPort;      @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mUDP_Header_sb.usDstPort , NULL, "Destination port", LIST_ON}@
+    U16         usLength;       @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mUDP_Header_sb.usLength , NULL, "Length"}@
+    U16         usChecksum;     @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mUDP_Header_sb.usChecksum , NULL, "Checksum"}@
+} UDP_Header_sb;
+extern UDP_Header_sb  mUDP_Header_sb;
+
+
+typedef struct _stSctpHeader_ {
+    U16         usSrcPort;      	@SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mSCTP_Header_sb.usSrcPort , NULL, "Source port", LIST_ON}@
+    U16         usDstPort;      	@SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mSCTP_Header_sb.usDstPort , NULL, "Destination port", LIST_ON}@
+	U32			iVerificationTag;	@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mSCTP_Header_sb.iVerificationTag , NULL, "Verification tag"}@
+	U32			iChecksum;			@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mSCTP_Header_sb.iChecksum , NULL, "Checksum"}@
+} SCTP_Header_sb;
+extern SCTP_Header_sb mSCTP_Header_sb;
+
+
+/**< ------------------------------------------------- GTP ---- Start **/
+
+<TAG_DEFINE_START:GTPHDR_MT>
+#define  GTP_MSG_ECHO_REQ                   1       /**< Echo Request */
+#define  GTP_MSG_ECHO_RESP                  2       /**< Echo Response */
+#define  GTP_MSG_CREATE_PDP_CXT_REQ         16      /**< Create PDP Context Request */
+#define  GTP_MSG_CREATE_PDP_CXT_RESP        17      /**< Create PDP Context Response */
+#define  GTP_MSG_UPDATE_PDP_CXT_REQ         18      /**< Update PDP Context Request */
+#define  GTP_MSG_UPDATE_PDP_CXT_RESP        19      /**< Update PDP Context Response */
+#define  GTP_MSG_DELETE_PDP_CXT_REQ         20      /**< Delete PDP Context Request */
+#define  GTP_MSG_DELETE_PDP_CXT_RESP        21      /**< Delete PDP Context Response */
+#define	 GTP_MSG_PDU_NOTI_REQ				27		/**< PDU Notification Request **/	
+#define	 GTP_MSG_PDU_NOTI_RESP				28		/**< PDU Notification Response **/	
+#define	 GTP_MSG_PDU_NOTI_REJ_REQ			29		/**< PDU Notification Reject Request **/	
+#define	 GTP_MSG_PDU_NOTI_REJ_RESP			30		/**< PDU Notification Reject Response **/	
+#define	 GTP_MSG_SEND_ROUTE_INF_REQ			32		/**< Send Routeing Information for GPRS Request **/
+#define	 GTP_MSG_SEND_ROUTE_INF_RESP		33		/**< Send Routeing Information for GPRS Response **/
+#define	 GTP_MSG_FAIL_REP_REQ				34		/**< Failure Report Request **/	
+#define	 GTP_MSG_FAIL_REP_RESP				35		/**< Failure Report Response **/	
+#define	 GTP_MSG_NOTE_MS_PRESENT_REQ		36		/**< Note MS GPRS Present Request **/
+#define	 GTP_MSG_NOTE_MS_PRESENT_RESP		37		/**< Note MS GPRS Present Response **/	
+<TAG_DEFINE_END:GTPHDR_MT>
+
+/**<  GTP Header **/
+typedef struct _stGtpHeader_ {
+    BIT8	bVersion (3: GtpH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGTP_Header_sb.GtpH1.A , ie_func_gtphdr_flags, "Flags"}@
+    BIT8	bProtocolType (1: GtpH1);
+    BIT8	bReserved (1: GtpH1);
+    BIT8	bExtensionFlag (1: GtpH1);
+    BIT8	bSequenceFlag (1: GtpH1);
+    BIT8	bNpduNum (1: GtpH1);
+    U8		<TAG_DEFINE:GTPHDR_MT>ucMessageType; @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGTP_Header_sb.ucMessageType , NULL, "MessageType"}@
+    U16		usLength; @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mGTP_Header_sb.usLength , NULL, "Length"}@
+    U32		iTeid; @SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mGTP_Header_sb.iTeid , NULL, "TEID"}@
+
+	/**<  
+		Flag 처리 
+		bSequenceFlag:0 이면 
+		iSequenceNum, uNpduNum, uNextExtHdrType 가 모두 존재하지 않고 
+
+		bSequenceFlag:1 이면 
+		iSequenceNum, uNpduNum, uNextExtHdrType 가 모두 존재한다. 
+
+		규격 확인 필요 
+	 **/
+
+    U16		iSequenceNum; @SB_PARSING{ V_USER_FUNCTION, 0, 0, 0, 0, NULL, NULL, &mGTP_Header_sb.iSequenceNum , ie_func_gtphdr_seqnum, "Sequence Number"}@
+    U8		uNpduNum;
+    U8		uNextExtHdrType;
+} GTP_Header_sb;
+extern GTP_Header_sb  mGTP_Header_sb;
+
+/**<  GTP_P Header **/
+<TAG_DEFINE_START:GTP_PHDR_MT>
+#define	 NODE_ALIVE_REQUEST					4
+#define	 NODE_ALIVE_RESPONSE				5
+#define	 REDIRECTION_REQUEST				6
+#define	 REDIRECTION_RESPONSE				7
+#define  DATA_RECORD_TRANSFER_REQUEST		240		
+#define  DATA_RECORD_TRANSFER_RESPONSE		241
+<TAG_DEFINE_END:GTP_PHDR_MT>
+
+typedef struct _stGtppHeader_ {
+    BIT8	bVersion (3: GtpH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGTP_P_Header_sb.GtpH1.A , ie_func_gtphdr_flags, "Flags"}@
+    BIT8	bProtocolType (1: GtpH1);
+    BIT8	bReserved (1: GtpH1);
+    BIT8	bExtensionFlag (1: GtpH1);
+    BIT8	bSequenceFlag (1: GtpH1);
+    BIT8	bNpduNum (1: GtpH1);
+    U8		<TAG_DEFINE:GTP_PHDR_MT>ucMessageType; @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGTP_P_Header_sb.ucMessageType , NULL, "MessageType"}@
+    U16		usLength; @SB_PARSING		{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mGTP_P_Header_sb.usLength , NULL, "Length"}@
+    U16		iSequenceNum; @SB_PARSING	{ V_U16_ORDER, 0, 0, 0, 2, NULL, NULL, &mGTP_P_Header_sb.iSequenceNum , NULL, "Sequence Number"}@
+} GTP_P_Header_sb;
+extern GTP_P_Header_sb  mGTP_P_Header_sb;
+
+/**<  Create PDP Context Request **/
+#define	MAX_IMSI_SIZE	17
+#define	MAX_MIN_SIZE	17
+
+typedef struct _IE_IMSI {
+	U8		 IMSIType;
+	U8		 IMSI[MAX_IMSI_SIZE];
+} IE_IMSI;
+
+typedef struct _IE_NSAPI {
+    U8       NSAPIType;
+	X8		 NSAPI;
+} IE_NSAPI;
+
+typedef struct _IE_TEID {
+	U8		 TEIDType;
+	U32		 TEID;
+} IE_TEID;
+
+typedef struct _IE_EndUserAddress {
+    U8       EndUserAddressType;
+	U16		 EndUserAddressLen;
+	X8		 EndUserAddress[6];
+} IE_ADDR;
+
+typedef struct _IE_QosProfile {
+    U8       QosProfileType;
+	U16		 QosProfileLen;
+	U8		 QosProfile[254];
+} IE_QOS;
+
+typedef struct _IE_GSNAddress {
+    U8       GsnAddressType;	
+	U16		 GsnAddressLen;
+	U32		 GsnAddress;
+} IE_GSNIP;
+
+typedef struct _IE_MSISDN {
+    U8       MSISDNType;
+	U16		 MSISDNLen;
+	U8		 MSISDN[MAX_MIN_SIZE];
+} IE_MSISDN;
+
+typedef struct _IE_MAPCAUSE {
+	U8       MapCauseType;
+	X8		 MapCause;
+} IE_MAPCAUSE;
+
+typedef struct _IE_MNRG {
+    U8       MNRGFlagType;
+	X8		 MNRGFlag;
+} IE_MNRG;
+
+typedef struct _IE_CAUSE {
+    U8       CauseType;
+	X8		 Cause;
+} IE_CAUSE;
+
+typedef struct _IE_PRIEXT {
+    U8       PrivateExtType;
+	U16		 PrivateExtLen;
+	U8		 PrivateExt[256];
+} IE_PRIEXT;
+
+typedef struct _IE_PROTO {
+    U8       ProConfOptType;
+	U16		 ProConfOptLen;
+	U8		 ProConfOpt[253];
+} IE_PROTO;
+
+typedef struct _IE_APN {
+    U8       AccPointNameType;
+    U16      AccPointNameLen;     
+    U8       AccPointName[102];  
+} IE_APN;
+
+typedef struct _IE_RAI {
+    U8       RAIType;
+	X8		 RAI[12];
+} IE_RAI;
+
+typedef struct _IE_ChargeGwIP {
+    U8       ChargingGwIpType;
+	U16		 ChargingGwIpLen;
+	U32		 ChargingGwIp;
+} IE_CGIP;
+
+typedef struct _IE_ChargingChar {
+    U8       ChargingCharType;
+	U16		 ChargingChar;
+} IE_CCHAR;
+
+typedef struct _IE_Recovery {
+    U8       RecoveryType;
+	X8		 Recovery;
+} IE_RECOVERY;
+
+typedef struct _IE_SelectionMode {
+    U8       SelectionModeType;
+	X8		 SelectionMode;
+} IE_SELMODE;
+
+typedef struct _IE_CDRTransCmd {
+    U8       CDRTransCmdType;
+	X8		 CDRTransCmd;
+} IE_CDRCMD;
+
+typedef struct _IE_CDRPacket {
+    U8       CDRPacketType;
+    U16      CDRPacketLen;
+    U8       CDRPacket[256];
+} IE_CDRPKT;
+
+typedef struct _IE_SEQNUM {
+    U8       SeqNumType;
+    U16      SeqNumLen;
+    U8       SeqNum[256];
+} IE_SEQNUM;
+
+typedef struct _stCDRTransReq_ {
+    IE_CDRCMD		stCDRCMD;	@SB_PARSING{ TV_U8_ORDER, 1, 126, 0,  1, &m++STNAME_SB++.stCDRCMD.CDRTransCmdType, NULL, &m++STNAME_SB++.stCDRCMD.CDRTransCmd, NULL, "CDR Packet Transfer Command"}@
+    IE_CDRPKT	 	stCDRPKT;	@SB_PARSING{ TLV_U8_ORDER, 1, 252, 2,  0, &m++STNAME_SB++.stCDRPKT.CDRPacketType, &m++STNAME_SB++.stCDRPKT.CDRPacketLen, &m++STNAME_SB++.stCDRPKT.CDRPacket, NULL, "CDR Packet"}@
+    IE_SEQNUM	 	stSEQREL;	@SB_PARSING{ TLV_U8_ORDER, 1, 249, 2,  0, &m++STNAME_SB++.stSEQREL.SeqNumType, &m++STNAME_SB++.stSEQREL.SeqNumLen, &m++STNAME_SB++.stSEQREL.SeqNum, NULL, "Sequence Number of Released Packets IE"}@
+    IE_SEQNUM	 	stSEQCAN;	@SB_PARSING{ TLV_U8_ORDER, 1, 250, 2,  0, &m++STNAME_SB++.stSEQCAN.SeqNumType, &m++STNAME_SB++.stSEQCAN.SeqNumLen, &m++STNAME_SB++.stSEQCAN.SeqNum, NULL, "Sequence Number of Cancelled Packets IE"}@
+    IE_PRIEXT		stPRIEXT;	@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_CDRTransReq_sb;
+extern GTP_P_CDRTransReq_sb mGTP_P_CDRTransReq_sb;
+ 
+typedef struct _stCDRTransResp_ {
+    IE_CAUSE		stCAUSE;	@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCAUSE.CauseType, NULL, &m++STNAME_SB++.stCAUSE.Cause , NULL, "Cause"}@
+    IE_SEQNUM	 	stREQRES;	@SB_PARSING{ TLV_U8_ORDER, 1, 253, 2,  0, &m++STNAME_SB++.stREQRES.SeqNumType, &m++STNAME_SB++.stREQRES.SeqNumLen, &m++STNAME_SB++.stREQRES.SeqNum, NULL, "equests Responded information element"}@
+    IE_PRIEXT		stPRIEXT;	@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_CDRTransResp_sb;
+extern GTP_P_CDRTransResp_sb mGTP_P_CDRTransResp_sb;
+
+typedef struct _stNodeAliveReq_ {
+    IE_CGIP			stNodeIP;		@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stNodeIP.ChargingGwIpType, &m++STNAME_SB++.stNodeIP.ChargingGwIpLen, &m++STNAME_SB++.stNodeIP.ChargingGwIp, NULL, "Node Address"}@
+    IE_CGIP			stAltNodeIP;	@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stAltNodeIP.ChargingGwIpType, &m++STNAME_SB++.stAltNodeIP.ChargingGwIpLen, &m++STNAME_SB++.stAltNodeIP.ChargingGwIp, NULL, "Alternative Node Address"}@
+    IE_PRIEXT		stPRIEXT;		@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_NodeAliveReq_sb;
+extern GTP_P_NodeAliveReq_sb mGTP_P_NodeAliveReq_sb;
+
+typedef struct _stNodeAliveResp_ {
+    IE_PRIEXT		stPRIEXT;		@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_NodeAliveResp_sb;
+extern GTP_P_NodeAliveResp_sb mGTP_P_NodeAliveResp_sb;
+
+typedef struct _stRedirectReq_ {
+    IE_CAUSE		stCAUSE;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCAUSE.CauseType, NULL, &m++STNAME_SB++.stCAUSE.Cause , NULL, "Cause"}@
+    IE_CGIP			stNodeIP;		@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stNodeIP.ChargingGwIpType, &m++STNAME_SB++.stNodeIP.ChargingGwIpLen, &m++STNAME_SB++.stNodeIP.ChargingGwIp, NULL, "Address of Recommended Node"}@
+    IE_CGIP			stAltNodeIP;	@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stAltNodeIP.ChargingGwIpType, &m++STNAME_SB++.stAltNodeIP.ChargingGwIpLen, &m++STNAME_SB++.stAltNodeIP.ChargingGwIp, NULL, "Alternative Address of Recommended Node"}@
+    IE_PRIEXT		stPRIEXT;		@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_RedirectReq_sb;
+extern GTP_P_RedirectReq_sb mGTP_P_RedirectReq_sb;
+
+typedef struct _stRedirectResp_ {
+    IE_CAUSE		stCAUSE;	@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCAUSE.CauseType, NULL, &m++STNAME_SB++.stCAUSE.Cause , NULL, "Cause"}@
+    IE_PRIEXT		stPRIEXT;	@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stPRIEXT.PrivateExtType, &m++STNAME_SB++.stPRIEXT.PrivateExtLen, &m++STNAME_SB++.stPRIEXT.PrivateExt, NULL, "Private Extension"}@
+} GTP_P_RedirectResp_sb;
+extern GTP_P_RedirectResp_sb mGTP_P_RedirectResp_sb;
+
+typedef struct _stCreatePDPContextReq_ {
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmsg_IMSI, "IMSI", LIST_ON}@
+    IE_RAI		stRAI;			@SB_PARSING{ TV_DIGIT_ORDER, 1, 3, 0,  6, &m++STNAME_SB++.stRAI.RAIType, NULL, &m++STNAME_SB++.stRAI.RAI, NULL, "Routeing Area Identity"}@
+    IE_RECOVERY	stRecovery;		@SB_PARSING{ TV_U8_ORDER, 1, 14, 0,  1, &m++STNAME_SB++.stRecovery.RecoveryType, NULL, &m++STNAME_SB++.stRecovery.Recovery, NULL, "Recovery"}@
+    IE_SELMODE	stSelMode;		@SB_PARSING{ TV_U8_ORDER, 1, 15, 0,  1, &m++STNAME_SB++.stSelMode.SelectionModeType, NULL, &m++STNAME_SB++.stSelMode.SelectionMode, NULL, "Selection Mode"}@
+    IE_TEID	 	stTEID_D;		@SB_PARSING{ TV_U32_ORDER, 1, 16, 0,  4, &m++STNAME_SB++.stTEID_D.TEIDType, NULL, &m++STNAME_SB++.stTEID_D.TEID, NULL, "TEID Data I"}@
+    IE_TEID	 	stTEID_C;		@SB_PARSING{ TV_U32_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEID Control Plane"}@
+    IE_NSAPI	stNSAPI;		@SB_PARSING{ TV_U8_ORDER, 1, 20, 0,  1, &m++STNAME_SB++.stNSAPI.NSAPIType, NULL, &m++STNAME_SB++.stNSAPI.NSAPI, NULL, "NSAPI", LIST_ON}@
+    IE_CCHAR	stChargingCh;	@SB_PARSING{ TV_U16_ORDER, 1, 26, 0,  2, &m++STNAME_SB++.stChargingCh.ChargingCharType, NULL, &m++STNAME_SB++.stChargingCh.ChargingChar, NULL, "Charging Characteristics"}@
+    U8       TraceReferType;	@SB_PARSING{ TV_U16_ORDER, 1, 27, 0,  2, &mGTP_CrtPDPCxtReq_sb.TraceReferType, NULL, &mGTP_CrtPDPCxtReq_sb.TraceRefer, NULL, "Trace Reference"}@
+	U16		 TraceRefer;
+    U8       TraceTypeType;		@SB_PARSING{ TV_U16_ORDER, 1, 28, 0,  2, &mGTP_CrtPDPCxtReq_sb.TraceTypeType, NULL, &mGTP_CrtPDPCxtReq_sb.TraceType, NULL, "Trace Type"}@
+	U16		 TraceType;
+    IE_ADDR	 	stADDR;			@SB_PARSING{ TLV_STRING_ORDER, 1, 128, 2,  0, &m++STNAME_SB++.stADDR.EndUserAddressType, &m++STNAME_SB++.stADDR.EndUserAddressLen, &m++STNAME_SB++.stADDR.EndUserAddress, NULL, "End User Address", LIST_ON}@
+    IE_APN		stAPN;			@SB_PARSING{ TLV_STRING_ORDER, 1, 131, 2,  0, &m++STNAME_SB++.stAPN.AccPointNameType, &m++STNAME_SB++.stAPN.AccPointNameLen, &m++STNAME_SB++.stAPN.AccPointName, NULL, "Access Point Name", LIST_ON}@
+    IE_PROTO	stProtoOpt;		@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_GSNIP	stSgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddress, NULL, "SGSN IP for Signalling"}@
+    IE_GSNIP	stSgsnDataIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stSgsnDataIP.GsnAddressType, &m++STNAME_SB++.stSgsnDataIP.GsnAddressLen, &m++STNAME_SB++.stSgsnDataIP.GsnAddress, NULL, "SGSN IP for User traffic"}@
+    IE_MSISDN	stMSISDN;		@SB_PARSING{ TLV_U8_ORDER, 1, 134, 2,  0, &m++STNAME_SB++.stMSISDN.MSISDNType, &m++STNAME_SB++.stMSISDN.MSISDNLen, &m++STNAME_SB++.stMSISDN.MSISDN, ie_func_gtpmsg_msisdn, "MSISDN"}@
+    IE_QOS   	stQoS;			@SB_PARSING{ TLV_DIGIT_ORDER, 1, 135, 2,  0, &m++STNAME_SB++.stQoS.QosProfileType, &m++STNAME_SB++.stQoS.QosProfileLen, &m++STNAME_SB++.stQoS.QosProfile, NULL, "Quality of Service (QoS) Profile"}@
+    U8			TFTType;			@SB_PARSING{ TLV_STRING_ORDER, 1, 137, 2,  0, &mGTP_CrtPDPCxtReq_sb.TFTType, &mGTP_CrtPDPCxtReq_sb.TFTLen, &mGTP_CrtPDPCxtReq_sb.TFT, NULL, "Traffic Flow Template (TFT)"}@
+	U16			TFTLen;
+	U8			TFT[257];
+    U8			TriggerIdType;		@SB_PARSING{ TLV_STRING_ORDER, 1, 142, 2,  0, &mGTP_CrtPDPCxtReq_sb.TriggerIdType, &mGTP_CrtPDPCxtReq_sb.TriggerIdLen, &mGTP_CrtPDPCxtReq_sb.TriggerId, NULL, "Trigger ID"}@
+	U16			TriggerIdLen;
+	U8			TriggerId[256];
+    U8			OMCIdType;			@SB_PARSING{ TLV_STRING_ORDER, 1, 143, 2,  0, &mGTP_CrtPDPCxtReq_sb.OMCIdType, &mGTP_CrtPDPCxtReq_sb.OMCIdLen, &mGTP_CrtPDPCxtReq_sb.OMCId, NULL, "OMC ID"}@
+	U16			OMCIdLen;
+	U8			OMCId[256];
+    U8			APNRestrictionType;	@SB_PARSING{ TLV_U8_ORDER, 1, 149, 2,  0, &mGTP_CrtPDPCxtReq_sb.APNRestrictionType, &mGTP_CrtPDPCxtReq_sb.APNRestrictionLen, &mGTP_CrtPDPCxtReq_sb.APNRestriction, NULL, "APN Restriction"}@
+	U16			APNRestrictionLen;
+	X8			APNRestriction;
+    U8			RATTypeType;			@SB_PARSING{ TLV_U8_ORDER, 1, 151, 2,  0, &mGTP_CrtPDPCxtReq_sb.RATTypeType, &mGTP_CrtPDPCxtReq_sb.RATTypeLen, &mGTP_CrtPDPCxtReq_sb.RATType, NULL, "RAT Type"}@
+	U16			RATTypeLen;
+	X8			RATType;
+    U8			UserLocationInfoType;	@SB_PARSING{ TLV_STRING_ORDER, 1, 152, 2,  0, &mGTP_CrtPDPCxtReq_sb.UserLocationInfoType, &mGTP_CrtPDPCxtReq_sb.UserLocationInfoLen, &mGTP_CrtPDPCxtReq_sb.UserLocationInfo, NULL, "User Location Information"}@
+	U16			UserLocationInfoLen;
+	X8			UserLocationInfo[8];
+    U8			MSTimeZoneType;		@SB_PARSING{ TLV_U16_ORDER, 1, 153, 2,  0, &mGTP_CrtPDPCxtReq_sb.MSTimeZoneType, &mGTP_CrtPDPCxtReq_sb.MSTimeZoneLen, &mGTP_CrtPDPCxtReq_sb.MSTimeZone, NULL, "MS Time Zone"}@
+	U16			MSTimeZoneLen;
+	U16			MSTimeZone;
+    U8			IMEIType;				@SB_PARSING{ TLV_DIGIT_ORDER, 1, 154, 2,  0, &mGTP_CrtPDPCxtReq_sb.IMEIType, &mGTP_CrtPDPCxtReq_sb.IMEILen, &mGTP_CrtPDPCxtReq_sb.IMEI, NULL, "IMEI"}@
+	U16			IMEILen;
+	U8			IMEI[17];
+    U8			CAMELType;				@SB_PARSING{ TLV_DIGIT_ORDER, 1, 155, 2,  0, &mGTP_CrtPDPCxtReq_sb.CAMELType, &mGTP_CrtPDPCxtReq_sb.CAMELLen, &mGTP_CrtPDPCxtReq_sb.CAMEL, NULL, "CAMEL Charging Information Container"}@
+	U16			CAMELLen;
+	U8			CAMEL[256];
+    U8			AdditionalTraceInfoType;	@SB_PARSING{ TLV_DIGIT_ORDER, 1, 162, 2,  0, &mGTP_CrtPDPCxtReq_sb.AdditionalTraceInfoType, &mGTP_CrtPDPCxtReq_sb.AdditionalTraceInfoLen, &mGTP_CrtPDPCxtReq_sb.AdditionalTraceInfo, NULL, "Additional Trace Info"}@
+	U16			AdditionalTraceInfoLen;
+	X8			AdditionalTraceInfo[16];
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_CrtPDPCxtReq_sb;
+extern GTP_CrtPDPCxtReq_sb mGTP_CrtPDPCxtReq_sb;
+
+/**<  Create PDP Context Response **/
+typedef struct _stCreatePDPContextResp_ {
+    IE_CAUSE	stCause;			@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    U8			ReorderReqType;		@SB_PARSING{ TV_U8_ORDER, 1, 8, 0,  1, &mGTP_CrtPDPCxtResp_sb.ReorderReqType, NULL, &mGTP_CrtPDPCxtResp_sb.ReorderReq , NULL, "Reordering Required"}@
+	X8			ReorderReq;
+    U8			RecoveryType;			@SB_PARSING{ TV_U8_ORDER, 1, 14, 0,  1, &mGTP_CrtPDPCxtResp_sb.RecoveryType, NULL, &mGTP_CrtPDPCxtResp_sb.Recovery, NULL, "Recovery"}@
+	X8			Recovery;
+    IE_TEID		stTEID_D;			@SB_PARSING{ TV_U32_ORDER, 1, 16, 0,  4, &m++STNAME_SB++.stTEID_D.TEIDType, NULL, &m++STNAME_SB++.stTEID_D.TEID, NULL, "TEID Data I"}@
+    IE_TEID		stTEID_C;			@SB_PARSING{ TV_U32_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEID Control Plane"}@
+    U8       	ChargingIDType;		@SB_PARSING{ TV_U8_ORDER, 1, 127, 0,  4, &mGTP_CrtPDPCxtResp_sb.ChargingIDType, NULL, &mGTP_CrtPDPCxtResp_sb.ChargingID, NULL, "Charging ID"}@
+	U32		 	ChargingID;
+    IE_ADDR	 	stADDR;				@SB_PARSING{ TLV_STRING_ORDER, 1, 128, 2,  0, &m++STNAME_SB++.stADDR.EndUserAddressType, &m++STNAME_SB++.stADDR.EndUserAddressLen, &m++STNAME_SB++.stADDR.EndUserAddress, NULL, "End User Address"}@
+    IE_PROTO	stProtoOpt;			@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_GSNIP	stGgsnCtrlIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddress, NULL, "GGSN IP for Signalling"}@
+    IE_GSNIP	stGgsnDataIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnDataIP.GsnAddressType, &m++STNAME_SB++.stGgsnDataIP.GsnAddressLen, &m++STNAME_SB++.stGgsnDataIP.GsnAddress, NULL, "GGSN IP for User traffic"}@
+    IE_GSNIP	stAltGgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddress, NULL, "Alternative GGSN IP for Signalling"}@
+    IE_GSNIP	stAltGgsnDataIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddress, NULL, "Alternative GGSN IP for User traffic"}@
+    IE_QOS   	stQoS;				@SB_PARSING{ TLV_STRING_ORDER, 1, 135, 2,  0, &m++STNAME_SB++.stQoS.QosProfileType, &m++STNAME_SB++.stQoS.QosProfileLen, &m++STNAME_SB++.stQoS.QosProfile, NULL, "Quality of Service (QoS) Profile"}@
+    IE_CGIP		stChargingGWIP;		@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpType, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpLen, &m++STNAME_SB++.stChargingGWIP.ChargingGwIp, NULL, "Charging Gateway IP Address"}@
+} GTP_CrtPDPCxtResp_sb;
+extern GTP_CrtPDPCxtResp_sb mGTP_CrtPDPCxtResp_sb;
+
+/**<  Delete PDP Context Request **/
+typedef struct _stDeletePDPContextReq_ {
+    U8       	TeardownIndType;	@SB_PARSING{ TV_U8_ORDER, 1, 19, 0,  1, &mGTP_DelPDPCxtReq_sb.TeardownIndType, NULL, &mGTP_DelPDPCxtReq_sb.TeardownInd , NULL, "Teardown Ind"}@
+	X8		 	TeardownInd;
+    IE_NSAPI	stNSAPI;		@SB_PARSING{ TV_U8_ORDER, 1, 20, 0,  1, &m++STNAME_SB++.stNSAPI.NSAPIType, NULL, &m++STNAME_SB++.stNSAPI.NSAPI, NULL, "NSAPI", LIST_ON}@
+    IE_PROTO	stProtoOpt;		@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_PRIEXT	stExt;	@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_DelPDPCxtReq_sb;
+extern GTP_DelPDPCxtReq_sb mGTP_DelPDPCxtReq_sb;
+
+/**<  Delete PDP Context Response **/
+typedef struct _stDeletePDPContextResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_PROTO	stProtoOpt;		@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+} GTP_DelPDPCxtResp_sb;
+extern GTP_DelPDPCxtResp_sb mGTP_DelPDPCxtResp_sb;
+
+/**<  Update PDP Context Request **/
+typedef struct _stUpdatePDPContextReq_ {
+    IE_IMSI		stIMSI;				@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmsg_IMSI, "IMSI"}@
+    IE_RAI		stRAI;				@SB_PARSING{ TV_DIGIT_ORDER, 1, 3, 0,  6, &m++STNAME_SB++.stRAI.RAIType, NULL, &m++STNAME_SB++.stRAI.RAI, NULL, "Routeing Area Identity"}@
+    U8       	RecoveryType;			@SB_PARSING{ TV_U8_ORDER, 1, 14, 0,  1, &mGTP_UpdatePDPCxtReq_sb.RecoveryType, NULL, &mGTP_UpdatePDPCxtReq_sb.Recovery, NULL, "Recovery"}@
+	X8		 	Recovery;
+    IE_TEID		stTEID_D;			@SB_PARSING{ TV_STRING_ORDER, 1, 16, 0,  4, &m++STNAME_SB++.stTEID_D.TEIDType, NULL, &m++STNAME_SB++.stTEID_D.TEID, NULL, "TEDI Data I"}@
+    IE_TEID		stTEID_C;			@SB_PARSING{ TV_STRING_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEDI Control Plane"}@
+    IE_NSAPI	stNSAPI;			@SB_PARSING{ TV_U8_ORDER, 1, 20, 0,  1, &m++STNAME_SB++.stNSAPI.NSAPIType, NULL, &m++STNAME_SB++.stNSAPI.NSAPI, NULL, "NSAPI", LIST_ON}@
+    U8			TraceReferType;		@SB_PARSING{ TV_U8_ORDER, 1, 27, 0,  2, &mGTP_UpdatePDPCxtReq_sb.TraceReferType, NULL, &mGTP_UpdatePDPCxtReq_sb.TraceRefer, NULL, "Trace Reference"}@
+	U16			TraceRefer;
+    U8			TraceTypeType;			@SB_PARSING{ TV_U8_ORDER, 1, 28, 0,  2, &mGTP_UpdatePDPCxtReq_sb.TraceTypeType, NULL, &mGTP_UpdatePDPCxtReq_sb.TraceType, NULL, "Trace Type"}@
+	U16			TraceType;
+    IE_PROTO	stProtoOpt;			@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_GSNIP	stSgsnCtrlIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stSgsnCtrlIP.GsnAddress, NULL, "SGSN IP for Signalling"}@
+    IE_GSNIP	stSgsnDataIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stSgsnDataIP.GsnAddressType, &m++STNAME_SB++.stSgsnDataIP.GsnAddressLen, &m++STNAME_SB++.stSgsnDataIP.GsnAddress, NULL, "SGSN IP for User traffic"}@
+    IE_GSNIP	stAltSgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddress, NULL, "Alternative SGSN IP for Signalling"}@
+    IE_GSNIP	stAltSgsnDataIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltSgsnCtrlIP.GsnAddress, NULL, "Alternative SGSN IP for User traffic"}@
+    IE_QOS		stQoS;				@SB_PARSING{ TLV_STRING_ORDER, 1, 135, 2,  0, &m++STNAME_SB++.stQoS.QosProfileType, &m++STNAME_SB++.stQoS.QosProfileLen, &m++STNAME_SB++.stQoS.QosProfile, NULL, "Quality of Service (QoS) Profile"}@
+    U8			TFTType;				@SB_PARSING{ TLV_U8_ORDER, 1, 137, 2,  0, &mGTP_UpdatePDPCxtReq_sb.TFTType, &mGTP_UpdatePDPCxtReq_sb.TFTLen, &mGTP_UpdatePDPCxtReq_sb.TFT, NULL, "Traffic Flow Template (TFT)"}@
+	U16			TFTLen;
+	U8			TFT[257];
+    U8			TriggerIdType;			@SB_PARSING{ TLV_U8_ORDER, 1, 142, 2,  0, &mGTP_UpdatePDPCxtReq_sb.TriggerIdType, &mGTP_UpdatePDPCxtReq_sb.TriggerIdLen, &mGTP_UpdatePDPCxtReq_sb.TriggerId, NULL, "Trigger ID"}@
+	U16			TriggerIdLen;
+	U8			TriggerId[256];
+    U8			OMCIdType;				@SB_PARSING{ TLV_U8_ORDER, 1, 143, 2,  0, &mGTP_UpdatePDPCxtReq_sb.OMCIdType, &mGTP_UpdatePDPCxtReq_sb.OMCIdLen, &mGTP_UpdatePDPCxtReq_sb.OMCId, NULL, "OMC ID"}@
+	U16			OMCIdLen;
+	U8			OMCId[256];
+    U8			RATTypeType;			@SB_PARSING{ TLV_U8_ORDER, 1, 151, 2,  0, &mGTP_UpdatePDPCxtReq_sb.RATTypeType, &mGTP_UpdatePDPCxtReq_sb.RATTypeLen, &mGTP_UpdatePDPCxtReq_sb.RATType, NULL, "RAT Type"}@
+	U16			RATTypeLen;
+	X8			RATType;
+    U8			UserLocationInfoType;	@SB_PARSING{ TLV_U8_ORDER, 1, 152, 2,  0, &mGTP_UpdatePDPCxtReq_sb.UserLocationInfoType, &mGTP_UpdatePDPCxtReq_sb.UserLocationInfoLen, &mGTP_UpdatePDPCxtReq_sb.UserLocationInfo, NULL, "User Location Information"}@
+	U16			UserLocationInfoLen;
+	X8			UserLocationInfo[8];
+    U8			MSTimeZoneType;		@SB_PARSING{ TLV_U8_ORDER, 1, 153, 2,  0, &mGTP_UpdatePDPCxtReq_sb.MSTimeZoneType, &mGTP_UpdatePDPCxtReq_sb.MSTimeZoneLen, &mGTP_UpdatePDPCxtReq_sb.MSTimeZone, NULL, "MS Time Zone"}@
+	U16			MSTimeZoneLen;
+	U8			MSTimeZone[2];
+    U8			AdditionalTraceInfoType;	@SB_PARSING{ TLV_U8_ORDER, 1, 162, 2,  0, &mGTP_UpdatePDPCxtReq_sb.AdditionalTraceInfoType, &mGTP_UpdatePDPCxtReq_sb.AdditionalTraceInfoLen, &mGTP_UpdatePDPCxtReq_sb.AdditionalTraceInfo, NULL, "Additional Trace Info"}@
+	U16			AdditionalTraceInfoLen;
+	X8			AdditionalTraceInfo[8];
+    IE_PRIEXT	stExt;	@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_UpdatePDPCxtReq_sb;
+extern GTP_UpdatePDPCxtReq_sb mGTP_UpdatePDPCxtReq_sb;
+
+
+/**<  Update PDP Context Response **/
+typedef struct _stUpdatePDPContextResp_ {
+    IE_CAUSE	stCause;			@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    U8       RecoveryType;			@SB_PARSING{ TV_U8_ORDER, 1, 14, 0,  1, &mGTP_UpdatePDPCxtResp_sb.RecoveryType, NULL, &mGTP_UpdatePDPCxtResp_sb.Recovery, NULL, "Recovery"}@
+	X8		 Recovery;
+    IE_TEID	 stTEID_D;				@SB_PARSING{ TV_STRING_ORDER, 1, 16, 0,  4, &m++STNAME_SB++.stTEID_D.TEIDType, NULL, &m++STNAME_SB++.stTEID_D.TEID, NULL, "TEID Data I"}@
+    IE_TEID	 stTEID_C;				@SB_PARSING{ TV_STRING_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEID Control Plane"}@
+    U8       ChargingIDType;		@SB_PARSING{ TV_U8_ORDER, 1, 127, 0,  4, &mGTP_UpdatePDPCxtResp_sb.ChargingIDType, NULL, &mGTP_UpdatePDPCxtResp_sb.ChargingID, NULL, "Charging ID"}@
+	U32		 ChargingID;
+    IE_PROTO	stProtoOpt;			@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_GSNIP	stGgsnCtrlIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddress, NULL, "GGSN IP for Signalling"}@
+    IE_GSNIP	stGgsnDataIP;		@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnDataIP.GsnAddressType, &m++STNAME_SB++.stGgsnDataIP.GsnAddressLen, &m++STNAME_SB++.stGgsnDataIP.GsnAddress, NULL, "GGSN IP for User traffic"}@
+    IE_GSNIP	stAltGgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddress, NULL, "Alternative GGSN IP for Signalling"}@
+    IE_GSNIP	stAltGgsnDataIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stAltGgsnCtrlIP.GsnAddress, NULL, "Alternative GGSN IP for User traffic"}@
+    IE_QOS   	stQoS;				@SB_PARSING{ TLV_STRING_ORDER, 1, 135, 2,  0, &m++STNAME_SB++.stQoS.QosProfileType, &m++STNAME_SB++.stQoS.QosProfileLen, &m++STNAME_SB++.stQoS.QosProfile, NULL, "Quality of Service (QoS) Profile"}@
+    IE_CGIP		stChargingGWIP;		@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpType, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpLen, &m++STNAME_SB++.stChargingGWIP.ChargingGwIp, NULL, "Charging Gateway IP Address"}@
+    IE_CGIP		stAltChargingGWIP;	@SB_PARSING{ TLV_U8_ORDER, 1, 251, 2,  0, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpType, &m++STNAME_SB++.stChargingGWIP.ChargingGwIpLen, &m++STNAME_SB++.stChargingGWIP.ChargingGwIp, NULL, "Alternative Charging Gateway IP Address"}@
+    IE_PRIEXT	stExt;				@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+    U8       CommonFlagsType;		@SB_PARSING{ TLV_U8_ORDER, 1, 148, 2,  0, &mGTP_UpdatePDPCxtResp_sb.CommonFlagsType, &mGTP_UpdatePDPCxtResp_sb.CommonFlagsLen, &mGTP_UpdatePDPCxtResp_sb.CommonFlags, NULL, "Common Flags"}@
+	U16		 CommonFlagsLen;
+	U8		 CommonFlags[256];
+    U8       APNRestrictionType;	@SB_PARSING{ TLV_U8_ORDER, 1, 149, 2,  0, &mGTP_UpdatePDPCxtResp_sb.APNRestrictionType, &mGTP_UpdatePDPCxtResp_sb.APNRestrictionLen, &mGTP_UpdatePDPCxtResp_sb.APNRestriction, NULL, "APN Restriction"}@
+	U16		 APNRestrictionLen;
+	U8		 APNRestriction[256];
+} GTP_UpdatePDPCxtResp_sb;
+extern GTP_UpdatePDPCxtResp_sb mGTP_UpdatePDPCxtResp_sb;
+
+
+/**<  PDU Notification Request **/
+typedef struct _stPDUNotificationReq_ {
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmsg_IMSI, "IMSI"}@
+    IE_TEID		stTEID_C;		@SB_PARSING{ TV_STRING_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEID Control Plane"}@
+    IE_ADDR		stADDR;			@SB_PARSING{ TLV_STRING_ORDER, 1, 128, 2,  0, &m++STNAME_SB++.stADDR.EndUserAddressType, &m++STNAME_SB++.stADDR.EndUserAddressLen, &m++STNAME_SB++.stADDR.EndUserAddress, NULL, "End User Address"}@
+    IE_APN		stAPN;			@SB_PARSING{ TLV_STRING_ORDER, 1, 131, 2,  0, &m++STNAME_SB++.stAPN.AccPointNameType, &m++STNAME_SB++.stAPN.AccPointNameLen, &m++STNAME_SB++.stAPN.AccPointName, NULL, "Access Point Name", LIST_ON}@
+    IE_PROTO	stProtoOpt;		@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_GSNIP	stGgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddress, NULL, "GGSN IP for Signalling"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_PDUNotificationReq_sb;
+extern GTP_PDUNotificationReq_sb mGTP_PDUNotificationReq_sb;
+
+/**<  PDU Notification Response **/
+typedef struct _stPDUNotificationResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_PDUNotificationResp_sb;
+extern GTP_PDUNotificationResp_sb mGTP_PDUNotificationResp_sb;
+
+/**<  PDU Notification Reject Request **/
+typedef struct _stPDUNotificationRejReq_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_TEID		stTEID_C;		@SB_PARSING{ TV_STRING_ORDER, 1, 17, 0,  4, &m++STNAME_SB++.stTEID_C.TEIDType, NULL, &m++STNAME_SB++.stTEID_C.TEID, NULL, "TEID Control Plane"}@
+    IE_ADDR		stADDR;			@SB_PARSING{ TLV_STRING_ORDER, 1, 128, 2,  0, &m++STNAME_SB++.stADDR.EndUserAddressType, &m++STNAME_SB++.stADDR.EndUserAddressLen, &m++STNAME_SB++.stADDR.EndUserAddress, NULL, "End User Address"}@
+    IE_APN		stAPN;			@SB_PARSING{ TLV_STRING_ORDER, 1, 131, 2,  0, &m++STNAME_SB++.stAPN.AccPointNameType, &m++STNAME_SB++.stAPN.AccPointNameLen, &m++STNAME_SB++.stAPN.AccPointName, NULL, "Access Point Name", LIST_ON}@
+    IE_PROTO	stProtoOpt;		@SB_PARSING{ TLV_DIGIT_ORDER, 1, 132, 2,  0, &m++STNAME_SB++.stProtoOpt.ProConfOptType, &m++STNAME_SB++.stProtoOpt.ProConfOptLen, &m++STNAME_SB++.stProtoOpt.ProConfOpt, NULL, "Protocol Configuration Options"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_PDUNotificationRejReq_sb;
+extern GTP_PDUNotificationRejReq_sb mGTP_PDUNotificationRejReq_sb;
+
+/**<  PDU Notification Reject Response **/
+typedef struct _stPDUNotificationRejResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_PDUNotificationRejResp_sb;
+extern GTP_PDUNotificationRejResp_sb mGTP_PDUNotificationRejResp_sb;
+
+
+/**<  Send Routing Information for GPRS Request **/
+typedef struct _stSendRoutInfoGPRSReq_ {
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmap_req_IMSI, "IMSI"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_SendRoutInfoGPRSReq_sb;
+extern GTP_SendRoutInfoGPRSReq_sb mGTP_SendRoutInfoGPRSReq_sb;
+
+/**<  Send Routing Information for GPRS Response **/
+typedef struct _stSendRoutInfoGPRSResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmap_resp_IMSI, "IMSI"}@
+    IE_MAPCAUSE	stMAPCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stMAPCause.MapCauseType, NULL, &m++STNAME_SB++.stMAPCause.MapCause , NULL, "MAP Cause"}@
+    IE_MNRG	 	stMNRG;			@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stMNRG.MNRGFlagType, NULL, &m++STNAME_SB++.stMNRG.MNRGFlag , NULL, "MNRG Flags"}@
+    IE_GSNIP	stGgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddress, NULL, "GGSN IP for Signalling"}@
+} GTP_SendRoutInfoGPRSResp_sb;
+extern GTP_SendRoutInfoGPRSResp_sb mGTP_SendRoutInfoGPRSResp_sb;
+
+/**<  Note MS GPRS Present Request  **/
+typedef struct _stNoteMSGPRSPresentReq_ {
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmap_nreq_IMSI, "IMSI"}@
+    IE_GSNIP	stGgsnCtrlIP;	@SB_PARSING{ TLV_U32_ORDER, 1, 133, 2,  0, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressType, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddressLen, &m++STNAME_SB++.stGgsnCtrlIP.GsnAddress, NULL, "GGSN IP for Signalling"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_NoteMSGPRSPresentReq_sb;
+extern GTP_NoteMSGPRSPresentReq_sb mGTP_NoteMSGPRSPresentReq_sb;
+
+/**<  Note MS GPRS Present Response  **/
+typedef struct _stNoteMSGPRSPresentResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_NoteMSGPRSPresentResp_sb;
+extern GTP_NoteMSGPRSPresentResp_sb mGTP_NoteMSGPRSPresentResp_sb;
+
+/**<  Failure Report Request  **/
+typedef struct _stFailureReportReq_ {
+    IE_IMSI		stIMSI;			@SB_PARSING{ TV_STRING_ORDER, 1, 2, 0,  8, &m++STNAME_SB++.stIMSI.IMSIType, NULL, &m++STNAME_SB++.stIMSI.IMSI, ie_func_gtpmsg_IMSI, "IMSI"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_FailureReportReq_sb;
+extern GTP_FailureReportReq_sb mGTP_FailureReportReq_sb;
+
+/**<  Failure Report Response  **/
+typedef struct _stFailureReportResp_ {
+    IE_CAUSE	stCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stCause.CauseType, NULL, &m++STNAME_SB++.stCause.Cause , NULL, "Cause"}@
+    IE_MAPCAUSE	stMAPCause;		@SB_PARSING{ TV_U8_ORDER, 1, 1, 0,  1, &m++STNAME_SB++.stMAPCause.MapCauseType, NULL, &m++STNAME_SB++.stMAPCause.MapCause , NULL, "MAP Cause"}@
+    IE_PRIEXT	stExt;			@SB_PARSING{ TLV_U8_ORDER, 1, 255, 2,  0, &m++STNAME_SB++.stExt.PrivateExtType, &m++STNAME_SB++.stExt.PrivateExtLen, &m++STNAME_SB++.stExt.PrivateExt, NULL, "Private Extension"}@
+} GTP_FailureReportResp_sb;
+extern GTP_FailureReportResp_sb mGTP_FailureReportResp_sb;
+
+/**< ------------------------------------------------- GTP ---- End **/
+
+
+/**< ------------------------------------------------- RTP ---- **/
+typedef struct _stRTPheader_ {
+    BIT8    V  (2: sbRTPH1);  @SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mRTP_Header_sb.sbRTPH1.A, ie_func_rtphdr_bits1, "RTP Header 1byte"}@ 
+    BIT8    P  (1: sbRTPH1);
+    BIT8    X  (1: sbRTPH1);
+    BIT8    CC (4: sbRTPH1);
+    BIT8    M  (1: sbRTPH2);  @SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mRTP_Header_sb.sbRTPH2.A, ie_func_rtphdr_bits2, "RTP Header 2byte"}@ 
+    BIT8    PT (7: sbRTPH2);
+    U16     usSeqNum;       @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mRTP_Header_sb.usSeqNum , NULL, "Sequence Number"}@
+    U32     uiTimeStamp;    @SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTP_Header_sb.uiTimeStamp , NULL, "Timestamp"}@
+    U32     uiSSRC;    		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTP_Header_sb.uiSSRC , NULL, "SSRC"}@
+	/**< 
+	 여기서 부터는 CC에 대한 처리 이다. 
+	 CC가 있으면 header 다음에 CSRC가 온다. 이에 대한 처리를 위해 아래 줄을 추가 한다. 
+	 -- Value 자리에 RTP header의 CC bit를 준다.
+	 	CC가 0이면 아무처리도 안할 것이다. 
+		CSRC 저장할 값을 사용자가 알기 때문에 ie_func에서 저장하고 싶은 만큼 저장할 수 있을 것이다. 
+		CC * 4bytes 만큼 header가 확장되었다 생각하고 나머지만 RTP payload로 처리한다.
+ 	**/
+    U32		uiCSRC[4]; 	@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, &mRTP_Header_sb.sbRTPH1.A, ie_func_csrc_count, ""}@
+} RTP_Header_sb;
+extern RTP_Header_sb mRTP_Header_sb;
+
+/**< ------------------------------------------------- RTCP ---- **/
+<TAG_DEFINE_START:RTCP_PT>
+#define DEF_RTCP_PT_SR       200
+#define DEF_RTCP_PT_RR       201
+#define DEF_RTCP_PT_SDES     202
+#define DEF_RTCP_PT_BYE       203
+#define DEF_RTCP_PT_APP       204
+<TAG_DEFINE_END:RTCP_PT>
+
+typedef struct _stRTCPheader_ {
+    BIT8    V  (2: RTCPH1);  @SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mRTCP_Header_sb.RTCPH1.A, ie_func_rtcphdr_bits1, "RTCP Header 1byte"}@ 
+    BIT8    P  (1: RTCPH1);
+    BIT8    RC  (5: RTCPH1);
+    U8    	<TAG_DEFINE:RTCP_PT>PT; @SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mRTCP_Header_sb.PT, NULL, "Payload Type"}@ 
+    U16     usLength;       @SB_PARSING{ V_U16_ORDER, 0, 0, 0,  2, NULL, NULL, &mRTCP_Header_sb.usLength , NULL, "Length"}@
+	/**< SDES 는 없다는 것을 고려해야 한다. */
+    U32     uiSSRC;    		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_Header_sb.uiSSRC , NULL, "SSRC"}@
+} RTCP_Header_sb;
+extern RTCP_Header_sb mRTCP_Header_sb;
+
+typedef struct _stRTCP_SR_ {
+    U32     uiNTPTime;    		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_SR_sb.uiNTPTime , NULL, "NTP Timestamp"}@
+    U32     uiNTPMTime;    		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_SR_sb.uiNTPMTime , NULL, "NTP Timestamp"}@
+    U32     uiRTPTime;    		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_SR_sb.uiRTPTime , NULL, "RTP Timestamp"}@
+    U32     uiSenderPktCnt; 	@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_SR_sb.uiSenderPktCnt , NULL, "Sender's packet count"}@
+    U32     uiSenderOctCnt; 	@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_SR_sb.uiSenderOctCnt , NULL, "Sender's octet count"}@
+} RTCP_SR_sb;
+extern RTCP_SR_sb mRTCP_SR_sb;
+
+typedef struct _stRTCP_RR_ {
+    U32     uiSSRC;    			@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &mRTCP_RR_sb.uiSSRC , NULL, "Source SSRC"}@
+    U8    	ucFractionLost;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mRTCP_RR_sb.ucFractionLost, NULL, "Fraction Lost"}@ 
+    U32     uiCumulNum; 		@SB_PARSING{ V_U24_ORDER, 0, 0, 0, 3, NULL, NULL, &mRTCP_RR_sb.uiCumulNum , NULL, "Cummulative number of packets lost"}@
+    U32     uiHighSeqNum; 		@SB_PARSING{ V_U32_ORDER, 0, 0, 0, 4, NULL, NULL, &mRTCP_RR_sb.uiHighSeqNum , NULL, "Extend highest sequence number receivd"}@
+    U32     uiJitter; 			@SB_PARSING{ V_U32_ORDER, 0, 0, 0, 4, NULL, NULL, &mRTCP_RR_sb.uiJitter , NULL, "Interarrival jitter"}@
+    U32     uiLSR; 				@SB_PARSING{ V_U32_ORDER, 0, 0, 0, 4, NULL, NULL, &mRTCP_RR_sb.uiLSR , NULL, "Last SR(LSR)"}@
+    U32     uiDLSR; 			@SB_PARSING{ V_U32_ORDER, 0, 0, 0, 4, NULL, NULL, &mRTCP_RR_sb.uiDLSR , NULL, "Delay since last SR (DLSR)"}@
+} RTCP_RR_sb;
+extern RTCP_RR_sb mRTCP_RR_sb;
+
+#define MAX_SDES_CNT	3
+typedef struct _stRTCP_SDES_ {
+    U32     uiSSRC; @SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, NULL , ie_func_rtcp_sdes, "SDES"}@
+    U8    	uname;  	
+    U8    	length;  
+    STRING 	value1[64]; 	
+} RTCP_SDES_sb;
+extern RTCP_SDES_sb mRTCP_SDES_sb;
+
+/**< ------------------------------------------------- MTP3 ---- **/
+typedef struct _stMTP3_ {
+    BIT8    SSF  (4: MTP3SIO);  @SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mMTP3_sb.MTP3SIO.A, ie_func_mtp3_sio, "SIO", LIST_ON}@ 
+	BIT8	SI 	 (4: MTP3SIO);
+    U16		DPC;	@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, NULL, ie_func_mtp3_dpc_opc, "SIF", LIST_ON}@
+	U16		OPC;
+	U16		SLS;
+} MTP3_sb;
+extern MTP3_sb mMTP3_sb;
+
+
+
+/**< ------------------------------------------------- SCCP ---- **/
+/*  SCCP Error Return Definition */
+#define     DEC_SCCP_UNKNOWN_MSG_TYPE               -701
+#define     DEC_SCCP_DEST_ADDR_POS_ERR              -702
+#define     DEC_SCCP_ORIG_ADDR_POS_ERR              -703
+#define     DEC_SCCP_USER_DATA_LEN_ERR              -704
+#define     DEC_SCCP_UNKNOWN_GT_INDI                -705
+#define     DEC_SCCP_UNKNOWN_PARA                   -706
+
+
+typedef struct _sccp_addr_ {
+    /* address indicator */
+    U8      pc_indi;
+    U8      ssn_indi;
+    U8      GT_indi;                /**< 0001, 0010, 0011, 0100 **/
+    U8      route_indi;
+
+    U16     pc;
+    U8      ssn;
+
+    X8 		GT_addr[MAX_GT_NUM + 3];	/** union size 만큼 잡는다.  */
+	U8		GT_addr_len;			/**< Global Title Address Information length **/
+
+} SCCP_ADDR;
+
+
+typedef struct _stSCCP_CR_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CR_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	SrcLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_CR_sb.SrcLocalRef, NULL, "Source local reference"}@ 
+    U8	Class;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CR_sb.Class, NULL, "Protocol Class"}@ 
+    U8	ManPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CR_sb.ManPos, NULL, "Mandantory Point"}@ 
+    U8	OptPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CR_sb.OptPos, NULL, "Optional Point"}@ 
+    X8	CalledPartyAddrLen;	@SB_PARSING{ LV_U8_ORDER, 0, 0, 1,  0, NULL, &mSCCP_CR_sb.CalledPartyAddrLen, &m++STNAME_SB++.called_addr, ie_func_sccp_addr, "Called Party Address"}@
+	SCCP_ADDR	called_addr;
+    U8 	CreditType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x09, 1,  0, &mSCCP_CR_sb.CreditType, &mSCCP_CR_sb.CreditLen, &mSCCP_CR_sb.Credit, NULL, "Credit"}@
+	U8	CreditLen;
+	U8	Credit;
+    X8 	CallingPartyAddrType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x04, 1,  0, &m++STNAME_SB++.CallingPartyAddrType, &mSCCP_CR_sb.CallingPartyAddrLen, &mSCCP_CR_sb.calling_addr, ie_func_sccp_addr, "Calling Party Address"}@
+    X8 	CallingPartyAddrLen;	
+	SCCP_ADDR   calling_addr;
+    U8 	DataType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x0f, 1,  0, &mSCCP_CR_sb.DataType, &mSCCP_CR_sb.DataLen, &mSCCP_CR_sb.Data, NULL, "Data"}@
+	U8	DataLen;
+	U8	Data[130];
+    U8 	HopCntType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x11, 1,  0, &mSCCP_CR_sb.HopCntType, &mSCCP_CR_sb.HopCntLen, &mSCCP_CR_sb.HopCnt, NULL, "Hop Count"}@
+	U8	HopCntLen;
+	U8	HopCnt;
+    U8 	ImportanceType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x12, 1,  0, &mSCCP_CR_sb.ImportanceType, &mSCCP_CR_sb.ImportanceLen, &mSCCP_CR_sb.Importance, NULL, "Importance"}@
+	U8	ImportanceLen;
+	U8	Importance;
+    U8 	EndofOption;	@SB_PARSING{ T_ORDER, 1, 0x00, 0, 1, &mSCCP_CR_sb.EndofOption, NULL, NULL, NULL, "End of optional parameters"}@
+} SCCP_CR_sb;
+extern SCCP_CR_sb mSCCP_CR_sb;
+
+typedef struct _stSCCP_CC_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CC_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_CC_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+    X8	SrcLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_CC_sb.SrcLocalRef, NULL, "Source local reference"}@ 
+    U8	Class;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CC_sb.Class, NULL, "Protocol Class"}@ 
+    U8	OptPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CC_sb.OptPos, NULL, "Optional Point"}@ 
+    U8 	CreditType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x09, 1,  0, &mSCCP_CC_sb.CreditType, &mSCCP_CC_sb.CreditLen, &mSCCP_CC_sb.Credit, NULL, "Credit"}@
+	U8	CreditLen;
+	U8	Credit;
+    X8	CalledPartyAddrType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x03, 1,  0, &m++STNAME_SB++.CalledPartyAddrType, &m++STNAME_SB++.CalledPartyAddrLen, &m++STNAME_SB++.called_addr, ie_func_sccp_addr, "Called Party Address"}@
+    X8	CalledPartyAddrLen;	
+	SCCP_ADDR	called_addr;
+    U8 	DataType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x0f, 1,  0, &mSCCP_CC_sb.DataType, &mSCCP_CC_sb.DataLen, &mSCCP_CC_sb.Data, NULL, "Data"}@
+	U8	DataLen;
+	U8	Data[130];
+    U8 	ImportanceType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x12, 1,  0, &mSCCP_CC_sb.ImportanceType, &mSCCP_CC_sb.ImportanceLen, &mSCCP_CC_sb.Importance, NULL, "Importance"}@
+	U8	ImportanceLen;
+	U8	Importance;
+    U8 	EndofOption;	@SB_PARSING{ T_ORDER, 1, 0x00, 0, 1, &mSCCP_CC_sb.EndofOption, NULL, NULL, NULL, "End of optional parameters"}@
+} SCCP_CC_sb;
+extern SCCP_CC_sb mSCCP_CC_sb;
+
+typedef struct _stSCCP_CREF_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CREF_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_CREF_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+    U8	Cause;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CREF_sb.Cause, NULL, "Refusal cause"}@ 
+    U8	OptPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_CREF_sb.OptPos, NULL, "Optional Point"}@ 
+    X8	CalledPartyAddrType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x03, 1,  0, &m++STNAME_SB++.CalledPartyAddrType, &m++STNAME_SB++.CalledPartyAddrLen, &m++STNAME_SB++.called_addr, ie_func_sccp_addr, "Called Party Address"}@
+    X8	CalledPartyAddrLen;	
+	SCCP_ADDR	called_addr;
+    U8 	DataType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x0f, 1,  0, &mSCCP_CREF_sb.DataType, &mSCCP_CREF_sb.DataLen, &mSCCP_CREF_sb.Data, NULL, "Data"}@
+	U8	DataLen;
+	U8	Data[130];
+    U8 	ImportanceType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x12, 1,  0, &mSCCP_CREF_sb.ImportanceType, &mSCCP_CREF_sb.ImportanceLen, &mSCCP_CREF_sb.Importance, NULL, "Importance"}@
+	U8	ImportanceLen;
+	U8	Importance;
+    U8 	EndofOption;	@SB_PARSING{ T_ORDER, 1, 0x00, 0, 1, &mSCCP_CREF_sb.EndofOption, NULL, NULL, NULL, "End of optional parameters"}@
+} SCCP_CREF_sb;
+extern SCCP_CREF_sb mSCCP_CREF_sb;
+
+typedef struct _stSCCP_RLSD_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_RLSD_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_RLSD_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+    X8	SrcLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_RLSD_sb.SrcLocalRef, NULL, "Source local reference"}@ 
+    U8	Cause;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_RLSD_sb.Cause, NULL, "Refusal cause"}@ 
+    U8	OptPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_RLSD_sb.OptPos, NULL, "Optional Point"}@ 
+    U8 	DataType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x0f, 1,  0, &mSCCP_RLSD_sb.DataType, &mSCCP_RLSD_sb.DataLen, &mSCCP_RLSD_sb.Data, NULL, "Data"}@
+	U8	DataLen;
+	U8	Data[130];
+    U8 	ImportanceType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x12, 1,  0, &mSCCP_RLSD_sb.ImportanceType, &mSCCP_RLSD_sb.ImportanceLen, &mSCCP_RLSD_sb.Importance, NULL, "Importance"}@
+	U8	ImportanceLen;
+	U8	Importance;
+    U8 	EndofOption;	@SB_PARSING{ T_ORDER, 1, 0x00, 0, 1, &mSCCP_RLSD_sb.EndofOption, NULL, NULL, NULL, "End of optional parameters"}@
+} SCCP_RLSD_sb;
+extern SCCP_RLSD_sb mSCCP_RLSD_sb;
+
+typedef struct _stSCCP_RLC_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_RLC_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_RLC_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+    X8	SrcLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_RLC_sb.SrcLocalRef, NULL, "Source local reference"}@ 
+} SCCP_RLC_sb;
+extern SCCP_RLC_sb mSCCP_RLC_sb;
+
+typedef struct _stSCCP_DT1_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_DT1_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_DT1_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+	BIT8	more(1: DT1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mSCCP_DT1_sb.DT1.A, NULL, "Segmenting/reassembing"}@ 
+	BIT8	spare(7: DT1);
+    U8	ManPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_DT1_sb.ManPos, NULL, "Mandantory Point"}@ 
+    U8 	DataLen;	@SB_PARSING{ LV_STRING_ORDER, 0, 0, 1,  0, NULL, &mSCCP_DT1_sb.DataLen, &mSCCP_DT1_sb.Data, NULL, "Data"}@
+	U8	Data[256];
+} SCCP_DT1_sb;
+extern SCCP_DT1_sb mSCCP_DT1_sb;
+
+typedef struct _stSCCP_DT2_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_DT2_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_DT2_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+	BIT8	spare(1: DT2_1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mSCCP_DT2_sb.DT2_1.A, NULL, "Send Sequence number"}@ 
+	BIT8	send_seq(7: DT2_1);
+	BIT8	more(1: DT2_2);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mSCCP_DT2_sb.DT2_2.A, NULL, "Receive Sequence number"}@ 
+	BIT8	recv_seq(7: DT2_2);
+    U8	ManPos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_DT2_sb.ManPos, NULL, "Mandantory Point"}@ 
+    U8 	DataLen;	@SB_PARSING{ LV_STRING_ORDER, 0, 0, 1,  0, NULL, &mSCCP_DT2_sb.DataLen, &mSCCP_DT2_sb.Data, NULL, "Data"}@
+	U8	Data[256];
+} SCCP_DT2_sb;
+extern SCCP_DT2_sb mSCCP_DT2_sb;
+
+typedef struct _stSCCP_AK_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_AK_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    X8	DestLocalRef[3];  	@SB_PARSING{ V_STRING_ORDER,  0, 0, 0,  3, NULL, NULL, &mSCCP_AK_sb.DestLocalRef, NULL, "Destination local reference"}@ 
+    U8	Sequencing;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_AK_sb.Sequencing, NULL, "Receive sequence number"}@ 
+    U8	Credit;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_AK_sb.Credit, NULL, "Credit"}@ 
+} SCCP_AK_sb;
+extern SCCP_AK_sb mSCCP_AK_sb;
+
+typedef struct _stSCCP_UDT_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDT_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    U8	Class;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDT_sb.Class, NULL, "Protocol Class"}@ 
+    U8	V1Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDT_sb.V1Pos, NULL, "Value type Point1"}@ 
+    U8	V2Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDT_sb.V2Pos, NULL, "Value type Point2"}@ 
+    U8	V3Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDT_sb.V3Pos, NULL, "Value type Point3"}@ 
+    SCCP_ADDR	called_addr;	@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, NULL, ie_func_UDT_UDTS, "UDT"}@
+    SCCP_ADDR	calling_addr;
+    U8 	DataLen;
+	X8	Data[256];
+} SCCP_UDT_sb;
+extern SCCP_UDT_sb mSCCP_UDT_sb;
+
+typedef struct _stSCCP_UDTS_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDTS_sb.MsgType, NULL, "Message type", LIST_ON}@ 
+    U8	Class;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDTS_sb.Class, NULL, "Protocol Class"}@ 
+    U8	V1Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDTS_sb.V1Pos, NULL, "Value type Point1"}@ 
+    U8	V2Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDTS_sb.V2Pos, NULL, "Value type Point2"}@ 
+    U8	V3Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &mSCCP_UDTS_sb.V3Pos, NULL, "Value type Point3"}@ 
+    SCCP_ADDR	called_addr;	@SB_PARSING{ V_STRING_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.called_addr, ie_func_sccp_addr, "Called Party Address"}@
+    SCCP_ADDR	calling_addr;	@SB_PARSING{ V_STRING_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.calling_addr, ie_func_sccp_addr, "Calling Party Address"}@
+    U8 	DataLen;	@SB_PARSING{ LV_STRING_ORDER, 0, 0, 1,  0, NULL, &mSCCP_UDTS_sb.DataLen, &mSCCP_UDTS_sb.Data, NULL, "Data"}@
+	U8	Data[256];
+} SCCP_UDTS_sb;
+extern SCCP_UDTS_sb mSCCP_UDTS_sb;
+
+
+typedef struct _segmentation_ {
+	BIT8	segF(1: SEG); 
+	BIT8	segC(1: SEG);
+	BIT8	spare(2: SEG);
+	BIT8	remaining(4: SEG);
+	X8		SegmenationLocalRef[3];
+} stsegmentation;
+
+typedef struct _stSCCP_XUDT_ {
+    U8	MsgType;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.MsgType, NULL, "Message type", LIST_ON}@ 
+    U8	Class;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.Class, NULL, "Protocol Class"}@ 
+    U8	HopCnt; 	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.HopCnt, NULL, "Hop Cnt Class"}@ 
+    U8	V1Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.V1Pos, NULL, "Value type Point1"}@ 
+    U8	V2Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.V2Pos, NULL, "Value type Point2"}@ 
+    U8	V3Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.V3Pos, NULL, "Value type Point3"}@ 
+    U8	V4Pos;  	@SB_PARSING{ V_U8_ORDER,  0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.V4Pos, NULL, "Value type Point4"}@ 
+    SCCP_ADDR	called_addr;	@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, NULL, ie_func_XUDT_XUDTS, "UDT"}@
+    SCCP_ADDR	calling_addr;
+    U8 	DataLen;
+	X8	Data[256];
+    U8 	SegmentationType;	@SB_PARSING{ TLV_STRING_ORDER, 1, 0x10, 1,  0, &m++STNAME_SB++.SegmentationType, &m++STNAME_SB++.SegmentationLen, &m++STNAME_SB++.Segmentation, NULL, "Segmenatation"}@
+	U8	SegmentationLen;
+	stsegmentation	Segmentation;
+    U8 	ImportanceType;	@SB_PARSING{ TLV_U8_ORDER, 1, 0x12, 1,  0, &m++STNAME_SB++.ImportanceType, &m++STNAME_SB++.ImportanceLen, &m++STNAME_SB++.Importance, NULL, "Importance"}@
+	U8	ImportanceLen;
+	U8	Importance;
+    U8 	EndofOption;	@SB_PARSING{ T_ORDER, 1, 0x00, 0, 1, &m++STNAME_SB++.EndofOption, NULL, NULL, NULL, "End of optional parameters"}@
+
+} SCCP_XUDT_sb;
+extern SCCP_XUDT_sb mSCCP_XUDT_sb;
+
+
+STG_ASSOCIATION typedef struct _stSCCP_common_ {
+    U32     DataLen:STG_Equal(pSCCP_CR_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_CREF_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_RLSD_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_DT1_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_DT2_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_UDT_sb->DataLen):FIRST;
+                ALTERNATIVE_ASSOCIATION:STG_Equal(pSCCP_UDTS_sb->DataLen):FIRST;
+} SCCP_MSG_sb;
+extern SCCP_MSG_sb mSCCP_MSG_sb;
+
+/**< ------------------------------------------------- GMM, SM---- **/
+/* Protocol discriminator values (0x00 ~ 0x0f) --> ucProtoType */
+#define  GPP_L3_GROUP_CALL_CTL          0x00    /* group call control */
+#define  GPP_L3_BROAD_CALL_CTL          0x01    /* broadcast call control */
+#define  GPP_L3_RESERVED                0x02    /* Reserved */
+#define  GPP_L3_CALL_CTL                    0x03    /* Call Control; call related SS messages */
+#define  GPP_L3_GTTP                        0x04    /* GPRS Transparent Transport Protocol (GTTP) */
+#define  GPP_L3_MOBILE_MNG_MSG              0x05    /* Mobility management messages */
+#define  GPP_L3_RADIO_RESOUCE_MNG_MSG       0x06    /* Radio resources management messages */
+#define  GPP_L3_GPRS_MOBILITY_MNG_MSG       0x08    /* GPRS mobility management messages */
+#define  GPP_L3_SMS_MSG                     0x09    /* SMS Messages */
+#define  GPP_L3_GPRS_SESSION__MNG_MSG       0x0a    /* GPRS session management messages */
+#define  GPP_L3_NON_CALL_SS_MSG             0x0b    /* non call related SS messages */
+#define  GPP_L3_LOCATION_SVC                0x0c    /* Location services specified in 3GPP TS 44.071 */
+#define  GPP_L3_RESERVED_FOR_PD         0x0e    /* reserved for extension of the PD to one octet length*/
+#define  GPP_L3_RESERVED_FOR_TEST           0x0f    /* reserved for tests procedures described in 3GPP TS 44.14 */
+
+/* Message types for GPRS Mobility management */
+#define  GMM_ATTACH_REQ                     0x01    /* Attach Request */
+#define  GMM_ATTACH_ACCEPT                  0x02    /* Attach Accept */
+#define  GMM_ATTACH_COMPLETE                0x03    /* Attach Complete */
+#define  GMM_ATTACH_REJECT                  0x04    /* Attach Reject */
+#define  GMM_DETACH_REQUEST                 0x05    /* Detach Request */
+#define  GMM_DETACH_ACCEPT                  0x06    /* Detach Accept */
+        
+#define  GMM_ROUTING_AREA_UPDATE_REQ        0x08    /* Routing Area Update Request */
+#define  GMM_ROUTING_AREA_UPDATE_ACCEPT     0x09    /* Routing Area Update Accept */
+#define  GMM_ROUTING_AREA_UPDATE_COMPLETE   0x0a    /* Routing Area Update Complete */
+#define  GMM_ROUTING_AREA_UPDATE_REJECT     0x0b    /* Routing Area Update Reject */
+		    
+#define  GMM_SERVICE_REQ                    0x0c    /* Service Request */
+#define  GMM_SERVICE_ACCEPT                 0x0d    /* Service Accept */
+#define  GMM_SERVICE_REJECT                 0x0e    /* Service Reject */
+			    
+#define  GMM_PTMSI_REALLOC_CMD              0x10    /* P-TMSI Reallocation command */
+#define  GMM_PTMSI_REALLOC_COMPLETE         0x11    /* P-TMSI Reallocation complete */
+#define  GMM_AUTH_AND_CIPHERING_REQ         0x12    /* Authentication and ciphering req */
+#define  GMM_AUTH_AND_CIPHERING_RESP        0x13    /* Authentication and ciphering resp */
+#define  GMM_AUTH_AND_CIPHERING_REJECT      0x14    /* Authentication and ciphering reject */
+#define  GMM_AUTH_AND_CIPHERING_FAILURE     0x1c    /* Authentication and ciphering failure */
+				    
+#define  GMM_IDENTITY_REQ                   0x15    /* Identity Request */
+#define  GMM_IDENTITY_RESP                  0x16    /* Identity Response */
+					        
+#define  GMM_GMM_STATUS                     0x20    /* GMM Status */
+#define  GMM_GMM_INFORMATION                0x21    /* GMM Information */
+
+
+/**< IE ------     */
+
+
+#define DEF_MOBILE_ID_LEN			16
+typedef struct _IE_mobile_identity_ {				/**< 24.008 3gpp 10.5.1.4 */
+	U8			iei;
+	U8			length;
+	U8			ID_Type;
+	U8			EvenOdd;
+	STRING		value [DEF_MOBILE_ID_LEN];
+} IE_mobile_identity;
+
+
+typedef struct _IE_pdp_context_status_ {
+	U8			iei;
+	U8			length;
+	U8			pdp_context_status [16];
+} IE_pdp_context_status;
+
+
+/**< 10.5.5.X -------------------------------------*/
+
+typedef struct _IE_MS_network_capability_ {			/**< 24008 3gpp 10.5.5.12 */
+	U8			iei;
+	U8			length;
+	STRING		value[16];
+} IE_MS_network_capability;
+
+
+/**< GMM ------------------------ Attache **/
+typedef struct _stAttachReq_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachReq_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AttachReq_sb.message_type , NULL, "Attach request"}@
+	/* value */
+    U8 		MSnw_capabilityLen;  @SB_PARSING{ LV_DIGIT_ORDER, 0, 0, 1,  0, NULL, &mGMM_AttachReq_sb.MSnw_capabilityLen, &mGMM_AttachReq_sb.MSnw_capability, NULL, "MS network capability"}@
+	STRING	MSnw_capability [16];
+	BIT8	for_attach_type(1: AR1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachReq_sb.AR1.A, NULL, " Attach 1 byte"}@ 
+	BIT8	attach_type(3: AR1);
+	BIT8	skip_indicator(4: AR1);
+    BIT16	drx_split_cycle_code (8: AR2); @SB_PARSING{ BIT16_ORDER,  0, 0, 0, 2, NULL, NULL, &mGMM_AttachReq_sb.AR2.A, ie_func_tcphdr_bitfiled, "Flag"}@
+    BIT16   drx_cycle_length_coefficient (4: AR2);
+    BIT16   drx_split_on_ccch (1: AR2);
+    BIT16   drx_non_drx_timer (3: AR2);
+	U8		mobileid_length; 	@SB_PARSING{ LV_STRING_ORDER, 0, 0, 1,  0, NULL, &mGMM_AttachReq_sb.mobileid_length, NULL, NULL, "P-TMSI or IMSI"}@
+	U8		mobileid_type;
+	U8		mobileid_evenodd;
+	U8		mobileid [DEF_MOBILE_ID_LEN];
+	U8		routing_area_id_MCC [3]; @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  6, NULL, NULL, NULL , NULL, "Old routing area identification"}@
+	U8		routing_area_id_MNC [3];
+	U8		routing_area_id_LAC [4];
+	U8		routing_area_id_RAC [2];
+	U8		ms_radio_access_capability_len; @SB_PARSING{ LV_DIGIT_ORDER, 0, 0, 1,  0, NULL, &mGMM_AttachReq_sb.ms_radio_access_capability_len, &mGMM_AttachReq_sb.ms_radio_access_capability, NULL, "MS radio access capability"}@
+	U8		ms_radio_access_capability [104];
+	/* option */
+	U8		p_tmsi_signature_type; @SB_PARSING{ TV_U8_DISORDER, 1, 0x19, 0,  3, &mGMM_AttachReq_sb.p_tmsi_signature_type, NULL, &mGMM_AttachReq_sb.p_tmsi_signature , NULL, "Old P-TMSI signature"}@
+	U32		p_tmsi_signature;
+	U8		gprs_timer_type; @SB_PARSING{ TV_U8_DISORDER, 1, 0x17, 0,  1, &mGMM_AttachReq_sb.gprs_timer_type, NULL, NULL, NULL, "Requested READY timer value"}@
+	U8		gprs_timer_unit;
+	U8		gprs_timer_value;
+	U8		tmsi_status;	@SB_PARSING{ T_DISORDER, 1, 0x09, 0, 1, &mGMM_AttachReq_sb.tmsi_status, NULL, NULL, NULL, "TMSI status"}@
+	U8		ps_lcs_capability_type; @SB_PARSING{ TLV_U8_DISORDER, 1, 0x33, 1,  0, &mGMM_AttachReq_sb.ps_lcs_capability_type, &mGMM_AttachReq_sb.ps_lcs_capability_length, &mGMM_AttachReq_sb.ps_lcs_capability, NULL, "PS LCS Capability"}@
+	U8		ps_lcs_capability_length;
+	U8		ps_lcs_capability;
+} GMM_AttachReq_sb;
+extern GMM_AttachReq_sb mGMM_AttachReq_sb;
+
+typedef struct _stAttachApt_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachApt_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AttachApt_sb.message_type , NULL, "Attach Accept"}@
+	/* value */
+	BIT8	spare(1: AA1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachApt_sb.AA1.A, NULL, "Attach Result"}@ 
+	BIT8	attach_result(3: AA1);
+	BIT8	force_to_standby(4: AA1);
+	BIT8	gprs_timer_unit(3: AA2);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachApt_sb.AA2.A, NULL, "Periodic RA update timer"}@ 
+	BIT8	gprs_timer_value(5: AA2);
+	BIT8	radio_priority(4: AA3);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachApt_sb.AA3.A, NULL, "Radio Priority"}@ 
+	BIT8	radio_priority2(4: AA3);
+	U8		routing_area_id_MCC [3]; @SB_PARSING{ V_U8_ORDER, 0, 0, 0,  6, NULL, NULL, NULL , NULL, "Routing area identification"}@
+	U8		routing_area_id_MNC [3];
+	U8		routing_area_id_LAC [4];
+	U8		routing_area_id_RAC [2];
+	U8		p_tmsi_signature_type; @SB_PARSING{ TV_U8_DISORDER, 1, 0x19, 0,  3, &mGMM_AttachApt_sb.p_tmsi_signature_type, NULL, &mGMM_AttachApt_sb.p_tmsi_signature , NULL, "Old P-TMSI signature"}@
+	U32		p_tmsi_signature;
+} GMM_AttachApt_sb;
+extern GMM_AttachApt_sb mGMM_AttachApt_sb;
+
+typedef struct _stAttachComplete_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachComplete_sb.GMM1.A, NULL, "Attach Complete 1 byte"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AttachComplete_sb.message_type , NULL, "Message Type"}@
+} GMM_AttachComplete_sb;
+extern GMM_AttachComplete_sb mGMM_AttachComplete_sb;
+
+typedef struct _stAttachReject_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AttachReject_sb.GMM1.A, NULL, "Attach Reject 1 byte"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AttachReject_sb.message_type , NULL, "Message Type"}@
+
+	U8		gmm_cause; 		@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AttachReject_sb.gmm_cause , NULL, "GMM cause"}@
+} GMM_AttachReject_sb;
+extern GMM_AttachReject_sb mGMM_AttachReject_sb;
+
+/**< GMM -------------------------- Detach **/
+typedef struct _stDetachReq_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_DetachReq_sb.GMM1.A, NULL, "Detach Request"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_DetachReq_sb.message_type , NULL, "Message Type"}@
+	BIT8	detach_type(4: DR1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_DetachReq_sb.DR1.A, NULL, "Detach Type"}@ 
+	BIT8	force_to_standby(4: DR1);
+	U8		gmm_cause; 		@SB_PARSING{ TV_U8_ORDER, 1, 0x25, 0,  1, NULL, NULL, &mGMM_DetachReq_sb.gmm_cause , NULL, "GMM cause"}@
+} GMM_DetachReq_sb;
+extern GMM_DetachReq_sb mGMM_DetachReq_sb;
+
+typedef struct _stDetachApt_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_DetachApt_sb.GMM1.A, NULL, "Detach Accept"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_DetachApt_sb.message_type , NULL, "Message Type"}@
+} GMM_DetachApt_sb;
+extern GMM_DetachApt_sb mGMM_DetachApt_sb;
+
+/**< GMM -------------------------- P-TMSI reallocation **/
+typedef struct _stPTMSI_realloc_cmd_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_PTMSI_ReallocCmd_sb.GMM1.A, NULL, "P-TMSI reallocation Command"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_PTMSI_ReallocCmd_sb.message_type , NULL, "P-TMSI reallocation Command"}@
+
+} GMM_PTMSI_ReallocCmd_sb;
+extern GMM_PTMSI_ReallocCmd_sb mGMM_PTMSI_ReallocCmd_sb;
+
+typedef struct _stPTMSI_realloc_complete_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_PTMSI_ReallocComplete_sb.GMM1.A, NULL, "P-TMSI reallocation Complete"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_PTMSI_ReallocComplete_sb.message_type , NULL, "P-TMSI reallocation Complete"}@
+} GMM_PTMSI_ReallocComplete_sb;
+extern GMM_PTMSI_ReallocComplete_sb mGMM_PTMSI_ReallocComplete_sb;
+
+/**< GMM -------------------------- Authentication and ciphering **/
+typedef struct _stAuthNCipher_req_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AuthNChipherReq_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AuthNChipherReq_sb.message_type , NULL, "Authentication and ciphering request"}@
+
+} GMM_AuthNChipherReq_sb;
+extern GMM_AuthNChipherReq_sb mGMM_AuthNChipherReq_sb;
+
+typedef struct _stAuthNCipher_resp_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AuthNChipherResp_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AuthNChipherResp_sb.message_type , NULL, "Authentication and ciphering response"}@
+
+} GMM_AuthNChipherResp_sb;
+extern GMM_AuthNChipherResp_sb mGMM_AuthNChipherResp_sb;
+
+typedef struct _stAuthNCipher_failure_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AuthNChipherFail_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AuthNChipherFail_sb.message_type , NULL, "Authentication and ciphering Failure"}@
+	U8		gmm_cause; 		@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AuthNChipherFail_sb.gmm_cause , NULL, "GMM cause"}@
+
+} GMM_AuthNChipherFail_sb;
+extern GMM_AuthNChipherFail_sb mGMM_AuthNChipherFail_sb;
+
+typedef struct _stAuthNCipher_reject_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_AuthNChipherReject_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_AuthNChipherReject_sb.message_type , NULL, "Authentication and ciphering reject"}@
+} GMM_AuthNChipherReject_sb;
+extern GMM_AuthNChipherReject_sb mGMM_AuthNChipherReject_sb;
+
+
+/**< GMM -------------------------- Identity **/
+typedef struct _stIdentity_req_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_IdentityReq_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_IdentityReq_sb.message_type , NULL, "Identity request"}@
+	BIT8	identity_type(4: IR1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_IdentityReq_sb.IR1.A, NULL, "Identity type"}@ 
+	BIT8	force_to_standby(4: IR1);
+} GMM_IdentityReq_sb;
+extern GMM_IdentityReq_sb mGMM_IdentityReq_sb;
+
+typedef struct _stIdentity_resp_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_IdentityResp_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_IdentityResp_sb.message_type , NULL, "Identity response"}@
+
+} GMM_IdentityResp_sb;
+extern GMM_IdentityResp_sb mGMM_IdentityResp_sb;
+
+/**< GMM -------------------------- Routing area update **/
+typedef struct _stRoutingAreaUpReq_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_RoutingUpReq_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_RoutingUpReq_sb.message_type , NULL, "Routing area update request"}@
+
+} GMM_RoutingUpReq_sb;
+extern GMM_RoutingUpReq_sb mGMM_RoutingUpReq_sb;
+
+typedef struct _stRoutingAreaUpApt_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_RoutingUpApt_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_RoutingUpApt_sb.message_type , NULL, "Routing area update accept"}@
+
+} GMM_RoutingUpApt_sb;
+extern GMM_RoutingUpApt_sb mGMM_RoutingUpApt_sb;
+
+typedef struct _stRoutingAreaUpComplete_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_RoutingUpComplete_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_RoutingUpComplete_sb.message_type , NULL, "Routing area update complete"}@
+
+} GMM_RoutingUpComplete_sb;
+extern GMM_RoutingUpComplete_sb mGMM_RoutingUpComplete_sb;
+
+typedef struct _stRoutingAreaUpReject_ {
+	BIT8	protocol_type(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_RoutingUpReject_sb.GMM1.A, NULL, "Protocol discriminator"}@ 
+	BIT8	skip_indicator(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_RoutingUpReject_sb.message_type , NULL, "Routing area update reject"}@
+
+} GMM_RoutingUpReject_sb;
+extern GMM_RoutingUpReject_sb mGMM_RoutingUpReject_sb;
+
+/**< GMM -------------------------- GMM Status , Information **/
+typedef struct _stGMM_Status_ {
+	BIT8	skip_indicator(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_Status_sb.GMM1.A, NULL, "GMM Protocol"}@ 
+	BIT8	protocol_type(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_Status_sb.message_type , NULL, "GMM status"}@
+	U8		gmm_cause; 		@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_Status_sb.gmm_cause , NULL, "GMM cause"}@
+} GMM_Status_sb;
+extern GMM_Status_sb mGMM_Status_sb;
+
+typedef struct _stGMM_Information_ {
+	BIT8	skip_indicator(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_Information_sb.GMM1.A, NULL, "GMM Protocol"}@ 
+	BIT8	protocol_type(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_Information_sb.message_type , NULL, "GMM Information"}@
+
+} GMM_Information_sb;
+extern GMM_Information_sb mGMM_Information_sb;
+
+/**< GMM -------------------------- Service **/
+typedef struct _stServiceReq_ {
+	BIT8	skip_indicator(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &m++STNAME_SB++.GMM1.A, NULL, "GMM Protocol"}@ 
+	BIT8	protocol_type(4: GMM1);
+	U8		message_type; 			@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.message_type , NULL, "Message Type"}@
+    BIT8    bCiperingKey (4: SR1);  @SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &m++STNAME_SB++.SR1.A, NULL, "Cipering Key"}@ 
+    BIT8    bSvcType(4 : SR1); 
+
+    IE_mobile_identity MobileID;    @SB_PARSING{ LV_STRING_ORDER, 0, 0, 1,  0, NULL, &m++STNAME_SB++.MobileID.length, NULL, ie_func_mobile_identity, "Mobile ID"}@
+
+    /**< option 1 : PDP Context status */
+    IE_pdp_context_status  PDPCxtStatus;    @SB_PARSING{ TLV_U8_DISORDER, 1, 0x32, 1,  0, &m++STNAME_SB++.PDPCxtStatus.iei, &m++STNAME_SB++.PDPCxtStatus.length, &m++STNAME_SB++.PDPCxtStatus, ie_func_pdp_cxt_stauts, "PDP Context Status"}@
+} GMM_ServiceReq_sb;
+extern GMM_ServiceReq_sb mGMM_ServiceReq_sb;
+
+typedef struct _stServiceApt {
+	BIT8	skip_indicator(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_ServiceApt_sb.GMM1.A, NULL, "GMM Protocol"}@ 
+	BIT8	protocol_type(4: GMM1);
+	U8		message_type; 			@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_ServiceApt_sb.message_type , NULL, "Message Type"}@
+
+    /**< option 1 : PDP Context status */
+    IE_pdp_context_status  PDPCxtStatus;    @SB_PARSING{ TLV_U8_DISORDER, 1, 0x32, 1,  0, &mGMM_ServiceApt_sb.PDPCxtStatus.iei, &mGMM_ServiceApt_sb.PDPCxtStatus.length, &mGMM_ServiceApt_sb.PDPCxtStatus, ie_func_pdp_cxt_stauts, "PDP Context Status"}@
+} GMM_ServiceApt_sb;
+extern GMM_ServiceApt_sb mGMM_ServiceApt_sb;
+
+typedef struct _stServiceReject {
+	BIT8	skip_indicator(4: GMM1);	@SB_PARSING{ BIT8_ORDER,  0, 0, 0, 1, NULL, NULL, &mGMM_ServiceRej_sb.GMM1.A, NULL, "GMM Protocol"}@ 
+	BIT8	protocol_type(4: GMM1);
+	U8		message_type; 	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_ServiceRej_sb.message_type , NULL, "Message Type"}@
+	U8		gmm_cause; 		@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mGMM_ServiceRej_sb.gmm_cause , NULL, "GMM cause"}@
+} GMM_ServiceRej_sb;
+extern GMM_ServiceRej_sb mGMM_ServiceRej_sb;
+
+
+
+
+/* Message types for GPRS Session management (0x41 ~ 0x4f) */
+#define  SM_ACTIVATE_PDP_REQ                0x41    /* Activate PDP Context Request */
+#define  SM_ACTIVATE_PDP_ACCEPT             0x42    /* Activate PDP Context Accept */
+#define  SM_ACTIVATE_PDP_REJECT             0x43    /* Activate PDP Context Reject */
+
+#define  SM_REQ_PDP_CONTEXT_ACT             0x44    /* Request PDP Context Activation */
+#define  SM_REQ_PDP_CONTEXT_ACT_REJ         0x45    /* Request PDP Context Activation Reject */
+
+#define  SM_DEACTIVATE_PDP_REQ              0x46    /* Deactivate PDP Context Request */
+#define  SM_DEACTIVATE_PDP_ACCEPT           0x47    /* Deactivate PDP Context Accept */
+    
+#define  SM_MOD_PDP_CONTEXT_REQ_NW_2_MS     0x48    /* Modify PDP Context Request (Network to MS) */
+#define  SM_MOD_PDP_CONTEXT_ACCEPT_NW_2_MS  0x49    /* Modify PDP Context Request (MS to Network) */
+#define  SM_MOD_PDP_CONTEXT_REQ_MS_2_NW     0x4a    /* Modify PDP Context Request (MS to Network) */
+#define  SM_MOD_PDP_CONTEXT_ACCEPT_MS_2_NW  0x4b    /* Modify PDP Context Accept (Network to MS) */
+#define  SM_MOD_PDP_CONTEXT_REJECT          0x4c    /* Modify PDP Context Reject */
+
+
+#define  SM_ACTIVATE_SECOND_PDP_CONTEXT_REQ 0x4d    /* Activate Secondary PDP context Request */
+#define  SM_ACTIVATE_SECOND_PDP_CONTEXT_APT 0x4e    /* Activate Secondary PDP context Accept */
+#define  SM_ACTIVATE_SECOND_PDP_CONTEXT_REJ 0x4f    /* Activate Secondary PDP context Reject */
+
+#define  SM_SM_STATUS                       0x55
+
+#define  DEF_PDP_ADDR_LEN           20
+typedef struct _stActpdpReq_ {
+    X8       ucNSAPI;				@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mSM_ActpdpReq.ucNSAPI , NULL, "NSAPI"}@
+									/**< Network service access point identifier */
+    X8       ucLLC_SAPI;			@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &mSM_ActpdpReq.ucLLC_SAPI , NULL, "LLC_SAPI"}@
+									/**< LLC service access point identifier */
+    U8       ucQoSLen;				@SB_PARSING{ LV_U8_ORDER, 0, 0, 1,  0, NULL, &mSM_ActpdpReq.ucQoSLen, &mSM_ActpdpReq.ucQoS , NULL, "QoS"}@
+									/**< L: Requested LLC SAPI Len*/
+    X8       ucQoS [16];            /**< V: Requested LLC SAPI */
+
+    U8       ucReqPDPAddrLen;		@SB_PARSING{ LV_U8_ORDER, 0, 0, 1,  0, NULL, &mSM_ActpdpReq.ucReqPDPAddrLen, &mSM_ActpdpReq.ucReqPDPAddr , NULL, "PDP Address"}@ 
+									/**< L: Requested PDP Address */
+    X8       ucReqPDPAddr [DEF_PDP_ADDR_LEN];      /**< V: Requested PDP Address */
+
+    X8       ucAccPointNameType;	@SB_PARSING{ TLV_U8_DISORDER, 1, 40, 1,  0, &mSM_ActpdpReq.ucAccPointNameType, &mSM_ActpdpReq.ucAccPointNameLen, &mSM_ActpdpReq.ucAccPointName, NULL, "Access Point Name"}@
+									/**< T: Access Point Name Type */
+    U8       ucAccPointNameLen;     /**< L: Access Point Name Len  */
+    X8       ucAccPointName [103];  /**< V: Access Point Name */
+    U8       ucProtocolConfOptType; @SB_PARSING{ TLV_U8_DISORDER, 1, 39, 1,  0, &mSM_ActpdpReq.ucProtocolConfOptType, &mSM_ActpdpReq.ucProtocolConfOptLen, &mSM_ActpdpReq.ucProtocolConfOpt, NULL, "Protocol Configure Option"}@
+									/**< T: Protocol configuration Options Type */
+    U8       ucProtocolConfOptLen;  /**< L: Protocol configuration Options Len */
+    X8       ucProtocolConfOpt [254]; /**< V: Protocol configuration Options */
+} SM_ActpdpReq;
+extern SM_ActpdpReq mSM_ActpdpReq;
+	
+
+
+/**< DIAMETER -------------------------- START **/
+
+<TAG_DEFINE_START:DIAMETER_MT>
+#define	DEVICE_WATCHDOG_REQUEST 		280
+#define	USER_AUTHORIZATION_TRANS		300	
+#define	SERVER_ASSIGNMENT_TRANS			301
+#define	LOCATION_INFO_TRANS				302
+#define MULTIMEDIA_AUTH_TRANS			303
+#define REGISTRATION_TERMINATION_TRANS	304
+#define PUSH_PROFILE_TRANS				305
+#define USER_DATA_TRANS					306
+#define PROFILE_UPDATE_TRANS			307
+#define SUBSCRIBE_NOTIFICATIONS_TRANS	308
+#define PUSH_NOTIFICATION_TRANS			309
+#define BOOSTRAPPING_INFO_TRANS			310
+#define	MESSAGE_PROCES_TRANS			311
+<TAG_DEFINE_END:DIAMETER_MT>
+
+/**<  DIAMETER Header **/
+typedef struct _stDiameterHeader_ {
+    U8		ucVersion;				@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.ucVersion, NULL, "Version"}@
+    U32		uiLength;				@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, &m++STNAME_SB++.uiLength, ie_func_diahdr_len, "Length"}@
+    BIT8	bRequest (1: DiaH1); 	@SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.DiaH1.A , NULL, "Command Flags"}@
+    BIT8	bProxyable (1: DiaH1);
+    BIT8	bError (1: DiaH1);
+    BIT8	bTrans (1: DiaH1);
+    BIT8	bReserved (4: DiaH1);
+    U32		<TAG_DEFINE:DIAMETER_MT>uiCommandCode; 			@SB_PARSING{ V_USER_FUNCTION, 0, 0, 0,  0, NULL, NULL, &m++STNAME_SB++.uiCommandCode, ie_func_diahdr_cmdcode, "Command-Code"}@
+    U32		uiAppId; 				@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &m++STNAME_SB++.uiAppId, NULL, "Application-ID"}@
+    U32		uiHopByHopId; 			@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &m++STNAME_SB++.uiHopByHopId, NULL, "Hop-by-Hop-ID"}@
+    U32		uiEndToEndId; 			@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &m++STNAME_SB++.uiEndToEndId, NULL, "End-to-End-ID"}@
+} DIAMETER_Header_sb;
+extern DIAMETER_Header_sb  mDIAMETER_Header_sb;
+
+/**<  AVP IE **/
+
+#define AVP_VALUES_SIZE                 128
+
+typedef struct _AVP_STRING {
+	U32		 AVPCode;	 
+	BIT8	 bVendorSpec (1: avpflag);
+	BIT8	 bMandatory (1: avpflag);
+	BIT8	 bProtected (1: avpflag);
+	BIT8	 bReserved1 (1: avpflag);
+	BIT8	 bReserved2 (1: avpflag);
+	BIT8	 bReserved3 (1: avpflag);
+	BIT8	 bReserved4 (1: avpflag);
+	BIT8	 bReserved5 (1: avpflag);
+	U32		 AVPLength;
+	U32		 AVPVendorID;
+	U8		 AVPData[AVP_VALUES_SIZE];
+} AVP_STRING;
+
+typedef struct _AVP_INT32 {
+	U32		 AVPCode;	 
+	BIT8	 bVendorSpec (1: avpflag);
+	BIT8	 bMandatory (1: avpflag);
+	BIT8	 bProtected (1: avpflag);
+	BIT8	 bReserved1 (1: avpflag);
+	BIT8	 bReserved2 (1: avpflag);
+	BIT8	 bReserved3 (1: avpflag);
+	BIT8	 bReserved4 (1: avpflag);
+	BIT8	 bReserved5 (1: avpflag);
+	U32		 AVPLength;
+	U32		 AVPVendorID;
+	U32		 AVPData;
+} AVP_INT32;
+
+/**<  Device-Watchdog-Request (280) **/
+typedef struct _stDevice_Watchdog_Req {
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+} Device_Watchdog_Req_sb;
+extern Device_Watchdog_Req_sb mDevice_Watchdog_Req_sb;
+
+typedef struct _stDevice_Watchdog_Resp {
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_DISORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_DISORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_INT32	 stRESULTCODE;	@SB_PARSING{ AVP_U32_DISORDER,    4, 268, 3,  0, &m++STNAME_SB++.stRESULTCODE.AVPCode, &m++STNAME_SB++.stRESULTCODE.AVPLength, &m++STNAME_SB++.stRESULTCODE.AVPData, NULL, "Result-Code"}@
+} Device_Watchdog_Resp_sb;
+extern Device_Watchdog_Resp_sb mDevice_Watchdog_Resp_sb;
+
+/**<  Location-Info-Request (LIR)  **/
+typedef struct _stLocation_Info_Req {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stDESTHOST;	@SB_PARSING{ AVP_STRING_ORDER, 4, 293, 3,  0, &m++STNAME_SB++.stDESTHOST.AVPCode, &m++STNAME_SB++.stDESTHOST.AVPLength, &m++STNAME_SB++.stDESTHOST.AVPData, NULL, "Destination-Host"}@
+    AVP_STRING	 stDESTREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 283, 3,  0, &m++STNAME_SB++.stDESTREALM.AVPCode, &m++STNAME_SB++.stDESTREALM.AVPLength, &m++STNAME_SB++.stDESTREALM.AVPData, NULL, "Destination-Realm"}@
+    AVP_STRING	 stPUBLICID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 601, 3,  0, &m++STNAME_SB++.stPUBLICID.AVPCode, &m++STNAME_SB++.stPUBLICID.AVPLength, &m++STNAME_SB++.stPUBLICID.AVPData, NULL, "Public-Identity"}@
+} Location_Info_Req_sb;
+extern Location_Info_Req_sb mLocation_Info_Req_sb;
+
+/**<  Location-Info-Answer (LIA)  **/
+typedef struct _stLocation_Info_Resp {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_INT32	 stRESULTCODE;	@SB_PARSING{ AVP_U32_ORDER,    4, 268, 3,  0, &m++STNAME_SB++.stRESULTCODE.AVPCode, &m++STNAME_SB++.stRESULTCODE.AVPLength, &m++STNAME_SB++.stRESULTCODE.AVPData, NULL, "Result-Code"}@
+    AVP_STRING	 stSERVNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4, 602, 3,  0, &m++STNAME_SB++.stSERVNAME.AVPCode, &m++STNAME_SB++.stSERVNAME.AVPLength, &m++STNAME_SB++.stSERVNAME.AVPData, NULL, "Server-Name"}@
+} Location_Info_Resp_sb;
+extern Location_Info_Resp_sb mLocation_Info_Resp_sb;
+
+/**<  User-Authorization-Request (UAR)  **/
+typedef struct _stUser_Authorization_Req {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stDESTHOST;	@SB_PARSING{ AVP_STRING_ORDER, 4, 293, 3,  0, &m++STNAME_SB++.stDESTHOST.AVPCode, &m++STNAME_SB++.stDESTHOST.AVPLength, &m++STNAME_SB++.stDESTHOST.AVPData, NULL, "Destination-Host"}@
+    AVP_STRING	 stDESTREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 283, 3,  0, &m++STNAME_SB++.stDESTREALM.AVPCode, &m++STNAME_SB++.stDESTREALM.AVPLength, &m++STNAME_SB++.stDESTREALM.AVPData, NULL, "Destination-Realm"}@
+    AVP_STRING	 stUSERNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4,   1, 3,  0, &m++STNAME_SB++.stDESTREALM.AVPCode, &m++STNAME_SB++.stDESTREALM.AVPLength, &m++STNAME_SB++.stDESTREALM.AVPData, NULL, "User-Name"}@
+    AVP_STRING	 stPUBLICID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 601, 3,  0, &m++STNAME_SB++.stPUBLICID.AVPCode, &m++STNAME_SB++.stPUBLICID.AVPLength, &m++STNAME_SB++.stPUBLICID.AVPData, NULL, "Public-Identity"}@
+    AVP_STRING	 stVISITNID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 600, 3,  0, &m++STNAME_SB++.stVISITNID.AVPCode, &m++STNAME_SB++.stVISITNID.AVPLength, &m++STNAME_SB++.stVISITNID.AVPData, NULL, "Visited-Network-Identifier"}@
+    AVP_INT32	 stAUTHTYPE;	@SB_PARSING{ AVP_U32_ORDER,    4, 623, 3,  0, &m++STNAME_SB++.stAUTHTYPE.AVPCode, &m++STNAME_SB++.stAUTHTYPE.AVPLength, &m++STNAME_SB++.stAUTHTYPE.AVPData, NULL, "User-Authorization-Type"}@
+} User_Authorization_Req_sb;
+extern User_Authorization_Req_sb mUser_Authorization_Req_sb;
+
+/**<  User-Authorization-Answer (UAA) **/
+typedef struct _stUser_Authorization_Resp {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_DISORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_DISORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_DISORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_DISORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_DISORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_INT32	 stRESULTCODE;	@SB_PARSING{ AVP_U32_DISORDER,    4, 268, 3,  0, &m++STNAME_SB++.stRESULTCODE.AVPCode, &m++STNAME_SB++.stRESULTCODE.AVPLength, &m++STNAME_SB++.stRESULTCODE.AVPData, NULL, "Result-Code"}@
+    AVP_STRING	 stEXPRESULT;	@SB_PARSING{ AVP_STRING_DISORDER, 4, 297, 3,  0, &m++STNAME_SB++.stEXPRESULT.AVPCode, &m++STNAME_SB++.stEXPRESULT.AVPLength, &m++STNAME_SB++.stEXPRESULT.AVPData, NULL, "Experimental-Result-Code"}@
+    AVP_STRING	 stSERVNAME;	@SB_PARSING{ AVP_STRING_DISORDER, 4, 602, 3,  0, &m++STNAME_SB++.stSERVNAME.AVPCode, &m++STNAME_SB++.stSERVNAME.AVPLength, &m++STNAME_SB++.stSERVNAME.AVPData, NULL, "Server-Name"}@
+    AVP_STRING	 stSERVCAPA;	@SB_PARSING{ AVP_STRING_DISORDER, 4, 603, 3,  0, &m++STNAME_SB++.stSERVCAPA.AVPCode, &m++STNAME_SB++.stSERVCAPA.AVPLength, &m++STNAME_SB++.stSERVCAPA.AVPData, NULL, "Server-Capabilities"}@
+} User_Authorization_Resp_sb;
+extern User_Authorization_Resp_sb mUser_Authorization_Resp_sb;
+
+/**<  Server-Assignment-Request (SAR)  **/
+typedef struct _stServer_Assignment_Req {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stDESTHOST;	@SB_PARSING{ AVP_STRING_ORDER, 4, 293, 3,  0, &m++STNAME_SB++.stDESTHOST.AVPCode, &m++STNAME_SB++.stDESTHOST.AVPLength, &m++STNAME_SB++.stDESTHOST.AVPData, NULL, "Destination-Host"}@
+    AVP_STRING	 stDESTREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 283, 3,  0, &m++STNAME_SB++.stDESTREALM.AVPCode, &m++STNAME_SB++.stDESTREALM.AVPLength, &m++STNAME_SB++.stDESTREALM.AVPData, NULL, "Destination-Realm"}@
+    AVP_STRING	 stUSERNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4,   1, 3,  0, &m++STNAME_SB++.stUSERNAME.AVPCode, &m++STNAME_SB++.stUSERNAME.AVPLength, &m++STNAME_SB++.stUSERNAME.AVPData, NULL, "User-Name"}@
+    AVP_STRING	 stSERVNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4, 602, 3,  0, &m++STNAME_SB++.stSERVNAME.AVPCode, &m++STNAME_SB++.stSERVNAME.AVPLength, &m++STNAME_SB++.stSERVNAME.AVPData, NULL, "Server-Name"}@
+    AVP_STRING	 stPUBLICID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 601, 3,  0, &m++STNAME_SB++.stPUBLICID.AVPCode, &m++STNAME_SB++.stPUBLICID.AVPLength, &m++STNAME_SB++.stPUBLICID.AVPData, NULL, "Public-Identity"}@
+    AVP_INT32	 stSERVTYPE;	@SB_PARSING{ AVP_U32_ORDER,    4, 614, 3,  0, &m++STNAME_SB++.stSERVTYPE.AVPCode, &m++STNAME_SB++.stSERVTYPE.AVPLength, &m++STNAME_SB++.stSERVTYPE.AVPData, NULL, "Server-Assignment-Type"}@
+    AVP_INT32	 stUSERDAA;		@SB_PARSING{ AVP_U32_ORDER,    4, 624, 3,  0, &m++STNAME_SB++.stUSERDAA.AVPCode, &m++STNAME_SB++.stUSERDAA.AVPLength, &m++STNAME_SB++.stUSERDAA.AVPData, NULL, "User-Data-Already-Available"}@
+} Server_Assignment_Req_sb;
+extern Server_Assignment_Req_sb mServer_Assignment_Req_sb;
+
+/**<  Server-Assignment-Answer (SAA)  **/
+typedef struct _stServer_Assignment_Resp {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER,    4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER,    4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER,    4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER,    4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,       4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_INT32	 stRESULTCODE;	@SB_PARSING{ AVP_U32_ORDER,       4, 268, 3,  0, &m++STNAME_SB++.stRESULTCODE.AVPCode, &m++STNAME_SB++.stRESULTCODE.AVPLength, &m++STNAME_SB++.stRESULTCODE.AVPData, NULL, "Result-Code"}@
+    AVP_STRING	 stEXPRESULT;	@SB_PARSING{ AVP_STRING_ORDER,    4, 297, 3,  0, &m++STNAME_SB++.stEXPRESULT.AVPCode, &m++STNAME_SB++.stEXPRESULT.AVPLength, &m++STNAME_SB++.stEXPRESULT.AVPData, NULL, "Experimental-Result-Code"}@
+    AVP_STRING	 stUSERNAME;	@SB_PARSING{ AVP_STRING_ORDER,    4,   1, 3,  0, &m++STNAME_SB++.stUSERNAME.AVPCode, &m++STNAME_SB++.stUSERNAME.AVPLength, &m++STNAME_SB++.stUSERNAME.AVPData, NULL, "User-Name"}@
+    AVP_STRING	 stUSERDATA;	@SB_PARSING{ AVP_STRING_ORDER,    4, 702, 3,  0, &m++STNAME_SB++.stUSERDATA.AVPCode, &m++STNAME_SB++.stUSERDATA.AVPLength, &m++STNAME_SB++.stUSERDATA.AVPData, NULL, "User-Data"}@
+    AVP_STRING	 stCHARGEINFO;	@SB_PARSING{ AVP_STRING_ORDER,    4, 618, 3,  0, &m++STNAME_SB++.stCHARGEINFO.AVPCode, &m++STNAME_SB++.stCHARGEINFO.AVPLength, &m++STNAME_SB++.stCHARGEINFO.AVPData, NULL, "Charging-Information"}@
+} Server_Assignment_Resp_sb;
+extern Server_Assignment_Resp_sb mServer_Assignment_Resp_sb;
+
+/**<  Multimedia-Auth-Request (MAR)  **/
+typedef struct _stMultimedia_Auth_Req {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stDESTHOST;	@SB_PARSING{ AVP_STRING_ORDER, 4, 293, 3,  0, &m++STNAME_SB++.stDESTHOST.AVPCode, &m++STNAME_SB++.stDESTHOST.AVPLength, &m++STNAME_SB++.stDESTHOST.AVPData, NULL, "Destination-Host"}@
+    AVP_STRING	 stDESTREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 283, 3,  0, &m++STNAME_SB++.stDESTREALM.AVPCode, &m++STNAME_SB++.stDESTREALM.AVPLength, &m++STNAME_SB++.stDESTREALM.AVPData, NULL, "Destination-Realm"}@
+    AVP_STRING	 stUSERNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4,   1, 3,  0, &m++STNAME_SB++.stUSERNAME.AVPCode, &m++STNAME_SB++.stUSERNAME.AVPLength, &m++STNAME_SB++.stUSERNAME.AVPData, NULL, "User-Name"}@
+    AVP_STRING	 stPUBLICID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 601, 3,  0, &m++STNAME_SB++.stPUBLICID.AVPCode, &m++STNAME_SB++.stPUBLICID.AVPLength, &m++STNAME_SB++.stPUBLICID.AVPData, NULL, "Public-Identity"}@
+    AVP_STRING	 stSERVNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4, 602, 3,  0, &m++STNAME_SB++.stSERVNAME.AVPCode, &m++STNAME_SB++.stSERVNAME.AVPLength, &m++STNAME_SB++.stSERVNAME.AVPData, NULL, "Server-Name"}@
+/**<  TODO: ADD ETC FIELD **/
+} Multimedia_Auth_Req_sb;
+extern Multimedia_Auth_Req_sb mMultimedia_Auth_Req_sb;
+
+typedef struct _stMultimedia_Auth_Resp {
+    AVP_STRING	 stSESSID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 263, 3,  0, &m++STNAME_SB++.stSESSID.AVPCode, &m++STNAME_SB++.stSESSID.AVPLength, &m++STNAME_SB++.stSESSID.AVPData, NULL, "Session-Id"}@
+    AVP_STRING	 stORGHOST;		@SB_PARSING{ AVP_STRING_ORDER, 4, 264, 3,  0, &m++STNAME_SB++.stORGHOST.AVPCode, &m++STNAME_SB++.stORGHOST.AVPLength, &m++STNAME_SB++.stORGHOST.AVPData, NULL, "Origin-Host"}@
+    AVP_STRING	 stORGREALM;	@SB_PARSING{ AVP_STRING_ORDER, 4, 296, 3,  0, &m++STNAME_SB++.stORGREALM.AVPCode, &m++STNAME_SB++.stORGREALM.AVPLength, &m++STNAME_SB++.stORGREALM.AVPData, NULL, "Origin-Realm"}@
+    AVP_STRING	 stVENDID;		@SB_PARSING{ AVP_STRING_ORDER, 4, 260, 3,  0, &m++STNAME_SB++.stVENDID.AVPCode, &m++STNAME_SB++.stVENDID.AVPLength, &m++STNAME_SB++.stVENDID.AVPData, NULL, "Vendor-Id"}@
+    AVP_INT32	 stAUTHSTAT;	@SB_PARSING{ AVP_U32_ORDER,    4, 277, 3,  0, &m++STNAME_SB++.stAUTHSTAT.AVPCode, &m++STNAME_SB++.stAUTHSTAT.AVPLength, &m++STNAME_SB++.stAUTHSTAT.AVPData, NULL, "Auth-Session-State"}@
+    AVP_INT32	 stRESULTCODE;	@SB_PARSING{ AVP_U32_ORDER,    4, 268, 3,  0, &m++STNAME_SB++.stRESULTCODE.AVPCode, &m++STNAME_SB++.stRESULTCODE.AVPLength, &m++STNAME_SB++.stRESULTCODE.AVPData, NULL, "Result-Code"}@
+    AVP_STRING	 stUSERNAME;	@SB_PARSING{ AVP_STRING_ORDER, 4,   1, 3,  0, &m++STNAME_SB++.stUSERNAME.AVPCode, &m++STNAME_SB++.stUSERNAME.AVPLength, &m++STNAME_SB++.stUSERNAME.AVPData, NULL, "User-Name"}@
+    AVP_STRING	 stPUBLICID;	@SB_PARSING{ AVP_STRING_ORDER, 4, 601, 3,  0, &m++STNAME_SB++.stPUBLICID.AVPCode, &m++STNAME_SB++.stPUBLICID.AVPLength, &m++STNAME_SB++.stPUBLICID.AVPData, NULL, "Public-Identity"}@
+    AVP_INT32	 stSIPNUM;		@SB_PARSING{ AVP_U32_ORDER,    4, 607, 3,  0, &m++STNAME_SB++.stSIPNUM.AVPCode, &m++STNAME_SB++.stSIPNUM.AVPLength, &m++STNAME_SB++.stSIPNUM.AVPData, NULL, "SIP-Number-Auth-Item"}@
+/**<  TODO: ADD ETC FIELD **/
+} Multimedia_Auth_Resp_sb;
+extern Multimedia_Auth_Resp_sb mMultimedia_Auth_Resp_sb;
+
+/**<  Multimedia-Auth-Answer (MAA)  **/
+/**<  Registration-Termination-Request (RTR)  **/
+/**<  Registration-Termination-Answer (RTA) **/
+/**<  Push-Profile-Request (PPR) **/
+/**<  Push-Profile-Answer (PPA) **/
+
+
+/**< DIAMETER --------------------------   END **/
+
+
+
+/**< ALCAP -------------------------- START **/
+/** ALCAP MSG TYPE */
+#define DEF_ALCAP_MSG_TYPE_BLC           0x01			/**< Block confirm **/
+#define DEF_ALCAP_MSG_TYPE_BLO           0x02			/**< Block request **/
+#define DEF_ALCAP_MSG_TYPE_CFN           0x03			/**< Block Confusion **/
+#define DEF_ALCAP_MSG_TYPE_ECF           0x04			/**< Establish confirm **/
+#define DEF_ALCAP_MSG_TYPE_ERQ           0x05			/**< Establish request **/
+#define DEF_ALCAP_MSG_TYPE_RLC           0x06			/**< Release confirm **/
+#define DEF_ALCAP_MSG_TYPE_REL           0x07			/**< Release request **/
+#define DEF_ALCAP_MSG_TYPE_RSC           0x08			/**< Reset confirm **/
+#define DEF_ALCAP_MSG_TYPE_RES           0x09			/**< Reset request **/
+#define DEF_ALCAP_MSG_TYPE_UBC           0x0a			/**< UnBlock confirm **/
+#define DEF_ALCAP_MSG_TYPE_UBL           0x0b			/**< UnBlock request **/
+
+#define AAL2_VALUES_SIZE                 64
+
+typedef struct _AAL2_U8 {
+	U8		AAL2Code;	 
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+	U32		AAL2Length;
+	U8		AAL2Value;
+} AAL2_U8;
+
+
+typedef struct _AAL2_INT32 {
+	U8		AAL2Code;	 
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+	U32		AAL2Length;
+	U32		AAL2Value;
+} AAL2_INT32;
+
+typedef struct _AAL2_STRING {
+	U8		AAL2Code;	 
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+	U32		AAL2Length;
+	U8		AAL2Value[AAL2_VALUES_SIZE];
+} AAL2_STRING;
+
+
+
+typedef struct _stCEID_ {
+	U32		PathID;
+	U8		CID;	 
+} stCEID;
+
+typedef struct _AAL2_CEID {
+	U8		AAL2Code;	 
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+	U32		AAL2Length;
+	stCEID	CEID;
+} AAL2_CEID;
+
+typedef struct _stCause_ {
+    BIT8	bReserved (6: CauseH1);
+    BIT8	bCodingStd (2: CauseH1);
+    BIT8	bReserved2 (1: CauseH2);
+    BIT8	bCause (7: CauseH2);
+
+	U8		DiagnosticsLength;
+	U8		Diagnostics[AAL2_VALUES_SIZE];
+} stCause;
+
+typedef struct _AAL2_CAUSE {
+	U8		AAL2Code;	 
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+	U32		AAL2Length;
+	stCause	Cause;
+} AAL2_CAUSE;
+
+
+
+/**<  ALCAP Header **/
+typedef struct _stAlcapHeader_ {
+    U32		uiDSAI;		@SB_PARSING{ V_U32_ORDER, 0, 0, 0,  4, NULL, NULL, &m++STNAME_SB++.uiDSAI, NULL, "Destination signalling association identifier"}@
+    U8		ucMsgId;	@SB_PARSING{ V_U8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.ucMsgId, NULL, "Message identifier"}@
+    BIT8	bGenInstInd (2: CapaH1); @SB_PARSING{ BIT8_ORDER, 0, 0, 0,  1, NULL, NULL, &m++STNAME_SB++.CapaH1.A , NULL, "Compatibility"}@
+    BIT8	bGenSendNoti (1: CapaH1);
+    BIT8	bGenReserved (1: CapaH1);
+    BIT8	bPassInstInd (2: CapaH1);
+    BIT8	bPassSendNoti (1: CapaH1);
+    BIT8	bPassReserved (1: CapaH1);
+} ALCAP_Header_sb;
+extern ALCAP_Header_sb  mALCAP_Header_sb;
+
+/**< Establish Request **/
+typedef struct _stAlcapERQ_ {
+    AAL2_INT32		stOSAI;	@SB_PARSING{ AAL2_U32_DISORDER, 1, 0x06, 1,  0, &m++STNAME_SB++.stOSAI.AAL2Code, &m++STNAME_SB++.stOSAI.AAL2Length, &m++STNAME_SB++.stOSAI.AAL2Value, NULL, "Originating signalling association identifier"}@
+    AAL2_INT32		stSUGR;	@SB_PARSING{ AAL2_U32_DISORDER, 1, 0x07, 1,  0, &m++STNAME_SB++.stSUGR.AAL2Code, &m++STNAME_SB++.stSUGR.AAL2Length, &m++STNAME_SB++.stSUGR.AAL2Value, NULL, "Served user generated reference"}@
+    AAL2_CEID		stCEID;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x02, 1,  0, &m++STNAME_SB++.stCEID.AAL2Code, &m++STNAME_SB++.stCEID.AAL2Length, &m++STNAME_SB++.stCEID.CEID, NULL, "Connection element identifier"}@
+    AAL2_STRING		stALC;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x05, 1,  0, &m++STNAME_SB++.stALC.AAL2Code, &m++STNAME_SB++.stALC.AAL2Length, &m++STNAME_SB++.stALC.AAL2Value, NULL, "Link characteristics"}@
+    AAL2_STRING		stPLC;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x11, 1,  0, &m++STNAME_SB++.stPLC.AAL2Code, &m++STNAME_SB++.stPLC.AAL2Length, &m++STNAME_SB++.stPLC.AAL2Value, NULL, "Preferred Link Characteristics"}@
+    AAL2_STRING		stMSLC;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x0e, 1,  0, &m++STNAME_SB++.stMSLC.AAL2Code, &m++STNAME_SB++.stMSLC.AAL2Length, NULL, NULL, "Modify Support for Link Caharacteristcs"}@
+    AAL2_U8		stPT;	@SB_PARSING{ AAL2_U8_DISORDER, 1, 0x10, 1,  0, &m++STNAME_SB++.stPT.AAL2Code, &m++STNAME_SB++.stPT.AAL2Length, &m++STNAME_SB++.stPT.AAL2Value, NULL, "Path Type"}@
+    AAL2_STRING		stNSEA;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x04, 1,  0, &m++STNAME_SB++.stNSEA.AAL2Code, &m++STNAME_SB++.stNSEA.AAL2Length, NULL, NULL, "Destinatio NSAP service endpoint address"}@
+    AAL2_STRING		stSSISU;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x0c, 1,  0, &m++STNAME_SB++.stSSISU.AAL2Code, &m++STNAME_SB++.stSSISU.AAL2Length, &m++STNAME_SB++.stSSISU.AAL2Value, NULL, "Service specific infomation(SAR-unassured"}@
+} ALCAP_ERQ_sb;
+extern ALCAP_ERQ_sb  mALCAP_ERQ_sb;
+
+/**< Establish Confirm **/
+typedef struct _stAlcapECF_ {
+    AAL2_INT32		stOSAI;	@SB_PARSING{ AAL2_U32_DISORDER, 1, 0x06, 1,  0, &m++STNAME_SB++.stOSAI.AAL2Code, &m++STNAME_SB++.stOSAI.AAL2Length, &m++STNAME_SB++.stOSAI.AAL2Value, NULL, "Originating signalling association identifier"}@
+    AAL2_STRING		stMSLC;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x0e, 1,  0, &m++STNAME_SB++.stMSLC.AAL2Code, &m++STNAME_SB++.stMSLC.AAL2Length, NULL, NULL, "Modify Support for Link Caharacteristcs"}@
+} ALCAP_ECF_sb;
+extern ALCAP_ECF_sb  mALCAP_ECF_sb;
+
+/**< Releas Request **/
+typedef struct _stAlcapREL_ {
+    AAL2_CAUSE		stCAUSE;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x01, 1,  0, &m++STNAME_SB++.stCAUSE.AAL2Code, &m++STNAME_SB++.stCAUSE.AAL2Length, &m++STNAME_SB++.stCAUSE.Cause, NULL, "REL Cause"}@
+} ALCAP_REL_sb;
+extern ALCAP_REL_sb  mALCAP_REL_sb;
+
+/**< Releas Confirm **/
+typedef struct _stAlcapRLC_ {
+    AAL2_CAUSE		stCAUSE;	@SB_PARSING{ AAL2_STRING_DISORDER, 1, 0x01, 1,  0, &m++STNAME_SB++.stCAUSE.AAL2Code, &m++STNAME_SB++.stCAUSE.AAL2Length, &m++STNAME_SB++.stCAUSE.Cause, NULL, "REC Cause"}@
+} ALCAP_RLC_sb;
+extern ALCAP_RLC_sb  mALCAP_RLC_sb;
+
+
+
+
+
+
+
+/**< ALCAP --------------------------   END **/
+
+
+
+
+#pragma pack(0)
+
+
+
+
+

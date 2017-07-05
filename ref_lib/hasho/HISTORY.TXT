@@ -1,0 +1,115 @@
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용 : hasho default 함수 변경
+	-  4 byte , 2 byte , 1 byte도 큰 것 부터 되는데로 해서 더했음.
+	  12byte히면 4byte로 3번 더 할 것이고
+	  15 byte이면 4 byte 3번 , 2byte 1번 , 1 byte 1번 을 더할 것이다.
+4. 파일
+	./hasho.c															1.11
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용 : 달린 node 갯수 세기
+	-  U32 hasho_get_occupied_node_count(stHASHOINFO *pstHASHOINFO) 추가
+4. 파일
+	./hasho.c															1.10
+	./hasho.stg															1.6
+=============================================================================
+1. 날자 : 2006.11.07
+2. 작성자 : 이철주
+3. 내용
+	- hasho_init(U32 uiShmKey, U16 usKeyLen, U16 usSortKeyLen, U16 usDataLen, U32 uiHashSize, U32 (*func)(void*,U8*))
+	으로써  hash_func을 등록하게 하였음.
+	이 hash function은 각 process안에서만 사용되어진다.
+	static으로 선언함.
+	func == 0 일때는 hasho_func_default() 을 사용하게 됨. 
+4. 파일
+	./hasho.c															1.9
+	./hasho.stg															1.5
+=============================================================================
+1. 날자 : 2006.06.14 (수)
+2. 작성자 : 신영호
+3. 내용
+	- hasho_init (U32 uiShmKey ... 
+		첫번째 인자 값에  '0' 으로 하면 Local Memory를 사용하고 
+		0이 아닌값 (즉 shared memory Key을 주면) Shared Memory를 사용한다. 
+		--> 관련 내용은 memg을 보면 나와 있다.
+=============================================================================
+1. 날자 : 2006.06.09 (금)
+2. 작성자 : 이철주
+3. 내용
+	- hasho_print_all에서 node가 없는 부분은 찍어주지 않게 수정
+4. 파일
+	./hasho.c															1.5
+=============================================================================
+1. 날자 : 2006.04.18 (화)
+2. 작성자 : 이철주
+3. 내용
+	- INIT
+
+    TAG tagnanme : REL_CodeGenerator_0_0_0_2_0_4_co_hasho_TEST
+	memg, structg 에도 같은 tag가 같음.
+    변화 : ProC 처리 / 전체적 모양 변경
+    - Decode/Encode/Print/ProC 까지 처리
+    - Flat 처리
+    - structg.pl 한개로 통합
+    - Makefile 자동 생성  (library까지 만들수 있는 makefile 탄생)
+    - memg 가 되게 했음.
+	- memg와 structg의 연동 성공까지 
+    - hasho 가 되게 했음.
+	- hasho와 structg의 연동 성공까지 
+4. 파일
+	./Doxyfile															1.1
+	./HISTORY.TXT														1.1
+	./Makefile															1.1
+	./makefile.lib														1.1
+	./README.TXT														1.1
+	./tag.TXT															1.1
+	./configure															1.1 - Binary
+	./hasho.c															1.1
+	./hasho.stg															1.1 - Binary
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./hasho/hasho 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./hasho 밑에서   
+
+cvs import -m "INIT" hasho upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co hasho 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

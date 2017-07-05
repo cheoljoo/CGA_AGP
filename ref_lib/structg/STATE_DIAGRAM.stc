@@ -1,0 +1,351 @@
+FileName : state_diagram.c
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#ifndef TEST
+#include "+<+$FileName+>+"
+#endif
+
+
+#define	MAX_STATE_DIAGRAM_LOOP_CNT  200
+int __loop_cnt = 0;
+
+#ifdef TEST
+#include "../+<+$FileName+>+"
+PV_FLOW_INFO aPV_FLOW_INFO;
+
+main(){
+	PV_FLOW_INPUT aPV_FLOW_INPUT;
+
+
+	aPV_FLOW_INPUT.status = PV_FLOW_STATUS_MTP3B;
+	state_diagram_PV_FLOW_state_go(&aPV_FLOW_INFO, STG_DEF_PV_FLOW_INPUT , PV_FLOW_INPUT_SIZE  , &aPV_FLOW_INPUT , PV_FLOW_START , YES);
+
+}
+
+#endif
+
+
+
+
+ITERATE %STATE_DIAGRAM_EDGE +<<+ ITSDNAME ITpTHIS
+
+
+Set : iterate_comments = ON
+
+
+Set : function_def{state_diagram_ITSDNAME_state_go} = "void state_diagram_ITSDNAME_state_go(ITpTHIS *pTHIS , int type , int len , void *pLOG , int state_num,int isSTART_CALL)"
+void 
+state_diagram_ITSDNAME_state_go(ITpTHIS *pTHIS , int type , int len , void *pLOG , int state_num,int isSTART_CALL)
+{
+	if(isSTART_CALL == YES){
+		__loop_cnt = 0;
+	} else {
+		__loop_cnt ++;
+		FPRINTF(LOG_LEVEL,"%s : state loop_cnt = %d\n",(char *) __FUNCTION__, __loop_cnt);
+		if(__loop_cnt > MAX_STATE_DIAGRAM_LOOP_CNT){
+			FPRINTF(LOG_BUG,"%s : ERROR state loop_cnt = %d\n",(char *) __FUNCTION__, __loop_cnt);
+			__loop_cnt = -1;
+			return ;
+		}
+	}
+	FPRINTF(LOG_LEVEL,"%s : type %d , len %d , state_num %d , isSTART_CALL %d\n",(char *) __FUNCTION__, type,len,state_num,isSTART_CALL);
+	//FPRINTF(LOG_LEVEL,"%s : input type %s\n",(char *)__FUNCTION__,PRINT_DEF_NUM_table_log(type));
+	print_STATE_DIAGRAM_ITSDNAME_state((char *) __FUNCTION__,state_num);
+  	switch(state_num){
+	ITERATE %STATE_DIAGRAM_VERTEX_ITSDNAME +<<+ ITKEY  ITVALUE
+  	case ITKEY: 
+  		STATE_DIAGRAM_ITSDNAME_ITKEY_on(pTHIS , type , len , pLOG , isSTART_CALL); 
+  		return ;
+	+>>+
+	default : 
+		FPRINTF(LOG_LEVEL,"%s : state_num %d\n",(char *) __FUNCTION__ , state_num);
+		break;
+	}
+  	return ;
+}
+
+
+
+
+
+Set : function_def{print_STATE_DIAGRAM_ITSDNAME_state} = "void print_STATE_DIAGRAM_ITSDNAME_state(char *prefix_string, int state_num)"
+void 
+print_STATE_DIAGRAM_ITSDNAME_state(char *prefix_string, int state_num)
+{
+  switch(state_num){
+	ITERATE %STATE_DIAGRAM_VERTEX_ITSDNAME +<<+ ITKEY  ITVALUE
+  	case ITKEY: 
+		FPRINTF(LOG_LEVEL,"%s : state_num %d : %s\n",(char *) prefix_string , state_num,"ITKEY");
+		return ;
+	+>>+
+	default : 
+		FPRINTF(LOG_LEVEL,"%s : DEFAULT : state_num %d\n",(char *) prefix_string , state_num);
+		break;
+  }
+  return ;
+}
+
+
+
+
+ITERATE %STATE_DIAGRAM_VERTEX_ITSDNAME +<<+ ITKEY  ITVALUE
+ 
+
+int 
+STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_if(
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) int code , ITpTHIS *pTHIS , int type , int len , void *pLOG
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) LIST *p,char *d , ITpTHIS *pTHIS , int type , int len , void *pLOG
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) char *s,char *d , ITpTHIS *pTHIS , int type , int len , void *pLOG
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) int s,int d , ITpTHIS *pTHIS , int type , int len , void *pLOG
+	){
+
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) #{ STG_SHARP_if 1
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,)  #{ STG_SHARP_if 0
+	}#
+	{
+		FPRINTF(LOG_LEVEL,"%s : code = %d\n",(char *)__FUNCTION__,code);
+  		switch(code){
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+	  		case IT2KEY : 	STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_Y_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);    return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ ;
+		+>>+
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+	  		default : 	STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_N_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);    return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ ;
+		+>>+
+		}
+	}
+	#endif
+
+
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) #{ STG_SHARP_if 1
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,)  #{ STG_SHARP_if 0
+	}#
+	{
+		int __tmp_i,__tmp_size;
+		FPRINTF(LOG_LEVEL,"%s : src %d : dest: %.*s\n",(char *)__FUNCTION__, p->listcnt, MAX_BODY_STR_SIZE,d);
+		if(p->listcnt > MAX_URL_CNT){ 
+			FPRINTF(LOG_BUG,"%s : listcnt %d MAX_URL_CNT %d\n",(char *)__FUNCTION__,p->listcnt,MAX_URL_CNT);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ ;
+		}
+		for(__tmp_i = 0 ; __tmp_i < p->listcnt ; __tmp_i++)
+		{
+			FPRINTF(LOG_LEVEL,"%s : [%d] : %.*s\n",(char *)__FUNCTION__, __tmp_i, MAX_BODY_STR_SIZE, p->strlist[__tmp_i].str);
+			if(strncmp((U8 *) &p->strlist[__tmp_i].str[0] , d,MAX_BODY_STR_SIZE) == 0){		//// found the same string in the page url list
+				break;
+			}
+		}
+		if(__tmp_i != p->listcnt){		//// found
+		FPRINTF(LOG_LEVEL,"%s : FOUND GOOD\n",(char *)__FUNCTION__);
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_Y_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ ;
+		+>>+
+		} else {					//// not found
+		FPRINTF(LOG_LEVEL,"%s : NOT FOUND\n",(char *)__FUNCTION__);
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_N_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ ;
+		+>>+
+		}
+	}
+	#endif
+
+
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) #{ STG_SHARP_if 1
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,)  #{ STG_SHARP_if 0
+	}#
+	{
+		FPRINTF(LOG_LEVEL,"%s : src : %.*s\n",(char *)__FUNCTION__, MAX_BODY_STR_SIZE,s);
+		FPRINTF(LOG_LEVEL,"%s : dest: %.*s\n",(char *)__FUNCTION__, MAX_BODY_STR_SIZE,d);
+		if(strncmp(s,d,MAX_BODY_STR_SIZE) == 0){   //// same
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_Y_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ ;
+		+>>+
+		}
+		else { 					//// different
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_N_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ ;
+		+>>+
+		}
+	}
+	#endif
+
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) #{ STG_SHARP_if 0
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) #{ STG_SHARP_if 1
+	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,)  #{ STG_SHARP_if 0
+	}#
+	{
+		if(s == d){   //// same
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_Y_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ ;
+		+>>+
+		}
+		else { 					//// different
+		ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+			//// +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [label= "( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+			STATE_DIAGRAM_EDGE_ITSDNAME_EDGE_ITKEY_CONDITION_N_IT2KEY_EDGE_Action(pTHIS,type,len,pLOG);
+	  		return  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY_N_next{IT2KEY}+>+ ;
+		+>>+
+		}
+	}
+	#endif
+
+	return 0;
+}
+
+
+
++>>+
+
+
+
+
+
+
+
+ITERATE %STATE_DIAGRAM_EDGE_ITSDNAME_EDGE +<<+ ITKEY  ITVALUE
+
+
+Set : function_def{ITKEY_EDGE_Action} = "void ITKEY_EDGE_Action(ITpTHIS *pTHIS, int type , int len , void *pLOG)"
+void 
+ITKEY_EDGE_Action(ITpTHIS *pTHIS, int type , int len , void *pLOG)
+{
+	+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *pINPUT = (+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *) pLOG;
+
+	//FPRINTF(LOG_LEVEL,"%s : type %s\n",(char *)__FUNCTION__,PRINT_DEF_NUM_table_log(type));
+
+	+<+$ITKEY{action}+>+
+}
+
++>>+
+
+
+
+
+
+
+
+ITERATE %STATE_DIAGRAM_VERTEX_ITSDNAME +<<+ ITKEY  ITVALUE
+
+
+Set : function_def{STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_VERTEX_Action} = "void STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_VERTEX_Action(ITpTHIS *pTHIS, int type , int len , void *pLOG)"
+void 
+STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_VERTEX_Action(ITpTHIS *pTHIS, int type , int len , void *pLOG)
+{
+	+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *pINPUT = (+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *) pLOG;
+
+	//FPRINTF(LOG_LEVEL,"%s : type %s\n",(char *)__FUNCTION__,PRINT_DEF_NUM_table_log(type));
+
+	+<+$STATE_DIAGRAM_VERTEX_ITSDNAME_VERTEX_Action{ITKEY}+>+
+}
+
+
+Set : function_def{STATE_DIAGRAM_ITSDNAME_ITKEY_on} = "void STATE_DIAGRAM_ITSDNAME_ITKEY_on(ITpTHIS *pTHIS , int type , int len , void *pLOG , int isSTART_CALL)"
+void 
+STATE_DIAGRAM_ITSDNAME_ITKEY_on(ITpTHIS *pTHIS , int type , int len , void *pLOG , int isSTART_CALL)
+{
+	IFEQUAL(+<+$STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY{msg}+>+,OTHERMSG) U32 isNEED_NEW = YES;
+	IFEQUAL(+<+$STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY{msg}+>+,CONTINUE) U32 isNEED_NEW = NO;
+
+	+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *pINPUT = (+<+$state_diagram_edge_pINPUT{ITSDNAME}+>+ *) pLOG;
+
+	FPRINTF(LOG_LEVEL,"%s : isNEED_NEW %d ,  isSTART_CALL %d : YES %d\n",(char *)__FUNCTION__,isNEED_NEW,isSTART_CALL,YES);
+
+
+	if(isSTART_CALL == NO){
+
+		pTHIS->ITSDNAME_OLD_STATE = pTHIS->ITSDNAME_STATE;
+  		pTHIS->ITSDNAME_STATE = ITKEY;
+
+  		STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_VERTEX_Action(pTHIS,type,len,pLOG);
+
+
+		if( isNEED_NEW == YES ){  return ;  }
+
+	} else {
+	}
+
+
+	//// state_diagram_ITSDNAME_state_go(OK_if(svrL7Code),isSTART_CALL=NO);
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,D) #{
+	{
+		U32 __state_num__;
+		//// ¿¹Àü Code :: __state_num__ = ITKEY_if( (int) (+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member}+>+  +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member_opr}+>+) );
+		__state_num__ = STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_if( (int) (+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member}+>+ ) ,pTHIS,type,len,pLOG);
+		if(__state_num__ == 0) return ;
+		state_diagram_ITSDNAME_state_go(pTHIS,type,len,pLOG,__state_num__, NO);		
+	}	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,L) #{
+	{
+		U32 __state_num__;
+		__state_num__ = STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_if(&(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member}+>+) , +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_val_member}+>+ , pTHIS,type,len,pLOG); 
+		if(__state_num__ == 0) return ;
+		state_diagram_ITSDNAME_state_go(pTHIS,type,len,pLOG,__state_num__, NO);		
+	}	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,S) #{
+	{
+		U32 __state_num__;
+		__state_num__ = STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_if(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member}+>+ , +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_val_member}+>+ , pTHIS,type,len,pLOG);
+		if(__state_num__ == 0) return ;
+		state_diagram_ITSDNAME_state_go(pTHIS,type,len,pLOG,__state_num__, NO);		
+	}	}#
+	IFEQUAL(+<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_type}+>+,C) #{
+	{
+		U32 __state_num__;
+		__state_num__ = STATE_DIAGRAM_VERTEX_ITSDNAME_ITKEY_if( (int) ( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_var_member}+>+ ) , (int) ( +<+$STATE_DIAGRAM_EDGE_ITSDNAME_STATE_ITKEY{if_val_member}+>+ ) , pTHIS,type,len,pLOG);
+		if(__state_num__ == 0) return ;
+		state_diagram_ITSDNAME_state_go(pTHIS,type,len,pLOG,__state_num__, NO);		
+	}	}#
+
+	return ;
+}
+
+
++>>+
+
+
+
++>>+
+
+
+
+
+

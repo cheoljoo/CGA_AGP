@@ -1,0 +1,37 @@
+stcI_HASH : STATE_DIAGRAM_VERTEX
+stcI_EXTENSION : c
+stcI_FILEPREFIX : STC/STCI_state_diagram_dot_
+SetI : ITFLOWNAME = KEY
+
+
+
+Set : iterate_comments = OFF
+/**
+\dot 
+digraph G_ITFLOWNAME {  
+    fontname=Helvetica;     
+    label="State Diagram";
+    nodesep=.05;    
+    node [fontname=Helvetica,shape=record,width=.1,height=.1];  
+ITERATE %STATE_DIAGRAM_VERTEX_ITFLOWNAME +<<+ ITKEY  ITVALUE
+	IFEQUAL(+<+$STATE_DIAGRAM_VERTEX_ITFLOWNAME_ITKEY{msg}+>+,OTHERMSG) ITKEY[shape=box,color=blue,style=bold,fontsize=10];
+	IFEQUAL(+<+$STATE_DIAGRAM_VERTEX_ITFLOWNAME_ITKEY{msg}+>+,CONTINUE) ITKEY[shape=box,fontsize=10];
++>>+
+
+ITERATE %STATE_DIAGRAM_VERTEX_ITFLOWNAME +<<+ ITKEY  ITVALUE
+
+	ITERATE %STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_Y_if_val +<<+ IT2KEY  IT2VALUE
+		+<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_Y_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_Y_next{IT2KEY}+>+ [fontsize=9,label= "( +<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY{if_var_type}+>+ : Y )\n+<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY{if_var}+>+ \neq\n IT2KEY"];
+	+>>+
+
+	ITERATE %STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_N_if_val +<<+ IT2KEY  IT2VALUE
+		+<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_N_current{IT2KEY}+>+ -> +<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY_N_next{IT2KEY}+>+ [fontsize=9,label= "( +<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY{if_var_type}+>+ : N )\n+<+$STATE_DIAGRAM_EDGE_ITFLOWNAME_STATE_ITKEY{if_var}+>+ \nne\n IT2KEY"];
+	+>>+
++>>+
+}
+\enddot 
+*/
+void __ITFLOWNAME_state_diagram()
+{
+		return ;
+}

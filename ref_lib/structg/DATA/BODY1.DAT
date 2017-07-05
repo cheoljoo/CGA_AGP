@@ -1,0 +1,119 @@
+
+<html>
+ 
+<body bottommargin="0" rightmargin="0" topmargin="0" leftmargin="0" text="#000000" bgcolor="#FFFFFF" link="#00000" Alink="#000033" Blink="#CBD2DE"> 
+ 
+<div align="center">
+
+
+<IMG src="/pic/main_qvga.sis" align="center"><br>
+<!-- QVGA -->
+
+ 
+<table cellpadding="0" cellspacing="0" border="0" width="100%"> 
+    <tr> 
+<td width="190"><form name="input_form" method="get" action="http://ktfsearch.magicn.com/search.asp">
+<input type="hidden" name="brtype" value="wipimain">
+<input type="text" name="keyword" value="폰에서 만화를~" width="185" height="20" mode="K"></td>
+<td><input type="submit" value="검색">
+</form></td> 
+    </tr> 
+  </table>
+ 
+<table width="100%" border="0" cellspacing="1" cellpadding="0">
+      <tr>
+       <td width="16"><img src="file:////images/magicn/ktf_main_qnara.sis"></td>
+       <td><a href="/qvgapage/43140.asp" focus="yes"><marquee type="Auto">Sale&Event</marquee></a></td>
+      <td align="width="16"><img src="file:////images/magicn/ktf_top_qbest.sis"></td>
+      <td><a href="/qvgapage/43179.asp"><marquee type="Auto">Hot&New     </marquee></a></td>
+    </tr>
+  </table>
+<hr width="100%" size="1">
+</div>
+ 
+<!-- 메뉴 구성요소 -->
+ 
+
+
+  <table cellpadding="0" cellspacing="1" border="0" width="100%">
+    <tr>
+      <td><img src='File:////images/magicn/number_square_q1.sis'>&nbsp;<a href='/page/24048.asp'  accesskey='1'><marquee type="auto">게임</marquee></a>
+</td>
+      <td><img src='file:////images/magicn/number_square_q2.sis'>&nbsp;<a href='/page/24037.asp'  accesskey='2'><marquee type="auto">소리/그림/노래방</marquee></a>
+</td>
+    </tr>
+    <tr>
+      <td><img src='file:////images/magicn/number_square_q3.sis'>&nbsp;<a href='/page/24371.asp'  accesskey='3'><marquee type="auto">TV/운세/스타/미팅</marquee></a>
+</td>
+      <td><img src='file:////images/magicn/number_square_q4.sis'>&nbsp;<a href='/page/24040.asp'  accesskey='4'><marquee type="auto">만화/e북</marquee></a>
+</td>
+    </tr>
+    <tr>
+      <td><img src='file:////images/magicn/number_square_q5.sis'>&nbsp;<a href='/page/24041.asp'  accesskey='5'><marquee type="auto">K-merce증권/복권</marquee></a>
+</td>
+      <td><img src='file:////images/magicn/number_square_q6.sis'>&nbsp;<a href='/page/24377.asp'  accesskey='6'><marquee type="auto">Daum/네이버/포탈</marquee></a>
+</td>
+    </tr>
+    <tr>
+      <td><img src='file:////images/magicn/number_square_q7.sis'>&nbsp;<a href='/page/24039.asp'  accesskey='7'><marquee type="auto">문자/메신저/카드</marquee></a>
+</td>
+      <td><img src='file:////images/magicn/number_square_q8.sis'>&nbsp;<a href='/page/24042.asp'  accesskey='8'><marquee type="auto">친구찾기/교통정보</marquee></a>
+</td>
+    </tr>
+    <tr>
+      <td><img src='file:////images/magicn/number_square_q9.sis'>&nbsp;<a href='/page/24046.asp'  accesskey='9'><marquee type="auto">Adult19+</marquee></a>
+</td>
+      <td><img src='file:////images/magicn/number_square_q0.sis'>&nbsp;<a href='/page/24049.asp'  accesskey='0'><font color='Black'><marquee type="auto">외국어/웰빙/정보</marquee></font></a>
+</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+    </tr>
+  </table>
+
+
+  
+ 
+
+<table width=100% cellspacing=0 cellpadding=0>
+    <tr>
+      <td colspan=5 height="2">&nbsp;</td>
+    </tr>
+    <tr>
+      <td colspan=5 bgcolor=silver height="1">&nbsp;</td>
+    </tr>
+    <tr > 
+      <td width=33% height=16 align="center" bgcolor=#F2EBFE>&nbsp;<a href="/qvgapage/24378.asp"><font color="#666666">
+        Biz</font></a></td>
+      <td width=1 bgcolor=silver>&nbsp;</td>
+      <td width=33% align="center" bgcolor=#F2EBFE>
+<a href="http://ktfsearch.magicn.com/default.asp?brtype=wipi">
+<font color=#666666>ⓝ검색</font></a></td>
+      <td width=1 bgcolor=silver>&nbsp;</td>
+      <td width=33% align="center" bgcolor=#F2EBFE><a href="/common/popup.asp"><font color="#666666">팝업</font></a></td>
+    </tr>
+    <tr>
+      <td colspan=5 bgcolor=silver height="1">&nbsp;</td>
+    </tr>
+    <tr > 
+      <td width=33% height=16 align="center" bgcolor=#E0DAEB> &nbsp;<a href="http://ktfwipidcinfo.magicn.com:8081/mypage.asp?pid=1048"><font color=#666666>My페이지</font></a>
+      <td width=1 bgcolor=silver>&nbsp;</td>
+      <td width=33% align="center" bgcolor=#E0DAEB><a href=http://www.magicn.com><font color=#666666>magicⓝ</font></a></td>
+      <td width=1 bgcolor=silver>&nbsp;</td>
+      <td width=33% align="center" bgcolor=#E0DAEB><a href=http://www.ktfmembers.com/kun/k_login.jsp><font color=#666666>고객센터</font></a></td>
+    </tr>
+    <tr>
+      <td colspan=5 bgcolor=silver height="1">&nbsp;</td>
+    </tr>
+  </table>
+ 
+
+
+
+
+ 
+</div>
+
+</body>
+</html>

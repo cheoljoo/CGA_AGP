@@ -1,0 +1,29 @@
+FileName : FLOW_STATE_dot.TXT
+Set : iterate_comments = OFF
+
+/**
+\dot 
+digraph G {  
+    fontname=Helvetica;     
+    label="State Diagram";
+    nodesep=.05;    
+    node [fontname=Helvetica,shape=record,width=.1,height=.1];  
+ITERATE %FLOW_PAGE_STATE +<<+ ITKEY  ITVALUE
+	IFEQUAL(+<+$FLOW_PAGE_STATE_ITKEY{msg}+>+,OTHERMSG) ITKEY[shape=doublecircle];
+	IFEQUAL(+<+$FLOW_PAGE_STATE_ITKEY{msg}+>+,CONTINUE) ITKEY[shape=circle];
++>>+
+
+ITERATE %FLOW_PAGE +<<+ ITKEY  ITVALUE
+	+<+$ITKEY{current_state}+>+ -> +<+$ITKEY{next_state}+>+ [label= "+<+$ITKEY{if_var}+>+ \neq\n +<+$ITKEY{if_val}+>+"];
++>>+
+}
+\enddot 
+*/
+
+__state_diagram()
+{
+}
+
+
+
+

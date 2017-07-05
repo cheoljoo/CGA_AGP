@@ -1,0 +1,61 @@
+
+=============================================================================
+1. 날자 : 2006.11.29 (수)
+2. 작성자 : 권상득
+3. 내용
+	- Doxygen을 위한 주석 추가
+4. 파일
+	./Doxyfile															1.2
+	./clisto.stg														1.6
+=============================================================================
+1. 날자 : 2006.08.02 (수)
+2. 작성자 : 권상득
+3. 내용
+	- 원본 파일: /usr/include/linux/list.h 
+	- 원본 코드를 point방식이 아닌 offset 방식으로 전환
+4. 파일
+	./listo.h															1.11
+=============================================================================
+
+cvs import부터 맨 처름 만드는 방법
+
+./memg/memg 로 일단 2개를 만든다. 왜냐면 헤깔리기 때문이다.
+
+
+
+./memg 밑에서   
+
+cvs import -m "INIT" memg upresto start
+
+을 하여 project을 만든다.
+
+
+
+cvs co memg 를 하면 만들어지는 것을 볼수 있을 것이다.
+
+
+
+binary로 저장 : cvs add -kb test.gif    (binary commit)
+
+
+
+cvs add Makefile
+
+cvs ci -m "INIT" Makefile
+
+
+
+./hash.stg                                                          1.1 - Binary
+
+cvs add -kb hash.stg
+
+cvs ci -m "INIT" hash.stg 
+
+
+
+
+		cvs에 define_stg.h 를 지움
+		$ rm define_stg.h
+		$ cvs remove define_stg.h
+		$ cvs ci define_stg.h 
+		하면 됨 .

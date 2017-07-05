@@ -1,0 +1,59 @@
+------------------------------------------------------------------
+-- CS1-datatypes subset needed to compile CAP
+------------------------------------------------------------------
+--EUROPEAN ETS 300 374-1
+--TELECOMMUNICATION September 1994 STANDARD
+--Source: ETSI TC-SPS Reference: DE/SPS-03015
+--ICS: 33.020, 33.080
+--Key words: IN, CS1, INAP
+--Intelligent Network (IN);
+--Intelligent Network Capability Set 1 (CS1);
+--Core Intelligent Network Application Protocol (INAP);
+--Part 1: Protocol specification
+------------------------------------------------------------------
+
+CS1-DataTypes DEFINITIONS IMPLICIT TAGS ::=
+BEGIN
+IMPORTS
+	TCInvokeIdSet
+FROM TCAPMessages;
+
+InvokeID ::= TCInvokeIdSet --AP 3/24/2003, find original definition--
+
+MiscCallInfo ::= SEQUENCE {
+messageType [0] ENUMERATED {
+request(0),
+notification(1)
+}
+}
+MonitorMode ::= ENUMERATED {
+interrupted(0),
+notifyAndContinue(1),
+transparent(2)
+}
+
+CallingPartysCategory ::= OCTET STRING (SIZE (1))
+
+Duration ::= INTEGER (-2..86400)
+
+HighLayerCompatibility ::= OCTET STRING (SIZE(highLayerCompatibilityLength))
+
+highLayerCompatibilityLength INTEGER ::= 2
+
+Integer4 ::= INTEGER (0..2147483647)
+
+Interval ::= INTEGER (-1..60000)
+
+LegID ::= CHOICE {
+   sendingSideID   [0] LegType,  -- used in operations sent from SCF to SSF
+   receivingSideID [1] LegType   -- used in operations sent from SSF to SCF
+}
+
+LegType ::= OCTET STRING (SIZE(1))
+
+RedirectionInformation ::= OCTET STRING (SIZE (2))
+
+ServiceKey ::= Integer4
+
+
+END

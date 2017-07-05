@@ -1,0 +1,49 @@
+HTTP/1.1 200 OK
+Server: Microsoft-IIS/5.0
+Date: Wed, 14 Jan 2004 07:12:27 GMT
+Content-Length: 2004
+Content-Type: text/html
+Cache-control: private
+
+
+<html>
+<body>
+<table border=0 width='100%' cellspacing='0' cellpadding='0'>
+	<tr><td width=12 height='1' bgcolor='#FFFFFF'></td><td height='1' bgcolor='#FFFFFF'></td></tr>
+<tr><td colspan=2><img src=/VOLUME_H/80001/L00/M02/RD2/0000184835.00000.SIS alt=''></td></tr>
+<tr><td colspan=2>[정보이용료]무료</td></tr>
+<tr><td width=12 valign=top>①</td><td><a href=/dlinfo_v3000.asp?menuid=718663&svcType=0 accesskey='1'>바로보기(2:52/2.3M)</a></td></tr>
+<tr><td width=12 valign=top>②</td><td><a href=/dlinfo_v3000.asp?menuid=718664&svcType=1 accesskey='2'><marquee behavior="continuous">전체다운로드(2:52/2.3M)&nbsp;&nbsp;&nbsp;&nbsp;</marquee></a></td></tr>
+    <tr><td colspan=2 height='1' bgcolor='#FFFFFF'></td></tr>
+</table>
+<BR>
+<table border=0 width='100%' cellspacing='0' cellpadding='0'>
+   <tr>
+    <td height='1' bgcolor='#FFFFFF'></td>
+  </tr>
+ <tr> 
+    <td height='1' bgcolor='#DBDBAA'></td>
+ </tr>
+ <tr bgcolor='#FFFFAA'>
+   <td align='left' height='16' >
+<a href='/KUN/00/00/00/00/81/8195_1.asp?menuid=8195' ><font color=#000099>영화</font></a>→<a href='/KUN/00/00/00/04/41/44146_1.asp?menuid=44146'  title='현재개봉영화'><font color=#000099>현재개봉..</font></a>→<a href='/KUN/00/00/00/71/86/718660_1.asp?menuid=718660'  title='[무료]반지의제왕:왕의귀환-드디어... ‘반지’의 모든 비밀이 밝혀진다!!'><font color=#000099>[무료]..</font></a>   </td>
+ </tr>
+<tr> 
+    <td height='1' bgcolor='#B6B6AA' ></td>
+</tr>
+<tr>
+ <td align=center valign=BOTTOM bgcolor='#DBDBFF' height='20'>
+ <a href='/search/index.asp?CatID=8195' title='검색' border='no' toggle='yes'>
+ <img src='/images/search.sis' width=26 height='17' alt=검색></a>
+ &nbsp;<a href='/KUN/00/00/00/00/81/8139_1.asp?menuid=8139' title='home' border='no' toggle='yes'>
+ <img src='/images/home.sis' width=22 height=17 alt=home></a>
+ </td>
+</tr>
+<tr>
+    <td height='1' bgcolor='#9292AA'></td>
+</tr>
+</table>
+<btn name='상위' href=/KUN/00/00/00/71/86/718660_1.asp?menuid=718660>
+</body>
+</html>
+

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+case $1 in
+    '') echo "Normal memg ........"
+		cvs co mems
+		;;
+	*) echo "Tag memg ......";
+		cvs co -r $1 mems
+		;;
+esac
+cd mems
+sh configure $1
+make -f makelib.mk
+cp *.h ../
+cp *.a ../
+cd ..
+
+case $1 in
+    '') echo "Normal memg ........"
+		cvs co clisto
+		;;
+	*) echo "Tag memg ......";
+		cvs co -r $1 clisto
+		;;
+esac
+cd clisto
+sh configure $1
+cp *.h ../
+cd ..
+
+case $1 in
+    '') echo "Normal Structg ........"
+		cvs co structg
+		;;
+	*) echo "Tag Structg ......";
+		cvs co -r $1 structg
+		;;
+esac
+cp -f ./nifo.stg structg/userfile.stg
+cd structg
+make
+cd OUTPUT
+make
+cd ../..

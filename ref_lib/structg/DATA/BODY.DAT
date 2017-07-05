@@ -1,0 +1,163 @@
+
+<!--타미니홈피---->
+
+<!-------------------->
+
+<!--자동이동(KUN)---->
+
+<!-------------------->
+
+<!--자동이동(ME)---->
+
+<!-------------------->
+
+
+
+
+
+<!--ME  오류체크 메세지(06.04.19)-->
+
+<html>
+<head><title>미니홈피메인</title>
+</head>
+<body text="#000000" link="#000000"alink="#090909" blink="#66FF00">
+
+<table width="100%" cellpadding="0" cellspacing="0">
+	<tr><td height="1" bgcolor="#99CCFF"></td></tr>
+	<tr>
+	  <td height="20" bgcolor="#3366CC" align="center">
+	    <font color="#FFFFFF"><b>강그녀의 향기...</b></font>
+	  </td>
+	</tr>
+	<tr><td height="1" bgcolor="#003399"></td></tr>
+</table>
+
+
+
+<table border=0 cellpadding="0" cellspacing="0" >
+	<tr>
+		<td colspan="5"><img src="../../img/240/bleu1.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"></td>
+    </tr>
+    
+    <tr>
+		<td><img src="../../img/240/bleu2.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"></td>
+		<td width="87" valign="top">
+
+
+            <img src="http://211.174.49.157/cyimg/main/main/2006/07/10/3/m_38390248.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"><br>
+			Today 33<br>
+			New 11&nbsp;<img src="../../img/240/icon12.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"><br>
+		</td>
+		<td><img src="../../img/240/bleu5.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"></td>
+		<td width="95" align="right" valign="top">
+				<img src="file:////images/magicn/option_image.sis"><a href="../photo/all_img_list.asp" ><marquee type="auto">사진첩 0</marquee></a><br>
+				<img src="file:////images/magicn/community_board_write.sis"><a href="../book/book_list.asp" title="업데이트"><marquee type="auto">방명록 9</marquee></a><br>
+				<img src="file:////images/magicn/community_message.sis"><a href="../mycy/memo_main.asp" ><marquee type="auto">쪽지 0</marquee></a><br>
+				<img src="file:////images/magicn/entertain_talentor.sis"><a href="../friend/onedegrees_contact.asp" ><marquee type="auto">일촌신청 0</marquee></a><br>
+				<img src="../../img/240/icon10.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"><a href="../mycy/dotori_main.asp"><marquee type="auto">도토리 52</marquee></a><br>
+				<img src="file:////images/magicn/community_chatting.sis"><a href="../mycy/sms_view.asp"><marquee type="auto">알리미 OFF</marquee></a><br>
+		</td>
+		<td ><img src="../../img/240/bleu3.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"></td>
+	</tr>
+	<tr>
+		<td colspan="5"><img src="../../img/240/bleu4.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis"></td>
+    </tr>
+</table>
+
+
+
+<table width="100%" cellpadding="0" cellspacing="1" bgcolor="#FFF7A2">
+
+  <tr>
+	  <td align="center" height="15">&nbsp;<img src="file:////images/magicn/nature_star.sis"><a href="../event/event0002.asp"><marquee type="auto">100% 캐리비안베이 찬스 놓치지마!</marquee></a></td>
+  </tr>
+  
+  <tr>
+	  <td align="center" height="15">&nbsp;<img src="file:////images/magicn/nature_star.sis"><a href="../event/event0000.asp"><marquee type="auto">태극전사에게 응원메시지 남기기!</marquee></a></td>
+  </tr>
+
+</table>
+
+
+<table border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td><img src="../../img/240/main_menu.sis?cpname=ktf&svccode=skccyworldKUN000&bintype=.sis" border=0 usemap="#Map"></td>
+	</tr>
+</table>
+<map name="Map">
+  <area shape="rect" coords="7,3,77,30" href="../friend/onedegrees_main.asp"   accesskey="1">
+  <area shape="rect" coords="85,3,155,30" href="../photo/all_img_list.asp"  accesskey="2">
+  <area shape="rect" coords="163,3,233,30" href="../book/book_list.asp" title="업데이트" accesskey="3">
+  <area shape="rect" coords="7,38,77,65" href="../board/folder_list.asp"  accesskey="4">
+  <area shape="rect" coords="85,38,155,65" href="../mycy/mycy_main.asp" accesskey="5">
+  <area shape="rect" coords="163,38,233,65" href="../star/star_main.asp" accesskey="6">
+  <area shape="rect" coords="7,74,77,101" href="../club/club_main.asp" title="업데이트" accesskey="7">
+  <area shape="rect" coords="85,74,155,101" href="../cytoday/cytoday_main.asp" accesskey="8">
+  <area shape="rect" coords="163,74,233,101" href="../diary/diary_main.asp"  accesskey="9">
+</map>
+
+
+<table border="0" cellpadding="0" cellspacing="1">
+	<tr>
+		<td height="16" width="16" align="center">
+		  <img src="file:////images/magicn/option_next.sis">
+		</td>
+	  <td><a href="cymember_search.asp"><marquee type="auto">회원찾기</marquee></a></td>
+	</tr>
+	<tr>
+		<td height="16" width="16" align="center">
+		  <img src="file:////images/magicn/option_next.sis">
+		</td>
+	  <td><a href="help_info5.asp"><marquee type="auto">이용요금</marquee></a></td>
+	</tr>
+	<tr>
+		<td height="16" width="16" align="center">
+		  <img src="file:////images/magicn/option_next.sis">
+		</td>
+	  <td><a href="help_main.asp"><marquee type="auto">HELP</marquee></a></td>
+	</tr>
+	<tr>
+		<td height="16" width="16" align="center">
+		  <img src="file:////images/magicn/option_next.sis">
+		</td>
+	  <td><a href="customer_center.asp"><marquee type="auto">고객센타</marquee></a></td>
+	</tr>
+</table>
+
+<hr size="1"color="#BBBBBB"> 
+<table width="100%" cellpadding="0" cellspacing="1">
+
+
+<tr><td width="16" align="center">
+<img src="file:////images/magicn/number_square_0.sis"></td>
+<td><a href="http://www.magicn.com/menu/skccyworldKUN000.asp" accesskey="0">
+<font color="0000FF"><marquee type="auto">상위</marquee></font></a>
+</td></tr>
+
+
+<tr><td width="16" align="center" >
+<img src="file:////images/magicn/option_home.sis"></td>
+<td height=16 >
+<a href="http://www.magicn.com/menu/upbar.asp?menu=9">
+<font color="#0000FF"><marquee type="auto">매직엔홈</marquee></font></a></td></tr>
+<tr><td width="16" align="center">
+<img src="file:////images/magicn/option_search.sis"></td>
+<td height=16>
+<a href="http://www.magicn.com/menu/upbar.asp?menu=12">
+<font color="#0000FF"><marquee type="auto">매직엔검색</marquee></font></a></td>
+</tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0">
+<tr>
+<td width="8%" bgcolor="#BCBCBC"></td>
+<td width="84%" align="center" bgcolor="#EAEAEA">
+<font color="#818181">Have a good time! KTF</font></td>
+<td width="8%" bgcolor="#BCBCBC"></td></tr>
+</table>
+
+
+<btn href="http://www.magicn.com/menu/skccyworldKUN000.asp" name="상위">
+
+</body>
+</html>

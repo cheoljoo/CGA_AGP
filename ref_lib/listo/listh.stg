@@ -1,0 +1,166 @@
+FileName : listo.h
+
+#ifndef __LISTO_H__
+#define __LISTO_H__
+
+
+#define listo_offset(infoptr, ptr)  (S32) ((U8 *) (ptr==NULL?0:(U8 *)ptr-(U8 *)infoptr))
+#define listo_ptr(infoptr, offset)  (list_head *)(U8 *) ((S32) (offset==0?NULL:(S32)offset+(U8 *)infoptr))
+
+/*
+ * Simple doubly linked list implementation.
+ *
+ * Some of the internal functions ("__xxx") are useful when
+ * manipulating whole lists rather than single entries, as
+ * sometimes we already know the next/prev entries and we can
+ * generate better code by using them directly rather than
+ * using the generic single-entry routines.
+ */
+
+typedef struct _list_head {
+	OFFSET	offset_next;
+	OFFSET	offset_prev;
+} list_head;
+
+#define LIST_HEAD_INIT(infoptr, name) { listo_offset(infoprt, &(name)), listo_offset(infoptr, &(name)) }
+
+#define LIST_HEAD(infoptr, name) \
+	struct list_head name = LIST_HEAD_INIT(infoptr, name)
+
+#define INIT_LIST_HEAD(infoptr, ptr) do { \
+	(ptr)->offset_next = listo_offset(infoptr, ptr); (ptr)->offset_prev = listo_offset(infoptr, ptr); \
+} while (0)
+
+/*
+ * Insert a new entry between two known consecutive entries. 
+ *
+ * This is only for internal list manipulation where we know
+ * the prev/next entries already!
+ */
+static __inline__ void __list_add(void *infoptr, list_head *new, list_head *prev, list_head *next)
+{
+	next->offset_prev = listo_offset(infoptr, new);
+	new->offset_next = listo_offset(infoptr, next);
+	new->offset_prev = listo_offset(infoptr, prev);
+	prev->offset_next = listo_offset(infoptr, new);
+}
+
+/**
+ * list_add - add a new entry
+ * @new: new entry to be added
+ * @head: list head to add it after
+ *
+ * Insert a new entry after the specified head.
+ * This is good for implementing stacks.
+ */
+static __inline__ void list_add(void *infoptr, list_head *new, list_head *head)
+{
+	__list_add(infoptr, new, head, listo_ptr(infoptr, head->offset_next));
+}
+
+/**
+ * list_add_tail - add a new entry
+ * @new: new entry to be added
+ * @head: list head to add it before
+ *
+ * Insert a new entry before the specified head.
+ * This is useful for implementing queues.
+ */
+static __inline__ void list_add_tail(void *infoptr, list_head *new, list_head *head)
+{
+	__list_add(infoptr, new, listo_ptr(infoptr, head->offset_prev), head);
+}
+
+/*
+ * Delete a list entry by making the prev/next entries
+ * point to each other.
+ *
+ * This is only for internal list manipulation where we know
+ * the prev/next entries already!
+ */
+static __inline__ void __list_del(void *infoptr, list_head * prev, list_head * next)
+{
+	next->offset_prev = listo_offset(infoptr, prev);
+	prev->offset_next = listo_offset(infoptr, next);
+}
+
+/**
+ * list_del - deletes entry from list.
+ * @entry: the element to delete from the list.
+ * Note: list_empty on entry does not return true after this, the entry is in an undefined state.
+ */
+static __inline__ void list_del(void *infoptr, list_head *entry)
+{
+	__list_del(infoptr, listo_ptr(infoptr, entry->offset_prev), listo_ptr(infoptr, entry->offset_next));
+	entry->offset_next = entry->offset_prev = 0;
+}
+
+/**
+ * list_del_init - deletes entry from list and reinitialize it.
+ * @entry: the element to delete from the list.
+ */
+static __inline__ void list_del_init(void *infoptr, list_head *entry)
+{
+	__list_del(infoptr, listo_ptr(infoptr, entry->offset_prev), listo_ptr(infoptr, entry->offset_next));
+	INIT_LIST_HEAD(infoptr, entry); 
+}
+
+/**
+ * list_empty - tests whether a list is empty
+ * @head: the list to test.
+ */
+static __inline__ int list_empty(void *infoptr, list_head *head)
+{
+	return head->offset_next == listo_offset(infoptr, head);
+}
+
+/**
+ * list_splice - join two lists
+ * @list: the new list to add.
+ * @head: the place to add it in the first list.
+ */
+static __inline__ void list_splice(void *infoptr, list_head *list, list_head *head)
+{
+	list_head *first = listo_ptr(infoptr, list->offset_next);
+
+	if (first != list) {
+		list_head *last = listo_ptr(infoptr, list->offset_prev);
+		list_head *at = listo_ptr(infoptr, head->offset_next);
+
+		first->offset_prev = listo_offset(infoptr, head);
+		head->offset_next = listo_offset(infoptr, first);
+
+		last->offset_next = listo_offset(infoptr, at);
+		at->offset_prev = listo_offset(infoptr, last);
+	}
+}
+
+/**
+ * list_entry - get the struct for this entry
+ * @ptr:	the &struct list_head pointer.
+ * @type:	the type of the struct this is embedded in.
+ * @member:	the name of the list_struct within the struct.
+ */
+#define list_entry(ptr, type, member) \
+	((type *)((char *)(ptr)-(unsigned long)(&((type *)0)->member)))
+
+/**
+ * list_for_each	-	iterate over a list
+ * @pos:	the &struct list_head to use as a loop counter.
+ * @head:	the head for your list.
+ */
+#define list_for_each(infoptr, pos, head) \
+	for (pos = listo_ptr(infoptr, (head)->offset_next); pos != (head); \
+        	pos = listo_ptr(infoptr, pos->offset_next))
+
+/**
+ * list_for_each_safe	-	iterate over a list safe against removal of list entry
+ * @pos:	the &struct list_head to use as a loop counter.
+ * @n:		another &struct list_head to use as temporary storage
+ * @head:	the head for your list.
+ */
+#define list_for_each_safe(infoptr, pos, n, head) \
+	for (pos = listo_ptr(infoptr, (head)->offset_next), n = listo_ptr(infoptr, pos->offset_next); pos != (head); \
+		pos = n, n = listo_ptr(infoptr, pos->offset_next))
+
+#endif

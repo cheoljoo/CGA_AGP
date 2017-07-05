@@ -1,0 +1,2948 @@
+FileName : state_diagram.h
+STC_FileName : STATE_DIAGRAM_dot.stcI , STATE_DIAGRAM.stc
+
+#pragma pack(1)
+/* 구조체 번호 */
+<TAG_DEFINE_START:CALL_INPUT>
+#define CAP_HEADER_NUM              1
+#define PACKET_DATA_NUM             2
+#define INFO_ETH_NUM                3
+#define TCP_DATA_NUM                4
+#define UDP_DATA_NUM				5
+#define HTTP_REQ_HDR_NUM            6
+#define HTTP_REQ_BODY_NUM           7
+#define HTTP_RES_HDR_NUM            8
+#define HTTP_RES_BODY_NUM           9
+#define INFO_ATM_NUM                10
+#define SCCP_DATA_NUM               11
+<TAG_DEFINE_END:CALL_INPUT>
+
+<TAG_DEFINE_START:PROTOCOL>
+#define PROTOCOL_TCP    		6
+#define PROTOCOL_UDP    		17
+<TAG_DEFINE_END:PROTOCOL>
+
+<TAG_AUTO_DEFINE_START :SEQ_PROC(0)>
+SEQ_PROC_CHSMD
+SEQ_PROC_COND
+SEQ_PROC_MMCD       
+SEQ_PROC_ALMD
+SEQ_PROC_A_ETH     
+SEQ_PROC_A_TCP      
+SEQ_PROC_A_UDP
+SEQ_PROC_A_HTTP
+SEQ_PROC_A_HTTPM
+SEQ_PROC_A_HTTPT
+SEQ_PROC_A_MEKUN
+SEQ_PROC_A_BREW
+SEQ_PROC_A_WIPI
+SEQ_PROC_A_ONLINE
+SEQ_PROC_A_RTSP
+SEQ_PROC_A_VOD
+SEQ_PROC_A_CALL
+SEQ_PROC_CILOG
+SEQ_PROC_SI_LOG
+SEQ_PROC_CAPD_ETH_ENDACE
+SEQ_PROC_A_RTP
+SEQ_PROC_A_GTP
+SEQ_PROC_CAPD_ATM_ENDACE
+SEQ_PROC_A_MTP3B
+SEQ_PROC_A_SCCP
+SEQ_PROC_A_RANAP
+SEQ_PROC_RMQ
+SEQ_PROC_M_LOG
+SEQ_PROC_CO_CALL
+SEQ_PROC_A_SIPT
+SEQ_PROC_A_SIP
+SEQ_PROC_A_XCAP
+SEQ_PROC_A_MEGACO
+SEQ_PROC_SI_PV
+<TAG_AUTO_DEFINE_END:SEQ_PROC>
+
+<TAG_AUTO_DEFINE_START :MSGQKEY(8000)>
+S_MSGQ_CHSMD
+S_MSGQ_COND
+S_MSGQ_MMCD
+S_MSGQ_ALMD
+S_MSGQ_A_ETH
+S_MSGQ_A_TCP
+S_MSGQ_A_UDP
+S_MSGQ_A_HTTP
+S_MSGQ_A_HTTPM
+S_MSGQ_A_HTTPT
+S_MSGQ_A_MEKUN
+S_MSGQ_A_BREW
+S_MSGQ_A_WIPI
+S_MSGQ_A_ONLINE
+S_MSGQ_A_RTSP
+S_MSGQ_A_VOD
+S_MSGQ_A_CALL
+S_MSGQ_CILOG
+S_MSGQ_SI_LOG
+S_MSGQ_A_RTP
+S_MSGQ_A_GTP
+S_MSGQ_A_NBAP
+S_MSGQ_A_WMAC
+S_MSGQ_A_LLC
+S_MSGQ_A_MTP3B
+S_MSGQ_A_SCCP
+S_MSGQ_A_RANAP
+S_MSGQ_CO_CALL
+S_MSGQ_A_SIPT
+S_MSGQ_A_SIP
+S_MSGQ_A_XCAP
+S_MSGQ_A_MEGACO
+S_MSGQ_M_LOG
+S_MSGQ_M_LOG_1
+S_MSGQ_M_LOG_2
+S_MSGQ_M_LOG_3
+S_MSGQ_M_LOG_4
+S_MSGQ_M_LOG_5
+S_MSGQ_M_LOG_6
+<TAG_AUTO_DEFINE_END:MSGQKEY>
+
+
+<TAG_AUTO_DEFINE_START :SSHMKEY(10000)>
+S_SSHM_FIDB
+S_SSHM_NIFO
+S_SSHM_A_TCP
+S_SSHM_A_TSESS
+S_SSHM_A_HTTP
+S_SSHM_L4CODE
+S_SSHM_MNIP
+S_SSHM_LMEKUNCODE
+S_SSHM_A_CALL
+S_SSHM_LHTTPMETHOD
+S_SSHM_LHTTPHOST
+S_SSHM_LWIPICODE
+S_SSHM_LBREWCODE
+S_SSHM_LVODCODE
+S_SSHM_LDOSIRAKCODE
+S_SSHM_A_ONLINE
+S_SSHM_UTIL
+S_SSHM_ATM
+S_SSHM_IP_FRAG
+S_SSHM_CO_CALL_HASHO_TMSI
+S_SSHM_CO_CALL_HASHO_IMSI
+S_SSHM_CO_CALL_HASHO_ClientIP
+S_SSHM_A_SCCP_UPHASH
+S_SSHM_A_SCCP_DNHASH
+S_SSHM_A_SIPT
+S_SSHM_A_MEGACO_SESS
+S_SSHM_A_MEGACO_TRANS
+S_SSHM_A_RANAP_PAGING
+S_SSHM_A_RANAP_SESS
+S_SSHM_A_RANAP_MSG
+S_SSHM_A_RANAP_IMSI
+S_SSHM_FROM_RANAP_TO_NTAM
+<TAG_AUTO_DEFINE_END:SSHMKEY>
+
+<TAG_AUTO_DEFINE_START :SEMAKEY(11000)>
+S_SEMA_NIFO
+<TAG_AUTO_DEFINE_END:SEMAKEY>
+
+<TAG_AUTO_STRING_DEFINE_START :METHOD(1)>
+GET				METHOD_GET                
+POST			METHOD_POST
+HEAD			METHOD_HEAD
+PUT				METHOD_PUT
+OPTIONS			METHOD_OPTIONS
+DELETE			METHOD_DELETE
+TRACE			METHOD_TRACE
+CONNECT			METHOD_CONNECT
+RESULT			METHOD_RESULT 
+DESCRIBE		METHOD_DESCRIBE 
+SETUP			METHOD_SETUP
+PLAY			METHOD_PLAY
+PAUSE			METHOD_PAUSE
+ANNOUNCE		METHOD_ANNOUNCE
+GET_PARAMETER	METHOD_GET_PARAMETER 
+RECORD			METHOD_RECORD
+REDIRECT		METHOD_REDIRECT
+SET_PARAMETER	METHOD_SET_PARAMETER
+TEARDOWN		METHOD_TEARDOWN
+<TAG_AUTO_STRING_DEFINE_END:METHOD>        
+
+/* 구조체 멤버들의 길이 */
+#define MAX_BROWSERINFO_SIZE			11
+#define MAX_BROWSERINFO_LEN				(MAX_BROWSERINFO_SIZE - 1)
+#define MAX_MODEL_SIZE					17
+#define MAX_MODEL_LEN					(MAX_MODEL_SIZE - 1)
+#define MAX_SVCOPTION_SIZE				8
+#define MAX_SVCOPTION_LEN				(MAX_SVCOPTION_SIZE - 1)
+#define MAX_HOSTNAME_SIZE				41
+#define MAX_HOSTNAME_LEN				(MAX_HOSTNAME_SIZE - 1)
+#define MAX_PROTOCOL_SIZE				11
+#define MAX_PROTOCOL_LEN				(MAX_HOSTNAME_SIZE - 1)
+#define MAX_LOGURL_SIZE					1025
+#define MAX_LOGURL_LEN					(MAX_LOGURL_SIZE - 1)
+#define MAX_URL_SIZE					512
+#define MAX_URL_LEN						(MAX_URL_SIZE - 1)
+#define MAX_CONTENTSTYPE_SIZE			33
+#define MAX_CONTENTSTYPE_LEN			(MAX_CONTENTSTYPE_SIZE - 1)
+#define MAX_APPFAILCODE_SIZE			6
+#define MAX_APPFAILCODE_LEN				(MAX_APPFAILCODE_SIZE - 1)
+#define MAX_CPNAME_SIZE					9
+#define MAX_CPNAME_LEN					(MAX_CPNAME_SIZE - 1)
+#define MAX_SERVICECODE_SIZE			25
+#define MAX_SERVICECODE_LEN				(MAX_SERVICECODE_SIZE - 1)
+#define MAX_MENUTITLE_SIZE				33
+#define MAX_MENUTITLE_LEN				(MAX_MENUTITLE_SIZE - 1)
+#define MAX_MENUID_SIZE					11
+#define MAX_MENUID_LEN					(MAX_MENUID_SIZE - 1)
+#define MAX_SVCACTION_SIZE				16
+#define MAX_SVCACTION_LEN				(MAX_SVCACTION_SIZE - 1)
+#define MAX_CONTENTID_SIZE				11
+#define MAX_CONTENTID_LEN				(MAX_CONTENTID_SIZE - 1)
+#define MAX_CATID_SIZE					11
+#define MAX_CATID_LEN					(MAX_CATID_SIZE - 1)
+#define MAX_APPLICATION_SIZE       		11
+#define MAX_APPLICATION_LEN        		(MAX_APPLICATION_SIZE - 1)
+#define MAX_EXTVERSION_SIZE          	11
+#define MAX_EXTVERSION_LEN         		(MAX_EXTVERSION_SIZE - 1)
+#define MAX_BSCID_SIZE               	6
+#define MAX_BSCID_LEN              		(MAX_BSCID_SIZE - 1)
+#define MAX_BESTPN_SIZE              	6
+#define MAX_BESTPN_LEN             		(MAX_BESTPN_SIZE - 1)
+#define MAX_MNC_SIZE                 	3
+#define MAX_MNC_LEN                		(MAX_MNC_SIZE - 1)
+#define MAX_COMPATIBLE_SIZE				1024
+#define MAX_COMPATIBLE_LEN				(MAX_COMPATIBLE_SIZE - 1)
+
+/*******************************************************
+ * 구간 정보
+ *******************************************************/
+<TAG_AUTO_DEFINE_START :RANGE_INFO(1)>
+RANGE_IuPS
+RANGE_IuB
+RANGE_Gn
+RANGE_Gi
+RANGE_Gr
+RANGE_Ga
+RANGE_CSCF
+RANGE_Mg
+<TAG_AUTO_DEFINE_END:RANGE_INFO>
+
+/*******************************************************
+ * 프로토콜 메시지 ID
+ *******************************************************/
+<TAG_AUTO_DEFINE_START :MESSAGE_ID(1)>
+MEGACO_MSG_AUDITVALUE
+MEGACO_MSG_ADD
+MEGACO_MSG_SUBTRACT
+MEGACO_MSG_MODIFY
+MEGACO_MSG_MOVE
+MEGACO_MSG_CAPABILITIES
+MEGACO_MSG_NOTIFY
+RANAP_MSG_RAB_ASSIGNMENT_REQUEST_STG
+RANAP_MSG_RAB_ASSIGNMENT_RESPONSE_STG
+RANAP_MSG_IU_RELEASE_COMMAND_STG
+RANAP_MSG_IU_RELEASE_COMPLETE_STG
+RANAP_MSG_SECURITY_MODE_COMMAND_STG
+RANAP_MSG_SECURITY_MODE_COMPLETE_STG
+RANAP_MSG_SECURITY_MODE_REJECT_STG
+RANAP_MSG_IU_RELEASE_REQUEST_STG
+RANAP_MSG_COMMON_ID_STG
+XCAP_MSG_REQUEST
+XCAP_MSG_RESPONSE
+SIP_MSG_REQUEST
+SIP_MSG_RESPONSE
+<TAG_AUTO_DEFINE_END:MESSAGE_ID>
+
+/*******************************************************
+ * 필터 예제 입니다.
+ *******************************************************/
+<TAG_AUTO_DEFINE_START :L4CODE(400)>
+L4_ME                   (1100)
+L4_ME_DOWN              (1200)
+L4_KUN                  (2100)
+L4_VOD_WEB              (3100)
+L4_VOD_STREAM           (3200)
+L4_VOD_STREAM_MULTI     (3300)
+L4_VOD_LIVE             (3400)
+L4_VOD_SKYLIFE          (3500)
+L4_VOD_DN               (3600)
+L4_PAS_VOD              (3700)
+L4_PAS_MBOX             (3800)
+L4_DOSIRAK_WEB          (4100)
+L4_DOSIRAK_STREAM       (4200)
+L4_DOSIRAK_STREAMGW     (4300)
+L4_DOSIRAK_AUTH         (4400)
+L4_DOSIRAK_DN           (4500)
+L4_PAS_DOSIRAK          (4600)
+L4_BREW_MACS_COMMON     (6100)
+L4_BREW_MACS_VOD        (6200)
+L4_BREW_MACS_PAID       (6300)
+L4_BREW_ICUP            (6400)
+L4_BREW_ADS_DOWN        (6500)
+L4_PAS_BREW             (6600)
+L4_WIPI_WIGCS_COMMON    (7100)
+L4_WIPI_WICGS_VOD       (7200)
+L4_WIPI_WICGS_PAID      (7300)
+L4_WIPI_WICGS_POPUP     (7400)
+L4_WIPI_MARS_DOWN       (7500)
+L4_PAS_WIPI             (7600)
+L4_XCAP					(8100)
+<TAG_AUTO_DEFINE_END:L4CODE>
+
+<TAG_AUTO_DEFINE_START :L7CODE(1)>
+APP_UNKNOWN             (0)
+APP_MENU
+APP_SSL
+APP_DOWN
+APP_STREAM
+APP_ONLINE
+APP_ETC                 (9)
+<TAG_AUTO_DEFINE_END:L7CODE>
+
+/* TAG_AUTO_STRING_DEFINE 에서 뽑아내야 할 값들 
+   ==> define TYPE_DESC      101     
+   ... 등의 define된 값들
+   Print_ContentsType(101) -> print the "application/vnd.oma.dd" string
+   Get_Define_ContentsType(char *s); ==> return TYPE_DESC;
+ */
+<TAG_AUTO_STRING_DEFINE_START:ContentsType(400)>			 $CASE_IGNORE$ 
+application/vnd.oma.dd                  CTYPE_DESC          /* ?? */
+text/html                               CTYPE_HTML
+text/x-html                             CTYPE_HTML
+text/xml                                CTYPE_XML
+application/resource-lists+xml			CTYPE_XML
+application/auth-policy+xml				CTYPE_XML
+application/rls-services+xml			CTYPE_XML
+application/pidf+xml					CTYPE_XML
+application/xcap-el+xml					CTYPE_XML
+text/vnd.wap.wml                        CTYPE_WML
+application/xhtml+xml                   CTYPE_WML
+text/css                                CTYPE_STYLE
+text/plain                              CTYPE_LMSG
+image/sis                               CTYPE_SIS
+map/sis                                 CTYPE_SIS
+application/ndwn                        CTYPE_NDWN
+application/vnd-qualcomm.qis.pkg        CTYPE_BREWDOWN
+application/x-msdownload                CTYPE_WIPIDOWN
+audio/ma2                               CTYPE_MA2
+audio/ma3                               CTYPE_MA3
+audio/ma5                               CTYPE_MA5
+audio/k3g                               CTYPE_VOD
+video/k3g                               CTYPE_VOD
+audio/ak3g                              CTYPE_VOD
+video/ak3g                              CTYPE_VOD
+application/x-skt-lbs                   CTYPE_SOUND
+application/x-smaf                      CTYPE_SOUND
+application/vnd.smaf                    CTYPE_SOUND
+multipart/                              CTYPE_MMSG
+application/                            CTYPE_APPLICATION
+text/                                   CTYPE_TEXT
+image/                                  CTYPE_IMAGE
+audio/                                  CTYPE_SOUND
+<TAG_AUTO_STRING_DEFINE_END:ContentsType>
+
+/******************************************************/
+
+/* TIMER */
+#define DEF_TCP_SESSUPDATE      160
+#define DEF_CALL_TIMEOUT        (DEF_TCP_SESSUPDATE + 20)
+#define DEF_TCP_RSTWAIT     	1
+#define DEF_TCP_TIMEOUT     	120
+
+<TAG_DEFINE_START:RTX>  
+#define DEF_FROM_NONE		0
+#define DEF_FROM_CLIENT		1			/**< UP : From Client */
+#define DEF_FROM_SERVER		2			/**< DOWN : From Server */
+<TAG_DEFINE_END:RTX>
+
+<TAG_DEFINE_START:L4FAILCODE>
+#define TCP_SUCCESS						0
+#define TCP_NOERR_FIN_E1				1
+#define TCP_NOERR_FIN_E2				2
+#define ABNORMAL_TRANS					15
+#define LONGLAST_SYN_TRANS				31
+#define LONGLAST_SYNACK_TRANS			32
+#define LONGLAST_NOFIN_TRANS			33
+#define LONGLAST_FIN_E1					34
+#define LONGLAST_FIN_E2					35
+#define TCP_ERR_RST_E1_SYN				41
+#define TCP_ERR_RST_E1_SYNACK			42
+#define TCP_ERR_RST_E1_NOFIN			43
+#define TCP_ERR_RST_E1_FIN_E1			44
+#define TCP_ERR_RST_E1_FIN_E2			45
+#define TCP_ERR_RST_E2_SYN				51
+#define TCP_ERR_RST_E2_SYNACK			52
+#define TCP_ERR_RST_E2_NOFIN			53
+#define TCP_ERR_RST_E2_FIN_E1			54
+#define TCP_ERR_RST_E2_FIN_E2			55
+<TAG_DEFINE_END:L4FAILCODE>
+
+<TAG_DEFINE_START:TCPFLAG>
+#define DEF_TCP_START		1
+#define DEF_TCP_DATA		2
+#define DEF_TCP_END			3
+#define DEF_TCP_UPDATE		4
+<TAG_DEFINE_END:TCPFLAG>
+
+<TAG_DEFINE_START:RETRANS>
+#define DEF_RETRANS_OFF		0
+#define DEF_RETRANS_ON		1
+<TAG_DEFINE_END:RETRANS>
+
+/**
+ * @brief st_TcpInfo : TCP Session 정보를 HTTP에 전달하기 위한 structure이다.
+ *
+ *
+ * @see common_stg.h
+ *
+ * @note   Nothing
+ *
+ * @todo   Nothing
+ */
+typedef struct _st_TcpInfo {
+	U32		DataSize;		/**< TCP Payload Size */
+	U32		SrvIP;		/**< Server IP Address */
+
+	U32		CliIP;		/**< 단말 IP Address */
+	U16		SrvPort;		/**< Server Port */
+	U16		CliPort;		/**< 단말 Port */
+
+	U32		SeqNum;		/**< Packet Seq No. */
+	U32		AckNum;		/**< Ack Packet의 Ack No. */
+
+	OFFSET	SOffset;
+
+    STIME	CapTime;		/**< 캡쳐된 시간 */
+    MTIME	CapMTime;		/**< 캡쳐된 Micro 시간 */
+    STIME	AckTime;		/**< Ack Packet을 받은 시간 */
+    MTIME	AckMTime;		/**< Ack Packet을 받은 Micro 시간 */
+
+	U16		AppCode;
+	U16		L4Code;		/**< L4Code */
+	U16		L7Code;		/**< L7Code */
+	DEF		<TAG_DEFINE:L4FAILCODE>L4FailCode;	/**< L4 Error Code */
+	U8		<TAG_DEFINE:RTX>Rtx;		/**< UP/Down 방향 1: UP, 2: Down */
+	S8		<TAG_DEFINE:TCPFLAG>TcpFlag;	/**< [O] TCP State */
+	S8		<TAG_DEFINE:RETRANS>Retrans;		/**< [O] 재전송 Flag */
+	U8		Protocol;		/**< [O] 현재 사용되는 곳 없음, 향후 기능 확장에서 사용될 가능성 있음 */
+
+	U8		TcpClientStatus;
+	U8		TcpServerStatus;
+
+	U32		range;
+	U32		network;
+	U32		rawFileIndex;
+	U32		rawPacketIndex;		
+
+	U32		IPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		IPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 (전송후 Reset) */
+	U32		IPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		IPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 (전송후 Reset) */
+	U32		IPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		IPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		IPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		IPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 (전송후 Reset) */
+	U32		IPDataUpPktSize;		/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		IPDataDnPktSize;		/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 (전송후 Reset) */
+	U32		IPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		IPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 (전송후 Reset) */
+	U32		IPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		IPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		IPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+	U32		IPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 (전송후 Reset) */
+} TCP_INFO;
+
+#define TCP_SESS_CNT			107
+
+<TAG_DEFINE_START:CLI>
+#define DEF_CLI_SUCCESS			0
+#define DEF_CLI_ETC				99
+#define DEF_CLI_SYN				11
+#define DEF_CLI_ACK				12
+#define DEF_CLI_DATA			23
+#define DEF_CLI_RST				34
+#define DEF_CLI_FIN				35
+#define DEF_CLI_FINACK			36
+<TAG_DEFINE_END:CLI>
+
+<TAG_DEFINE_START:SVR>
+#define DEF_SVR_SUCCESS			0
+#define DEF_SVR_ETC				99
+#define DEF_SVR_SYNACK			11
+#define DEF_SVR_DATA			22
+#define DEF_SVR_RST				33
+#define DEF_SVR_FIN				34
+#define DEF_SVR_FINACK			35
+<TAG_DEFINE_END:SVR>
+
+<TAG_DEFINE_START:PLATFORMTYPE>
+#define DEF_PLATFORM_ME         1000
+#define DEF_PLATFORM_KUN        2000
+#define DEF_PLATFORM_VOD        3000
+#define DEF_PLATFORM_DOSIRAK    4000
+#define DEF_PLATFORM_MBOX       5000
+#define DEF_PLATFORM_BREW       6000
+#define DEF_PLATFORM_WIPI       7000
+<TAG_DEFINE_END:PLATFORMTYPE>
+
+#define MAX_TMSI_SIZE		17
+#define MAX_TMSI_LEN		(MAX_TMSI_SIZE - 1)
+#define MAX_IMSI_SIZE		17
+#define MAX_IMSI_LEN		(MAX_IMSI_SIZE - 1)
+#define MAX_MIN_SIZE		17
+#define MAX_MIN_LEN			(MAX_MIN_SIZE - 1)
+
+<TAG_DEFINE_START:CALL_COMMAND_TYPE>
+#define CALL_COMMAND_NONE		0
+#define CALL_COMMAND_ADD		1
+#define CALL_COMMAND_DEL		2
+<TAG_DEFINE_END:CALL_COMMAND_TYPE>
+
+<TAG_DEFINE_START:CALL_END_TYPE>
+#define CALL_END_TYPE_NORMAL	1
+#define CALL_END_TYPE_TIMEOUT	2
+<TAG_DEFINE_END:CALL_END_TYPE>
+
+<TAG_DEFINE_START:NETWORK_GROUP>
+#define 	NETWORK_GROUP_CORE		1
+#define 	NETWORK_GROUP_NTE		2
+<TAG_DEFINE_END:NETWORK_GROUP>
+
+#define  DEF_SIZE_SESSIONID             8
+#define  DEF_SIZE_DynOct                32
+
+STG_COMMON typedef struct _stg_common {
+	DEF			<TAG_DEFINE:CALL_COMMAND_TYPE>CallCmd; 				@STG_PARM:JAVA_DETAILUSEYN:NO@ 
+	STIME       CallTime:STG_Equal(pCALL_COMMON->CallTime):FIRST;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       CallMTime:STG_Equal(pCALL_COMMON->CallMTime):FIRST;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	DEF			<TAG_DEFINE:NETWORK_GROUP>network;					@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			CallFirstRawFileIndex:STG_Equal(pCALL_COMMON->CallFirstRawFileIndex):FIRST;	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	U32			CallFirstRawPacketIndex:STG_Equal(pCALL_COMMON->CallFirstRawPacketIndex):FIRST; @STG_PARM:JAVA_DETAILUSEYN:NO@
+
+<TAG_KEY>
+	STRING      TMSI[MAX_TMSI_SIZE]: STG_Equal(pCALL_COMMON->TMSI): FIRST; @STG_PAR_ARRAY:CALL_HASH_KEY:0:KEY0@ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING      IMSI[MAX_IMSI_SIZE]: STG_Equal(pCALL_COMMON->IMSI): FIRST;	@STG_PAR_ARRAY:CALL_HASH_KEY:1:KEY1@ @STG_PARM:JAVA_LISTUSEYN:YES@
+	IP4         ClientIP:STG_Equal(pCALL_COMMON->ClientIP):FIRST; @CHECKING_VALUE:10. , 61.@ @STG_PAR_ARRAY:CALL_HASH_KEY:2:KEY2@ @STG_PARM:JAVA_LISTUSEYN:YES@
+</TAG_KEY>
+	STRING      MIN[MAX_MIN_SIZE]: STG_Equal(pCALL_COMMON->MIN): FIRST; #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<HTTP_PHONE_NUMBER>{DIGIT}:^^:PARSING_MIN_Change# @CHECKING_VALUE:01@
+		ALTERNATIVE_RULE        #PARSING_RULE:^^:WIPI_REQ_HDR:^^:<COOKIE>MIN={DIGIT}#
+} CALL_COMMON;
+
+STG_COMMON typedef struct _stg_sess_common {
+	STIME       CreateTime:STG_Equal(pSESS_COMMON->CreateTime):FIRST; /**<Sess시작시간captime **/ 	@STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       CreateMTime:STG_Equal(pSESS_COMMON->CreateMTime):FIRST;	/**<Sess시작시간capmtime **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STIME       EndTime:STG_Equal(pSESS_COMMON->EndTime):FIRST;			/**< Sess끝시간captime **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       EndMTime:STG_Equal(pSESS_COMMON->EndMTime):FIRST;		/**< Sess끝시간capmtime **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			RawFileIndex:STG_Equal(pSESS_COMMON->RawFileIndex):FIRST; @STG_PARM:JAVA_LISTUSEYN:NO@ @STG_PARM:JAVA_DETAILUSEYN:NO@	
+	U32			RawPacketIndex:STG_Equal(pSESS_COMMON->RawPacketIndex):FIRST; @STG_PARM:JAVA_LISTUSEYN:NO@ @STG_PARM:JAVA_DETAILUSEYN:NO@
+	U32			SrcSystemID;
+	U32			DestSystemID;
+	U32			SessGapTime;	/**< Session Gap Time: EndTime - CreateTime **/ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+	U32			LastUserErrCode;/**< user error */	@STG_PARM:JAVA_LISTUSEYN:YES@
+} SESS_COMMON;
+
+STG_COMMON typedef struct _stg_trans_common {
+	STIME       CreateTime:STG_Equal(pTRANS_COMMON->CreateTime):FIRST;	/**< Trans 시작시간 captime **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       CreateMTime:STG_Equal(pTRANS_COMMON->CreateMTime):FIRST; @STG_PARM:JAVA_LISTUSEYN:YES@	
+	STIME       EndTime:STG_Equal(pTRANS_COMMON->EndTime):FIRST;	/**< Trans endtime captime **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       EndMTime:STG_Equal(pTRANS_COMMON->EndMTime):FIRST; @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	STIME       SessTime:STG_Equal(pTRANS_COMMON->SessTime):FIRST;	/**< Sess 시작시간 **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME       SessMTime:STG_Equal(pTRANS_COMMON->SessMTime):FIRST; @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32			RawFileIndex:STG_Equal(pTRANS_COMMON->RawFileIndex):FIRST;	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	U32			RawPacketIndex:STG_Equal(pTRANS_COMMON->RawPacketIndex):FIRST;	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	U32			SrcSystemID;	
+	U32			DestSystemID;
+	U32			TransGapTime;		/**< Trans Gap Time: EndTime - CreateTime **/ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+	U32			LastUserErrCode;	/**< user error */ @STG_PARM:JAVA_LISTUSEYN:YES@
+} TRANS_COMMON;
+
+
+
+#define MAX_STRING_SIZE		256
+STG_COMMON typedef struct _stg_cf_common {
+	STIME	CreateTime:STG_Equal(pCF_COMMON->CreateTime):FIRST;	/**< Sig Cap time **/ @STG_PARM:JAVA_MESSAGEWHERE:YES@ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME	CreateMTime:STG_Equal(pCF_COMMON->CreateMTime):FIRST; @STG_PARM:JAVA_MESSAGEWHERE:YES@ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	STIME	SessTime:STG_Equal(pCF_COMMON->SessTime):FIRST;		/**< Sess **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME	SessMTime:STG_Equal(pCF_COMMON->SessMTime):FIRST;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	STIME	TransTime:STG_Equal(pCF_COMMON->TransTime):FIRST;	/**< Trans **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME	TransMTime:STG_Equal(pCF_COMMON->TransMTime):FIRST; @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		RawFileIndex:STG_Equal(pCF_COMMON->RawFileIndex):FIRST; @STG_PARM:JAVA_DETAILUSEYN:NO@ @STG_PARM:JAVA_MESSAGEWHERE:YES@
+	U32		RawPacketIndex:STG_Equal(pCF_COMMON->RawPacketIndex):FIRST; @STG_PARM:JAVA_DETAILUSEYN:NO@ @STG_PARM:JAVA_MESSAGEWHERE:YES@
+	U32		SrcSystemID;
+	U32		DestSystemID;
+	DEF		<TAG_DEFINE:RANGE_INFO>range; @STG_PARM:JAVA_DETAILUSEYN:NO@
+	U16		updown;	/**< Up/Down  Range와 더불어 Info_signal에 사용 */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+	U32		ProtocolType; /**< Protocol Type CF_Protocol 테이블의 ID - 테이블명 뒤에 _DEF_NUM을 붙이면 됨 */
+	U32		<TAG_DEFINE:MESSAGE_ID>MessageID;
+	STRING	MessageString [MAX_STRING_SIZE]; @STG_PARM:JAVA_LISTUSEYN:YES@
+} CF_COMMON;
+
+TABLE_LOG typedef struct _st_cf_list_ {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+} CF_LIST; 
+
+
+/**
+ * @brief TCP_SESS_LOG : TCP 세션 정보를 DB Log
+ *
+ *
+ * @see	common_stg.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Tcp_Sess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:SESS_COMMON>
+
+	DEF		<TAG_DEFINE:PLATFORMTYPE>PlatformType;	/**< PlatformType usSvcL4Type / 1000 * 1000 */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+	DEF		<TAG_DEFINE:L4CODE>SvcL4Type;			/**< Server IP, PORT로 판단한 Service type */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+	U16		SubSysNo;			/**< Sub System No. */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+	U16		ClientPort;			/**< 단말 Port */		@STG_PARM:JAVA_LISTUSEYN:YES@
+	IP4		ServerIP;			/**< Server IP */		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		ServerPort;			/**< Server Port */		@STG_PARM:JAVA_LISTUSEYN:YES@
+	STIME	TcpSynTime;			/**< Tcp Syn Time */
+	MTIME	TcpSynMTime;		/**< Tcp Syn Micro Time */
+	STIME	TcpSynAckTime;		/**< Tcp SynAck Time */
+	MTIME	TcpSynAckMTime;		/**< Tcp SynAck Micro Time */
+	STIME	TcpSynAckAckTime;	/**< Syn => SynAck => Ack의 Ack Time */
+	MTIME	TcpSynAckAckMTime;	/**< Syn => SynAck => Ack의 Ack Micro Time */
+	U32		ConnSetupGapTime;	/**< TcpConnEndTime - CallTime */	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+	STIME	TcpFinTime;			/**< 첫번째 Tcp Fin, RST Time */	@STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME	TcpFinMTime;		/**< 첫번째 Tcp Fin, RST Micro Time */
+	STIME	TcpFinAckTime;		/**< 마지막 Tcp Fin Ack Time */
+	MTIME	TcpFinAckMTime;		/**< 마지막 Tcp Fin Ack Micro Time */
+	STIME	TcpUpLastPktTime;	/**< MN => Server, Last Packet Time */
+	MTIME	TcpUpLastPktMTime;	/**< MN => Server, Last Packet Micro Time */
+	STIME	TcpDnLastPktTime;	/**< Server => MN, Last Packet Time */
+	MTIME	TcpDnLastPktMTime;	/**< Server => MN, Last Packet Micro Time */
+	STIME	TcpLastPktTime;		/**< Last Packet Time */
+	MTIME	TcpLastPktMTime;	/**< Last Packet Micro Time */
+	U32		TcpSessGapTime;		/**< Last Packet Time - CallTime */	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+	DEF		<TAG_DEFINE:CLI>TcpClientStatus;	/**< 단말 상태 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	DEF		<TAG_DEFINE:SVR>TcpServerStatus;	/**< 서버 상태 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	DEF		<TAG_DEFINE:L4FAILCODE>L4FailCode;	/**< TCP Fail Code */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		TcpSynCnt;			/**< Syn Count */
+	U16		TcpSynAckCnt;		/**< SynAck Count */
+	U16		TcpUpFinCnt;		/**< MN => Server, Fin Count */
+	U16		TcpDnFinCnt;		/**< Server => MN, Fin Count */
+	U16		TcpUpRstCnt;		/**< MN => Server, Rst Count */
+	U16		TcpDnRstCnt;		/**< Server => MN, Rst Count */
+	U32		IPDataUpPktCnt;		/**< MN => Server, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPDataDnPktCnt;		/**< Server => MN, 데이터 전송 단계에서 패킷 개수 */
+	U32		IPTotUpPktCnt;		/**< MN => Server, 전구간에서 패킷 개수 */	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPTotDnPktCnt;		/**< Server => MN, 전구간에서 패킷 개수 */	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPDataUpRetransCnt;	/**< MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPDataDnRetransCnt;	/**< Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		IPTotUpRetransCnt;	/**< MN => Server, 전구간에서 재전송 패킷 개수 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPTotDnRetransCnt;	/**< Server => MN, 전구간에서 재전송 패킷 개수 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPDataUpPktSize;	/**< MN => Server, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPDataDnPktSize;	/**< Server => MN, 데이터 전송 단계에서 데이터 사이즈 */
+	U32		IPTotUpPktSize;		/**< MN => Server, 전구간에서 데이터 사이즈 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPTotDnPktSize;		/**< Server => MN, 전구간에서 데이터 사이즈 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPDataUpRetransSize;	/**< MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPDataDnRetransSize;	/**< Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		IPTotUpRetransSize;	/**< MN => Server, 전구간에서 재전송 데이터 사이즈 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		IPTotDnRetransSize;	/**< Server => MN, 전구간에서 재전송 데이터 사이즈 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		TcpUpBodySize;		/**< MN => Server, Tcp Payload 사이즈 */
+	U32		TcpDnBodySize;		/**< Server => MN, Tcp Payload 사이즈 */
+	U32		TcpUpRetransBodySize;	/**< MN => Server, Tcp Payload 사이즈, 재전송 포함 */
+	U32		TcpDnRetransBodySize;	/**< Server => MN, Tcp Payload 사이즈, 재전송 포함 */
+	U16		TcpUpMSS;			/**< MN => Server, Syn의 MSS */		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		TcpDnMSS;			/**< Server => MN, SynAck의 MSS */ 	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		TcpUpFirstWindowSize;	/**< MN => Server, 최초 패킷의 Window Size */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		TcpDnFirstWindowSize;	/**< Server => MN, 최초 패킷의 Window Size */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ @STG_PARM:JAVA_DETAILEND:YES@
+	STIME	OpStartTime;	/**< 분석 시작 Time */			 @STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	OpStartMTime;	/**< 분석 시작 Micro Time */ 	 @STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME	OpEndTime;		/**< 마지막 처리 Time */ 		 @STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	OpEndMTime;		/**< 마지막 처리 Micro Time */ 	 @STG_PARM:JAVA_DETAILUSEYN:NO@
+} LOG_TCP_SESS;	@STG_TYPEDEF:DB_TABLE_LIST:LOG_TCP_SESS@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+TABLE_LOG typedef struct _st_Rtp_Sess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:SESS_COMMON>
+
+	U32		RTPClientIP;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPServerIP;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		RTPClientPort;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		RTPServerPort;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		RTCPClientPort;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		RTCPServerPort;		@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U16 	RTPFirstPayloadType;
+	U16		RTPStartSeqNum;
+	U16		RTPEndSeqNum;
+	U32		RTPLastSSRC;
+	U32		RTPFirstPktTime;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPFirstPktMTime;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPLastPktTime;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPLastPktMTime;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16		RTPDirection;		/**< 1: UP, 2: DN **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		RTPTotPktCnt;		/**< 실제 RTP packet count  **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPTotPktBytes;		/**< 실제 RTP packet Bytes (IP+UDP 포함) **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTPTotPayloadBytes;	/**< 순수 RTP payload bytes (RTP header 제외) **/
+
+	U32		RTCPUPTotPktCnt;	/**< RTCP UP packet count **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTCPDNTotPktCnt;	/**< RTCP DN packet count **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTCPUPTotPktBytes;	/**< 실제 RTCP UP packet Bytes (IP+UDP 포함) **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RTCPDNTotPktBytes;	/**< 실제 RTCP DN packet Bytes (IP+UDP 포함) **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		SRLastSSRC;
+	U32		SRLastPktCnt;		/**< SR 의 sender's packet count */
+	U32		SRLastOctetCnt;		/**< SR 의 sender's Octet count */
+	STRING	SRCNAME [64];		/**< SR + SDES **/
+	U32		SRFirstPktTime;
+	U32		SRFirstPktMTime;
+	U32		SRLastPktTime;
+	U32		SRLastPktMTime;
+
+	U32		RRLastSSRC;
+	U32		RRLastHighRecvSeqNum;	/**< RR 의 extended highest.. = packet cnt */
+	U32		RRLastLostPkt;			/**< RR 의 cumulative number of packet lost **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastJitter;			/**< RR 의 interarrival jitter **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastFractionLost;		/**< RR 의 fraction lost **/
+	U32		RRLstLSR;				/**< RR 의 last SR **/
+	U32		RRLstDLSR;				/**< RR 의 delay since last SR **/
+	STRING	RRCNAME [64];			/**< RR + SDES **/
+	U32		RRFirstPktTime;
+	U32		RRFirstPktMTime;
+	U32		RRLastPktTime;
+	U32		RRLastPktMTime;
+
+	U16		Status;					/**< 상태 1: bye을 받은 놈, 2: timeout **/ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ 
+	U16		UserErrCode;			/**< 0: 정상 **/
+	U32		BYEReason;				/**< BYE **/ @STG_PARM:JAVA_DETAILEND:YES@
+
+	STIME	OpStartTime;	/**< 분석 시작 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	OpStartMTime;	/**< 분석 시작 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME	OpEndTime;		/**< 마지막 처리 Time */		@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	OpEndMTime;		/**< 마지막 처리 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+
+} LOG_RTP_RTCP;  @STG_TYPEDEF:DB_TABLE_LIST:LOG_RTP_RTCP@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+/**< RTCP 첫 메시지 와 BYE 메시지 */
+TABLE_LOG typedef struct _st_cf_rtp_rtcp_ {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	U32		RTCPMsgType;			/**< 1: RR, 2:SR **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		SRLastSSRC;
+	U32		SRLastPktCnt;			/**< SR 의 sender's packet count */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		SRLastOctetCnt;			/**< SR 의 sender's Octet count */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING	SRCNAME [64];			/**< SR + SDES **/
+	U32		SRFirstPktTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		SRFirstPktMTime;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		SRLastPktTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		SRLastPktMTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		RRLastSSRC;
+	U32		RRLastHighRecvSeqNum;	/**< RR 의 extended highest.. = packet cnt */
+	U32		RRLastLostPkt;			/**< RR 의 cumulative number of packet lost **/ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastJitter;			/**< RR 의 interarrival jitter **/	 @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastFractionLost;		/**< RR 의 fraction lost **/
+	U32		RRLstLSR;				/**< RR 의 last SR **/
+	U32		RRLstDLSR;				/**< RR 의 delay since last SR **/
+	STRING	RRCNAME [64];			/**< RR + SDES **/
+	U32		RRFirstPktTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRFirstPktMTime;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastPktTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		RRLastPktMTime;			@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		BYEReason;				/**< BYE **/ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ @STG_PARM:JAVA_DETAILEND:YES@
+} CF_RTP_RTCP;  @STG_TYPEDEF:DB_CF_LIST:CF_RTP_RTCP@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@  @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+/**< 받은 데이터 량만 **/
+TABLE_LOG typedef struct _st_Rtp_RTCP_UP {
+	<STG_COMMON:CALL_COMMON>
+	U16		RTPDirection;			/**< 1: UP, 2: DN **/
+
+	U32		RTPPktCnt;				/**< 실제 RTP packet count  **/
+	U32		RTPPktBytes;			/**< 실제 RTP packet Bytes (IP+UDP 포함) **/
+	U32		RTPPayloadBytes;		/**< 순수 RTP payload bytes (RTP header 제외) **/
+
+	U32		RTCPUPPktCnt;			/**< RTCP UP packet count **/
+	U32		RTCPDNPktCnt;			/**< RTCP DN packet count **/
+	U32		RTCPUPPktBytes;			/**< 실제 RTCP UP packet Bytes (IP+UDP 포함) **/
+	U32		RTCPDNPktBytes;			/**< 실제 RTCP DN packet Bytes (IP+UDP 포함) **/
+
+} UP_RTP_RTCP;  @STG_TYPEDEF:DB_TABLE_LIST:UP_RTP_RTCP@ 
+
+/**< ---------------------------------------------------- GTP TABLE LOG---------Start **/
+
+/**<  GTP-C Session Log **/
+TABLE_LOG typedef struct _st_Gtp_Sess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:SESS_COMMON>
+
+	/**<  시도 수 / 성공 수 **/
+	/**<  데이타량 **/
+	/**<  상태 코드 / 양방향일 경우 각 방향 마다 있어야 함 **/
+	/**<  LastUserErrorCode : 값이 어떤 의미를 가지고 있는지 정의 해야 함 **/
+	/**<  LastCtrlErrorCode : 응답에서 뽑아낸 값 **/
+
+	U32		NSAPI;					/**<  NSAPI **/	
+	STRING	AccessPonitName[32];	/**<  Access Point Name **/	
+	STRING	ChargingID[8];			/**<  Charging ID **/	
+	U16		PDP_Type;				/**<  PPP or IP **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+
+	U32		DnCtrlTeid;				/**<  Down Control Teid **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		DnDataTeid;				/**<  Down Data Teid **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+	U32		UpCtrlTeid;				/**<  Up Control Teid **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+	U32		UpDataTeid;				/**<  Up Data Teid **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+
+	IP4		SGSNCtlIPAddr;			/**<  SGSN IP Address for Control Plane **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+	IP4		SGSNDataIPAddr;			/**<  SGSN IP Address for Data **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+	IP4		GGSNCtrlIPAddr;			/**<  GGSN IP Address for Control Plane **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+	IP4		GGSNDataIPAddr;			/**<  GGSN IP Address for Data **/ @STG_PARM:JAVA_LISTUSEYN:YES@	
+
+	U32		GTPUpCtrlPort;			/**<  벤더마다 사용 포트가 변경 될 수 있다.  **/	
+	U32		GTPDnCtrlPort;
+	U32		GTPUpDataPort;
+	U32		GTPDnDataPort;
+
+
+	/**<  TIME  **/	
+
+	STIME	GTPSetupStartTime;		/**<  LCP setup Start Time **/	
+	MTIME	GTPSetupStartMTime;				
+	STIME	GTPSetupEndTime;		/**<  LCP setup End Time **/	
+	MTIME	GTPSetupEndMTime;				
+	STIME 	GTPDelStartTime;
+	MTIME 	GTPDelStartMTime;
+	STIME 	GTPDelEndTime;
+	MTIME 	GTPDelEndMTime;
+
+	STIME	LCPSetupStartTime;		/**<  LCP setup Start Time **/	
+	MTIME	LCPSetupStartMTime;				
+	STIME	LCPSetupEndTime;		/**<  LCP setup End Time **/	
+	MTIME	LCPSetupEndMTime;				
+	STIME	LCPTermStartTime;				
+	MTIME	LCPTermStartMTime;				
+	STIME	LCPTermEndTime;				
+	MTIME	LCPTermEndMTime;				
+
+	/**<  KTF 망에서는 PAP/CHAP 사용하지 않는다.  **/	
+	STIME	IPCPSetupStartTime;		/**<  IPCP setup Start Time **/	
+	MTIME	IPCPSetupStartMTime;				
+	STIME	IPCPSetupEndTime;		/**<  IPCP setup End Time **/	
+	MTIME	IPCPSetupEndMTime;			
+	STIME	IPCPTermStartTime;			
+	MTIME	IPCPTermStartMTime;			
+	STIME	IPCPTermEndTime;			
+	MTIME	IPCPTermEndMTime;			
+
+	STIME	PPPSetupStartTime;		/**<  PPP 사용하면 PPP Setup End Time, PPP사용하지 않으면 GTP Setup End Time **/
+	MTIME	PPPSetupStartMTime;			
+	STIME	PPPSetupEndTime;		/**<  PPP 사용하면 PPP Setup End Time, PPP사용하지 않으면 GTP Setup End Time **/
+	MTIME	PPPSetupEndMTime;			
+	STIME	PPPTermStartTime;			
+	MTIME	PPPTermStartMTime;			
+	STIME	PPPTermEndTime;			
+	MTIME	PPPTermEndMTime;			
+
+	/**<  GTP Setup 과 PPP Setup 사이의 GapTime  **/
+
+	STIME	ConSetupEndTime;		/**<  PPP 사용하면 PPP Setup End Time, PPP사용하지 않으면 GTP Setup End Time **/
+	MTIME	ConSetupEndMTime;			
+	U32		ConSetupGapTime;		@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@ /**<  PPP 사용하면 PPP Setup End Time - Gtp Start Time, 
+										 					PPP 사용하지 않으면 GTP Setup End Time - GTP Setup Start Time **/
+
+	STIME	ServiceStartTime;		/**<  PPP 사용하면 PPP Setup End Time, 사용하지 않으면 GTP Setup End Time **/	
+	MTIME	ServiceStartMTime;				
+	STIME	ServiceLastTime;		/**<  GTPDelStartTime 을 사용 **/	
+	MTIME	ServiceLastMTime;				
+	U32		ServiceGapTime;			/**<  Service Last Time - Service Start Time **/ @STG_PARM:JAVA_LISTUSEYN:YES@	 @STG_PARM:JAVA_DURATION:YES@
+
+	STIME	CloseStartTime;			/**<  LCP or IPCP Term or Delete PDP Request 메세지중 처음 오는것 **/	
+	MTIME	CloseStartMTime;
+	U32		CloseGapTime;			/**<  Delete PDP Context Response Time - ClostStartTime **/	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+
+	U32		LastPackTime;			/**<  마지막 메세지가 온 시간  **/	
+	MTIME	LastPackMTime;			/**<  마지막 메세지가 온 시간  **/	
+									/**< U32		SessGapTime;  전체 세션의 사용시간 LastPackTime - GTPSetupStartTime **/	
+
+
+	/**<  중요 메세지(LCP,IPCP포함)별로 시도 수 / 성공 수  **/	
+	U32		GTPCreateReqCnt;			/**<  Create PDP Context Request 시도 수 **/	
+	U32		GTPCreateReqSuccCnt;		/**<  Create PDP Context Request 성공 수 **/
+	U32		GTPDeleteReqCnt;			/**<  Delete PDP Context Request 시도 수 **/	
+	U32		GTPDeleteReqSuccCnt;		/**<  Delete PDP Context Request 성공 수 **/	
+
+	U32		UpLCPSetupCnt;				/**<  Up LCP Configure Request 시도 수 **/	
+	U32		UpLCPSetupSuccCnt;			/**<  Up LCP Configure Request 성공 수 **/	
+	U32		UpLCPTermCnt;				/**<  Up LCP Termination Request 시도 수 **/	
+	U32		UpLCPTermSuccCnt;			/**<  Up LCP Termination Request 성공 수 **/	
+
+	U32		DnLCPSetupCnt;				/**<  Dn LCP Configure Request 시도 수 **/	
+	U32		DnLCPSetupSuccCnt;			/**<  Dn LCP Configure Request 성공 수 **/	
+	U32		DnLCPTermCnt;				/**<  Dn LCP Termination Request 시도 수 **/	
+	U32		DnLCPTermSuccCnt;			/**<  Dn LCP Termination Request 성공 수 **/	
+
+	U32		UpIPCPSetupCnt;				/**<  Up IPCP Configure Request 시도 수 **/	
+	U32		UpIPCPSetupSuccCnt;			/**<  Up IPCP Configure Request 성공 수 **/	
+	U32		DnIPCPSetupCnt;				/**<  Up IPCP Configure Request 시도 수 **/	
+	U32		DnIPCPSetupSuccCnt;			/**<  Up IPCP Configure Request 성공 수 **/	
+
+	U32		GTPUpdateReqCnt;			/**<  Update PDP Context Request **/	
+	U32		GTPUpdateResCnt;			/**<  Update PDP Context Response **/	
+	U32		GTPUpdateSuccCnt;			/**<  Update PDP Context Request 성공 수 **/	
+
+	U32		GTPEchoReqCnt;				/**<  Echo Request **/	
+	U32		GTPEchoResCnt;				/**<  Echo Response **/	
+	U32		GTPEchoSuccCnt;				/**<  Echo Request 성공 수 **/	
+
+	U32		GTPCTotUpReqCnt;			/**<  GTP-C 토탈 업로드 요청 수 **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPCTotUpResCnt;			/**<  GTP-C 토탈 업로드 응답 수 **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPCTotUpSuccCnt;												@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		GTPCTotDnReqCnt;			/**<  GTP-C 토탈 다운로드 요청 수 **/ 	@STG_PARM:JAVA_LISTUSEYN:YES@				
+	U32		GTPCTotDnResCnt;			/**<  GTP-C 토탈 다운로드 응답 수 **/ 	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPCTotDnSuccCnt;													@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	/**<  데이타 카운트 **/	
+	U32		GTPUTotUpCnt;				/**<  GTP-U 전체 업로드 카운트 **/		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPUTotDnCnt;				/**<  GTP-U 전체 다운로드 카운트 **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		GTPUPPPEtcUpCnt;			/**<  LCP,IPCP 이외의 업로드 메세지 카운트  **/	
+	U32		GTPUPPPEtcDnCnt;			/**<  LCP,IPCP 이외의 업로드 메세지 카운트  **/
+
+
+	/**<  데이타 량 **/
+
+	U32		GTPCTotUpBytes;				/**<  GTP-C 메세지 데이터량 **/		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPCTotDnBytes;													@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		GTPUTotUpBytes;													@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		GTPUTotDnBytes;													@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32		GTPULCPTotUpBytes;			/**<  GTP 헤더 정보까지 포함된 데이타량  **/	
+	U32		GTPULCPTotDnBytes;			/**<  GTP 헤더 정보까지 포함된 데이타량  **/
+
+	U32		GTPUIPCPTotUpBytes;			/**<  GTP 헤더 정보까지 포함된 데이타량  **/
+	U32		GTPUIPCPTotDnBytes;			/**<  GTP 헤더 정보까지 포함된 데이타량  **/
+
+	U32		GTPUPPPEtcUpBytes;			/**<  LCP, IPCP 이외의 업로드 메세지 카운트  **/
+	U32		GTPUPPPEtcDnBytes;			/**<  LCP, IPCP 이외의 업로드 메세지 카운트  **/
+
+
+	/**<  Status Code **/	
+	U32		GTPConSetupSuccFlag;		/**<  IP을 얻어오면 성공 **/		@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+
+	U32		GTPCLastMsgType;			/**<  마지막으로 받은 GTP Control 메세지 **/	
+
+	U32		UpLCPLastStatCode;			/**<  마지막으로 받은 업로드 LCP 메세지 **/	
+	U32		DnLCPLastStatCode;			/**<  마지막으로 받은 다운로드 LCP 메세지 **/	
+
+	U32		UpIPCPLastStatCode;			/**<  마지막으로 받은 업로드 IPCP 메세지 **/	
+	U32		DnIPCPLastStatCode;			/**<  마지막으로 받은 다운로드 IPCP 메세지 **/	
+	
+	/**<  Operation Time **/	
+	STIME	uiOpStartTime;	/** 분석 시작 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	uiOpStartMTime;	/** 분석 시작 Micro Time */		@STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME	uiOpEndTime;	/** 마지막 처리 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME	uiOpEndMTime;	/** 마지막 처리 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+
+} LOG_GTP; 	@STG_TYPEDEF:DB_TABLE_LIST:LOG_GTP@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+
+/**<  GTP-MAP Session Log **/
+TABLE_LOG typedef struct _st_Gtp_M_Sess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:TRANS_COMMON>
+
+} LOG_GTP_MAP;	@STG_TYPEDEF:DB_TABLE_LIST:LOG_GTP_MAP@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@
+
+/**<  GTP` Session Log **/
+TABLE_LOG typedef struct _st_Gtp_P_Sess_Log {
+	<STG_COMMON:CALL_COMMON>
+
+} LOG_GTP_P;	@STG_TYPEDEF:DB_TABLE_LIST:LOG_GTP_P@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@
+
+/**<  GTP-C Call Flow Log **/
+TABLE_LOG typedef struct _st_Gtp_C_Mess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	U32		MessageType;			/**<  Message Type for GTP-C **/	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		Direction;													@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		NSAPI;					/**<  NSAPI **/
+
+	U32		ResCause;				/**<  Response의 코드 **/			@STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING	ChargingID[8];			/**<  Charging ID **/
+	U16		TeardownInd;			/**<  Teardown Index **/			@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+
+	U32		GTPCMsgBytes;			/**<  GTP-C 메세지 데이터량 **/		@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	IP4		SGSNCtrlIPAddr;
+	IP4		SGSNDataIPAddr;
+	IP4		GGSNCtrlIPAddr;
+	IP4		GGSNDataIPAddr;			 @STG_PARM:JAVA_DETAILEND:YES@
+
+} CF_GTP_C; @STG_TYPEDEF:DB_CF_LIST:CF_GTP_C@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@  @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+
+/**<  GTP-MAP Call Flow Log **/
+TABLE_LOG typedef struct _st_Gtp_Map_Mess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+} CF_GTP_MAP; @STG_TYPEDEF:DB_CF_LIST:CF_GTP_MAP@ @STG_TYPEDEF:SQL_TABLESPACE:CF@
+
+/**<  GTP-PPP Call Flow Log **/
+TABLE_LOG typedef struct _st_Gtp_PPP_Mess_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	U32		MessageType;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		Direction;				@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32		MsgCode;				@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+	U32		MsgId;
+	U32		MsgOptions; @STG_PARM:JAVA_DETAILEND:YES@
+
+} CF_GTP_PPP; @STG_TYPEDEF:DB_CF_LIST:CF_GTP_PPP@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+/**< ---------------------------------------------------- GTP TABLE LOG---------End **/
+
+/**< ---------------------------------------------------- IUPS range ---------Start **/
+
+/**< 10.5.1 - */
+typedef struct _IE_Cell_Identity {
+    U16			Cell_Identity;		%CELLID%	 @STG_PARM:JAVA_DETAILUSEYN:NO@					/**< 10.5.1.1 */
+} IE_10_5_1_1;
+
+typedef struct _IE_Cihpering_Key_Seq {
+    U16			Cipher_Key_Seq;		%CIPHERKEYSEQ%	 @STG_PARM:JAVA_DETAILUSEYN:NO@				/**< 10.5.1.2 
+																			 0 ~ 6 : Possible values for the ciphering key
+																			 7: No key is available (MS to network) */
+} IE_10_5_1_2;
+
+typedef struct _IE_Mobile_Identity {
+	U16			MID1_Type;			%MOBILEID_TYPE%		 @STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.1.4 (Mobile Identity Type (3bits))
+																			 1: IMSI
+																			 2: IMEI
+																			 3: IMEISV
+																			 4: TMSI/P-TMSI
+																			 0: No Identity (paging message) */
+	U16			MID1_Ind;			%MOBILEID_IND%	 @STG_PARM:JAVA_DETAILUSEYN:NO@				/**< odd/even indication (1bit)
+																			 0: even number
+																			 1: odd number */
+    STRING			Mobile_ID1[20];		%MOBILEID% @STG_PARM:JAVA_DETAILUSEYN:NO@						/**< 10.5.1.4 */
+} IE_10_5_1_4;
+
+typedef struct _IE_PLMN_List {
+    STRING			PLMN1_MCC_D[4];		%PLMN1_MCC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@					/**< 10.5.1.13 */
+    STRING			PLMN1_MNC_D[4];		%PLMN1_MNC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN2_MCC_D[4];		%PLMN2_MCC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN2_MNC_D[4];		%PLMN2_MNC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN3_MCC_D[4];		%PLMN3_MCC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN3_MNC_D[4];		%PLMN3_MNC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN4_MCC_D[4];		%PLMN4_MCC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN4_MNC_D[4];		%PLMN4_MNC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN5_MCC_D[4];		%PLMN5_MCC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			PLMN5_MNC_D[4];		%PLMN5_MNC_D% @STG_PARM:JAVA_DETAILUSEYN:NO@
+} IE_10_5_1_13;
+
+
+/**< 10.5.3 - */
+typedef struct _IE_Network_Name {
+    U32			CodingScheme;		%CODDSCHEME%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.5a 
+																			 0: Cell Broadcast data coding scheme, GSM default alphabet, language unspecified, defined in 3GPP TS 23.038 [8b]
+																			 1: UCS2 (16bit)
+																			 2~7: Reserved */
+    U16			AddCI;				%ADDCI%					@STG_PARM:JAVA_DETAILUSEYN:NO@		/**<
+																			 0: The MS should not add the letters for the Country's Initials to the text string
+																			 1: The MS should add the letters for the Country's Initials and a separator
+																			 (e.g. a space) to the text string */
+    U16			LastOctetBit;		%LASTOCTETBIT%			@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 
+																			0: this field carries no information about the number of spare bits in octet n
+																			1: bit 8 is spare and set to "0" in octet n
+																			2: bits 7 and 8 are spare and set to "0" in octet n
+																			3: bits 6 to 8(inclusive) are spare and set to "0" in octet n
+																			4: bits 5 to 8(inclusive) are spare and set to "0" in octet n
+																			5: bits 4 to 8(inclusive) are spare and set to "0" in octet n
+																			6: bits 3 to 8(inclusive) are spare and set to "0" in octet n
+																			7: bits 2 to 8(inclusive) are spare and set to "0" in octet n */
+    STRING			NWName[64];			%NWNAME%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< Network Name */
+} IE_10_5_3_5a;
+
+
+typedef struct _IE_TimeZone {
+    U32			TimeZone;			%TIMEZONE%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.8 
+																			 This field uses the same format as the Timezone field used in the TP-Service-Centre-Time-Stamp, 
+																			 which is defined in 3GPP TS 23.040 [90], and its value shall be set as defined in 3GPP TS 22.042 */
+} IE_10_5_3_8;
+
+typedef struct _IE_TimeZoneAndTime {
+    STRING			TimeZoneTime[24];	%TIMEZONETIME%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.9 ??? */ 
+} IE_10_5_3_9;
+
+typedef struct _IE_LSA_Identifier {
+    STRING			LSA_ID[12];			%LSA_ID%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.11 ??? */ 
+} IE_10_5_3_11;
+
+typedef struct _IE_DaylightSavingTime {
+    U32			DaySavingTime;		%DAYSAVINGTIME%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.12 
+																			 0: No adjustment for Daylight Saving Time
+																			 1: +1 hour adjustment for Daylight Saving Time
+																			 2: +2 hour adjustment for Daylight Saving Time
+																			 3: Reserved */
+} IE_10_5_3_12;
+
+
+
+typedef struct _IE_EmgNumberList {
+    STRING			EmgNumList[104];	%ENGNUMLIST%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.3.13 */
+} IE_10_5_3_13;
+
+
+
+/**< 10.5.5 - */
+typedef struct _IE_Attach_Result {
+    U32			Attach_Result;		%ATTACHRESULT%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.1 
+																			 1: GPRS only attached
+																			 3: Combined GPRS/IMSI attached
+																			 other: reserved */
+} IE_10_5_5_1;
+
+typedef struct _IE_Attach_Type {
+    U16			Attach_type;		%ATTACHTYPE%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.2 
+																			 1: GPRS attach
+																			 2: GPRS attach while IMSI attach
+																			 3: Combined GPRS/IMSI attach */
+    U16			Attach_FOR;			%ATTACHFOR%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.2 */
+} IE_10_5_5_2;
+
+typedef struct _IE_Ciphering_Algorithm {
+    U16			Ciphering_algo;		%CIPHER_ALGORITHM%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.3 
+																			 0: ciphering not used
+																			 1: GPRS Encryption Algorithm GEA/1
+																			 2: GPRS Encryption Algorithm GEA/2
+																			 3: GPRS Encryption Algorithm GEA/3
+																			 4: GPRS Encryption Algorithm GEA/4
+																			 5: GPRS Encryption Algorithm GEA/5
+																			 6: GPRS Encryption Algorithm GEA/6
+																			 7: GPRS Encryption Algorithm GEA/7
+																			 */ 
+} IE_10_5_5_3;
+
+typedef struct _IE_TMSI_Status {
+    U16			TMSI_Status;		%TMSISTATUS%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.4 
+																			 0: no valid TMSI available
+																			 1: valid TMSI available */
+} IE_10_5_5_4;
+
+typedef struct _IE_Detach_Type {
+    U16			Detach_Type_Power;	%DETACHTYPEPOWER%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.5 
+																			 0: normal detach
+																			 1: power switched off */
+    U16			Detach_Type;		%DETACHTYPE%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< MS --> N/W 
+																			 1: GPRS detach
+																			 2: IMSI detach
+																			 3: Combined GPRS/IMSI detach 
+																			 MS <-- N/W
+																			 1: re-attach required
+																			 2: re-attach not required
+																			 3: IMSI detach (after VLR failure)*/
+} IE_10_5_5_5;
+
+typedef struct _IE_DRX_parameter {
+    U16			DRX_SPLIT_PG_CYCLE_CODE;	%SPLITPGCODE%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 10.5.5.6 */
+    U16			DRX_SPLIT_on_CCCH;			%SPLITONCCCH%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< SPLIT on CCCH
+																			 0: Split pg cycle on CCCH is not supported by mobile station
+																			 1: Split pg cycle on CCCH is supported by mobile station */
+
+    U16			DRX_non_Timer;		%NONDRXTIMER%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< non-DRX timer 
+																			 0: no non-DRX mode after transfer state
+																			 1: max 1 sec
+																			 2: max 2 sec
+																			 3: max 4 sec
+																			 4: max 8 sec
+																			 5: max 16 sec
+																			 6: max 32 sec
+																			 7: max 64 sec */
+    U16			DRX_Cycle_Length;			%CNDRXCOEFFICIENT%	@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< CN Specific DRX cycle length coefficient
+																			 0:
+																			 6:
+																			 7:
+																			 8:
+																			 9: */
+} IE_10_5_5_6;
+
+typedef struct _IE_Force_to_Standby {
+    U16			Force_2_Standby;	%FORCE2STANDBY%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.7 
+																			 0: Force to standby not indicated 
+																			 1: Force to standby indicated */
+} IE_10_5_5_7;
+
+typedef struct _IE_P_TMSI_Signature {
+    STRING			P_TMSI_Signature[8];		%P_TMSI_SIGNATURE%		@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.5.8 */
+} IE_10_5_5_8;
+
+typedef struct _IE_Identity_Type2 {
+    U16			Identity_Type2;		%IDENTITY_TYPE2%		@STG_PARM:JAVA_DETAILUSEYN:NO@					/**< 10.5.5.9 
+																			 1: IMSI
+																			 2: IMEI
+																			 3: IMEISV
+																			 4: TMSI*/
+} IE_10_5_5_9;
+
+typedef struct _IE_IMEISV_Request {
+    U32			IMEISVRequest;	%IMEISVRequest%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.10 */
+} IE_10_5_5_10;
+
+typedef struct _IE_MS_Network_capability {
+    STRING			MS_nw_Capability[24]; 		%MS_NW_CAPABILITY%	@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.5.12 */
+} IE_10_5_5_12;
+
+typedef struct _IE_MS_Radio_Access_Capability {
+    STRING			MS_Radio_Access_Cap[108]; 	%MSRACAPABILITY%	@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.5.12a */
+} IE_10_5_5_12a;
+
+typedef struct _IE_Raouting_Area_ID {
+    STRING			MCC_D[4];	  				%MCC%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.15 */
+    STRING			MNC_D[4];	  				%MNC%		 @STG_PARM:JAVA_DETAILUSEYN:NO@					
+    STRING			LAC[5];						%LAC% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    STRING			RAC[3];						%RAC% @STG_PARM:JAVA_DETAILUSEYN:NO@
+} IE_10_5_5_15;
+
+typedef struct _IE_Update_Result {
+    U32			Update_Result;		%RESULT%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.17
+																		 0: RA updated
+																		 1: combined RA/LA updated*/
+} IE_10_5_5_17;
+
+typedef struct _IE_Update_Type {
+    U16			Update_Type_FOR;	%UPDATE_TFOR%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.18
+																			 0: No Follow-on request pending
+																			 1: Folow-on request pending */
+    U16			Update_Type;		%UPDATE_TYPE%		@STG_PARM:JAVA_DETAILUSEYN:NO@				/**< 0: RA updating
+																			 1: combined RA/LA updating
+																			 2: combined RA/LA updating with IMSI attach
+																			 3: Periodic updating */
+} IE_10_5_5_18;
+
+typedef struct _IE_ANC_Reference_number {
+    U32			ANCRefNum;	%ANCRefNum%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.5.19 */
+} IE_10_5_5_19;
+
+typedef struct _IE_Service_Type {
+    U32			Service_Type;		%SERVICETYPE%	@STG_PARM:JAVA_DETAILUSEYN:NO@						/**< 10.5.5.20 
+																			0: Signalling 
+																			1: Data
+																			2: Paging Response */
+} IE_10_5_5_20;
+
+typedef struct _IE_Cell_Notification {
+	U32			CellNoti;			%CellNoti%			@STG_PARM:JAVA_DETAILUSEYN:NO@				/**< 10.5.5.21 */
+} IE_10_5_5_21;
+
+typedef struct _IE_PS_LCS_Capability {
+    U16			LCS_OTD_A;			%OTDA%		@STG_PARM:JAVA_DETAILUSEYN:NO@					/**< 10.5.5.22 */
+    U16			LCS_OTD_B;			%OTDB% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    U16			LCS_GPS_A;			%GPSA% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    U16			LCS_GPS_B;			%GPSB% @STG_PARM:JAVA_DETAILUSEYN:NO@
+    U32			LCS_GPS_C;			%GPSC% @STG_PARM:JAVA_DETAILUSEYN:NO@
+} IE_10_5_5_22;
+
+typedef struct _IE_NW_Feature_Support {
+    U32			NW_Feature_support;		%NWFSUPPORT%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 10.5.5.23 
+																		 	 0: LCS-MOLR via PS domain not supported
+																			 1: LCS-MOLR via PS domain supported */
+} IE_10_5_5_23;
+
+typedef struct _IE_AccessPointName {
+    STRING			AccesPointName[104];  	%APNAME%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.6.1 */
+} IE_10_5_6_1;
+
+typedef struct _IE_NwServiceAccessPoingID {
+    U32			NW_Svc_access_point_Id;	%NWSVCACCESSPID%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 10.5.6.2 
+																			0 - 4 : reserved 
+																			5 - 15 : NSAPI [5-15]*/
+} IE_10_5_6_2;
+
+typedef struct _IE_ProtocolConfigurationOptions {
+    U16			Conf_Protocol;			%CONF_PROTOCOL%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 10.5.6.3 
+																		 	 0: PPP for use with IP PDP type
+																			 All other values are interpreted as PPP in this version of the protocol 
+																			 */
+	U16			PPP_ID_Cnt;				%PPP_ID_CNT%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< PPP protocol identifier Count */
+	STRING			PPP_ID1[5];				%PPP_ID1%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< PPP protocol identifier 
+																			C021H (LCP)
+																			C023H (PAP)
+																			C223H (CHAP)
+																			8021H (IPCP) */
+	STRING			PPP_ID2[5];				%PPP_ID2%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< PPP protocol identifier  */
+	STRING			PPP_ID3[5];				%PPP_ID3%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< PPP protocol identifier  */
+	STRING			PPP_ID4[5];				%PPP_ID4%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< PPP protocol identifier  */
+} IE_10_5_6_3;
+
+typedef struct _IE_PacketDataProtocolAddress {
+	U16			PDPTypeOrga;			%PDPTYPEORG%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< 10.5.6.4
+																			 PDP Type Oragnisation 
+																			 0: ETSI allocated address
+																			 1: IETF allocated address
+																			 16: Empty PDP Type */
+	U16			PDPTypeNum;				%PDPTYPENUM%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< PDP Type Number 
+																			 if PDPTypeOrag = 0
+																				0: Reserved
+																				1: PPP
+																			 if PDPTypeOrag = 1
+																				33 = IPv4 address
+																				87 = IPv6 address */
+	U32			PDPAddress;				%PDPADDRESS%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< PDP Address */
+} IE_10_5_6_4;
+
+typedef struct _IE_Qos {
+	U16			Q_Reliable_Class;		%RELIABILITYCLASS%		@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.6.5 (3 bits)
+																			 0: Subscribed reliabilty class (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: Acknowledged GTP, LLC, and RLC; Protected data
+																			 2: Unacknowledged GTP; Acknowledged LLC and RLC, Proteted data
+																			 3: Unacknowledged GTP and LLC; Acknowledged RLC, Proteted data
+																			 4: Unacknowledged GTP, LLC, and RLC Protected data
+																			 5: Unacknowledged GTP, LLC, and RLC, Unprotected data
+																			 7: Reserved 
+																			 other: Unacknowledged GTP and LLC; Acknowledged RLC, Protected data */
+	U16			Q_Delay_Class;			%DELAYCLASS%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**<  Delay Class (3 bits)
+																			 0: Subscribed delay class (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: Delay class 1
+																			 2: Delay class 2
+																			 3: Delay class 3
+																			 4: Delay class 4 (best effort)
+																			 7: Reserved
+																			 Other: Delay class 4 */
+	U16			Q_Precedence_Class;		%PRECEDENCECLASS%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Precedence Class (3 bits)
+																			 0: Subcribed Precedence (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: High priority
+																			 2: Normal priority
+																			 3: Low priority
+																			 7: Reserved
+																			 Other: Normal priority */
+	U16			Q_Peak_throughput;		%PEAKTHROUGHPUT%		@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< Peak throughput (4bits)
+																			 0: Subscribed peak throughput (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: Up to 1000 octet/s
+																			 2: Up to 2000 octet/s
+																			 3: Up to 4000 octet/s
+																			 4: Up to 8000 octet/s
+																			 5: Up to 16000 octet/s
+																			 6: Up to 32000 octet/s
+																			 7: Up to 64000 octet/s
+																			 8: Up to 128000 octet/s
+																			 9: Up to 256000 octet/s
+																			 15: Reserved
+																			 Other: Up to 1000 octet/s */
+	U32			Q_Mean_throughput;		%MEANTHROUGHPUT%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Mean throughput (5bit)
+																			 0: Subscribed mean throughput (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1:	100 octet/h
+																			 2:	200 octet/h
+																			 3:	500 octet/h
+																			 4:	1,000 octet/h
+																			 5:	2,000 octet/h
+																			 6:	5,000 octet/h
+																			 7:	10,000 octet/h
+																			 8:	20,000 octet/h
+																			 9:	50,000 octet/h
+																			 10:100,000 octet/h
+																			 11:200,000 octet/h
+																			 12:500,000 octet/h
+																			 13:1,000,000 octet/h
+																			 14:2,000,000 octet/h
+																			 15:5,000,000 octet/h
+																			 16:10,000,000 octet/h
+																			 17:20,000,000 octet/h
+																			 18:50,000,000 octet/h
+																			 30: Reserved
+																			 31: Best effort
+																			 Other: Best effort */
+	U32			Q_Delivery_SDU;			%DELIVERYERRORSDU%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Delivery of erroneous SDUs (3 bits)
+																			 0: Subscribed delivery of erroneous (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: No detect ('-')
+																			 2: Erroneous SDUs are delivered ('yes')
+																			 3: Erroneous SDUs are not delivered ('no')
+																			 7: Reserved
+																			 other: */
+	U16			Q_Delivery_Order;		%DELIVERYORDER%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Delivery Order (3bits)
+																			 0: Subscribed delivery order (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: with delivery order ('yes')
+																			 2: w/o delivery order ('no')
+																			 3: Reserved */
+	U16			Q_Traffic_Class;		%TRAFFICCLASS%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Traffic Class (3bits)
+																			 0: Subscribed traffic class (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: Conversational class
+																			 2: Streaming class
+																			 3: Interactive class
+																			 4: Background class
+																			 7: Reserved
+																			 Other: Reserved */
+	U16			Q_MAX_SDU_Size;			%MAXSDUSIZE%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< max SDU size (1 octet)
+																			 0: Subscribed traffic class (MS --> NW)
+																			 255: Reserved (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 255: Reserved (MS <-- NW)
+																			 151: 1502 octets
+																			 152: 1510 octets
+																			 153: 1520 octets
+																			 Other: Reserved */
+	U16			Q_MAX_RATE_UP;			%MAXRATEUP%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< Maximum bit rate for uplink (1 octet)
+																			 0: Subscribed maximum bit rate for uplink (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: The maximum bit rate is binary coded in 8bits, using a granularity of 1kbps
+																			 63: giving a range of values from 1kbps to 63kbps in 1kbps increments.
+																			 64: The maximum bit rate is 64 kbps + ((the binary coded value in 8bits -01000000) * 8kbps)
+																			 ~127: giving a range of values from 64kbps to 568kbps in 8kbps increments
+																			 128: The maximum bit rate is 576 kbps + ((the binary coded value in 8bits -01000000) * 8kbps)
+																			 ~254: giving a range of values from 576kbps to 8640kbps in 8kbps increments
+																			 255: 0kbps */
+	U32			Q_MAX_RATE_DN;			%MAXRATEDOWN%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Maximum bit rate for downlink (1 octet)
+																			 8640 kbps 보다 더 높은 값을 원하면 
+																			 254로 표시하고 octet 15에 표시 */
+	U32			Q_BER;					%RESIDUALBER%			@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Residual Bit Error Rate (BER) (4bits)
+																			 0: Subscribed residual BER (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: 5*10(-2)
+																			 2: 1*10(-2)
+																			 3: 5*10(-3)
+																			 4: 4*10(-3)
+																			 5: 1*10(-3)
+																			 6: 1*10(-4)
+																			 7: 1*10(-5)
+																			 8: 1*10(-6)
+																			 9: 6*10(-8)
+																			 15: Reserved 
+																			 Other: Reserved */
+	U32			Q_SDU_E_Ratio;			%SDUERRORRATIO%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< SDU error ratio (4bits)
+																			 0: Subscribed SDU error ratio (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: 1*10(-2)
+																			 2: 7*10(-3)
+																			 3: 1*10(-3)
+																			 4: 1*10(-4)
+																			 5: 1*10(-5)
+																			 6: 1*10(-6)
+																			 7: 1*10(-1)
+																			 15: Reserved
+																			 Other: Reserved */
+	U32			Q_Traffic_Priority;		%TRAFFICHANDPRIORITY%	@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Traffic handing priority (2bits)
+																			 0: Subscribed Traffic handing priority (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: Priority level 1
+																			 2: Priority level 2
+																			 3: Priority level 3
+																			 Traffic Class가 Conversational class,
+																			 Streaming class or Background class
+																			 면 무시된다 */
+	U16			Q_Transfer_Delay;		%TRANSFERDELAY%			@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Transfer Delay (6bits)
+																			 0: Subscribed Transfer Delay (MS --> NW)
+																			 0: Reserved (MS <-- NW)
+																			 1: The Transfer delay is binary coded in 6bits, using a granularity of 10ms
+																			 ~15: giving arange of values from 10ms to 150ms in 10ms increments
+																			 16: The Transfer delay is 200 ms + ((the binary coded value in 6bits - 010000) * 50ms)
+																			 ~31: giving arange of values from 200ms to 950ms in 50ms increments
+																			 32: The Transfer delay is 1000 ms + ((the binary coded value in 6bits - 100000) * 100ms)
+																			 ~31: giving arange of values from 1000ms to 4000ms in 100ms increments
+																			 63: Reserved 
+																			 Traffic Class가 Interactive class or Background class면 무시 */
+	U16			Q_Guarant_Rate_UP;		%GUARANTERATEUP%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Graranteed bit rate for uplink (1octet) */
+	U16			Q_Guarant_Rate_DN;		%GUARANTERATEDOWN%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Graranteed bit rate for downlink (1octet) */
+	U16			Q_Src_Stat_Desc;		%SRC_STAT_DESC%			@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Source Statistics Descriptor (4bits)
+																			 MS --> NW
+																			 0: unknown
+																			 1: speech
+																			 MS <-- NW
+																			 all: unknown */
+	U16			Q_Signal_Ind;			%SIGNAL_IND%				@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< Signalling Indication (1bit)
+																			 0: Not optimised for signalling traffic
+																			 1: optimised for signalling traffic 
+																			 if set to '1' the QoS of the PDP context is optimised for signalling
+																			 Traffic Class 가 Conversational class, Streaming class or Background class면 무시 */
+	U16			Q_MAX_RATE_DN_EXT;		%MAXRATEDNEXT%		@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< Maximum bit rate for downlink (extended)
+																			 0: use the value indicated by the Maximum bit rate for downlink in octet9.
+																			 1: Ignore the value indicated by the maximum bit rate for dwonlink in octet9. The 
+																			 74:  */
+	U32			Q_Guarant_Rate_DN_EXT;	%GRARANTRATEDNEXT%		@STG_PARM:JAVA_DETAILUSEYN:NO@		/**< Graranteed bit rate for downlink (1 octet)
+																			 0:
+																			 1:
+																			 74: */
+} IE_10_5_6_5;
+
+typedef struct _IE_LLCServiceAccessPointID {
+
+    U32			LLC_Svc_access_point_Id;	%LLC_SVC_ACCESS_POINT_ID%	@STG_PARM:JAVA_DETAILUSEYN:NO@ /**< 10.5.6.9 
+																			0 : Not assign
+																			3, 5, 9, 11 : SAPI[x] */
+} IE_10_5_6_9;
+
+typedef struct _IE_TearDownIndecator {
+    U32			TearDwonIndicator;	%TEARDOWNINDICATOR%		@STG_PARM:JAVA_DETAILUSEYN:NO@				/**< 10.5.6.10 
+																			0: tear down not requestd
+																			1: tear down requested*/
+} IE_10_5_6_10;
+
+typedef struct _IE_PackeFlowId {
+    U32			PacketFlowId;		%PACKETFLOWID%			@STG_PARM:JAVA_DETAILUSEYN:NO@			/**< 10.5.6.11 
+																			0: Best Effort
+																			1: Signaling
+																			2: SMS
+																			3: TOM8 
+																			나머지: not define */
+} IE_10_5_6_11;
+
+
+
+typedef struct _IE_PDP_Context_Status {
+    STRING			PDP_Context_Status[20];		%PDPCONTEXTSTATUS%		@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.7.1 
+																			SM State
+																			0: PDP-INACTIVE
+																			1: not PDP-INACTIVE */
+} IE_10_5_7_1;
+
+typedef struct _IE_Radio_Priority {
+    U32			RadioPriority;			%RADIOPRIORITY1%			@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.7.2 
+																			1(high) ~ 4 (low)*/
+} IE_10_5_7_2;
+
+typedef struct _IE_GPRS_Timer {
+    U16			GPRSTimer_Unit;			%GPRSTIMER_UNIT%				/**< 10.5.7.3 */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+    U16			GPRSTimer_Value;		%GPRSTIMER_VALUE%	@STG_PARM:JAVA_DETAILUSEYN:NO@									
+} IE_10_5_7_3;
+
+typedef struct _IE_GPRS_Timer2 {
+    U16			GPRSTimer2;				%GPRS_TIMER2%					/**< 10.5.7.4 */ @STG_PARM:JAVA_DETAILUSEYN:NO@
+} IE_10_5_7_4;
+
+typedef struct _IE_Radio_Priority2 {
+    U16			RadioPriority2;			%RADIOPRIORITY2%			@STG_PARM:JAVA_DETAILUSEYN:NO@	/**< 10.5.7.5 
+																		 	 1(high) ~ 4 (low) */ 
+} IE_10_5_7_5;
+
+
+
+
+
+/**
+ * 	@brief CF_GMMSM : IUPS 구간 GMMSM CallFlow Structure
+ *
+ *	A_RANAP에서 NTAM으로 전송되는 데이터
+ *	
+ *	@see	ims_structg.h
+ *	@node	+Note+
+ */
+typedef struct _st_GMMSM_Data {										/**< 3Gpp 24008 	- Size */
+/*	Cause 확인 */
+	IE_10_5_1_1		ie10_5_1_1;				%TTTTT__%				/**< 10.5.1.1 		- 2 */
+	IE_10_5_1_2		ie10_5_1_2;				%TTTTT__%				/**< 10.5.1.2 		- 2 */
+	IE_10_5_1_4		ie10_5_1_4_I;			%I_%					/**< 10.5.1.4 	 	- 24*/ 
+	IE_10_5_1_4		ie10_5_1_4_II;			%II_%					/**< 10.5.1.4 	 	- 24*/ 
+	IE_10_5_1_13	ie10_5_1_13;			%TTTTT__%				/**< 10.5.1.13 		- 40 */ 
+
+	IE_10_5_3_5a	ie10_5_3_5a_I;			%I_%					/**< 10.5.3.5a 		- 72 */
+	IE_10_5_3_5a	ie10_5_3_5a_II;			%II_%					/**< 10.5.3.5a 		- 72 */
+	IE_10_5_3_8		ie10_5_3_8;				%TTTTT__%				/**< 10.5.3.8 		- 4 */
+	IE_10_5_3_9		ie10_5_3_9;				%TTTTT__%				/**< 10.5.3.9 		- 24 */
+	IE_10_5_3_11	ie10_5_3_11;			%TTTTT__%				/**< 10.5.3.11 		- 12 */
+	IE_10_5_3_12	ie10_5_3_12;			%TTTTT__%				/**< 10.5.3.12 		- 4 */
+	IE_10_5_3_13	ie10_5_3_13;			%TTTTT__%				/**< 10.5.3.13 		- 104 */
+
+    IE_10_5_5_1		ie10_5_5_1;				%TTTTT__%				/**< 10.5.5.1 		- 4 */
+    IE_10_5_5_2		ie10_5_5_2;				%TTTTT__%				/**< 10.5.5.2 		- 4 */
+    IE_10_5_5_3		ie10_5_5_3;				%TTTTT__%				/**< 10.5.5.3 		- 2 */
+    IE_10_5_5_4		ie10_5_5_4;				%TTTTT__%				/**< 10.5.5.4 		- 2 */
+    IE_10_5_5_5		ie10_5_5_5;				%TTTTT__%				/**< 10.5.5.5 		- 4 */
+    IE_10_5_5_6		ie10_5_5_6;				%TTTTT__%				/**< 10.5.5.6 		- 8 */
+    IE_10_5_5_7		ie10_5_5_7;				%TTTTT__%				/**< 10.5.5.7 		- 2 */
+    IE_10_5_5_9		ie10_5_5_9;				%TTTTT__%				/**< 10.5.5.9  		- 2 */
+    IE_10_5_5_8		ie10_5_5_8;				%TTTTT__%				/**< 10.5.5.8  		- 8 */
+    IE_10_5_5_10	ie10_5_5_10;			%TTTTT__%				/**< 10.5.5.10 		- 4 */
+    IE_10_5_5_12	ie10_5_5_12; 			%TTTTT__%				/**< 10.5.5.12 		- 24 */	
+    IE_10_5_5_12a	ie10_5_5_12a; 			%TTTTT__%				/**< 10.5.5.12a 	- 108 */
+    IE_10_5_5_15	ie10_5_5_15; 			%TTTTT__%				/**< 10.5.5.15		- 16 */
+    IE_10_5_5_17	ie10_5_5_17; 			%TTTTT__%				/**< 10.5.5.17		- 4 */
+    IE_10_5_5_18	ie10_5_5_18; 			%TTTTT__%				/**< 10.5.5.18		- 4 */
+    IE_10_5_5_20	ie10_5_5_20; 			%TTTTT__%				/**< 10.5.5.20		- 4 */
+    IE_10_5_5_19	ie10_5_5_19; 			%TTTTT__%				/**< 10.5.5.19		- 4 */
+    IE_10_5_5_21	ie10_5_5_21; 			%TTTTT__%				/**< 10.5.5.21 		- 4 */
+    IE_10_5_5_22	ie10_5_5_22; 			%TTTTT__%				/**< 10.5.5.22 		- 12 */
+    IE_10_5_5_23	ie10_5_5_23; 			%TTTTT__%				/**< 10.5.5.23 		- 4 */
+
+    IE_10_5_6_2		ie10_5_6_2; 			%TTTTT__%				/**< 10.5.6.2 		- 4 */
+    IE_10_5_6_1		ie10_5_6_1; 			%TTTTT__%				/**< 10.5.6.1 		- 104 */
+    IE_10_5_6_3		ie10_5_6_3; 			%TTTTT__%				/**< 10.5.6.3 		- 24 */
+    IE_10_5_6_4		ie10_5_6_4; 			%TTTTT__%				/**< 10.5.6.4 		- 8 */
+    IE_10_5_6_5		ie10_5_6_5; 			%TTTTT__%				/**< 10.5.6.5 		- 56 */
+    IE_10_5_6_9		ie10_5_6_9; 			%TTTTT__%				/**< 10.5.6.9 		- 4 */
+    IE_10_5_6_10	ie10_5_6_10; 			%TTTTT__%				/**< 10.5.6.10 		- 4 */
+    IE_10_5_6_11	ie10_5_6_11; 			%TTTTT__%				/**< 10.5.6.11 		- 4 */
+
+    IE_10_5_7_1		ie10_5_7_1; 			%TTTTT__%				/**< 10.5.7.1 		- 20 */
+    IE_10_5_7_2		ie10_5_7_2; 			%TTTTT__%				/**< 10.5.7.2 		- 4 */
+    IE_10_5_7_3		ie10_5_7_3_I; 			%I_%					/**< 10.5.7.3 	 	- 4 */
+    IE_10_5_7_3		ie10_5_7_3_II; 			%II_%					/**< 10.5.7.3 	 	- 4 */
+    IE_10_5_7_4		ie10_5_7_4; 			%TTTTT__%				/**< 10.5.7.4 		- 2 */
+    IE_10_5_7_5		ie10_5_7_5; 			%TTTTT__%				/**< 10.5.7.5 		- 2 */
+} stGMMSM_Data;
+
+
+/*
+LAI: 9.2.3.6, PLMNId, LAC
+RAC: 9.2.3.7, RAC
+SAI: 9.2.3.9, PLMNId, LAC, SAC
+Global RNC-ID: 9.2.1.39, PLMNId, RNCId
+*/
+typedef struct _st_Iups_RANAP_Data {
+	S32			RABSetupCount;			%RABSETUPTRIALCNT%		/**< RAB setup or modify try count */
+	S32			RABSetupSuccCount;		%RABSETUPSUCCNT%		/**< RAB setup or modify success count */
+	S32			RABReleaseCount;		%RABRELEASETRIALCNT%	/**< RAB release try count */
+	S32			RABReleaseSuccCount;	%RABRELEASESUCCCNT%		/**< RAB release success count */
+
+	S32			RABQueueCount;			%RABQUEUECNT%			/**< RAB queue try count, Reject or 타임아웃경우 */
+    U32			CNDomainID;										/**< 9.2.1.5 */
+    U32			chIntyProtectAlgorithm;	%IntegrityAlgorithm%	/**< 9.2.1.13, 11 */
+    U32			chEncrytionAlgorithm;	%EncryptAlgorithm%		/**< 9.2.1.14, 12 */
+
+    U32			DiagProcCode;						/**< 9.2.1.35 */
+    U32			DiagTriggerMsg;	
+    U32			DiagProcCriticality;
+    U32			DiagIECnt;							/* maxnooferror is 256. */
+    U32			DiagIECriticality;
+    U16			DiagIEID;		
+    U16			DiagIERepeatNum;
+
+    U32			KeyStatus;							/**< 9.2.1.36 */				
+    STRING		IuSignalConId[8];					/**< 9.2.1.38 */
+    STRING		PLMNId[8];							/**< 9.2.3.6 */
+    U32			gRNCID;						%RNCId%	/**< 9.2.1.39 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    STRING		LAC[8];								/**< 9.2.3.6 */	 @STG_PARM:JAVA_LISTUSEYN:YES@		
+    STRING		RAC[4];								/**< 9.2.3.7 */	@STG_PARM:JAVA_LISTUSEYN:YES@			
+    STRING		SAC[8];								/**< 9.2.3.9 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			ServiceAreaDomain;		%SvcDomain%	/**< 9.2.3.9 KTF 변경 */
+	U16			RNCNumber;				@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			NodeBNumber;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			SectorNumber;			@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+    STRING		UESBIIuA[32];						/**< 9.2.1.59 */
+    STRING		UESBIIuB[32];				
+    U32			SAPI;								/**< 9.2.3.8 */				
+	STRING		GeranClassmark[DEF_SIZE_DynOct];	/**< 9.2.1.57, OCTET STRING */
+    STRING		Selected_PLMNId[8];					/**< 9.2.3.33 */
+    U32			NASSeqNum;							/**< 9.2.3.34 */
+    U32			RedirectComplete;					/**< 9.2.3.35 */
+
+	/* Relocation Message, SourceID는 기존의 PLMNId, RNCId에 넣는다. */
+	U32			RelocationType;						/**< 9.2.1.23 */
+    STRING		Target_PLMNId[8];					/**< 9.2.1.25, TargetID */
+    U32			Target_RNCID;			
+    STRING		Target_LAC[8];
+    STRING		Target_RAC[4];	
+    STRING		RRCContainer[DEF_SIZE_DynOct];		/**< 9.2.1.28, Source RNC To Target RNC Transparent Container */
+    U32			IuInstanceNum;
+    STRING		CipheringKey[16];
+    U32			dRNTI;
+    U32			TargetCellId;
+    U32			Down_CallCapacityClass;				/**< 9.2.1.48, Inter-System Information Transparent Container */
+    U32			Down_LoadValue;
+    U32			Down_RTLoadValue;
+    U32			Down_NRTLoadValue;
+    U32			Up_CallCapacityClass;
+    U32			Up_LoadValue;
+    U32			Up_RTLoadValue;
+    U32			Up_NRTLoadValue;
+    U32			gCNId;					%CNId%		/**< 9.2.1.46 */ @STG_PARM:JAVA_DETAILEND:YES@
+
+} stRANAP_Data;
+
+TABLE_LOG typedef struct _st_RANAP_CF {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+    STRING         	ucSessionID[DEF_SIZE_SESSIONID]; 	%SessionID%    /**< SCCP Session ID */
+
+	U16   		usPrototype;			%ProtoType% /**< ProtocolType */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    U16  		usMsgType;				%MsgType%	/**< Request Msg Type */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			usAptType;				%AptType%	/**< Middle Msg Type */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    U16  		usRepType;				%RepType%	/**< Response Msg Type */ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32			usCause;				%Cause%		/**< UP/DOWN direction */ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	U32			SigPacketBytes;			@STG_PARM:JAVA_LISTUSEYN:YES@	/**< MTP3b + sCCP 포함 **/
+	U32			SigPayloadBytes;		@STG_PARM:JAVA_LISTUSEYN:YES@	/**< MTP3b + sCCP 제외 **/
+	stRANAP_Data	stRanapData;		%ran%		/**< RANAP Data */
+	stGMMSM_Data	stGmmSmData;		%gmm%		/**< GMM, SM Data */
+
+} CF_IUPS;		@STG_TYPEDEF:DB_CF_LIST:CF_IUPS@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+/***********************************************
+			LOG_IUPS_SIG_RAB 
+ ***********************************************/
+/**
+ * 	@brief CF_RANAP : IUPS 구간 RANAP CallFlow Structure
+ *
+ *	A_RANAP에서 NTAM으로 전송되는 데이터
+ *	
+ *	@see	ims_structg.h
+ *	@node	+3GPP 25.413+
+ */
+typedef struct _st_Iups_RANAP_Data_RABs {
+	U32			RABOperation;										/**< RAB관리기능분류 */
+	U32			RABSeq;												/**< maxnoofRABs is 256*/
+    U32			rAB_ID;							%RABId%				/**< 9.2.1.2 */
+    U32			cause;							%Cause%					/**< 9.2.1.4 */
+    U32			nAS_SynchronisationInd;			%NASSyncInd%			/**< 9.2.3.18 */
+    U32			rAB_P_trafficClass;				%TrafficClass%		/**< 9.2.1.3 */
+    U32			rAB_P_rAB_AsymmetryInd;			%RABAsymInd%
+    U32			rAB_P_maxBitrateD;				%MaxRateDown%
+    U32			rAB_P_maxBitrateU; 				%MaxRateUp%
+    U32			rAB_P_guaranteedBitRateD;		%GuaranteRateDown%
+    U32			rAB_P_guaranteedBitRateU;		%GuaranteRateUp%
+    U32			rAB_P_deliveryOrder;			%DeliverOrder%
+    U32			rAB_P_maxSDU_Size;				%MaxSDUSize%
+	U16			rAB_P_SDU_cnt;					%SDU_Cnt%			/*max count 7 */
+    U16			rAB_P_SDU_ErrR_mantissa;		%SDUErrorMantissa%
+    U16			rAB_P_SDU_ErrR_exponent;		%SDUErrorExponent%
+    U16			rAB_P_SDU_resiBitErrR_mantissa;	%SDUResidErrorMantissa%
+    U16			rAB_P_SDU_resiBitErrR_exponent;	%SDUResidErrorExponent%
+    U16			rAB_P_SDU_deliveryOfErrSDU;		%SDUDeliveryErrorSDU%
+	U16			rAB_P_SDU_IF_cnt;				%SDU_IF_Cnt%		/*max count 64 */
+    U16			rAB_P_SDU_IF_SubflowSize;		%SubflowSDUSize%
+    U32			rAB_P_SDU_IF_rabSubflowComBitR;	%SubflowCombiRate%
+    U16			rAB_P_transferDelay;			%TransferDelay%
+    U16			rAB_P_trafficHandlingPrior;		%TrafficHandlePriority%
+    U32			rAB_P_aOrRP_priorityLevel;		%PriorityLevel%
+    U32			rAB_P_aOrRP_pre_eCapability;	%PreemptCapability%
+    U32			rAB_P_aOrRP_pre_eVulnerable;	%PreemptVulnerability%
+    U32			rAB_P_aOrRP_queuingAllowed;		%QueuingAllow%
+    U32			rAB_P_srcStatisticsDescrip;		%SrcStatDescriptor%
+    U32			rAB_P_relocationRequirement;	%RelocationRequirement%
+
+    U32			userPlaneMode;					%UserplaneMode%			/**< 9.2.1.18 */
+    STRING		uP_ModeVersions[8];				%UserPlaneModeVer%		/**< 9.2.1.19 */
+    U32			transportLayerAddress;			%TPLayerAddr%			/**< 9.2.2.1 */
+    STRING		iuTransportAssociation_GTPTEID[12]; 	%GTPTEID%			/**< 9.2.2.2 */
+    STRING		iuTransportAssociation_BindingID[12];	%BindingID% 
+    U32			service_Handover;				%SvcHandover%			/**< 9.2.1.41 */
+    U32			pDP_TypeInformationD;			%PDPTypeDown%			/**< 9.2.1.40 */
+    U32			pDP_TypeInformationU;			%PDPTypeUp%
+    U32			dataVolumeReportingInd;			%DataVolReportInd%		/**< 9.2.1.17 */
+    U16			dl_GTP_PDU_SequenceNumber;		%DLGTPTDUSeqNum%		/**< 9.2.2.3 */
+    U16			ul_GTP_PDU_SequenceNumber;		%ULGTPTDUSeqNum%		/**< 9.2.2.4 */
+    U16			dl_N_PDU_SequenceNumber;		%DLNPDUSeqNum%			/**< 9.2.1.33 */
+    U16			ul_N_PDU_SequenceNumber;		%ULNPDUSeqNum%			/**< 9.2.1.34 */
+
+    U32			alt_RAB_P_altMaxBitrate_cnt;	%AltMaxBitrate_Cnt%     /**< max count 16*/
+    U32			alt_RAB_P_altMaxBitrateType;	%AltMaxRateInfoType%	/**< 9.2.1.43 */
+    U32			alt_RAB_P_altMaxBitratesD;		%AltBitRateDown%	
+    U32			alt_RAB_P_altMaxBitratesU;		%AltBitRateUp%	
+    U32			alt_RAB_P_altGuaranteeBitrate_cnt;	%AltGuaranteRate_Cnt%    /**< max count 16*/
+    U32			alt_RAB_P_altGuaranteedBitrateType;	%AltGuaranteRateInfo%
+    U32			alt_RAB_P_altGuaranteedBitrateD;	%AltGuaranteRateDown%
+    U32			alt_RAB_P_altGuaranteedBitrateU;	%AltGuaranteRateUp%
+
+	STRING		geranBSC_Container[4];			%GeranBSC_Container%	/**< 9.2.1.58, OCTET STRING */
+	STRING		geranClassmark[DEF_SIZE_DynOct];	%GeranClassmark%		/**< 9.2.1.57, OCTET STRING */
+
+    U32			dL_D_Volume_UnsuccTrans1;		%UnsuccTxDLDataVol1%	/**< 9.2.3.12, maxnoofVol=2*/
+    U32			dL_D_Volume_UnsuccTrans2;		%UnsuccTxDLDataVol2%
+    U16			dL_D_Volume_Refer1;				%DataVolRef1%			/**< 9.2.3.13 */
+    U16			dL_D_Volume_Refer2;				%DataVolRef2%
+
+    U32			ass_RAB_P_assMaxBitRInfD;		%AssignedMaxRateDown%	/**< 9.2.1.44 */
+    U32			ass_RAB_P_assMaxBitRInfU;		%AssignedMaxRateUp%	
+    U32			ass_RAB_P_assGuarantBitRInfD;	%AssignedGuaranteRateDown%
+    U32			ass_RAB_P_assGuarantBitRInfU;	%AssignedGuaranteRateUp% @STG_PARM:JAVA_DETAILEND:YES@
+
+} stRANAP_Data_RABs;
+
+TABLE_LOG typedef struct _st_Iups_CallFlow_RANAP_RABs {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+    STRING         	ucSessionID[DEF_SIZE_SESSIONID]; %SessionID%	/**< SCCP Session ID */ @STG_PARM:JAVA_LISTUSEYN:YES@
+
+    STIME 		uiSessStarttime;		%SessStarttime%		/**< Session Start Time, MTime */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    MTIME 		uiSessStartutime;	%SessStartutime%		/**< Session Start Time, MTime */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    U32 		uiMsgType;			%MsgType%		/**< Msg Type */ @STG_PARM:JAVA_LISTUSEYN:YES@  @STG_PARM:JAVA_LISTEND:YES@
+
+    stRANAP_Data_RABs	stRanapData_RABs;	%TTTTT__%
+} CF_IUPS_RAB;		 @STG_TYPEDEF:DB_TABLE_LIST:CF_IUPS_RAB@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+/** 주의 CF_IUPS_RAB는 CF_LIST에 남기면 안된다. DB_TABLE_LIST로 선언 **/
+
+
+/***********************************************
+			LOG_IUPS_PAGING 
+ ***********************************************/
+
+typedef struct _st_Iups_RANAP_Data_Paging {
+    U32			PagingCause;	/**< 9.2.3.3, Paging Cause */
+    U32			CNDomainID;		/**< 9.2.1.5, CN Domain Indicator */
+    STRING		PLMNId[8];		/**< 9.2.1.21, Paging Area ID */
+    STRING		LAC[8];										
+    STRING		RAC[4];									
+    U32			NonSearchInd;	/**< 9.2.1.22, Non Searching Indication */
+    U32			DRXCycleLength;	/**< 9.2.1.37, DRX Cycle Length Coefficient */
+    U32			gCNId;	%CNId%	/**< 9.2.1.46, Global CN-ID */
+
+} stRANAP_Data_Paging;
+
+TABLE_LOG typedef struct _st_Iups_Paging {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:TRANS_COMMON>
+
+    U16 		SysNo;							/**< System Number */
+    U16 		SubSysNo;						/**< Sub-System Number */
+    U16 		usMsgType;			%MsgType%	/**< Msg Type */
+    U16 		usRepType;			%RepType%	/**< Rep Type */
+    U32 		uiCallState;		%CallState%	/**< Call State, 1:SUCCESS, 2: TIMEOUT */
+    S32    		PagingDuration;     @STG_PARM:JAVA_DURATION:YES@				/**< Paging<->ServiceRequest(type:Paging) */
+
+    stRANAP_Data_Paging		stRanapData_Paging;	%TTTTT__%
+} LOG_IUPS_PAGING; 	@STG_TYPEDEF:DB_TABLE_LIST:LOG_IUPS_PAGING@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ 
+
+/***********************************************
+			LOG_IUPS
+ ***********************************************/
+/**
+ * 	@brief LOG_IUPS : IUPS 구간 Log Structure.
+ *
+ *	A_RANAP에서 NTAM으로 전송되는 데이터
+ *	
+ *	@see	iups.h
+ *	@node	+Note+
+ */
+typedef struct _st_IUPS_Sess_Cnt {
+	S32			SecurityCount;			%SECURITYCNT%			/**< security try count */
+	S32			SecuritySuccCount;		%SECURITYSUCCCNT%		/**< security success count */
+
+	S32			RABAssignCount;			%RABASSIGNTRIALCNT%		/**< RAB assignment try count */
+	S32			RABSetupCount;			%RABSETUPTRIALCNT%		/**< RAB setup or modify try count */
+	S32			RABSetupSuccCount;		%RABSETUPSUCCNT%		/**< RAB setup or modify success count */
+	S32			RABReleaseCount;		%RABRELEASETRIALCNT%	/**< RAB release try count */
+	S32			RABReleaseSuccCount;	%RABRELEASESUCCCNT%		/**< RAB release success count */
+	S32			RABQueueCount;			%RABQUEUECNT%			/**< RAB queue try count, Reject or 타임아웃경우 */
+
+	S32			ActPDPSetupCount;		%ACTPDPSETUPCNT%		/**< Activate PDP Context try count */
+	S32			ActPDPSetupSuccCount;	%ACTPDPSETUPSUCCNT%		/**< Activate PDP Context success count */
+	S32			DeActPDPSetupCount;		%DEACTPDPSETUPCNT%		/**< DeActivate PDP Context try count */
+	S32			DeActPDPSetupSuccCount;	%DEACTPDPSETUPSUCCCNT%	/**< DeActivate PDP Context success count */
+	S32			ServiceRejectCount;		%ServiceRejectCnt%		/**< Service Reject Count */
+	S32			CallRetryCount;			%CallRetryCnt%			/**< Call Retry Count */
+	S32			RelocCancelCount;		%RELOCACANCELCNT%		/**< Relocation Cancel count */
+
+	U32			UPSigPacketCnt;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			DNSigPacketCnt;		@STG_PARM:JAVA_LISTUSEYN:YES@
+} stIUPSCnt;
+
+typedef struct _st_LOGIUPS_Time {
+    STIME      llEndtime;              	%Endtime%                  	/**< Call 종료 시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    MTIME      llEndutime;             	%Endutime%                  	/**< Call 종료 시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    S32      	iSetupDuration;     	%SetupDuration%          /**< Call 셋업시간  
+                                                                InitialUEmesage ~ Activate PDP Context accept까지 */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32      	iReleaseDuration;   	%ReleaseDuration%       /**< 호 릴리즈 시간 
+                                                                Deactvate 에서 Iu Release complete 까지의 시간  or
+																Relocation Request  ~ Iu Release complete 까지의 시간
+																*/ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    STIME      llSecurityStarttime;    	%SecurityStarttime%         /**< SecurityMod Command 발생시간 */
+    MTIME      llSecurityStartutime;   	%SecurityStartutime%         /**< SecurityMod Command 발생시간 */
+    STIME      llCommonIdStarttime;    	%CommonIDStarttime%     	/**< common Id 발생 시간 */
+    MTIME      llCommonIdStartutime;   	%CommonIDStartutime%     	/**< common Id 발생 시간 */
+    STIME      llActPDPStarttime;      	%ActPDPStartTimetime%   	/**< Activation PDP Start Time */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    MTIME      llActPDPStartutime;     	%ActPDPStartTimeutime%   	/**< Activation PDP Start Time */ @STG_PARM:JAVA_LISTUSEYN:YES@
+    STIME      llRABAssignStarttime;   	%RABAssignStarttime%    	/**< RAB Assignment Request 발생시간 */
+    MTIME      llRABAssignStartutime;  	%RABAssignStartutime%    	/**< RAB Assignment Request 발생시간 */
+    STIME      llDeActPDPStarttime;    	%DeactPDPStarttime%   	 	/**< Deactivate PDP Context request 발생 시간 */
+    MTIME      llDeActPDPStartutime;   	%DeactPDPStartutime%   	 	/**< Deactivate PDP Context request 발생 시간 */
+    STIME      llRelocStarttime;    	%RelocStarttime%  	 	 	/**< Relocation Required 발생 시간 */
+    MTIME      llRelocStartutime;    	%RelocStartutime%  	 	 	/**< Relocation Required 발생 시간 */
+    STIME      llRelocCmdStarttime;   	%RelocCmdStarttime%   	 	/**< Relocation Command 발생 시간 */
+    MTIME      llRelocCmdStartutime;   	%RelocCmdStartutime%   	 	/**< Relocation Command 발생 시간 */
+    STIME      llRelocAckStarttime;  	%RelocAckStarttime%   	 	/**< Relocation Request Ack 발생 시간 */
+    MTIME      llRelocAckStartutime;  	%RelocAckStartutime%   	 	/**< Relocation Request Ack 발생 시간 */
+    STIME      llRelocDetectStarttime; 	%RelocDetectStarttime%   	/**< Relocation Detect 발생 시간 */
+    MTIME      llRelocDetectStartutime;	%RelocDetectStartutime%   	/**< Relocation Detect 발생 시간 */
+    STIME      llRelocCompleteStarttime; 	%RelocCompleteStarttime%   	/**< Relocation Complete 발생 시간 */
+    MTIME      llRelocCompleteStartutime; 	%RelocCompleteStartutime%   	/**< Relocation Complete 발생 시간 */
+    STIME      llRelocCancelStarttime; 	%RelocCancelStarttime%    	/**< Relocation Cancel 발생 시간 */
+    MTIME      llRelocCancelStartutime; 	%RelocCancelStartutime%    	/**< Relocation Cancel 발생 시간 */
+    STIME      llIuReleaseStarttime;   	%IuReleaseStarttime%    	/**< Iu Release Command 발생시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@ 
+    MTIME      llIuReleaseStartutime;   	%IuReleaseStartutime%    	/**< Iu Release Command 발생시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@ 
+
+	STIME      llAttachReqStarttime;       %AttachReqStarttime%    /**< */
+	MTIME      llAttachReqStartutime;       %AttachReqStartutime%    /**< */
+	STIME      llRoutingUpStarttime;       %RoutingUpStarttime%    /**< */
+	MTIME      llRoutingUpStartutime;       %RoutingUpStartutime%    /**< */
+	STIME      llANCReqStarttime;          %ANCReqStarttime%    /**< */
+	MTIME      llANCReqStartutime;          %ANCReqStartutime%    /**< */
+	STIME      llIdentityStarttime;        %IdentityStarttime%    /**< */
+	MTIME      llIdentityStartutime;        %IdentityStartutime%    /**< */
+	STIME      llModPDPReqStarttime;       %ModPDPReqStarttime%    /**< */
+	MTIME      llModPDPReqStartutime;       %ModPDPReqStartutime%    /**< */
+    
+    S32         iSecurityDuration;      %SecurityDuration%  	/**< Security Mode Command ~
+                                                               	Security mode Complete */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32         iActPDPDuration;        %ActPDPDuration%    	/**< Activate PDP context request ~   
+                                                               	Activate PDP context accept */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32         iDeactPDPDuration;      %DeactPDPDuration%  	/**< DeActivate PDP context request ~  
+                                                               	DeActivate PDP context accpet */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32         iRABAssignDuration;     %RABAssignDuration% 	/**< RAB Assign Command  ~                        
+                                                               	RAB Assign complete  */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32         iRelocDuration; 		%RelocDuration% 		/**< Relocation Required ~                        
+                                                               	Relocation Command  */ @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_DURATION:YES@
+    S32         iRelocCmdRelDuration;  	%RelocComRelDuration% 	@STG_PARM:JAVA_DURATION:YES@ /**< Relocation Commnad ~                        
+                                                               	Iu Release Command  */                      
+    S32         iRelocReqDuration; 		%RelocReqDuration% 	@STG_PARM:JAVA_DURATION:YES@	/**< Relocation Reqest ~                        
+                                                               	Relocation Request Ack  */                      
+    S32         iRelocDetectDuration;  	%RelocDetectDuration% @STG_PARM:JAVA_DURATION:YES@	/**< Relocation Request Ack ~                        
+                                                               	Relocation Detect  */                      
+    S32         iRelocCompleteDuration; %RelocCompleteDuration% @STG_PARM:JAVA_DURATION:YES@ /**< Relocation Detect ~                        
+                                                               	Relocation Complete  */                      
+    S32         iRelocCancelDuration;  	%RelocCancelDuration%  @STG_PARM:JAVA_DURATION:YES@	/**< Relocation Cancel ~                        
+                                                               	Relocation Cancel Ack */                      
+    S32         iIuReleaseDuration;     %IuReleaseDuration%  @STG_PARM:JAVA_DURATION:YES@	/**< Iu Release Command  ~                        
+                                                               	Iu Release complete  */                      
+
+    S32         iAttachReqDuration;     %AttachReqDuration% @STG_PARM:JAVA_DURATION:YES@	/**< Attach Req ~ attach Accept or complete */
+    S32         iRoutingUpDuration;     %RoutingUpDuration% @STG_PARM:JAVA_DURATION:YES@	/**< Routing Area update Req ~ Routing Area update Accept or complete */
+    S32         iANCDuration;     		%ANCDuration% 		@STG_PARM:JAVA_DURATION:YES@	/**< Auth and Ciphering rquest ~ Auth and ciphering respnse */
+    S32         iIdentityDuration;     	%IdentityDuration% 	@STG_PARM:JAVA_DURATION:YES@	/**< Identity Request ~ Identity Response */
+    S32         iModPDPReqDuration;    	%ModPDPReqDuration% @STG_PARM:JAVA_DURATION:YES@	/**< Modify PDP context Request  ~ Modify PDP context Accept */
+} stLOGIUPS_Time;
+
+typedef struct _st_LOGIUPS_RANAPData {
+    U32			CNDomainID;											/**< 9.2.1.5 */
+    STRING		PLMNId[8];											/**< 9.2.3.6 */
+    U32			gRNCID;						%RNCId%					/**< 9.2.1.39 */
+    STRING		LAC[8];												/**< 9.2.3.6 */			
+    STRING		RAC[4];												/**< 9.2.3.7 */				
+    STRING		SAC[8];												/**< 9.2.3.9 */
+
+	U16			ServiceAreaDomain;			%SvcDomain%				/**< 9.2.3.9 KTF 변경 */
+	U16			RNCNumber;				
+	U16			NodeBNumber;
+	U16			SectorNumber;
+
+    STRING		IuSignalConId[8];										/**< 9.2.1.38 */
+    U32			chIntyProtectAlgorithm;		%IntegrityAlgorithm%	/**< 9.2.1.13 */
+    U32			chEncrytionAlgorithm;		%EncryptAlgorithm%		/**< 9.2.1.14 */
+
+	/* Relocation Message */
+	U32			RelocationType;										/**< 9.2.1.23 */
+    STRING		Target_PLMNId[8];									/**< 9.2.1.25 */
+    U32			Target_RNCId;			
+    STRING		Target_LAC[8];
+    STRING		Target_RAC[4];	
+    U32			gCNId;						%CNId%					/**< 9.2.1.46 */
+
+} stLOGIUPS_RData;
+
+typedef struct _st_LOGIUPS_GMMSMData {
+    U16         usNSAPI;                %NSAPI%             /**< */
+    U16         usLLCSAPI;              %LLCSAPI%           /**< 10.5.6.9 */
+    
+    U16         Q_Reliable_Class;       %ReliabilityClass%  /**< 10.5.6.5 (3 bits) */
+    U16         Q_Delay_Class;          %DelayClass%        /**<  Delay Class (3 bits) */
+    U16         Q_Precedence_Class;     %PrecedenceClass%   /**< Precedence Class (3 bits) */
+    U16         Q_Peak_throughput;      %PeakThroughput%    /**< Peak throughput (4bits) */
+    
+    U32         Q_Mean_throughput;      %MeanThroughput%    /**< Mean throughput (5bit) */
+    U32         Q_Delivery_SDU;         %DeliveryErrorSDU%  /**< Delivery of erroneous SDUs (3 bits) */
+    U16         Q_Delivery_Order;       %DeliveryOrder%     /**< Delivery Order (3bits) */
+    U16         Q_Traffic_Class;        %TrafficClass%      /**< Traffic Class (3bits) */
+    
+    U16         Q_MAX_SDU_Size;         %MaxSDUSize%        /**< max SDU size (1 octet) */
+    U16         Q_MAX_RATE_UP;          %MaxRateUp%         /**< Maximum bit rate for uplink (1 octet) */
+    U32         Q_MAX_RATE_DN;          %MaxRateDown%       /**< Maximum bit rate for downlink (1 octet) */
+    U32         Q_BER;                  %ResidualBER%       /**< Residual Bit Error Rate (BER) (4bits) */
+    
+    U32         Q_SDU_E_Ratio;          %SDUErrorRatio%     /**< SDU error ratio (4bits) */                   
+    U32         Q_Traffic_Priority;     %TrafficHandlePriority% /**< Traffic handing priority (2bits) */      
+    U16         Q_Transfer_Delay;       %TransferDelay%     /**< Transfer Delay (6bits) */                    
+    U16         Q_Guarant_Rate_UP;      %GuaranteRateUp%    /**< Graranteed bit rate for uplink (1octet) */   
+                                                                                                              
+    U16         Q_Guarant_Rate_DN;      %GuaranteRateDown%  /**< Graranteed bit rate for downlink (1octet) */ 
+    U16         PDPTypeOrga;            %PDPTypeOrg%        /**< 10.5.6.4 */                                  
+                                                                                                              
+    S32         PDPTypeNum;             %PDPTypeNum%        /**< PDP Type Number  */                          
+                                                                                                              
+    U32         PDPAddress;         	%PDPAddress%        /**< PDP Address */                               
+    STRING          AccesPointName[104];    %APName%            /**< 10.5.6.1 */                                  
+                                                                                                              
+    U16         RadioPriority;          %RadioPriority%     /**< 10.5.7.2 */                                  
+    U16         PacketFlowId;           %PacketFlowId%      /**< 10.5.6.11 */                                 
+                                                                                                              
+} stLOGIUPS_MData;
+
+TABLE_LOG typedef struct _st_Iups_Sess_Log {
+    <STG_COMMON:CALL_COMMON>
+    <STG_COMMON:SESS_COMMON>
+
+    STRING              ucSessionID[DEF_SIZE_SESSIONID];    %SessionID% /**< SCCP Session ID */
+
+	U32				TMSIType;							/**< 호 시작 Type */
+
+	U16				CallStartType;						/**< 호 시작 Type */
+	U16				CallEndType;						/**< 호 종료 Type */
+	U16				AttachType;							/**< Attach Type */
+	U16				AttachResult;						/**< Attach Result */
+
+	U16				ServiceType;						/**< Service Request Type */
+	U16				usServiceRejCause;					/**< Service Reject Code */
+
+	U16				UpdateType;							/**< Update Request Type */
+	U16				UpdateResult;						/**< Update Result */
+
+    stLOGIUPS_Time  stIupsTime;     %Iups%           	/**< IUPS 호 시간 정보 */
+    stIUPSCnt       stIupsCnt;      %TTTTT__%           /**< IUPS 호 분석정보 */
+
+    stLOGIUPS_RData stIupsRData;    %TTTTT__%           /**< RANAP DATA */
+    stLOGIUPS_MData stIupsMData;    %TTTTT__%           /**< GMMSM DATA */
+
+    U16             usCallState;    %CallState%         /**< 호 종료 상태 */
+    S16             ReleaseCause;    %ReleaseCause% 	/**<  IuRelease Cause 값 */
+
+    U32             usErrorProtocol;    %ErrorProtocol% /**< 실패 혹은 Reject가 발생한 프로토콜 코드
+                                                             0: 정상 종료
+                                                            50: RANAP
+                                                            51: GMM
+                                                            52: SM */
+    S32             FailCause;         %FailCause%      /**<  ErrorProtocol */
+
+	U32				UPSigPacketBytes;					/**< MTP3b + SCCP 포함 **/ 	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32				DNSigPacketBytes;												@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32				UPSigPayloadBytes;					/**< MTP3b + SCCP 불 포함 **/ 	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32				DNSigPayloadBytes;													@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ @STG_PARM:JAVA_DETAILEND:YES@
+
+} LOG_IUPS;			@STG_TYPEDEF:DB_TABLE_LIST:LOG_IUPS@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+
+/**< ---------------------------------------------------- IUPS range ---------End **/
+
+
+
+
+
+<TAG_DEFINE_START:USER_ERROR>       
+#define HTTP_UERR_EMPTY	0
+#define HTTP_UERR_900	900 /* 서버로부터 오류를 나타내는 응답 코드가 온 경우 (응답 코드 400 이상) */ 
+#define HTTP_UERR_910	910 /* Req 메시지가 완료되지 않고 Transaction이 종료된 경우 */ 
+#define HTTP_UERR_911	911 /* Req 메시지가 예정된 크기보다 작게 전송된 후 그 다음 Req메시지가 전송된 경우 */
+#define HTTP_UERR_920	920 /* 완료된 Req 메시지에 대해 서버 측의 ACK가 전송되지 않은 경우 */  
+#define HTTP_UERR_930	930 /* 서버 측의 ACK가 전송되었으나 응답메시지의 전송이 시작되지 않은 경우 */
+#define HTTP_UERR_940	940 /* 응답메시지가 시작된 후 응답메시지 전송이 완료되지 않고 Transaction이 종료된 경우 */
+#define HTTP_UERR_941	941 /* Res 메시지가 예정된 크기보다 작게 전송된 후 그 다음 Res 메시지가 전송된 경우 */
+#define HTTP_UERR_950	950 /* 응답메시지가 완료되었지만 MN에서 ACK가 전송되지 않고 트랜잭션이 종료된 경우 */
+#define HTTP_UERR_960	960 /* Req 메시지에서 잘못된 Method 또는 알수 없는 Method가 있는 경우 */
+#define HTTP_UERR_970	970 /* Seq 번호가 맞지 않아서 정리된 경우 */
+<TAG_DEFINE_END:USER_ERROR>
+
+
+TABLE_LOG typedef struct _st_CF_XCAP_MSG {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	STRING	LOGURL[MAX_LOGURL_SIZE]; @STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ @STG_PARM:JAVA_DETAILEND:YES@
+
+} CF_XCAP_MSG; @STG_TYPEDEF:DB_CF_LIST:CF_XCAP_MSG@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@  @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+
+/* LOG_SIP_TRANS를 위한 define 값 */
+#define SIP_CALLID_SIZE			65
+#define SIP_CALLID_LEN			(SIP_CALLID_SIZE - 1)
+#define SIP_FROM_SIZE			65
+#define SIP_FROM_LEN			(SIP_FROM_SIZE - 1)
+#define SIP_TO_SIZE				65
+#define SIP_TO_LEN				(SIP_TO_SIZE - 1)
+#define SIP_URI_SIZE			257
+#define SIP_URI_LEN				(SIP_URI_SIZE - 1)
+#define SIP_TAG_SIZE			33
+#define SIP_TAG_LEN				(SIP_TAG_SIZE - 1)
+#define SIP_USERAGENT_SIZE		33
+#define SIP_USERAGENT_LEN		(SIP_USERAGENT_SIZE - 1)
+#define SIP_USERNAME_SIZE		33
+#define SIP_USERNAME_LEN		(SIP_USERNAME_SIZE - 1)
+#define SIP_NONCE_SIZE			33
+#define SIP_NONCE_LEN			(SIP_NONCE_SIZE - 1)
+#define SIP_PROTO_SIZE			33
+#define SIP_PROTO_LEN			(SIP_PROTO_SIZE - 1)
+
+<TAG_DEFINE_START:SIP_ENDSTATUS>       
+#define SIP_ENDSTATUS_REQ		1
+#define SIP_ENDSTATUS_1xx		2
+#define SIP_ENDSTATUS_RES		3
+#define SIP_ENDSTATUS_ACK		4
+<TAG_DEFINE_END:SIP_ENDSTATUS>       
+
+<TAG_DEFINE_START:SIP_ERROR>       
+#define SIP_UERR_EMPTY	0
+#define SIP_UERR_8000	8000 /* 서버로부터 오류를 나타내는 응답 코드가 온 경우 (응답 코드 400 이상) */ 
+#define SIP_UERR_8100	8100 /* INVITE 이후에 RESPONSE 없이 ACK를 받은 경우 */ 
+#define SIP_UERR_8200	8200 /* TIMEOUT으로 정리된 경우 */
+<TAG_DEFINE_END:SIP_ERROR>
+
+/**
+ * @brief LOG_SIP_TRANS : SIP Transaciton DB Log
+ *
+ *
+ * @see	common_stg.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Sip_Trans_Log {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:TRANS_COMMON>
+
+	STIME		TransStartTime;		/**< Transaction 시작 시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME		TransStartMTime;	/**< Transaction 시작 시간 (Micro) */ @STG_PARM:JAVA_LISTUSEYN:YES@		
+	STRING		CallID[SIP_CALLID_SIZE];	/**< Call-ID */
+	U16			method;				/**< Request Method */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			CSeq;				/**< CSeq: 1 INVITE 에서 숫자 */
+	U16			Protocol;			/**< 사용 Protocol: TCP, UDP, SCTP 구분 */
+	IP4			ServerIP;			/**< Server IP */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			ServerPort;			/**< Server Port */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			ClientPort;			/**< Client Port */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STIME		TransEndTime;		/**< Transaction 끝 시간 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	MTIME		TransEndMTime;		/**< Transaction 끝 시간 (Micro) */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STIME		FirstResTime;		/**< 첫번째 Response를 받은 시간 */
+	MTIME		FirstResMTime;		/**< 첫번째 Response를 받은 시간 (Micro) */
+	STIME		ResTime;		/**< Response를 받은 시간 */
+	MTIME		ResMTime;		/**< Response를 받은 시간 (Micro) */
+	STIME		AckTime;		/**< Ack Method를 보낸 시간 */
+	MTIME		AckMTime;		/**< Ack Method를 보낸  시간 (Micro) */
+	U32			ResCode;		/**< Response Code */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			<TAG_DEFINE:SIP_ERROR>L7FailCode;	/**< FailCode */
+	U16			TotalReqCnt;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			TotalResCnt;	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			SkipResCnt;		/**< 1xx 응답의 개수 */
+	U16			RetransReqCnt;
+	U16			RetransResCnt;
+	U32			ReqDataSize;		/**< UDP, TCP Payload Size */
+	U32			ResDataSize;		/**< UDP, TCP Payload Size */
+	U32			ReqIPDataSize;		/**< IP Payload Size */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			ResIPDataSize;		/**< IP Payload Size */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			<TAG_DEFINE:SIP_ENDSTATUS>EndStatus;
+	U32			FirstResGapTime;	/**< FirstResTime - TransStartTime */ @STG_PARM:JAVA_DURATION:YES@
+	U32			ResGapTime;			/**< ResTime - TransStartTime */ @STG_PARM:JAVA_DURATION:YES@
+	U32			AckGapTime;			/**< AckTime - ResTime */ @STG_PARM:JAVA_DURATION:YES@
+	U32			SessID;				/**< SDP의 Owner/Creator에 있는 Session ID */
+	U16			AudioPort;			/**< SDP의 Media Description에 있는 audio Port */
+	U16			VideoPort;			/**< SDP의 Media Description에 있는 video Port */
+	STRING		SIPFrom[SIP_FROM_SIZE];	/**< From 필드 값 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING		SIPTo[SIP_TO_SIZE];	/**< To 필드 값 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING		URI[SIP_URI_SIZE];	/**< Request URI */	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+	STRING		UserAgent[SIP_USERAGENT_SIZE];	/**< User-Agent */
+	STRING		Auth_nonce[SIP_NONCE_SIZE];	/**< REGISTER에서 WWW-Authenticate, Authorization의 nonce값 */
+	STRING		UserName[SIP_USERNAME_SIZE];	/**< SDP의 Owner/Creator에 있는 Username */
+	STRING		AudioProto[SIP_PROTO_SIZE];		/**< SDP의 Media Description에 있는 audio Proto */	
+	STRING		VideoProto[SIP_PROTO_SIZE];		/**< SDP의 Media Description에 있는 video Proto */	 @STG_PARM:JAVA_DETAILEND:YES@
+	STIME		OpStartTime;	/**< 분석 시작 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpStartMTime;	/**< 분석 시작 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME		OpEndTime;		/**< 마지막 처리 Time */		@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpEndMTime;		/**< 마지막 처리 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+} LOG_SIP_TRANS; @STG_TYPEDEF:DB_TABLE_LIST:LOG_SIP_TRANS@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+TABLE_LOG typedef struct _st_CF_SIP_MSG {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	STRING		CallID[SIP_CALLID_SIZE];				/**< Call-ID */
+	U16			method;				/**< Request Method */ @STG_PARM:JAVA_LISTUSEYN:YES@	
+	U32			CSeq;				/**< CSeq: 1 INVITE 에서 숫자 */
+	U32			SessID;				/**< SDP의 Owner/Creator에 있는 Session ID */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	U16			AudioPort;			/**< SDP의 Media Description에 있는 audio Port */
+	U16			VideoPort;			/**< SDP의 Media Description에 있는 video Port */
+	STRING		SIPFrom[SIP_FROM_SIZE];	/**< From 필드 값 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING		SIPTo[SIP_TO_SIZE];	/**< To 필드 값 */ @STG_PARM:JAVA_LISTUSEYN:YES@
+	STRING		URI[SIP_URI_SIZE];	/**< Request URI */	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@
+	STRING		UserAgent[SIP_USERAGENT_SIZE];	/**< User-Agent */
+	STRING		Auth_nonce[SIP_NONCE_SIZE];	/**< REGISTER에서 WWW-Authenticate, Authorization의 nonce값 */
+	STRING		UserName[SIP_USERNAME_SIZE];	/**< SDP의 Owner/Creator에 있는 Username */
+	STRING		AudioProto[SIP_PROTO_SIZE];		/**< SDP의 Media Description에 있는 audio Proto */	
+	STRING		VideoProto[SIP_PROTO_SIZE];		/**< SDP의 Media Description에 있는 video Proto */	@STG_PARM:JAVA_DETAILEND:YES@
+
+} CF_SIP_MSG; @STG_TYPEDEF:DB_CF_LIST:CF_SIP_MSG@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+/**
+ * @brief TEXT_INFO
+ *
+ *
+ * @see	common_stg.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_TEXT_INFO {
+	OFFSET	offset;					/**< PACKET_DATA로 부터의 TEXT DATA 시작 OFFSET 값 */
+	U32		len;					/**< DATA Length */
+	STIME	uiStartTime;
+	MTIME	uiStartMTime;
+	STIME	uiLastUpdateTime;
+	MTIME	uiLastUpdateMTime;
+	STIME	uiAckTime;
+	MTIME	uiAckMTime;
+	IP4		clientIP;
+	IP4		serverIP;
+	U16		clientPort;
+	U16		serverPort;
+	U16		protocol;
+	U32		IPDataSize;
+	U32		range;
+	U32		network;
+	U32		rawFileIndex;
+	U32		rawPacketIndex;
+} TEXT_INFO;
+
+#define YES 1
+#define NO  0
+
+
+<TAG_AUTO_DEFINE_START :TSIP(700)>
+TSIP_MSG_WAIT	#{		/* Comments1 */
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_MSG_WAIT", __FILE__, __LINE__);
+    }#
+TSIP_RCV_REQ_NORMAL	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_REQ_NORMAL", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_REQ;
+	}#
+TSIP_RCV_RES_NORMAL	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_RES_NORMAL", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_RES;
+	}#
+TSIP_RCV_RES_NORMAL_SKIP	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_RES_NORMAL_SKIP", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_1xx;
+	}#
+TSIP_RCV_REQ_INVITE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_REQ_INVITE", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_REQ;
+	}#
+TSIP_RCV_RES_INVITE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_RES_INVITE", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_RES;
+	}#
+TSIP_RCV_REQ_ACK	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_REQ_ACK", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_ACK;
+	}#
+TSIP_RCV_RES_INVITE_SKIP	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] TSIP_RCV_RES_INVITE_SKIP", __FILE__, __LINE__);
+	pTHIS->endstatus = SIP_ENDSTATUS_1xx;
+	}#
+<TAG_AUTO_DEFINE_END:TSIP>
+
+
+<TAG_AUTO_DEFINE_START :TSIP_STATUS(1)>
+TSIP_RES_SKIP
+TSIP_RES_NORMAL
+TSIP_REQ_NORMAL
+TSIP_REQ_INVITE
+TSIP_REQ_ACK
+<TAG_AUTO_DEFINE_END:TSIP_STATUS>
+
+typedef struct _st_SIP_INFO {
+	DEF			<TAG_DEFINE:TSIP_STATUS>TSIP_STATE;			/**< TAG_FLOW의 기본 현재 STATE */
+	DEF			<TAG_DEFINE:TSIP_STATUS>TSIP_OLD_STATE;		/**< TAG_FLOW의 기본 OLD_STATE */
+	U64			timerNID;						/**< TIMER ID */
+	OFFSET		offset_LOG;						/**< NODE에서 LOG의 offset 값 */
+	OFFSET		offset_NODE;					/**< HEADER NODE의 offset 값 */
+	S32			finish_trans;					/**< transaction finish 여부 판단 */
+	S32			start_trans;					/**< transaction start 여부 판단 */
+	U16			failcode;						/**< Fail Code */
+	U16			endstatus;						/**< END STATUS */
+} SIP_INFO;
+
+#ifndef __FLAT_VOID__
+typedef struct _st_TSIP_INFO {
+	U32			<TAG_DEFINE:TSIP_STATUS>status;				/**< 현재 MSG의 STATE 값 */ 
+	S32			delete_node;								/**< NODE 삭제 여부 판단 */
+	U32			msgtype;
+	void		*pTEXTINFO;									/**< TEXT_INFO */
+	void		*pMEMSINFO;									/**< nifo 정보 */
+	OFFSET		offset_DATA;								/**< 현재 MSG NODE */		
+	void		(*AddMsg)(void *, void *);					/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*InitLog)(void *, void *);					/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetResSkip)(void *, void *);				/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetResNormal)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetRetransReq)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetRetransRes)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetAck)(void *, void *);					/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetRetransAck)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetReqDataSize)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+	void		(*SetResDataSize)(void *, void *);			/**< args(SIP_INFO, TSIP_INFO) */
+} TSIP_INFO;
+
+<TAG_FLOW_START:TSIP(pTHIS-SIP_INFO,pINPUT-TSIP_INFO)>
+%TSIP_MSG_WAIT:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_MSG_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_MSG_WAIT [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+	
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+    }#
+%TSIP_MSG_WAIT:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_MSG_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_MSG_WAIT [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+    }#
+%TSIP_MSG_WAIT:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_NORMAL:TSIP_RCV_REQ_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_MSG_WAIT [EDGE] TSIP_REQ_NORMAL", __FILE__, __LINE__);
+	
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pTHIS->start_trans = YES;
+	pINPUT->InitLog(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_MSG_WAIT:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_INVITE:TSIP_RCV_REQ_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_MSG_WAIT [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pTHIS->start_trans = YES;
+	pINPUT->InitLog(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_MSG_WAIT:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_ACK:TSIP_MSG_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_MSG_WAIT [EDGE] TSIP_REQ_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+    }#
+
+
+%TSIP_RCV_REQ_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_NORMAL_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_NORMAL [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResSkip(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_NORMAL [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pINPUT->SetResNormal(pTHIS, pINPUT);
+	pTHIS->finish_trans = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_NORMAL:TSIP_RCV_REQ_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_NORMAL [EDGE] TSIP_REQ_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+
+
+%TSIP_RCV_RES_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_NORMAL_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransRes(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_NORMAL:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_NORMAL:TSIP_RCV_REQ_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL [EDGE] TSIP_REQ_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+
+
+%TSIP_RCV_RES_NORMAL_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_NORMAL_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL_SKIP [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_NORMAL_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL_SKIP [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pINPUT->SetResNormal(pTHIS, pINPUT);
+	pTHIS->finish_trans = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_NORMAL_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_NORMAL:TSIP_RCV_REQ_NORMAL%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_NORMAL_SKIP [EDGE] TSIP_REQ_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_INVITE_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_INVITE [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResSkip(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_INVITE [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pINPUT->SetResNormal(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_INVITE:TSIP_RCV_REQ_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_INVITE [EDGE] TSIP_REQ_INVITE", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_ACK:TSIP_MSG_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_INVITE [EDGE] TSIP_REQ_ACK", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pTHIS->finish_trans = YES;
+	pTHIS->failcode = SIP_UERR_8100;
+	pINPUT->SetAck(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_INVITE_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransRes(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_INVITE:TSIP_RCV_REQ_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE [EDGE] TSIP_REQ_INVITE", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_ACK:TSIP_RCV_REQ_ACK%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE [EDGE] TSIP_REQ_ACK", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pINPUT->SetAck(pTHIS, pINPUT);
+	pTHIS->finish_trans = YES;
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_ACK:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_REQ_ACK%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_ACK [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_ACK:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_REQ_ACK%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_ACK [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransRes(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_ACK:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_INVITE:TSIP_RCV_REQ_ACK%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_ACK [EDGE] TSIP_REQ_INVITE", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_REQ_ACK:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_ACK:TSIP_RCV_REQ_ACK%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_REQ_ACK [EDGE] TSIP_REQ_ACK", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransAck(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_SKIP:TSIP_RCV_RES_INVITE_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE_SKIP [EDGE] TSIP_RES_SKIP", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_RES_NORMAL:TSIP_RCV_RES_INVITE%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE_SKIP [EDGE] TSIP_RES_NORMAL", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pINPUT->SetResNormal(pTHIS, pINPUT);
+	pINPUT->SetResDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_INVITE:TSIP_RCV_RES_INVITE_SKIP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE_SKIP [EDGE] TSIP_REQ_INVITE", __FILE__, __LINE__);
+
+	/* NODE 삭제 */
+	pINPUT->delete_node = YES;
+	pINPUT->SetRetransReq(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+%TSIP_RCV_RES_INVITE_SKIP:OTHERMSG:(D)pINPUT->status:(Y)TSIP_REQ_ACK:TSIP_MSG_WAIT%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] TSIP_RCV_RES_INVITE_SKIP [EDGE] TSIP_REQ_ACK", __FILE__, __LINE__);
+
+	/* ADD MSG */
+	pINPUT->AddMsg(pTHIS, pINPUT);	
+	pTHIS->finish_trans = YES;
+	pTHIS->failcode = SIP_UERR_8100;
+	pINPUT->SetAck(pTHIS, pINPUT);
+	pINPUT->SetReqDataSize(pTHIS, pINPUT);
+    }#
+
+<TAG_FLOW_END:TSIP>
+#endif
+
+#define	MEGACO_TERMINATION_ID_LEN		64
+#define	MEGACO_USERNAME_LEN				16
+#define	MEGACO_SESSNAME_LEN				64
+#define	MEGACO_PROTO_LEN				16
+#define	MEGACO_ATTR_LEN					64
+#define	MEGACO_BANDWIDTH_LEN			64
+#define MEGACO_LOCALCONTROL_LEN			64
+#define MEGACO_TERMINATION_STATE_LEN	64
+#define MEGACO_EVENTS_LEN				64
+#define MEGACO_SIGNALS_LEN				64
+
+#define MEGACO_COMMAND_TYPE_REQ			1
+#define MEGACO_COMMAND_TYPE_RES			2
+#define MEGACO_COMMAND_TYPE_ERR			3
+
+#define MEGACO_ERROR_UNDEFINED			0
+#define MEGACO_ERROR_NORMAL				1
+#define MEGACO_ERROR_TIMEOUT			2
+#define MEGACO_ERROR_NOREQUEST			3
+#define MEGACO_ERROR_RENEW				4
+
+typedef struct _st_megaco_msg {
+	U32			ErrorCode;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			TransactionID;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			CommandType;
+	U32			ContextID;
+	STRING		TerminationID[MEGACO_TERMINATION_ID_LEN]; @STG_PARM:JAVA_LISTUSEYN:YES@
+
+	IP4			LocalIP;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			AudioPort;
+	U32			VideoPort;
+	IP4			RemoteIP;			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			RemoteAudioPort;
+	U32			RemoteVideoPort;
+	U32			AudioStreamID;
+	U32			VideoStreamID;
+
+	STRING		AudioLocalControl[MEGACO_LOCALCONTROL_LEN];
+	STRING		VideoLocalControl[MEGACO_LOCALCONTROL_LEN];
+
+	STRING		AudioUserName[MEGACO_USERNAME_LEN];
+	U32			AudioSessID;
+	U32			AudioSessVersion;
+	STRING		AudioSessName[MEGACO_SESSNAME_LEN];
+	U32			AudioStartTime;
+	U32			AudioStopTime;
+	STRING		AudioProto[MEGACO_PROTO_LEN];
+	STRING		AudioAttr[MEGACO_ATTR_LEN];
+	STRING		AudioBandWidth[MEGACO_BANDWIDTH_LEN];
+
+	STRING		VideoUserName[MEGACO_USERNAME_LEN];
+	U32			VideoSessID;
+	U32			VideoSessVersion;
+	STRING		VideoSessName[MEGACO_SESSNAME_LEN];
+	U32			VideoStartTime;
+	U32			VideoStopTime;
+	STRING		VideoProto[MEGACO_PROTO_LEN];
+	STRING		VideoAttr[MEGACO_ATTR_LEN];
+	STRING		VideoBandWidth[MEGACO_BANDWIDTH_LEN];
+
+	STRING		RemoteAudioUserName[MEGACO_USERNAME_LEN];
+	U32			RemoteAudioSessID;
+	U32			RemoteAudioSessVersion;
+	STRING		RemoteAudioSessName[MEGACO_SESSNAME_LEN];
+	U32			RemoteAudioStartTime;
+	U32			RemoteAudioStopTime;
+	STRING		RemoteAudioProto[MEGACO_PROTO_LEN];
+	STRING		RemoteAudioAttr[MEGACO_ATTR_LEN];
+	STRING		RemoteAudioBandWidth[MEGACO_BANDWIDTH_LEN];
+
+	STRING		RemoteVideoUserName[MEGACO_USERNAME_LEN];
+	U32			RemoteVideoSessID;
+	U32			RemoteVideoSessVersion;
+	STRING		RemoteVideoSessName[MEGACO_SESSNAME_LEN];
+	U32			RemoteVideoStartTime;
+	U32			RemoteVideoStopTime;
+	STRING		RemoteVideoProto[MEGACO_PROTO_LEN];
+	STRING		RemoteVideoAttr[MEGACO_ATTR_LEN];
+	STRING		RemoteVideoBandWidth[MEGACO_BANDWIDTH_LEN];
+
+	U32			StatNtOs;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatNtOr;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatRtpPs;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatRtpPr;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatRtpPl;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatRtpJit;		@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			StatRtpDelay;	@STG_PARM:JAVA_LISTUSEYN:YES@  @STG_PARM:JAVA_LISTEND:YES@
+
+	STRING		TerminationState[MEGACO_TERMINATION_STATE_LEN];
+	U32			EventsID;
+	STRING		EventsStr[MEGACO_EVENTS_LEN];
+	U32			ObservedEventsID;
+	STRING		ObservedEventsStr[MEGACO_EVENTS_LEN];
+	STRING		Signals[MEGACO_SIGNALS_LEN];  @STG_PARM:JAVA_DETAILEND:YES@
+} MEGACO_MSG;
+
+TABLE_LOG typedef struct _st_CF_MEGACO {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:CF_COMMON>
+
+	MEGACO_MSG	MEGACO;
+} CF_MEGACO;     @STG_TYPEDEF:DB_CF_LIST:CF_MEGACO@ @STG_TYPEDEF:SQL_TABLESPACE:CF@ @STG_TYPEDEF:JAVA_DAY:NO@  @STG_TYPEDEF:JAVA_CALLFLOWMESSAGE:YES@
+
+TABLE_LOG typedef struct _st_LOG_MEGACO {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:TRANS_COMMON>
+
+	U32			MessageID;
+
+	MEGACO_MSG	MEGACO;
+
+	U32			ReqDataSize;		/**< UDP, TCP Payload Size */
+	U32			ResDataSize;		/**< UDP, TCP Payload Size */
+	U32			ReqIPDataSize;		/**< IP Payload Size */	@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			ResIPDataSize;		/**< IP Payload Size */	@STG_PARM:JAVA_LISTUSEYN:YES@ @STG_PARM:JAVA_LISTEND:YES@ @STG_PARM:JAVA_DETAILEND:YES@
+
+	STIME		OpStartTime;	/**< 분석 시작 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpStartMTime;	/**< 분석 시작 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME		OpEndTime;		/**< 마지막 처리 Time */		@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpEndMTime;		/**< 마지막 처리 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+} LOG_MEGACO;     @STG_TYPEDEF:DB_TABLE_LIST:LOG_MEGACO@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@ @STG_TYPEDEF:JAVA_DAY:NO@ @STG_TYPEDEF:JAVA_PROTOCOL:YES@
+
+TABLE_LOG typedef struct _st_MEGACO_SESS {
+	<STG_COMMON:CALL_COMMON>
+	<STG_COMMON:SESS_COMMON>
+
+	MEGACO_MSG	MEGACO;
+	U32			ReqDataSize;	/**< UDP, TCP Payload Size */
+	U32			ResDataSize;	/**< UDP, TCP Payload Size */
+	U32			ReqIPDataSize;	/**< IP Payload Size */			@STG_PARM:JAVA_LISTUSEYN:YES@
+	U32			ResIPDataSize;	/**< IP Payload Size */			@STG_PARM:JAVA_LISTUSEYN:YES@
+
+	STIME		OpStartTime;	/**< 분석 시작 Time */			@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpStartMTime;	/**< 분석 시작 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+	STIME		OpEndTime;		/**< 마지막 처리 Time */		@STG_PARM:JAVA_DETAILUSEYN:NO@
+	MTIME		OpEndMTime;		/**< 마지막 처리 Micro Time */	@STG_PARM:JAVA_DETAILUSEYN:NO@
+} SESS_MEGACO;    @STG_TYPEDEF:DB_TABLE_LIST:SESS_MEGACO@ @STG_TYPEDEF:SQL_TABLESPACE:LOG@
+
+
+/** -------------------------------------- STAT ------ ****/
+
+TABLE_LOG typedef struct _st_STAT_WCDMA_IUPS_MIN_ {
+	U32			StatTime;
+	U32			StatHour;
+	U32			StatDay;
+	U32			RNCNum;
+	U32			SessTrialCnt;
+	U32			SetupSuccCnt;
+	U32			SetupSuccRate;
+	U32			UpSigPktCnt;
+	U32			DnSigPktCnt;
+	U32			UpSigPktBytes;
+	U32			DnSigPktBytes;
+	STIME		SessTime;
+	U32			AvgSessTime;
+	U32			SetupTime;
+	U32			AvgSetupTime;
+	U32			ReleaseTime;
+	U32			AvgRelTime;
+	STIME		RegDateTime;
+} STAT_WCDMA_IUPS_MIN;  @STG_TYPEDEF:DB_STAT_LIST:STAT_WCDMA_IUPS_MIN@ @STG_TYPEDEF:SQL_TABLESPACE:STAT@
+
+TABLE_LOG typedef struct _st_STAT_WCDMA_GTP_MIN_ {
+	U32			StatTime;
+	U32			StatHour;
+	U32			StatDay;
+	U32			SrcSystemID;
+	U32			SessTrialCnt;
+	U32			SetupSuccCnt;
+	U32			SetupSuccRate;
+	U32			CtrlUpReqCnt;
+	U32			CrtlUpResCnt;
+	U32			CtrlUpSuccCnt;
+	U32			CrtlUpSuccRate;
+	U32			CrtlDnReqCnt;
+	U32			CrtlDnResCnt;
+	U32			CtrlDnSuccCnt;
+	U32			CrtlDnSuccRate;
+	U32			UsrUpPktCnt;
+	U32			UsrDnPktCnt;
+	U32			CtrlUpPktBytes;
+	U32			CtrlDnPktBytes;
+	U32			UsrUpPktBytes;
+	U32			UsrDnPktBytes;
+	U32			UsrUpPPPBytes;
+	U32			UsrDnPPPBytes;
+	STIME		SessTime;
+	U32			AvgSessTime;
+	U32			SetupTime;
+	U32			AvgSetupTime;
+	U32			ReleaseTime;
+	U32			AvgRelTime;
+	STIME		RegDateTime;
+} STAT_WCDMA_GTP_MIN;  @STG_TYPEDEF:DB_STAT_LIST:STAT_WCDMA_GTP_MIN@ @STG_TYPEDEF:SQL_TABLESPACE:STAT@
+
+TABLE_LOG typedef struct _st_STAT_WCDMA_TCP_MIN_ {
+	U32			StatTime;
+	U32			StatHour;
+	U32			StatDay;
+	U32			SrcSystemID;
+	U32			SessTrialCnt;
+	U32			SetupSuccCnt;
+	U32			SetupSuccRate;
+	U32			CloseSuccCnt;
+	U32			CloseSuccRate;
+	U32			UpPktCnt;
+	U32			UpPktRetransCnt;
+	U32			UpPktCntRtrnsRate;
+	U32			DnPktCnt;
+	U32			DnPktRetransCnt;
+	U32			DnPktCntRtrnsRate;
+	U32			UpPktBytes;
+	U32			UpPktRetransBytes;
+	U32			UpPktBytRtrnsRate;
+	U32			DnPktBytes;
+	U32			DnPktRetransBytes;
+	U32			DnPktBytRtrnsRate;
+	STIME		SessTime;
+	U32			AvgSessTime;
+	U32			SetupTime;
+	U32			AvgSetupTime;
+	U32			ReleaseTime;
+	U32			AvgRelTime;
+	STIME		RegDateTime;
+} STAT_WCDMA_TCP_MIN;  @STG_TYPEDEF:DB_STAT_LIST:STAT_WCDMA_TCP_MIN@ @STG_TYPEDEF:SQL_TABLESPACE:STAT@
+	
+TABLE_LOG typedef struct _st_STAT_WCDMA_TCPNTE_MIN_ {
+	U32			StatTime;
+	U32			StatHour;
+	U32			StatDay;
+	U32			SrcSystemID;
+	U32			SessTrialCnt;
+	U32			SetupSuccCnt;
+	U32			SetupSuccRate;
+	U32			CloseSuccCnt;
+	U32			CloseSuccRate;
+	U32			UpPktCnt;
+	U32			UpPktRetransCnt;
+	U32			UpPktCntRtrnsRate;
+	U32			DnPktCnt;
+	U32			DnPktRetransCnt;
+	U32			DnPktCntRtrnsRate;
+	U32			UpPktBytes;
+	U32			UpPktRetransBytes;
+	U32			UpPktBytRtrnsRate;
+	U32			DnPktBytes;
+	U32			DnPktRetransBytes;
+	U32			DnPktBytRtrnsRate;
+	STIME		SessTime;
+	U32			AvgSessTime;
+	U32			SetupTime;
+	U32			AvgSetupTime;
+	U32			ReleaseTime;
+	U32			AvgRelTime;
+	STIME		RegDateTime;
+} STAT_WCDMA_TCPNTE_MIN;  @STG_TYPEDEF:DB_STAT_LIST:STAT_WCDMA_TCPNTE_MIN@ @STG_TYPEDEF:SQL_TABLESPACE:STAT@
+	
+TABLE_LOG typedef struct _st_STAT_WCDMA_RTCP_MIN_ {
+	U32			StatTime;
+	U32			StatHour;
+	U32			StatDay;
+	U32			SrcSystemID;
+	U32			SessTrialCnt;
+	U32			UpRTPPktCnt;
+	U32			UpRTPPktLossCnt;
+	U32			UpRTPPktLossRate;
+	U32			DnRTPPktCnt;
+	U32			DnRTPPktLossCnt;
+	U32			DnRTPPktLossRate;
+	U32			UpRTCPPktCnt;
+	U32			DnRTCPPktCnt;
+	U32			UpRTPPktBytes;
+	U32			DnRTPPktBytes;
+	U32			UpRTCPPktBytes;
+	U32			DnRTCPPktBytes;
+	U32			TotJitter;
+	U32			AvgJitter;
+	STIME		SessTime;
+	U32			AvgSessTime;
+	STIME		RegDateTime;
+} STAT_WCDMA_RTCP_MIN;  @STG_TYPEDEF:DB_STAT_LIST:STAT_WCDMA_RTCP_MIN@ @STG_TYPEDEF:SQL_TABLESPACE:STAT@
+
+
+
+<STATE_DIAGRAM_VERTEX :PV_FLOW(700)>
+PV_FLOW_START:OTHERMSG	#{		/* Comments1 */	
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_START", __FILE__, __LINE__);
+	}#
+PV_FLOW_MAC:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_MAC", __FILE__, __LINE__);
+	// pINPUT->pv_mac(pTHIS, pINPUT);
+    }#
+PV_FLOW_IP:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_IP", __FILE__, __LINE__);
+	// pINPUT->pv_ip(pTHIS, pINPUT);
+	}#
+PV_FLOW_TCP:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_TCP", __FILE__, __LINE__);
+	// pINPUT->pv_tcp(pTHIS, pINPUT);
+	}#
+PV_FLOW_UDP:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_UDP", __FILE__, __LINE__);
+	// pINPUT->pv_udp(pTHIS, pINPUT);
+	}#
+PV_FLOW_MTP3B:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_MTP3B", __FILE__, __LINE__);
+	// pINPUT->pv_mtp3b(pTHIS, pINPUT);
+    }#
+PV_FLOW_SCCP:CONTINUE	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_FLOW_SCCP", __FILE__, __LINE__);
+	// pINPUT->pv_sccp(pTHIS, pINPUT);
+    }#
+</STATE_DIAGRAM_VERTEX:PV_FLOW>
+
+
+<TAG_AUTO_DEFINE_START :PV_FLOW_STATUS(1)>
+PV_FLOW_STATUS_MAC
+PV_FLOW_STATUS_IP
+PV_FLOW_STATUS_TCP
+PV_FLOW_STATUS_UDP
+PV_FLOW_STATUS_MTP3B
+PV_FLOW_STATUS_SCCP
+<TAG_AUTO_DEFINE_END:PV_FLOW_STATUS>
+
+typedef struct _st_PV_FLOW_INFO {
+	DEF			<TAG_DEFINE:PV_FLOW>PV_FLOW_STATE;			/**< TAG_FLOW의 기본 현재 STATE */
+	DEF			<TAG_DEFINE:PV_FLOW>PV_FLOW_OLD_STATE;		/**< TAG_FLOW의 기본 OLD_STATE */
+} PV_FLOW_INFO;
+
+typedef struct _st_PV_FLOW_INPUT {
+	U32			<TAG_DEFINE:PV_FLOW_STATUS>status;			/**< 현재 MSG의 STATE 값 */ 
+	U8			*pPKT;										/**< nifo 정보 */
+	U32			pktlen;
+	U32			offset;
+	U8			*pOUT;
+	U32			outlen;	
+	U32			line;	
+	U32			fileidx;
+	U32			pktidx;
+	void		(*pv_hdr)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_mac)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_ip)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_tcp)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_udp)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_mtp3b)(void *, void *);				/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+	void		(*pv_sccp)(void *, void *);					/**< args(PV_FLOW_INFO, PV_FLOW_INPUT) */
+} PV_FLOW_INPUT;
+
+<STATE_DIAGRAM_EDGE:PV_FLOW(pTHIS-PV_FLOW_INFO,pINPUT-PV_FLOW_INPUT)>
+
+%PV_FLOW_START:(D)pINPUT->status:(Y)PV_FLOW_STATUS_MAC:PV_FLOW_MAC%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_START [EDGE] PV_FLOW_STATUS_MAC", __FILE__, __LINE__);
+	// pINPUT->pv_hdr(pTHIS, pINPUT);
+    }#
+%PV_FLOW_START:(D)pINPUT->status:(Y)PV_FLOW_STATUS_MTP3B:PV_FLOW_MTP3B%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_START [EDGE] PV_FLOW_STATUS_MTP3B", __FILE__, __LINE__);
+	// pINPUT->pv_hdr(pTHIS, pINPUT);
+    }#
+%PV_FLOW_MAC:(D)pINPUT->status:(Y)PV_FLOW_STATUS_IP:PV_FLOW_IP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_MAC [EDGE] PV_FLOW_STATUS_IP", __FILE__, __LINE__);
+    }#
+%PV_FLOW_IP:(D)pINPUT->status:(Y)PV_FLOW_STATUS_TCP:PV_FLOW_TCP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_IP [EDGE] PV_FLOW_STATUS_TCP", __FILE__, __LINE__);
+    }#
+%PV_FLOW_IP:(D)pINPUT->status:(Y)PV_FLOW_STATUS_UDP:PV_FLOW_UDP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_IP [EDGE] PV_FLOW_STATUS_UDP", __FILE__, __LINE__);
+    }#
+%PV_FLOW_TCP:(D)1:(Y)1:PV_FLOW_START%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_TCP [EDGE]", __FILE__, __LINE__);
+    }#
+%PV_FLOW_UDP:(D)1:(Y)1:PV_FLOW_START%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_UDP [EDGE]", __FILE__, __LINE__);
+    }#
+%PV_FLOW_MTP3B:(D)pINPUT->status:(Y)PV_FLOW_STATUS_SCCP:PV_FLOW_SCCP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_FLOW_MTP3B [EDGE] PV_FLOW_STATUS_SCCP", __FILE__, __LINE__);
+    }#
+</STATE_DIAGRAM_EDGE:PV_FLOW>
+
+/* OFFSET 보정 */
+#define	YES									1
+#define	NO									0
+#define	MAX_SEQUENCE						0xffffffff
+#define	MAX_VALID_OFFSET					((unsigned int) (MAX_SEQUENCE / 2))
+#define	OFFSET_SEQ(VALID_SEQ, NOW_SEQ)		((VALID_SEQ <= NOW_SEQ) ? (NOW_SEQ - VALID_SEQ) : (MAX_SEQUENCE + 1 + NOW_SEQ - VALID_SEQ))
+#define	NEXT_SEQ(SEQ, offset)				((SEQ+offset) % (MAX_SEQUENCE+1))
+#define	IS_VALID_SEQ(VALID_SEQ, NOW_SEQ)	((OFFSET_SEQ(VALID_SEQ, NOW_SEQ) < MAX_VALID_OFFSET) ? YES : NO)
+
+#pragma pack(0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

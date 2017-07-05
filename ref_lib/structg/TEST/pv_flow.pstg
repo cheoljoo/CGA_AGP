@@ -1,0 +1,56 @@
+FileName : pv_flow.h
+STC_FileName : flow.stc , flow_dot.stcI , LOG_member_Get_func.stc
+
+
+#define YES 1
+#define NO  0
+
+<TAG_AUTO_DEFINE_START :PV_ETH(700)>
+PV_ETH_MAC	#{		/* Comments1 */
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_ETH_MAC", __FILE__, __LINE__);
+    }#
+PV_ETH_IP	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_ETH_IP", __FILE__, __LINE__);
+	}#
+PV_ETH_TCP	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_ETH_TCP", __FILE__, __LINE__);
+	}#
+PV_ETH_UDP	#{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] [VERTEX] PV_ETH_UDP", __FILE__, __LINE__);
+	}#
+<TAG_AUTO_DEFINE_END:PV_ETH>
+
+
+<TAG_AUTO_DEFINE_START :PV_ETH_STATUS(1)>
+PV_ETH_STATUS_IP
+PV_ETH_STATUS_TCP
+PV_ETH_STATUS_UDP
+<TAG_AUTO_DEFINE_END:PV_ETH_STATUS>
+
+typedef struct _st_PV_ETH_INFO {
+	DEF			<TAG_DEFINE:PV_ETH_STATUS>PV_ETH_STATE;			/**< TAG_FLOW의 기본 현재 STATE */
+	DEF			<TAG_DEFINE:PV_ETH_STATUS>PV_ETH_OLD_STATE;		/**< TAG_FLOW의 기본 OLD_STATE */
+} PV_ETH_INFO;
+
+typedef struct _st_PV_ETH_INPUT {
+	U32			<TAG_DEFINE:PV_ETH_STATUS>status;			/**< 현재 MSG의 STATE 값 */ 
+	void		*pDATA;										/**< nifo 정보 */
+	void		(*AddMsg)(void *, void *);					/**< args(SIP_INFO, PV_ETH_INFO) */
+} PV_ETH_INPUT;
+
+<TAG_FLOW_START:PV_ETH(pTHIS-PV_ETH_INFO,pINPUT-PV_ETH_INPUT)>
+
+%PV_ETH_MAC:CONTINUE:(D)pINPUT->status:(Y)PV_ETH_STATUS_IP:PV_ETH_IP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_ETH_MAC [EDGE] PV_ETH_STATUS_IP", __FILE__, __LINE__);
+    }#
+
+
+%PV_ETH_IP:CONTINUE:(D)pINPUT->status:(Y)PV_ETH_STATUS_TCP:PV_ETH_TCP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_ETH_IP [EDGE] PV_ETH_STATUS_TCP", __FILE__, __LINE__);
+    }#
+%PV_ETH_IP:CONTINUE:(D)pINPUT->status:(Y)PV_ETH_STATUS_UDP:PV_ETH_UDP%  #{
+    FPRINTF(LOG_LEVEL, "### [%s][%d] PV_ETH_IP [EDGE] PV_ETH_STATUS_UDP", __FILE__, __LINE__);
+    }#
+
+<TAG_FLOW_END:PV_ETH>
+

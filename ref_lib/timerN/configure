@@ -1,0 +1,30 @@
+#!/bin/sh
+rm -rf structg hashg
+#export STG_DEBUG=yes
+case $1 in
+    '') echo "Normal Structg ........"
+        cvs co structg
+        ;;
+    *) echo "Tag Structg ......";
+        cvs co -r $1 structg
+        ;;
+esac
+cp -f ./timerN.stg structg/userfile.stg
+cd structg
+make
+cd OUTPUT
+make
+
+cd ../..
+case $1 in
+    '') echo "Normal Hashg ........"
+        cvs co hashg
+        ;;
+    *) echo "Tag Hashg ......";
+        cvs co -r $1 hashg
+        ;;
+esac
+cd hashg
+./configure $1
+make -f makelib.mk
+

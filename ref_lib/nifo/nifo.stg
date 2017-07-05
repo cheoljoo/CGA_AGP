@@ -1,0 +1,168 @@
+FileName : nifo.h
+
+
+#include "clisto.h"
+#include "mems.h"
+/** 
+ *  @brief st_NIFO_NODE_INFO : 
+ *	Shared Memory, Semaphore, Message Queue, Offset Linked List를 이용한 Interface
+ *
+ *	@see nifo.h 
+ *
+ *  @note 		interface 
+ */
+typedef struct _st_nifo_common {
+	clist_head 		nont;
+	clist_head 		cont;
+	S32 			from;
+	S32 			to;
+	S32				cnt;			/**< TLV 개수 */
+	OFFSET			lastoffset;		/**< 사용 가능한 OFFSET */
+	OFFSET			maxoffset;		/**< 사용 가능한 최대 OFFSET */
+} NIFO;
+
+/**
+ * @brief st_TLV : Node의 기본 정보 수록
+ *
+ *
+ * @see l4.h
+ *
+ * @note	모든 구조체 앞에 붙는다. 
+ *
+ */
+typedef struct _st_TLV {
+	U32				type;				/**< 구조체 번호 */
+	U32				len;				/**< Value's Length */
+} TLV;
+
+/** 
+ *  @brief st_MsgQ : 
+ *	Message Queue 전송 header
+ *
+ *	@see nifo.h 
+ *
+ *  @note 		interface 
+ */
+typedef struct _st_MsgQ {
+	S32			mtype;		/**< st_MsgQSub로 cast해서 사용 */
+	S32			msgqid;		/**< message queue id */
+	U16			len;		/**< data size */
+	U16			procid;		/**< process id */
+} st_MsgQ;
+
+<TAG_DEFINE_START:DEF_MSGQ_TYPE>
+#define DEF_MSGQ_SVC		1000
+#define DEF_MSGQ_SYS		5000
+<TAG_DEFINE_END:DEF_MSGQ_TYPE>
+/** 
+ *  @brief st_MsgQSub : 
+ *	Message Queue mtype 값
+ *
+ *	@see nifo.h 
+ *
+ *  @note 		interface 
+ */
+typedef struct _st_MsgQSub {
+	U16			<TAG_DEFINE:DEF_MSGQ_TYPE>type;		/**< 메시지 Type (SVC, SYS 구분) */	
+	U8			svcid;								/**< SVC 구분 */
+	U8			msgid;								/**< MSG 구분 */
+} st_MsgQSub;
+
+<TAG_DEFINE_START:DEF_MEMSET>
+#define DEF_MEMSET_OFF		0
+#define DEF_MEMSET_ON		1
+<TAG_DEFINE_END:DEF_MEMSET>
+<TAG_DEFINE_START:DEF_READ_VAL_INIT>
+#define DEF_READ_ON			1
+#define DEF_READ_OFF		2
+<TAG_DEFINE_END:DEF_READ_VAL_INIT>
+<TAG_DEFINE_START:DEF_READ_VAL_MEM>
+#define DEF_READ_EMPTY		0
+#define DEF_READ_MALLOC		1
+#define DEF_READ_ORIGIN		2
+<TAG_DEFINE_END:DEF_READ_VAL_MEM>
+/** 
+ *  @brief REAL_VAL : 
+ *	nifo_msgq_read에서 읽은 struct 관리를 위한 구조체
+ *
+ *	@see nifo.h 
+ *
+ *  @note 		interface 
+ */
+typedef struct _st_Read_Val {
+	S8			<TAG_DEFINE:DEF_READ_VAL_INIT>init;		/**< 관심 대상인지를 판단하는 Flag */
+	S8			<TAG_DEFINE:DEF_READ_VAL_MEM>memtype;	/**< 새로운 메모리를 할당하는지 표시 */
+	S16			len;									/**< pVal의 사이즈 */
+	U8			*pVal;									/**< 구조체 값 포인트 */
+} READ_VAL;
+
+#define MAX_READVAL_CNT		100
+#define DEF_MSG_ALL			MAX_READVAL_CNT
+/** 
+ *  @brief READ_VAL_LIST : 
+ *	nifo_msgq_read에서 읽은 struct 관리를 위한 구조체
+ *
+ *	@see nifo.h 
+ *
+ *  @note 		interface 
+ */
+typedef struct _st_Read_Val_List {
+	READ_VAL	READVAL[MAX_READVAL_CNT];	
+} READ_VAL_LIST;
+
+#if defined(COMMERCIALLOG)
+#define			DEF_HEADROOM_SIZE			1024
+#define			DEF_MEMNODEBODY_SIZE		(16 * 1024)
+#define 		DEF_MEMNODETOT_CNT			(12 * 10000)
+#endif
+
+#if !defined(COMMERCIALLOG)
+#define			DEF_HEADROOM_SIZE			1024
+#define			DEF_MEMNODEBODY_SIZE		(16 * 1024)
+#define 		DEF_MEMNODETOT_CNT			(12 * 10000)
+#endif
+
+/**
+ *  nifo project : External Functions.
+ */
+#define nifo_node_head_init(infoptr, ptr)				CINIT_LIST_HEAD(infoptr, ptr)
+/**
+ *	@note	nifo_node_for_each_start, nifo_node_for_each_end 사용시 현재는 clist_head의 
+ *			포인트를 넘기는데 향후에는 node의 포인트를 넘기는 방식으로 변경 요망 
+ */
+#define nifo_node_for_each_start(infoptr, pos, head)	clist_for_each_start(infoptr, pos, head)
+#define nifo_node_for_each_end(infoptr, pos, head)		clist_for_each_end(infoptr, pos, head)
+#define nifo_entry(ptr, type, member)					clist_entry(ptr, type, member)
+#define nifo_offset(infoptr, ptr)						clisto_offset(infoptr, ptr)
+#define nifo_ptr(infoptr, offset)						(U8 *)clisto_ptr(infoptr, offset)
+#define nifo_free_len(common)	(((NIFO *)common)->maxoffset - ((NIFO *)common)->lastoffset)
+
+extern int nifo_dump_DebugString(char *debug_str, char *s, int len);
+extern OFFSET nifo_get_offset_node(stMEMSINFO *pMEMSINFO, U8 *ptr);
+extern S32 nifo_node_check(stMEMSINFO *pMEMSINFO, OFFSET offset);
+extern S32 nifo_msgq_init(U32 uiMsgqKey);
+extern stMEMSINFO *nifo_init(U32 uiShmKey, U32 uiSemKey, U8 *pDbgStr, S32 procID);
+extern U8 *nifo_node_alloc(stMEMSINFO *pstMEMSINFO);
+extern void nifo_node_link_cont_prev(stMEMSINFO *pstMEMSINFO, U8 *pHead, U8 *pNew);
+extern void nifo_node_link_cont_next(stMEMSINFO *pstMEMSINFO, U8 *pHead, U8 *pNew);
+extern void nifo_node_link_nont_prev(stMEMSINFO *pstMEMSINFO, U8 *pHead, U8 *pNew);
+extern void nifo_node_link_nont_next(stMEMSINFO *pstMEMSINFO, U8 *pHead, U8 *pNew);
+extern U8 *nifo_tlv_alloc(stMEMSINFO *pMEMSINFO, U8 *pNode, U32 type, U32 len, S32 memsetFlag);
+extern S32 nifo_msg_write(stMEMSINFO *pstMEMSINFO, U32 uiMsgqID, U8 *pNode);
+extern OFFSET nifo_msg_read(stMEMSINFO *pstMEMSINFO, U32 uiMsgqID, READ_VAL_LIST *pREADVALLIST);
+extern U8 *nifo_get_value(stMEMSINFO *pMEMSINFO, U32 type, OFFSET offset);
+extern U8 *nifo_get_tlv(stMEMSINFO *pMEMSINFO, U32 type, OFFSET offset);
+extern S32 nifo_get_point_cont(stMEMSINFO *pstMEMSINFO, READ_VAL_LIST *pREADVALLIST, OFFSET offset);
+extern S32 nifo_get_point_all(stMEMSINFO *pstMEMSINFO, READ_VAL_LIST *pREADVALLIST, OFFSET offset);
+extern S32 nifo_get_tlv_all(stMEMSINFO *pstMEMSINFO, OFFSET offset, S32 (*exec_func)(U32 type, U32 len, U8 *data, S32 memflag, void *out), void *out);
+extern S32 nifo_read_tlv_cont(stMEMSINFO *pMEMSINFO, U8 *pHEAD, U32 *type, U32 *len, U8 **value, S32 *ismalloc, U8 **nexttlv);
+extern S32 nifo_copy_tlv_cont(stMEMSINFO *pMEMSINFO, U32 type, U32 len, U8 *value, U8 *node);
+extern void nifo_node_unlink_nont(stMEMSINFO *pstMEMSINFO, U8 *pDel);
+extern void nifo_node_unlink_cont(stMEMSINFO *pstMEMSINFO, U8 *pDel);
+extern S32 nifo_node_free(stMEMSINFO *pstMEMSINFO, U8 *pFree);
+extern U8 *nifo_cont_delete(stMEMSINFO *pMEMSINFO, U8 *pDel);
+extern void nifo_node_delete(stMEMSINFO *pMEMSINFO, U8 *pDel);
+extern void nifo_print_nont(stMEMSINFO *pstMEMSINFO, U8 *p, void (*print_func)(stMEMSINFO *pmem, U8 *pnode, U8 *str), U8 *PrefixStr);
+extern void nifo_print_cont(stMEMSINFO *pstMEMSINFO, U8 *p, void (*print_func)(stMEMSINFO *pmem, U8 *pnode, U8 *str), U8 *PrefixStr);
+extern void nifo_print_node(stMEMSINFO *pstMEMSINFO, U8 *p);
+extern void nifo_draw_all(S8 *filename, S8 *labelname, stMEMSINFO *pstMEMSINFO);

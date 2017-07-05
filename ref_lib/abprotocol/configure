@@ -1,0 +1,52 @@
+#!/bin/sh
+cd ../dlinkUtil
+make
+cd ../abprotocol
+make clean;
+rm  -rf structg
+cvs co structg
+install ./abprotocol_decfunc.stcI ./structg/
+install ./abprotocol_ana.stc ./structg/
+install ./abprotocol_tree.stc ./structg/
+install ./abprotocol_decfunc.stc ./structg/
+install ./abprotocol_treeprint.stc ./structg/
+install ./ie_func.stc ./structg/
+install ./makefile.upr ./structg/
+cd structg
+perl structg.pl ../sb_protocol.stg PRE
+install ../abprotocol_proto.h ./PRE/
+cd PRE
+#make all -f OraMake
+make
+cd ../../
+
+#
+# $Log: configure,v $
+# Revision 1.9  2007/05/08 00:32:02  yhshin
+# abprotocol_proto.h
+#
+# Revision 1.8  2007/03/16 01:03:33  yhshin
+# abprotocol_treeprint.stc 추가
+#
+# Revision 1.7  2007/03/14 07:54:50  yhshin
+# stc 추가
+#
+# Revision 1.6  2007/02/09 02:33:19  yhshin
+# dlinkUtil make 추가
+#
+# Revision 1.5  2007/02/06 23:11:04  yhshin
+# add
+#
+# Revision 1.4  2007/01/23 04:52:11  yhshin
+# ie_func.stc 추가
+#
+# Revision 1.3  2007/01/18 11:27:40  yhshin
+# 수정
+#
+# Revision 1.2  2007/01/16 11:13:49  yhshin
+# stc 추가
+#
+# Revision 1.1  2006/06/28 04:21:45  yhshin
+# configure file
+#
+#

@@ -1,0 +1,894 @@
+FileName : aqua.h
+
+#pragma pack(1)
+
+#define MAX_BROWSERINFO_LEN		10
+#define MAX_BROWSERINFO_SIZE	(MAX_BROWSERINFO_LEN + 1)
+
+#define MAX_MODEL_LEN			16
+#define MAX_MODEL_SIZE			(MAX_MODEL_LEN + 1)
+
+#define MAX_SVCOPTION_LEN		3
+#define MAX_SVCOPTION_SIZE		(MAX_SVCOPTION_LEN + 1)
+
+#define MAX_MIN_LEN				15
+#define MAX_MIN_SIZE			(MAX_MIN_LEN + 1)
+
+/**
+ * @brief LOG_COMMON : LOG TABLE에 들어가는 COMMON KEY 값
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+STG_COMMON typedef struct _stg_common {
+	STIME 		uiCallTime;
+	MTIME		uiCallMTime;
+
+<TAG_KEY>
+	IP4 		uiClientIP;
+</TAG_KEY>
+	IP4			uiNASIP;
+	U32			uiBaseID;
+	U16			usNID;
+	U16			usSID;
+	U8			szBrowserInfo[MAX_BROWSERINFO_SIZE];	
+	U8			szModel[MAX_MODEL_SIZE];
+	U8			szSvcOption[MAX_SVCOPTION_SIZE];
+	U8			szMIN[MAX_MIN_SIZE];
+} LOG_COMMON;
+
+/* OFFSET 보정 */
+#define	YES									1
+#define	NO									0
+#define	MAX_SEQUENCE						0xffffffff
+#define	MAX_VALID_OFFSET					((unsigned int) (MAX_SEQUENCE / 2))
+#define	OFFSET_SEQ(VALID_SEQ, NOW_SEQ)		((VALID_SEQ <= NOW_SEQ) ? (NOW_SEQ - VALID_SEQ) : (MAX_SEQUENCE + 1 + NOW_SEQ - VALID_SEQ))
+#define	NEXT_SEQ(SEQ, offset)				((SEQ+offset) % (MAX_SEQUENCE+1))
+#define	IS_VALID_SEQ(VALID_SEQ, NOW_SEQ)	((OFFSET_SEQ(VALID_SEQ, NOW_SEQ) < MAX_VALID_OFFSET) ? YES : NO)
+
+/**
+ *	PRE_A, A_HTTP에서 서비스를 구분하기 위한 Filter 정보를 관리 하기 위함
+ *
+ *	######################################################################################################
+ *	- PRE_A Hash Key, Value 설명
+ *		2개의 Hash를 구성
+ *		1) Hash Key: Server IP, Server Port
+ *		   Hash Data: L4Code, AppCode
+ *		2) Hash Key: Server IP
+ *		   Hash Data: L4Code, AppCode
+ *
+ *		1)번 Hash를 체크한 후에 없는 경우에 2)번 Hash를 체크한다.
+ *
+ *		configure file format
+ *			ServerIP		ServerPort	L4Code					AppCode
+ * 		EX)	192.168.1.2		8080		VODSTREAMMING:11		A_VOD:3		<= 1)번 Hash 구성
+ *			192.168.1.2		0			VODDOWN:13				A_DOWN:4	<= 2)번 Hash 구성 (Port = 0)
+ *		=> Port = 0 인 경우를 2)번 Hash로 구성한다.
+ *
+ *	######################################################################################################
+ *	- A_HTTP Hash Key, Value 설명
+ *		4개의 Hash를 구성
+ *		1) Hash Key: Method
+ *		   Hash Data: L7Code, AppCode
+ *		2) Hash Key: Host Name, Contents-type, Redirect_Protocol
+ *		   Hash Data: L7Code, AppCode
+ *		3) Hash Key: Host Name, Contents-type
+ *		   Hash Data: L7Code, AppCode
+ *		4) Hash Key: Host Name
+ *		   Hash Data: L7Code, AppCode
+ *
+ *		Hash 체크 순서는 Hahs 순서와 동일 하며, 순위가 낮은 곳에서 찾는 경우 다음 Hash를 체크 하지 않는다.
+ *
+ *		=> Redirect_Protocol은 VOD DOWN, STREAMMING을 구분하기 위한 Body의 URL Protocol값 (예외처리)
+ *		
+ *		configure file format
+ *			Method	Host Name				Contents-type		Redirect_Protocol	L7Code				AppCode
+ *		EX)	*		m.dosirak.com			audio/k3g			HTTP				DOSIRAKDOWN:21		A_DSR:5
+ *			*		m.dosirak.com			audio/k3g			RTSP				DOSIRAKSTREAM:22	A_DSR:5
+ *			*		ktfwipidc.magicn.com	*					*					WIPI_MENU_DOWN:23	A_WIPI:11
+ *			*		kt68dddsvr.magicn.com	*					*					BREW_MENU_DOWN:23	A_BREW:11
+ *			*		me_kun.magicn.com		application/ndwn	*					ME_KUN_NDWN:23		A_MEKUN:11
+ *			*		me_kun.magicn.com		html/text			*					ME_KUN_MENU:23		A_MEKUN:11
+ *			CONNECT	*						*					*					SSL:100				A_SSL:40
+ *			RESULT	*						*					*					SSL:100				A_SSL:40
+ *			
+ *		=> * 표시는 Hash Key에 포함되지 않음
+ *  #####################################################################################################
+ *
+ *
+ **/
+
+/**
+ * @brief L4_CODE1_KEY : IP, PORT로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L4Code1_Key {
+	U32				uiSIP;						/** 서비스 서버 IP */
+	U16				usSPort;					/** 서비스 서버 Port */
+	U8				szReserved[2];
+} L4_CODE1_KEY;
+
+/**
+ * @brief L4_CODE2_KEY : IP로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L4Code2_Key {
+	U32				uiSIP;						/** 서비스 서버 IP */
+	U8				szReserved[4];
+} L4_CODE2_KEY;
+
+/**
+ * @brief L4_CODE : IP, PORT로 서비스 구분을 위한 구조체
+ *					L4_CODE1_KEY, L4_CODE2_KEY의 Hash Data 
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L4Code {
+	U16				usL4Code;					/** 서비스 Code */
+	U16				usAppCode;					/** 처리 프로세스 ID */
+	U8				szReserved[4];
+} L4_CODE;
+
+/**
+ * @brief L7_CODE1_KEY : METHOD로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L7Code1_Key {
+	U16				usMethod;					/** Method Code 값 */
+	U8				szReserved[6];
+} L7_CODE1_KEY;
+
+#define DEF_HOSTNAME_LEN		40
+#define DEF_HOSTNAME_SIZE		(DEF_HOSTNAME_LEN + 1)
+#define DEF_PROTOCOL_LEN		10
+#define DEF_PROTOCOL_SIZE		(DEF_HOSTNAME_LEN + 1)
+/**
+ * @brief L7_CODE2_KEY : Host Name, Contents-type, Redirect Protocol로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L7Code2_Key {
+	U8				szHost[DEF_HOSTNAME_SIZE];		/** Host Name */
+	U8				szProtocol[DEF_PROTOCOL_SIZE];	/** Redirect Protocol */
+	U8				szReserved[2];
+	U16				usContentType;					/** Content Type 추후 정의 */
+} L7_CODE2_KEY;
+
+/**
+ * @brief L7_CODE3_KEY : Host Name, Contents-type로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L7Code3_Key {
+	U8				szHost[DEF_HOSTNAME_SIZE];		/** Host Name */
+	U8				szReserved[5];
+	U16				usContentType;					/** Content Type 추후 정의 */
+} L7_CODE3_KEY;
+
+/**
+ * @brief L7_CODE4_KEY : Host Name로 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L7Code4_Key {
+	U8				szHost[DEF_HOSTNAME_SIZE];		/** Host Name */
+	U8				szReserved[7];
+} L7_CODE4_KEY;
+
+/**
+ * @brief L7_CODE : 서비스 구분을 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_L7Code {
+	U16				usL7Code;					/** 서비스 Code */
+	U16				usAppCode;					/** 처리 프로세스 ID */
+	U8				szReserved[4];
+} L7_CODE;
+
+/**
+ *
+ *		TCP
+ *
+ */
+
+#define TCP_SESS_CNT		10000
+#define HTTP_TRANS_CNT		(TCP_SESS_CNT * 10)
+/**
+ * @brief TCP_SESS_KEY : TCP 세션 관리를 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_TCP_SESS_KEY {
+	IP4				uiSIP;				/** Source IP */
+	IP4				uiDIP;				/** Destination IP */
+	U16				usSPort;			/** Source Port */
+	U16				usDPort;			/** Destination Port */
+	U8				szReserved[4];		/** Reserved */
+} TCP_SESS_KEY;
+
+<TAG_DEFINE_START:STATUS>
+#define DEF_STATUS_SYN		1
+#define DEF_STATUS_SYNACK	2
+#define DEF_STATUS_ACK		3
+<TAG_DEFINE_END:STATUS>
+<TAG_DEFINE_START:FINSTATUS>
+#define DEF_FIN_0			0			/** FIN 이 없는 경우 */
+#define DEF_FIN_1			1			/** 첫번째 FIN 을 받은 경우 */
+#define DEF_FIN_2			2			/** 두번째 FIN 을 받은 경우 */
+#define DEF_FIN_3			3			/** 두번째 FIN 에 대한 ACK를 받은 경우 */
+<TAG_DEFINE_END:FINSTATUS>
+<TAG_DEFINE_START:LONGLAST>
+#define DEF_END_NORMAL		1
+#define DEF_END_ABNORMAL	2
+#define DEF_END_LONGLAST	3
+#define DEF_END_RST			4
+<TAG_DEFINE_END:LONGLAST>
+<TAG_DEFINE_START:L4FAILCODE>
+#define TCP_NOERR_FIN_E1				1
+#define TCP_NOERR_FIN_E2				2
+#define ABNORMAL_TRANS					15
+#define LONGLAST_SYN_TRANS				31
+#define LONGLAST_SYNACK_TRANS			32
+#define LONGLAST_NOFIN_TRANS			33
+#define LONGLAST_FIN_E1					34
+#define LONGLAST_FIN_E2					35
+#define TCP_ERR_RST_E1_SYN				41
+#define TCP_ERR_RST_E1_SYNACK			42
+#define TCP_ERR_RST_E1_NOFIN			43
+#define TCP_ERR_RST_E1_FIN_E1			44
+#define TCP_ERR_RST_E1_FIN_E2			45
+#define TCP_ERR_RST_E2_SYN				51
+#define TCP_ERR_RST_E2_SYNACK			52
+#define TCP_ERR_RST_E2_NOFIN			53
+#define TCP_ERR_RST_E2_FIN_E1			54
+#define TCP_ERR_RST_E2_FIN_E2			55
+<TAG_DEFINE_END:L4FAILCODE>
+/**
+ * @brief TCP_SESS : TCP 세션 관리를 위한 구조체
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+typedef struct _st_TCP_SESS {
+	STIME			uiLastUpdateTime;	/** 초기값 생성시간, 이후 패킷받은 시간 */
+	MTIME			uiLastUpdateMTime;	/** 초기값 생성시간, 이후 패킷받은 시간 */
+	STIME			uiSessCreateTime;	/** 세션 생성 시간 */
+	MTIME			uiSessCreateMTime;	/** 세션 생성 시간 */
+
+	U8				<TAG_DEFINE:STATUS>ucStatus;	/** 세션 상태  */ 
+	U8				<TAG_DEFINE:FINSTATUS>ucFinStatus; /** 세션 종료 상태 */
+	U8				<TAG_DEFINE:LONGLAST>ucEndStatus;	/** 어떤 조건에 의해서 종료 되었는가? */
+	U8				ucSynRtx;			/* 1:SERVER , 2:CLIENT */
+	U8				ucFinRtx;
+	U8				ucRstRtx;
+
+	U32				uiSynSeq;		/** TCP SYN SEQ No. */
+	U32				uiSynAckSeq;	/** TCP SYNACK SEQ No. */
+	U32				uiSynAckAck;	/** TCP SYNACK ACK No. */
+
+	U8 				*pLOGTCPSESS;
+
+	U32				uiReqCount;		/** Request Packet Count */
+	U8				*pReqData;		/** Request Packet First Node */
+
+	U32				uiResCount;		/** Response Packet Count */
+	U8				*pResData;		/** Response Packet First Node */
+
+	U32				uiSndMsgQ;		/** 보내야 할 서비스블럭의 메시지큐아이디 */
+	U32				uiFinChkAck;	/* FIN PACKET에 대한 ACK PACKET 번호 */
+
+	U32				uiLastReqSeq;	/** 마지막에 처리한 SEQ 번호 : REQ */
+	U32				uiLastResSeq;	/** 마지막에 처리한 SEQ 번호 : RES */
+
+	U16				usL4Code;
+	U16				usAppCode;
+	U16				<TAG_DEFINE:L4FAILCODE>usL4FailCode;
+
+	U64				timerNID;
+
+} TCP_SESS;
+
+<TAG_DEFINE_START:CLI>
+#define DEF_CLI_ETC				99
+#define DEF_CLI_SYN				11
+#define DEF_CLI_ACK				12
+#define DEF_CLI_DATA			23
+#define DEF_CLI_RST				34
+#define DEF_CLI_FIN				35
+#define DEF_CLI_FINACK			36
+<TAG_DEFINE_END:CLI>
+<TAG_DEFINE_START:SVR>
+#define DEF_SVR_ETC				99
+#define DEF_SVR_SYNACK			11
+#define DEF_SVR_DATA			22
+#define DEF_SVR_RST				33
+#define DEF_SVR_FIN				34
+#define DEF_SVR_FINACK			35
+<TAG_DEFINE_END:SVR>
+/**
+ * @brief TCP_SESS_LOG : TCP 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Tcp_Sess_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	U16		usAppCode;				/** 처리 프로세스 CODE */
+	U16		usSvc4Type;				/** IP, PORT로 판단한 Service type */
+	U8		ucSubSysNo;				/** Sub System No. */
+	U16		usClientPort;			/** 단말 Port */
+	IP4		uiServerIP;				/** Server IP */
+	U16		usServerPort;			/** Server Port */
+	STIME	uiTcpSynTime;			/** Tcp Syn Time */
+	MTIME	uiTcpSynMTime;			/** Tcp Syn Micro Time */
+	STIME	uiTcpSynAckTime;		/** Tcp SynAck Time */
+	MTIME	uiTcpSynAckMTime;		/** Tcp SynAck Micro Time */
+	STIME	uiTcpConnEndTime;		/** Syn => SynAck => Ack의 Ack Time */
+	MTIME	uiTcpConnEndMTime;		/** Syn => SynAck => Ack의 Ack Micro Time */
+	S64		llConnSetupGapTime;		/** TcpConnEndTime - CallTime */
+	STIME	uiTcpFinTime;			/** 첫번째 Tcp Fin, RST Time */
+	MTIME	uiTcpFinMTime;			/** 첫번째 Tcp Fin, RST Micro Time */
+	STIME	uiTcpFinAckTime;		/** 마지막 Tcp Fin Ack Time */
+	MTIME	uiTcpFinAckMTime;		/** 마지막 Tcp Fin Ack Micro Time */
+	STIME	uiTcpUpLastTime;		/** MN => Server, Last Packet Time */
+	MTIME	uiTcpUpLastMTime;		/** MN => Server, Last Packet Micro Time */
+	STIME	uiTcpDnLastTime;		/** Server => MN, Last Packet Time */
+	MTIME	uiTcpDnLastMTime;		/** Server => MN, Last Packet Micro Time */
+	STIME	uiEndTime;				/** Last Packet Time */
+	MTIME	uiEndMTime;				/** Last Packet Micro Time */
+	S64		llSessionGapTime;		/** EndTime - CallTime */
+	U8		<TAG_DEFINE:CLI>ucCLIStatus;			/** 단말 상태 */
+	U8		<TAG_DEFINE:SVR>ucSVRStatus;			/** 서버 상태 */
+	U16		usL4FailCode;			/** TCP Fail Code */
+	U8		ucSynCnt;				/** Syn Count */
+	U8		ucSynAckCnt;			/** SynAck Count */
+	U8		ucFinUpCnt;				/** MN => Server, Fin Count */
+	U8		ucFinDnCnt;				/** Server => MN, Fin Count */
+	U8		ucRstUpCnt;				/** MN => Server, Rst Count */
+	U8		ucRstDnCnt;				/** Server => MN, Rst Count */
+	U32		uiDataPacketUpCnt;		/** MN => Server, 데이터 전송 단계에서 재전송을 제외한 패킷 개수 */
+	U32		uiDataPacketDnCnt;		/** Server => MN, 데이터 전송 단계에서 재전송을 제외한 패킷 개수 */
+	U32		uiDataRetransUpCnt;		/** MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiDataRetransDnCnt;		/** Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiTotPacketUpCnt;		/** MN => Server, 전구간에서 재전송을 제외한 패킷 개수 */
+	U32		uiTotPacketDnCnt;		/** Server => MN, 전구간에서 재전송을 제외한 패킷 개수 */
+	U32		uiTotRetransUpCnt;		/** MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		uiTotRetransDnCnt;		/** Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		uiDataPacketUpSize;		/** MN => Server, 데이터 전송 단계에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiDataPacketDnSize;		/** Server => MN, 데이터 전송 단계에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiDataRetransUpSize;	/** MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiDataRetransDnSize;	/** Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiTotPacketUpSize;		/** MN => Server, 전구간에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiTotPacketDnSize;		/** Server => MN, 전구간에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiTotRetransUpSize;		/** MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTotRetransDnSize;		/** Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTcpDataUpSize;		/** MN => Server, Tcp Payload 사이즈, 재전송 제외 */
+	U32		uiTcpDataDnSize;		/** Server => MN, Tcp Payload 사이즈, 재전송 제외 */
+	U32		uiTrafficUpSize;		/** MN => Server, Tcp Payload 사이즈, 재전송 포함 */
+	U32		uiTrafficDnSize;		/** Server => MN, Tcp Payload 사이즈, 재전송 포함 */
+	U16		usUpMSS;				/** MN => Server, Syn의 MSS */
+	U16		usDnMSS;				/** Server => MN, Syn의 MSS */
+	U16		usUpInitWindowSize;		/** MN => Server, 최초 패킷의 Window Size */
+	U16		usDnInitWindowSize;		/** Server => MN, 최초 패킷의 Window Size */
+	STIME	uiOpStartTime;			/** 분석 시작 Time */
+	MTIME	uiOpStartMTime;			/** 분석 시작 Micro Time */
+	STIME	uiOpEndTime;			/** 마지막 처리 Time */
+	MTIME	uiOpEndMTime;			/** 마지막 처리 Micro Time */
+} LOG_TCP_SESS;
+
+/**
+ *
+ *		HTTP
+ *
+ */
+
+#define DEF_PROTOCOL_TCP	6
+#define DEF_PROTOCOL_UDP	17
+<TAG_DEFINE_START:TCPFLAG>
+#define DEF_TCP_START		1
+#define DEF_TCP_DATA		2
+#define DEF_TCP_END			3
+<TAG_DEFINE_END:TCPFLAG>
+<TAG_DEFINE_START:RETRANS>
+#define DEF_RETRANS_OFF		0
+#define DEF_RETRANS_ON		1
+<TAG_DEFINE_END:RETRANS>
+/**
+ * @brief st_TcpInfo : TCP Session 정보를 HTTP에 전달하기 위한 structure이다.
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+
+/*
+ * st_HttpPkt => st_TcpInfo 
+ */
+typedef struct _st_TcpInfo {
+	U32				uiDataSize;		/**< [O] TCP Payload Size */
+	U32				uiSrvIP;		/**< [O] Server IP Address */
+
+	U32				uiCliIP;		/**< [O] 단말 IP Address */
+	U16				usSrvPort;		/**< [O] Server Port */
+	U16				usCliPort;		/**< [O] 단말 Port */
+
+	U32				uiSeqNum;
+	U32				uiAckNum;
+
+    struct timeval	tvCapTime;		/**< [O] 캡쳐된 시간 */
+    struct timeval	tvAckTime;		/**< [X] 현재 사용되는 곳 없음 */
+
+	U16				usL4Code;		/**< [O] SvcCode => L4Code, 2차 개발시 L4Code로 이름 변경 */
+	U16				usL4FailCode;	/**< [O] TcpFailCode => L4 Error Code */
+	S8				cRtxType;		/**< [O] UP/Down 방향 1: UP, 2: Down */
+	S8				<TAG_DEFINE:TCPFLAG>cTcpFlag;	/**< [O] TCP State */
+	S8				<TAG_DEFINE:RETRANS>cRetrans;		/**< [O] 재전송 Flag */
+	U8				ucProtocol;		/**< [O] 현재 사용되는 곳 없음, 향후 기능 확장에서 사용될 가능성 있음 */
+} TCP_INFO;
+
+/**
+ * @brief st_TcpHashKey : A_HTTP에서 TCP Session 관리를 Hash Key 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_TcpHashKey {
+	U32				uiCliIP;				/**< 단말 IP Address */
+	U16				usCliPort;				/**< 단말 Port */
+	U16				usReserved;				/**< 0x00으로 초기화 할 것 */
+} st_TcpHashKey;
+
+<TAG_DEFINE_START:END_STATE>
+#define END_STATE_EMPTY				0
+#define END_STATE_0D				1
+#define END_STATE_0D0A				2
+#define END_STATE_0D0A0D			3
+#define END_STATE_0D0A0D0A			4
+<TAG_DEFINE_END:END_STATE>
+<TAG_DEFINE_START:BUF_FLAG>
+#define BUF_FLAG_ON					1
+#define BUF_FLAG_OFF				2
+<TAG_DEFINE_END:BUF_FLAG>
+/**
+ * @brief st_BufInfo : A_HTTP에서 HTTP MSG Buffering 관리를 위한 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+
+typedef struct _st_BufInfo {
+	S8				<TAG_DEFINE:END_STATE>cState;				/**< 0D0A0D0A에 대한 STATE 값 */
+	S8				<TAG_DEFINE:BUF_FLAG>cBufFlag;			/**< 버퍼링 해야하는지 말아야 하는지 판단 */
+	S8				cBufCnt;			/**< 현재 버퍼 개수 */
+	U32				uiBufLen;			/**< 현재 버퍼 사이즈 */
+	U8				*pList;				/**< st_Buf 의 주소값 */
+} st_BufInfo;
+
+
+/**
+ * @brief st_TcpHashData : A_HTTP에서 TCP Session 관리를 Hash Data 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_TcpHashData {
+	U32				uiSrvIP;				/**< 서버 IP Address */
+	U16				usSrvPort;    			/**< 서버 Port */
+	struct timeval  tvTcpSynTime;			/**< TCP Session 시작 시간 */
+	U16				usNextTransID;			/**< 할당될 Http Transaction ID */
+	U16				usCurTransID;			/**< 현재 진행중인 Http Transaction ID */
+	U16				usTotTransCnt;			/**< 처리한 Http Transaction 개수 */
+	U16				usCurTransCnt;			/**< 처리중인 Http Transaction 개수 */
+	S8				cSynRtxType;			/**< SYN UP/Down 방향 1: UP, 2: Down */
+
+	st_BufInfo		stReqBuf;				/**< REQ BUFFER */
+	st_BufInfo		stResBuf;				/**< RES BUFFER */
+
+	U32				uiReqSeq;				/**< 삭제 예정 */
+	U32				uiReqAck;				/**< 삭제 예정 */
+	U32				uiResSeq;				/**< 삭제 예정 */
+	U32				uiResAck;				/**< 삭제 예정 */
+} st_TcpHashData;
+
+/**
+ * @brief st_TcpHash : A_HTTP에서 TCP Session 관리를 Hash 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   현재는 NTAS structure를 그대로 사용하지만 2차 개발시에 변경 가능.
+ *
+ * @todo   2차 개발시에 TCP Ack를 확인하는 구조로 변경 요망.
+ */
+typedef struct _st_TcpHash {
+	st_TcpHashKey		stTcpHashKey;		/**< Hash Key */
+	st_TcpHashData		stTcpHashData;		/**< Hash Data */
+} st_TcpHash;
+
+
+/**
+ * @brief st_HttpHashKey : A_HTTP에서 HTTP Transaction 관리를 Hash Key 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+typedef struct _st_HttpHashKey {
+	U32				uiCliIP;		/**< 단말 IP Address */
+	U16				usCliPort;		/**< 단말 Port */
+	U16				usHttpTransID;	/**< HTTP Transaction ID */
+} st_HttpHashKey;
+
+<TAG_DEFINE_START:HTTP_STATE>
+#define	HTTP_STATE_REQHDR			1010	/* REQ HDR를 다 받은 상태 */
+#define	HTTP_STATE_REQBODY			1020	/* REQ BODY를 다 받은 상태 */
+#define HTTP_STATE_RESHDR			2010	/* RES HDR를 다 받은 상태 */
+#define HTTP_STATE_RESBODY			2020	/* RES BODY를 다 받은 상태 */
+<TAG_DEFINE_END:HTTP_STATE>
+
+#define DEF_URL_LEN				1024
+#define DEF_URL_SIZE			(DEF_URL_LEN+1)
+/**
+ * @brief st_HttpHashData : A_HTTP에서 HTTTP Transaction 관리를 Hash Data 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+typedef struct _st_HttpHashData {
+	U32					uiSrvIP;				/**< 서버 IP Address */
+	U16					usSrvPort;    			/**< 서버 Port */
+
+	struct timeval		tvTcpSynTime;			/**< TCP Session 시작 시간 */
+	struct timeval		tvRequestStartTime;		/**< Http Request 시작 시간 */
+	struct timeval		tvRequestEndTime;		/**< Http Request가 끝난 시간 */
+	struct timeval		tvRequestAckTime;		/**< Http Request에 대한 Ack를 받은 시간 */
+	struct timeval		tvResponseStartTime;	/**< Http Response 시작 시간 */
+	struct timeval		tvResponseEndTime;		/**< Http Response가 끝난 시간 */
+	struct timeval		tvMNAckTime;			/**< Http Response에 대한 Ack를 받은 시간 */
+	struct timeval		tvOpEndTime;			/**< Transaction이 정리된 시간?? 마지막 패킷 시간?? */
+
+	struct timeval		tvLastRequest;			/**< 마지막 Request Data 시간 (필요한가??) */
+	struct timeval		tvLastResponse;			/**< 마지막 Response Data 시간 (필요한가??) */
+
+	S32					dT1;					/**< tvRequestEndTime - tvRequestStartTime */
+	S32					dT2;					/**< tvRequestAckTime - tvRequestEndTime */
+	S32					dT3;					/**< tvResponseStartTime - tvRequestAckTime */
+	S32					dT4;					/**< tvResponseEndTime - tvResponseStartTime */
+	S32					dT5;					/**< tvMNAckTime - tvResponseEndTime */
+
+	U32					uiDataEndAck;			/**< [X] 필요한가??? */
+	U32					uiReqEndAck;			/**< [X] 필요한가??? */
+	U16					usL4FailCode;			/**< L4 Error Code */
+
+	U16					usUpPacketCnt;			/**< Http Request 부터의 Up 패킷 개수 */
+	U16					usDownPacketCnt;		/**< Http Request 부터의 Down 패킷 개수 */
+	U16					usUpRetransCnt;			/**< Http Request 부터의 재전송 Up 패킷 개수 */
+	U16					usDownRetransCnt;		/**< Http Request 부터의 재전송 Down 패킷 개수 */
+
+	U16					usL4Code;				/**< L4Code L4(IP, Port)로 판단한 Service Code */
+	U16					usL7Code;				/**< L7Code L7(URL)로 판단한 Service Code */
+	U16					usAppCode;				/**< 해당 메시지 처리 프로세스 코드 */
+
+	U32					uiUpPacketSize;			/**< Http Request 부터의 Up 패킷 데이터 사이즈 */
+	U32					uiDownPacketSize;		/**< Http Request 부터의 Down 패킷 데이터 사이즈 */
+
+	U32					uiUpRetransSize;		/**< Http Request 부터의 재전송 Up 패킷 데이터 사이즈 */
+	U32					uiDownRetransSize;		/**< Http request 부터의 재전송 Down 패킷 데이터 사이즈 */
+    
+	U8					ucRequestType;			/**< Http Request Method Type 
+														1: GET, 2: POST, 3: HEAD, 4: OPTIONS,
+														5: PUT, 6: DELETE, 7: TRACE, 8: CONNECT,
+														9: UNKNOWN, 10: RESULT */
+
+	U16					<TAG_DEFINE:HTTP_STATE>usHttpState;			/**< Http Transaction 상태 값 */
+
+	U32					uiReqHdrLen;			/**< Request Header Size */
+	U8					ucReqDataLenType;		/**< Request Data Length Type 
+														1: HTTP_LENTYPE_CONTENT, 2: HTTP_LENTYPE_CHUNKED */
+	U32					uiReqDataLenTotal;		/**< Content-Length 값, Chunked인 경우 값 없음 */
+	U32					uiReqDataLenCurr;		/**< 실제 측정한 Data Size */
+
+	S8					*pReqHdr;				/**< Request Header 버퍼링 메모리 주소 */
+	S8					*pReqBody;				/**< Request Body 버퍼링 메모리 주소 */
+
+	U32					uiResHdrLen;			/**< Response Header Size */
+	U8					ucResDataLenType;		/**< Response Data Length Type
+														1: HTTP_LENTYPE_CONTENT, 2: HTTP_LENTYPE_CHUNKED */
+	U32					uiResDataLenTotal;		/**< Content-Length 값, Chunked인 경우 값 없음 */
+	U32					uiResDataLenCurr;		/**< 실제 측정한 Data Size */
+
+	S8					*pResHdr;				/**< Response Header 버퍼링 메모리 주소 */
+	S8					*pResBody;				/**< Response Body 버퍼링 메모리 주소 */
+
+	IP4					NasIP;					/**< PDSN IP 정보 */
+
+	U16					usUrlSize;				/**< URL size */
+	U8					szUrl[DEF_URL_SIZE];	/**< URL */
+	U16					usContentType;			/**< Content-Type:
+													TYPE_UNKNOWN, TYPE_TEXT, TYPE_IMAGE, TYPE_SOUND,
+													TYPE_HTML, TYPE_WML, TYPE_DESC, TYPE_STYLE, TYPE_LMSG,
+													TYPE_MMSG, TYPE_VOD, TYPE_XML, TYPE_APPLICATION,
+													TYPE_BREWDOWN, TYPE_WIPIDOWN, TYPE_NDWN, TYPE_MA2,
+													TYPE_MA3, TYPE_MA5, TYPE_SIS */
+} st_HttpHashData;
+
+/**
+ * @brief st_HttpHash : A_HTTP에서 HTTP Transaction 관리를 Hash 구조체
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   .
+ *
+ * @todo   .
+ */
+typedef struct _st_HttpHash {
+	st_HttpHashKey			stHttpHashKey;		/**< Hash Key */
+	st_HttpHashData			stHttpHashData;		/**< Hash Data */
+} st_HttpHash;
+
+
+/**
+ * @brief st_HttpInfo : HTTP Data를 ME, KUN에 전달하기 위한 structure이다.
+ *
+ *
+ * @see aqua.h
+ *
+ * @note   HTTP Transaction 관리 후 Parsing을 수행하기 전달하는 structure.
+ *
+ */
+typedef struct _st_HttpInfo {
+	U32				uiCliIP;				/**< 단말 IP Address */
+	U16				usCliPort;				/**< 단말 Port */
+	U16				usHttpTransID;			/**< HTTP Transaction ID */
+	U16				<TAG_DEFINE:HTTP_STATE>usMsgType;				/**< Req/Res Header/Body 구분자 */
+	U16				usL4FailCode;			/**< L4 Error Code */
+	U16				usUrlSize;				/**< URL size */
+	U8				szUrl[DEF_URL_SIZE];	/**< URL */
+	U8				szReserved[1];
+} st_HttpInfo;
+
+#define MAX_CONTENTTYPE_LEN			32
+#define MAX_CONTENTTYPE_SIZE		(MAX_CONTENTTYPE_LEN + 1)
+<TAG_DEFINE_START:METHOD>
+#define	HTTP_REQ_GET		1
+#define	HTTP_REQ_POST		2
+#define HTTP_REQ_HEAD		3
+#define HTTP_REQ_OPTIONS	4
+#define HTTP_REQ_PUT		5
+#define HTTP_REQ_DELETE		6
+#define HTTP_REQ_TRACE		7
+#define HTTP_REQ_CONNECT	8
+#define HTTP_REQ_RESULT		9
+#define HTTP_REQ_UNKNOWN	10
+<TAG_DEFINE_END:METHOD>
+/**
+ * @brief TCP_SESS_LOG : TCP 세션 정보를 DB Log
+ *
+ *
+ * @see	aqua.h
+ *
+ * @note   nothing
+ *
+ * @todo   nothing
+ */
+TABLE_LOG typedef struct _st_Http_Log {
+	<STG_COMMON:LOG_COMMON>
+
+	U16		usClientPort;			/** 단말 Port */
+	IP4		uiServerIP;				/** Server IP */
+	U16		usServerPort;			/** Server Port */
+	STIME	uiTcpSynTime;			/** Tcp Syn Time */
+	MTIME	uiTcpSynMTime;			/** Tcp Syn Micro Time */
+	U16		usTransID;				/** HTTP Transaction ID */
+	U32		uiPageID;				/** PAGE ID */
+	U16		usAppCode;				/** 처리 프로세스 CODE */
+	U16		usSvc4Type;				/** IP, PORT로 판단한 Service type */
+	U16		usSvc7Type;				/** URL, HostName으로 판단한 Service type */
+	U8		ucSubSysNo;				/** Sub System No. */
+	U8		szContentType[MAX_CONTENTTYPE_SIZE]; /** Content-Type */
+	U8		<TAG_DEFINE:METHOD>ucMethod;		/** Method Code 값 */
+	STIME	uiRequestStartTime;		/** GET/POST Request Start Time */
+	MTIME	uiRequestStartMTime;	/** GET/POST Request Start Micro Time */
+	STIME	uiRequestEndTime;		/** GET/POST Request End Time */
+	MTIME	uiRequestEndMTime;		/** GET/POST Request End Micro Time */
+	STIME	uiRequestAckTime;		/** Request에 대한 서버 측의 Ack Time */
+	MTIME	uiRequestAckMTime;		/** Request에 대한 서버 측의 Ack Micro Time */
+	STIME	uiResponseStartTime;	/** Response Start Time */
+	MTIME	uiResponseStartMTime;	/** Response Start Micro Time */
+	STIME	uiResponseEndTime;		/** Response End Time */
+	MTIME	uiResponseEndMTime;		/** Response End Micro Time */
+	STIME	uiMNAckTime;			/** 단말 Ack Time */
+	MTIME	uiMNAckMTime;			/** 딴말 Ack Micro Time */
+	STIME	uiEndTime;				/** Last Packet Time */
+	MTIME	uiEndMTime;				/** Last Packet Micro Time */
+	S64		llTransGapTime;			/** EndTime - RequestStartTime */
+
+
+
+
+	STIME	uiTcpSynAckTime;		/** Tcp SynAck Time */
+	MTIME	uiTcpSynAckMTime;		/** Tcp SynAck Micro Time */
+	STIME	uiTcpConnEndTime;		/** Syn => SynAck => Ack의 Ack Time */
+	MTIME	uiTcpConnEndMTime;		/** Syn => SynAck => Ack의 Ack Micro Time */
+	S64		llConnectionSetupTime;	/** TcpConnEndTime - CallTime */
+	STIME	uiTcpFinTime;			/** 첫번째 Tcp Fin, RST Time */
+	MTIME	uiTcpFinMTime;			/** 첫번째 Tcp Fin, RST Micro Time */
+	STIME	uiTcpFinAckTime;		/** 마지막 Tcp Fin Ack Time */
+	MTIME	uiTcpFinAckMTime;		/** 마지막 Tcp Fin Ack Micro Time */
+	STIME	uiTcpUpLastTime;		/** MN => Server, Last Packet Time */
+	MTIME	uiTcpUpLastMTime;		/** MN => Server, Last Packet Micro Time */
+	STIME	uiTcpDnLastTime;		/** Server => MN, Last Packet Time */
+	MTIME	uiTcpDnLastMTime;		/** Server => MN, Last Packet Micro Time */
+	S64		llSessionTime;			/** EndTime - CallTime */
+	U8		<TAG_DEFINE:CLI>ucCLIStatus;			/** 단말 상태 */
+	U8		<TAG_DEFINE:SVR>ucSVRStatus;			/** 서버 상태 */
+	U16		usL4FailCode;			/** TCP Fail Code */
+	U8		ucSynCnt;				/** Syn Count */
+	U8		ucSynAckCnt;			/** SynAck Count */
+	U8		ucFinUpCnt;				/** MN => Server, Fin Count */
+	U8		ucFinDnCnt;				/** Server => MN, Fin Count */
+	U8		ucRstUpCnt;				/** MN => Server, Rst Count */
+	U8		ucRstDnCnt;				/** Server => MN, Rst Count */
+	U32		uiDataPacketUpCnt;		/** MN => Server, 데이터 전송 단계에서 재전송을 제외한 패킷 개수 */
+	U32		uiDataPacketDnCnt;		/** Server => MN, 데이터 전송 단계에서 재전송을 제외한 패킷 개수 */
+	U32		uiDataRetransUpCnt;		/** MN => Server, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiDataRetransDnCnt;		/** Server => MN, 데이터 전송 단계에서 재전송 패킷 개수 */
+	U32		uiTotPacketUpCnt;		/** MN => Server, 전구간에서 재전송을 제외한 패킷 개수 */
+	U32		uiTotPacketDnCnt;		/** Server => MN, 전구간에서 재전송을 제외한 패킷 개수 */
+	U32		uiTotRetransUpCnt;		/** MN => Server, 전구간에서 재전송 패킷 개수 */
+	U32		uiTotRetransDnCnt;		/** Server => MN, 전구간에서 재전송 패킷 개수 */
+	U32		uiDataPacketUpSize;		/** MN => Server, 데이터 전송 단계에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiDataPacketDnSize;		/** Server => MN, 데이터 전송 단계에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiDataRetransUpSize;	/** MN => Server, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiDataRetransDnSize;	/** Server => MN, 데이터 전송 단계에서 재전송 데이터 사이즈 */
+	U32		uiTotPacketUpSize;		/** MN => Server, 전구간에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiTotPacketDnSize;		/** Server => MN, 전구간에서 재전송을 제외한 데이터 사이즈 */
+	U32		uiTotRetransUpSize;		/** MN => Server, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTotRetransDnSize;		/** Server => MN, 전구간에서 재전송 데이터 사이즈 */
+	U32		uiTcpDataUpSize;		/** MN => Server, Tcp Payload 사이즈, 재전송 제외 */
+	U32		uiTcpDataDnSize;		/** Server => MN, Tcp Payload 사이즈, 재전송 제외 */
+	U32		uiTrafficUpSize;		/** MN => Server, Tcp Payload 사이즈, 재전송 포함 */
+	U32		uiTrafficDnSize;		/** Server => MN, Tcp Payload 사이즈, 재전송 포함 */
+	U16		usUpMSS;				/** MN => Server, Syn의 MSS */
+	U16		usDnMSS;				/** Server => MN, Syn의 MSS */
+	U16		usUpInitWindowSize;		/** MN => Server, 최초 패킷의 Window Size */
+	U16		usDnInitWindowSize;		/** Server => MN, 최초 패킷의 Window Size */
+	STIME	uiOpStartTime;			/** 분석 시작 Time */
+	MTIME	uiOpStartMTime;			/** 분석 시작 Micro Time */
+	STIME	uiOpEndTime;			/** 마지막 처리 Time */
+	MTIME	uiOpEndMTime;			/** 마지막 처리 Micro Time */
+} LOG_HTTP_TRANS;
+
+#pragma pack()
+
+/*
+ * $Log: getlog.pstg,v $
+ * Revision 1.1  2006/08/22 02:33:27  dark264sh
+ * no message
+ *
+ * Revision 1.1  2006/08/22 01:51:45  dark264sh
+ * aqua.stg => aqua.pstg
+ *
+ * Revision 1.12  2006/08/22 01:44:30  dark264sh
+ * no message
+ *
+ * Revision 1.11  2006/08/22 01:41:29  dark264sh
+ * no message
+ *
+ * Revision 1.10  2006/08/21 09:22:41  dark264sh
+ * L4FailCode 설정 함수 추가
+ *
+ * Revision 1.9  2006/08/21 07:35:34  dark264sh
+ * TCP_SESS struct timeval => STIME, MTIME으로 변경
+ * structg에서 struct timeval 처리를 못함.
+ *
+ * Revision 1.8  2006/08/21 06:22:56  dark264sh
+ * no message
+ *
+ * Revision 1.7  2006/08/21 04:32:29  dark264sh
+ * no message
+ *
+ * Revision 1.6  2006/08/21 04:15:02  dark264sh
+ * no message
+ *
+ * Revision 1.5  2006/08/21 01:32:32  dark264sh
+ * LOG_COMMON 추가
+ *
+ * Revision 1.4  2006/08/18 10:18:03  dark264sh
+ * no message
+ *
+ * Revision 1.3  2006/08/16 05:32:03  dark264sh
+ * no message
+ *
+ * Revision 1.2  2006/08/16 05:07:55  dark264sh
+ * no message
+ *
+ * Revision 1.1  2006/08/16 05:07:22  dark264sh
+ * INIT
+ *
+ */
