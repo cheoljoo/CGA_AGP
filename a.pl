@@ -81,6 +81,9 @@ sub traverse_hash_tree {
 }
 
 $filename = shift (@ARGV);
+if($filename eq ""){
+	$filename = "default.def";
+}
 open(FH, "<",$filename) or die "Can't open < $filename: $!";
 $total_context_org = "";
 $total_context_chg = "";
@@ -440,7 +443,7 @@ print FH $c;
 close(FH);
 
 
-open(GVW,">"."GV.txt") or die "GVW:ERROR$!\n";
+open(GVW,">"."default.GV") or die "GVW:ERROR$!\n";
 traverse_hash_tree_to_change_special_code(\%gColStruct,"gColStruct","",GVW);
 traverse_hash_tree_to_change_special_code(\%gCol,"gCol","",GVW);
 traverse_hash_tree_to_change_special_code(\%gCan,"gCan","",GVW);
@@ -448,7 +451,7 @@ close(GVW) or die "Error in closing the file ", __FILE__, " $!\n";;
 
 print "AAAAAAAA\n";
 
-open(GVR,"<","GV.txt") or die "GVR:ERROR$!\n";
+open(GVR,"<","default.GV") or die "GVR:ERROR$!\n";
 $cnt = 0 ;
 %TT = {};
 while(<GVR>){
