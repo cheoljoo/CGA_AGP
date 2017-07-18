@@ -1,6 +1,50 @@
 #!/bin/perl
 
-sub Cchange
+our $tttime;
+our $cchange_start_time;
+our $outputdir = "OUTPUT";
+our %local_var_set;
+
+sub start_time_log {
+	my $tmpLogInit = shift @_;
+	($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
+	$Month++;
+	$Year += 1900;
+	print_fp( "$tmpLogInit structg : CChange START ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",DBG,TIME_DBG);
+	$tttime = $Hour * 3600 + $Minute * 60 + $Second;
+	$cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
+}
+sub mid_time_log {
+	my $tmpLogInit = shift @_;
+	($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
+	$Month++;
+	$Year += 1900;
+	$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
+	$tttime = $Hour * 3600 + $Minute * 60 + $Second;
+	print_fp( "$tmpLogInit structg ($ddtime) : CChange ITERATE recursion END 1 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",DBG,TIME_DBG);
+}
+sub end_time_log {
+	my $tmpLogInit = shift @_;
+	($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
+	$Month++;
+	$Year += 1900;
+	$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $cchange_start_time;
+	print_fp( "$tmpLogInit structg CChange duration ($ddtime) : CChange END ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",DBG,TIME_DBG);
+}
+
+sub print_fp
+{
+	my $print_contents;
+	my $to_file;
+
+	$print_contents = shift @_;
+	foreach $to_file (@_) {
+		## STD라는 것은 DBG에 대해서 만들어둔 것으로 STD 나 DBG이나 같은 값을 의미한다.  
+		print $to_file $print_contents;
+	}
+}
+
+sub CChange
 {
 	my $iterate_key;
 	my $iterate_value;
@@ -15,7 +59,6 @@ sub Cchange
 	my $stc_filename_output ;
 	my $stc_debug ;
 	my $stc_output_dir;
-	my %local_set;
 	my $tttime;
 	my $ddtime;
 	my $cchange_start_time;
@@ -24,6 +67,7 @@ sub Cchange
 	$stc_output_dir = shift @_;
 	$stc_filename_output = shift @_;
 	$stc_debug = shift @_;
+	print "STC input $stc_filename_input , dir= $stc_output_dir , output= $stc_filename_output , debug= $stc_debug\n";
 	#
 	#방법 1. 
 	# 쌍을 알기위해서 recusive를 사용하게 되고,
@@ -44,24 +88,19 @@ sub Cchange
 	# A End
 	# 라고 할때, 위의 4줄을 모두 한 변수에 집어 넣는다. (AAA ~ B End)
 	# ITERATOR A의 규칙대로 대치를 시킨다. (복수의 line을 뽑아내어 변수에 저장)
-	# 대치시킨 결과를 Cchange() 에서 하는 것 처럼 또 돌려준다. 
+	# 대치시킨 결과를 CChange() 에서 하는 것 처럼 또 돌려준다. 
 	# ITERATOR B ~ B End까지를 또 풀어준다.
 	#
 	# operation 우선순위
 	#  ITERATE 가 제일 먼저 처리 된다.
 	#  그 후에 , +<+$...+>+ 이 처리가 된다.  co_log_main.c안에서  Get_HashoData를 참조하시요.
-	print_fp("Cchange $stc_filename_input\n",STDOUT,DBG);
+	print_fp("CChange $stc_filename_input\n",STDOUT,DBG);
 	open(INPUTC , "<$stc_filename_input");
 
-if($stc_debug eq "STC"){
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-$Month++;
-$Year += 1900;
-print_fp( "structg : Cchange START ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-$cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
-}
+	if($stc_debug eq "DEBUG_ON"){ start_time_log("==time_debug=="); }
 
+	# for make file : but not use yet
+	my $comment =  <<END_COMMENT;
 	if($stc_filename_output ne ""){
 		$stg_stc_file{$stc_filename_output} = $stc_filename_output;
 		print_fp("STC FileName 1 : stg_stc_file : $stg_stc_file{$stc_filename_output} : $stc_filename_output\n",STDOUT,DBG);
@@ -79,6 +118,8 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 			}
 		}
 	}
+END_COMMENT
+
 
 	while ($in = <INPUTC>) {
 		if($in =~ /^FileName\s*\:\s*(\S+)\s*$/){
@@ -86,6 +127,8 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 			$stg_stc_file{$1} = $1;
 			print_fp("STC FileName 2 : stg_stc_file : $stg_stc_file{$1} : $stc_filename_output\n",STDOUT,DBG);
 			open(OUTPUTC , ">$outputdir/$stc_output_dir/$stc_filename_output");
+
+			my $comment =  <<END_COMMENT;		# if need this statements , you change to put the values into hash variables.
 			if( ($stc_filename_output =~ /\.c\s*$/) || ($stc_filename_output =~ /\.cpp\s*$/) || ($stc_filename_output =~ /\.pc\s*$/) ){	
 				#print "INCLUDE2\n";
 				print OUTPUTC "\n#include \"$FileName\"\n\n\n";		# .c안에서는 되는데 .l에서 문제가 발생함.
@@ -93,37 +136,28 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 				#NONE#
 				# .l일때는 처음에 include를 선언하면 error가 발생한다.
 			}
+END_COMMENT
+
+			# HASH : filelist
+			my $tmpDir;
 			if($stc_output_dir eq ""){
-				if($stc_filename_output =~ /\.c/){
-					$filelist{$stc_filename_output} = "CFILE";
-				} elsif($stc_filename_output =~ /\.l/){
-					$filelist{$stc_filename_output} = "LEXFILE";
-					$temp = $stc_filename_output;
-					if($temp =~ /(.*)\/(.*).l/){
-						$temp = "lex\.$2\.c";
-					} else {
-						$temp =~ s/(.*)\.l/lex\.$1\.c/;
-					}
-					$filelist{$temp} = "CFILE";
-				}
+				$tmpDir = "";
 			} else {
-				if($stc_filename_output =~ /\.c/){
-					$filelist{"$stc_output_dir" . "/" . "$stc_filename_output"} = "CFILE";
-				} elsif($stc_filename_output =~ /\.l/){
-					$filelist{"$stc_output_dir" . "/" . "$stc_filename_output"} = "LEXFILE";
-					$temp = $stc_filename_output;
-					if($temp =~ /(.*)\/(.*).l/){
-						$temp = "lex\.$2\.c";
-					} else {
-						$temp =~ s/(.*)\.l/lex\.$1\.c/;
-					}
-					$filelist{"$temp"} = "CFILE";
-				}
+				$tmpDir = "$stc_output_dir\/";
 			}
-			next;
-		} elsif($in =~ /^Lex_Compile_Option\s*\:\s*(.*)/){		# Compile_Option : -i   (flex 에서 case ignore)
-			$temp = "$stc_output_dir" . "/" . "$stc_filename_output";
-			$lex_option{$temp} = $1;
+			if($stc_filename_output =~ /\.c/){
+				$filelist{$tmpDir.$stc_filename_output} = "CFILE";
+			} elsif($stc_filename_output =~ /\.l/){
+				$filelist{$tmpDir.$stc_filename_output} = "LEXFILE";
+				$temp = $stc_filename_output;
+				if($temp =~ /(.*)\/(.*).l/){
+					$temp = "lex\.$2\.c";
+				} else {
+					$temp =~ s/(.*)\.l/lex\.$1\.c/;
+				}
+				$filelist{$tmpDir.$temp} = "CFILE";
+			}
+			$hashName{filelist} = $stc_filename_output;
 			next;
 		} elsif($in =~ /^Set\s*\:\s*(\w+)\s*\=\s*(\w+)/){		# Set: A = B 
 			my $temp_set_var = $1;
@@ -147,7 +181,9 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 			$undefined_name = "stc_Set_var_$stc_filename_output";
 			$undefined_typedef{$undefined_name} = "HASH_$undefined_name";
 			$$undefined_name{$temp_set_var} = "$temp_set_value";
-			$local_set{$temp_set_var} = $temp_set_value;
+			$local_var_set{$stc_filename_output}{$temp_set_var} = $temp_set_value;
+			$hashName{local_var_set} = "STC Local Set Variable";
+			print "$stc_filename_output : $in\n";
 			next;
 		} elsif($in =~ /^Set\s*\:\s*(\w+)\s*\{\s*(\w+)\s*\}\s*\=\s*(\w+)/){		# Set: A{B} = C
 			print "SET : ERROR $1 $2 $3\n";
@@ -155,6 +191,8 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 			my $temp_set_hash = $2;
 			my $temp_set_value = $3;
 #print DBG "LLL $iterate_comments : $1  $2 $3\n";
+			#  $hashName is the list of hash variables to print or to write into file.
+			$hashName{$1} = $3;
 			$$1{$2} = $3;
 #print DBG "LLL $iterate_comments : [$1] [$2]  $3\n";
 			#CCHANGE_DEBUG print DBG "SET :  $1 \{ $2 \} = $3\n";
@@ -164,15 +202,6 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 			next;
 		}
 
-		foreach $temp (keys %local_set){			# local 하게 Set: 된 것들에 대해서 대치 (replacement)를 시켜주는 곳이다.
-			if(   ($in =~ /Set :/)   and
-				($in =~ /\{ASSOCIATION_TABLENAME\}/) ){
-				#print "IN $temp $local_set{$temp} : $in\n";
-				#$in =~ s/$temp/$local_set{$temp}/g;
-				#print "IN2 $iterate_cnt $temp $local_set{$temp} : $in\n";
-			}
-			$in =~ s/$temp/$local_set{$temp}/g;
-		}
 
 #print_fp("Line 1 icnt=$iterate_cnt : $in",DBG);
 		if(0 == $iterate_cnt){
@@ -180,30 +209,27 @@ $cchange_start_time = $Hour * 3600 + $Minute * 60 + $Second;
 		}
 #print_fp("Line 2 icnt=$iterate_cnt : $in",DBG);
 
-		if ($in =~ /^\s*ITERATE\s+([%@&])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){
+		if ($in =~ /^\s*ITERATE\s+([%@&])(.+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
+			#ITERATOR_DEBUG 
+			print DBG "ITERATE Mstart $1 $2 $3 $4\n"; 
 			if(0 == $iterate_cnt){
 				$in_start = $in;
-#ITERATOR_DEBUG print DBG "Mstart $1 $2 $3 $4\n"; 
 				($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3 , $4);
 			} else {
 				$iterate_lines .= $in;
 			}
 			$iterate_cnt ++;
-#ITERATOR_DEBUG print DBG "$iterate_cnt : $in";
+			#ITERATOR_DEBUG 
+			print DBG "ITERATE iterate_cnt $iterate_cnt : $in";
 		} elsif ($in =~ /^(.*)\+>>\+/){
 			$iterate_cnt--;
-#ITERATOR_DEBUG print DBG "$iterate_cnt : $in";
+			#ITERATOR_DEBUG 
+			print DBG "ITERATE iterate_cnt $iterate_cnt : $in";
 			if(0 == $iterate_cnt){
-if($stc_debug eq "STC"){
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-$Month++;
-$Year += 1900;
-$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
-$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-print_fp( "structg ($ddtime) : Cchange ITERATE START 1 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-}
+				if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug=="); }
 				$in_end = $in;
-#ITERATOR_DEBUG print DBG "iterate_comments [" . $iterate_comments . "]\n";
+				#ITERATOR_DEBUG 
+				print DBG "iterate_comments [" . $iterate_comments . "]\n";
 				if( "ON" eq $iterate_comments){
 					$temp1=$in_start;
 					$temp2=$iterate_lines;
@@ -217,46 +243,34 @@ print_fp( "structg ($ddtime) : Cchange ITERATE START 1 ($stc_filename_input) - $
 					$temp2 =~ s/IFEQUAL/ifequal/g;
 					$temp3 =~ s/\/\*/\<\*/g;
 					$temp3 =~ s/\*\//\*\>/g;
-					#ITERATOR_DEBUG print_fp("\/\*\*\n$temp1$temp2$temp3\*\/\n",DBG,OUTPUTC);
+					#ITERATOR_DEBUG 
+					print DBG "\/\*\*\n$temp1$temp2$temp3\*\/\n";
 				}
-				$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
-				#ITERATOR_DEBUG  print DBG "RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
+				$iterate_lines = Iterator_recursion($iterate_var_type , \%{$iterate_var_name},$iterate_key,$iterate_value,$iterate_lines);
+				#ITERATOR_DEBUG  
+				print DBG "RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
 				#$iterate_lines =~ s/\+<\+\s*\$(\S+)\s*\+>\+/$$1/g;		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 
-if($stc_debug eq "STC"){
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-$Month++;
-$Year += 1900;
-$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
-$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-print_fp( "structg ($ddtime) : Cchange ITERATE recursion END 1 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-}
+				if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug=="); }
 
 				# 이런식으로 처리하면 많은 %값들을 만들지 않아도 되며, define같은 값들을 지저분하게 군데군데 만들어줄 필요가 없다. 
 #print DBG "Set Hash 10 : $iterate_lines\n";
-if(1){
-				my $iter_lena = length($iterate_lines);
-				my $iterate_lines_org = $iterate_lines;
-				$iterate_lines ="";
-				for(my $itt = 0;$itt <= $iter_lena ; $itt += 10000){
-					$iterate_lines .= replace_var_with_value(substr($iterate_lines_org, $itt, 10000));
+				if(1){
+					my $iter_lena = length($iterate_lines);
+					my $iterate_lines_org = $iterate_lines;
+					$iterate_lines ="";
+					for(my $itt = 0;$itt <= $iter_lena ; $itt += 10000){
+						$iterate_lines .= replace_var_with_value(substr($iterate_lines_org, $itt, 10000));
+					}
+
+					$temp = length($iterate_lines);
+					$iterate_lines = replace_var_with_value($iterate_lines);
+
+					if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug 2=="); }
+
+				} else {
+					$iterate_lines = replace_var_with_value($iterate_lines);
 				}
-
-				$temp = length($iterate_lines);
-				$iterate_lines = replace_var_with_value($iterate_lines);
-				
-if($stc_debug eq "STC"){
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-$Month++;
-$Year += 1900;
-$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
-$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-print_fp( "structg ($ddtime) : Cchange ITERATE <-> REPLACE END ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-}
-
-} else {
-				$iterate_lines = replace_var_with_value($iterate_lines);
-}
 #print DBG "Set Hash 11 : $iterate_lines\n";
 
 
@@ -277,7 +291,7 @@ if($stc_debug eq "STC"){
 	$Year += 1900;
 	$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
 	$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-	print_fp( "structg ($ddtime) : Cchange ITERATE REPLACE <-> EQUAL END 3 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
+	print_fp( "structg ($ddtime) : CChange ITERATE REPLACE <-> EQUAL END 3 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
 }
 
 	print_fp("$iterate_lines\n" , OUTPUTC);
@@ -289,7 +303,7 @@ if($stc_debug eq "STC"){
 				my $ifequal_two="";
 				my $ifequal_action="";
 				my $is_ifequal = 0;
-#print DBG "Cchange IFEQUAL NOTEQUAL<<\n$iterate_lines\n>>\n";
+#print DBG "CChange IFEQUAL NOTEQUAL<<\n$iterate_lines\n>>\n";
 				foreach $temp (@temp){
 					if($temp =~ /^\s*IFEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)\s*#\{(.*)/){
 						$ifequal_start = 1;
@@ -383,7 +397,7 @@ if($stc_debug eq "STC"){
 $Month++;
 $Year += 1900;
 $ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $cchange_start_time;
-print_fp( "structg Cchange duration ($ddtime) : Cchange END ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
+print_fp( "structg CChange duration ($ddtime) : CChange END ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
 }
 
 }
@@ -708,10 +722,28 @@ sub  iterate_equal(){
 	return $iterate_lines;
 }
 
+sub getHashRef {
+	my ($name) = @_;        # gCan{9}
+	my $first;
+	print "F " . $name . "\n";
+	$name =~ s/([^\{]+)//;
+	$first = $1;
+	my $hn = \%{$first};
+	print "F " . $hn . "\n";
+	while($name =~ s/^\{([^\}]*)\}//){
+		my $uu = $1;
+		$hn = $hn->{$uu};
+		print "G " . $uu . "   $hn\n";
+	}
+
+	print "I " . $hn . "\n";
+	return $hn;
+}
+
 sub Iterator_recursion
 {
 	my $iterate_var_type;
-	my $iterate_var_name;
+	my $iterate_ref_hash;
 	my $iterate_key;
 	my $iterate_value;
 	my $iterate_lines;
@@ -720,46 +752,52 @@ sub Iterator_recursion
 	my $iterate_cnt = 0;
 	my @lines;
 
-	($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value, $iterate_lines) = @_;
+	($iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value, $iterate_lines) = @_;
 	#print_fp( "O : @_\n", OUTPUTC);
-#print_fp( "C : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n", DBG);
+print DBG "RC : $iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value\n";
 
-#print DBG "C : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
+print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 
 	if($iterate_var_type eq "\%"){
-		foreach $stg_key_hash (reverse sort keys %$iterate_var_name){
+		print DBG "RC : HASH Iterator_recursion : \$iterate_ref_hash = $iterate_ref_hash ]]]\n";
+		#$tmp1 = eval $$iterate_ref_hash;
+		$tt = "gCan{9}";
+		$tmp2 = \%{$tt};
+		print DBG "RC : tmp2 $tmp2  tmp1 $tmp1 gcan $gCan{9}\n";
+		foreach $stg_key_hash (reverse sort keys %{$iterate_ref_hash}){
+			print DBG "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
-			$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
+			$temp =~ s/$iterate_value/$$iterate_ref_hash{$stg_key_hash}/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\@"){
 		my $my_cnt;
-		$my_cnt = @$iterate_var_name;
-		#ITERATOR_DEBUG print DBG "--> ARRAY : $iterate_var_name  size =  $my_cnt\n";
+		$my_cnt = @$iterate_ref_hash;
+		#ITERATOR_DEBUG print DBG "--> ARRAY : $iterate_ref_hash  size =  $my_cnt\n";
 		for(my $i = 0 ; $i < $my_cnt ; $i++){
-			#ITERATOR_DEBUG print DBG "array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
+			#ITERATOR_DEBUG print DBG "array : \$$iterate_ref_hash \[ $i \] = $$iterate_ref_hash[$i]\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$i/g;
-			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
+			$temp =~ s/$iterate_value/$$iterate_ref_hash[$i]/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\&"){
 		my $my_cnt;
-		$my_cnt = @$iterate_var_name;
-		#ITERATOR_DEBUG print DBG "--> REVERSE ARRAY : $iterate_var_name  size =  $my_cnt\n";
+		$my_cnt = @$iterate_ref_hash;
+		#ITERATOR_DEBUG print DBG "--> REVERSE ARRAY : $iterate_ref_hash  size =  $my_cnt\n";
 		for(my $i = $my_cnt - 1 ; $i >= 0 ; $i--){
-			#ITERATOR_DEBUG print DBG "REVERSE array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
+			#ITERATOR_DEBUG print DBG "REVERSE array : \$$iterate_ref_hash \[ $i \] = $$iterate_ref_hash[$i]\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$i/g;
-			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
+			$temp =~ s/$iterate_value/$$iterate_ref_hash[$i]/g;
 			$result .= $temp;
 		}
 	} else {
 		print "ERROR : unknown iterate var type  : $iterate_var_type\n";
 		die $error = 500;
 	}
-#print DBG "C : Iterator_recursion : \$result = $result ]]]\n";
+	print DBG "RC : Iterator_recursion : \$result = $result ]]]\n";
 
 	$iterate_lines = "";
 	if($result =~ /\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
@@ -773,7 +811,7 @@ sub Iterator_recursion
 				$it_line =~ /^\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
 				if(0 == $iterate_cnt){
 #print  DBG "Sstart $1 $2 $3\n"; 
-					($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
+					($iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
 				} else {
 					$iterate_lines .= $it_line . "\n";
 				}
@@ -783,7 +821,7 @@ sub Iterator_recursion
 #print DBG "SUB_ITERATE : $iterate_cnt : $it_line\n";
 				$iterate_cnt--;
 				if(0 == $iterate_cnt){
-					$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
+					$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_ref_hash,$iterate_key,$iterate_value,$iterate_lines);
 #print  DBG "Send result 30 :: $iterate_lines\n"; 
 					#$iterate_lines = replace_var_with_value($iterate_lines);
 					$result .= $iterate_lines;
@@ -816,10 +854,6 @@ sub replace_var_with_value
 	my $in_cnt = 0;
 	$replace_in = shift @_;
 
-			if(   ($replace_in =~ /Set :/)   and
-				($replace_in =~ /\{ASSOCIATION_TABLENAME\}/) ){
-				print "replace IN : $replace_in\n";
-			}
 	while(
 		($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\+>\+/$$1/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\[\s*(\d*)\s*\]\s*\+>\+/$$1[$2]/)	# +<+$typedef_name[54]+>+  ==> COMBI_Accum
@@ -831,7 +865,7 @@ sub replace_var_with_value
 			$temp_num++;
 			$replace_in =~ s/\d+\s*\+\+\+\+/$temp_num/;
 		}
-		while($replace_in =~ /(\d+)\s*\-\-\-\-/){		# 	++++     1을 빼준다.
+		while($replace_in =~ /(\d+)\s*\-\-\-\-/){		# 	----     1을 빼준다.
 			my $temp_num;
 			$temp_num = $1;
 			$temp_num--;
@@ -841,16 +875,6 @@ sub replace_var_with_value
 		#print DBG "Set Hash replace2 in_cnt=$in_cnt: $replace_in \n";
 	}			# +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+  ==> int
 
-	$in_cnt = 0;
-	while(
-		($replace_in =~ /Set\s*\:\s*(\w+)\s*\{\s*([^\s}]+)\s*\}\s*\=\s*\"(.*)\"\s*\n/)   # SET HASH
-	){
-		$in_cnt ++;
-		if($replace_in =~ s/Set\s*\:\s*(\w+)\s*\{\s*([^\s}]+)\s*\}\s*\=\s*\"(.*)\"\s*\n//){   # SET HASH
-			$$1{$2} = $3;
-			#print DBG "Set Hash replace1 in_cnt=$in_cnt: $1 $2 $3\n";
-		}
-	}
 	return $replace_in;
 }
 
@@ -886,8 +910,8 @@ sub traverse_hash_tree_to_recover_special_code {
 	}
 }
 sub traverse_hash_tree {
-	my ($TAXA_TREE,$vn,$lstr)    = @_;
-	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,$lstr,STDOUT);
+	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
+	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,$lstr,$fh);
 }
 
 
@@ -898,6 +922,13 @@ if($stcfilename eq ""){
 	$filename = "default.GV";
 	$stcfilename = "default.stc";
 }
+
+## init file open
+open(DBG,">debug.log");
+open(TIME_DBG,">time_debug.log");
+open(VAR_DBG,">var_debug.log");
+
+
 print "fname = $filename , stc fname = $stcfilename\n";
 open(FH, "<",$filename) or die "Can't open < $filename: $!";
 my $lcnt = 0 ;
@@ -918,8 +949,31 @@ close(FH);
 
 
 foreach my $key (keys %hashName){
-	print "----[$key]----\n";
-	traverse_hash_tree(\%{$key},$key,"",STDOUT);
+	print VAR_DBG "----[$key]----\n";
+	traverse_hash_tree(\%{$key},$key,"",VAR_DBG);
 }
 
-Cchange($stcfilename,"","","STC");
+CChange($stcfilename,"stc","","DEBUG_ON");
+
+print \%{gCol} . "\n";
+print getHashRef("gCol") . "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCol")}) { print "$key  ";} print "\n";
+print $gCol{9} . "\n";
+print \%{"gCol{9}"} . "\n";
+print getHashRef("gCol{9}") . "\n";
+$tmp = $gCol{9};
+foreach my $key (sort{$a<=>$b} keys %$tmp) { print "A$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{(getHashRef("gCol"))->{9}}) { print "B$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCol{9}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{3-4}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{9}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{1}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{2}")}) { print "C$key  ";} print "\n";
+
+my $comment =  <<END_COMMENT;
+		foreach my $key (keys %hashName){
+			print VAR_DBG "----[$key]----\n";
+			traverse_hash_tree(\%{$key},$key,"",VAR_DBG);
+		}
+END_COMMENT
+
