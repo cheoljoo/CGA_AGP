@@ -246,7 +246,7 @@ END_COMMENT
 					#ITERATOR_DEBUG 
 					print DBG "\/\*\*\n$temp1$temp2$temp3\*\/\n";
 				}
-				$iterate_lines = Iterator_recursion($iterate_var_type , \%{$iterate_var_name},$iterate_key,$iterate_value,$iterate_lines);
+				$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
 				#ITERATOR_DEBUG  
 				print DBG "RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
 				#$iterate_lines =~ s/\+<\+\s*\$(\S+)\s*\+>\+/$$1/g;		# 	+<+$stg_hash_del_timeout+>+ ==> 10
@@ -743,7 +743,7 @@ sub getHashRef {
 sub Iterator_recursion
 {
 	my $iterate_var_type;
-	my $iterate_ref_hash;
+	my $iterate_var_name;
 	my $iterate_key;
 	my $iterate_value;
 	my $iterate_lines;
@@ -752,45 +752,45 @@ sub Iterator_recursion
 	my $iterate_cnt = 0;
 	my @lines;
 
-	($iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value, $iterate_lines) = @_;
+	($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value, $iterate_lines) = @_;
 	#print_fp( "O : @_\n", OUTPUTC);
-print DBG "RC : $iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value\n";
+print DBG "RC : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n";
 
 print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 
 	if($iterate_var_type eq "\%"){
-		print DBG "RC : HASH Iterator_recursion : \$iterate_ref_hash = $iterate_ref_hash ]]]\n";
-		#$tmp1 = eval $$iterate_ref_hash;
+		print DBG "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
+		#$tmp1 = eval $$iterate_var_name;
 		$tt = "gCan{9}";
 		$tmp2 = \%{$tt};
 		print DBG "RC : tmp2 $tmp2  tmp1 $tmp1 gcan $gCan{9}\n";
-		foreach $stg_key_hash (reverse sort keys %{$iterate_ref_hash}){
+		foreach $stg_key_hash (reverse sort keys %{getHashRef($iterate_var_name)}){
 			print DBG "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
-			$temp =~ s/$iterate_value/$$iterate_ref_hash{$stg_key_hash}/g;
+			$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\@"){
 		my $my_cnt;
-		$my_cnt = @$iterate_ref_hash;
-		#ITERATOR_DEBUG print DBG "--> ARRAY : $iterate_ref_hash  size =  $my_cnt\n";
+		$my_cnt = @$iterate_var_name;
+		#ITERATOR_DEBUG print DBG "--> ARRAY : $iterate_var_name  size =  $my_cnt\n";
 		for(my $i = 0 ; $i < $my_cnt ; $i++){
-			#ITERATOR_DEBUG print DBG "array : \$$iterate_ref_hash \[ $i \] = $$iterate_ref_hash[$i]\n";
+			#ITERATOR_DEBUG print DBG "array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$i/g;
-			$temp =~ s/$iterate_value/$$iterate_ref_hash[$i]/g;
+			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\&"){
 		my $my_cnt;
-		$my_cnt = @$iterate_ref_hash;
-		#ITERATOR_DEBUG print DBG "--> REVERSE ARRAY : $iterate_ref_hash  size =  $my_cnt\n";
+		$my_cnt = @$iterate_var_name;
+		#ITERATOR_DEBUG print DBG "--> REVERSE ARRAY : $iterate_var_name  size =  $my_cnt\n";
 		for(my $i = $my_cnt - 1 ; $i >= 0 ; $i--){
-			#ITERATOR_DEBUG print DBG "REVERSE array : \$$iterate_ref_hash \[ $i \] = $$iterate_ref_hash[$i]\n";
+			#ITERATOR_DEBUG print DBG "REVERSE array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$i/g;
-			$temp =~ s/$iterate_value/$$iterate_ref_hash[$i]/g;
+			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
 			$result .= $temp;
 		}
 	} else {
@@ -811,7 +811,7 @@ print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 				$it_line =~ /^\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
 				if(0 == $iterate_cnt){
 #print  DBG "Sstart $1 $2 $3\n"; 
-					($iterate_var_type , $iterate_ref_hash , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
+					($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
 				} else {
 					$iterate_lines .= $it_line . "\n";
 				}
@@ -821,7 +821,7 @@ print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 #print DBG "SUB_ITERATE : $iterate_cnt : $it_line\n";
 				$iterate_cnt--;
 				if(0 == $iterate_cnt){
-					$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_ref_hash,$iterate_key,$iterate_value,$iterate_lines);
+					$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
 #print  DBG "Send result 30 :: $iterate_lines\n"; 
 					#$iterate_lines = replace_var_with_value($iterate_lines);
 					$result .= $iterate_lines;
@@ -969,6 +969,7 @@ foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{3-4}")}) { print "C$key  
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{9}")}) { print "C$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{1}")}) { print "C$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{2}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan")}) { print "C$key  ";} print "\n";
 
 my $comment =  <<END_COMMENT;
 		foreach my $key (keys %hashName){
