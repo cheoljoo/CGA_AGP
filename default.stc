@@ -1,110 +1,31 @@
-FileName : Compare_typedef.c
-Set : iterate_comments = ON
+FileName : struct.h
 
-#include <netinet/in.h>
-
-
-ITERATE %gCan +<<+ ITKEY  ITVALUE
-void 
-Compare_ITKEY(char *prefix_string, ITVALUE *pprev, ITVALUE *pnext){
-Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,ITVALUE *pprev, ITVALUE *pnext)"
-
-	ITERATE %gCan{ITKEY} +<<+ IT2KEY  IT2VALUE
-	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,U8) #{
-	if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
-		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
-		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
-	}
-	}#
-	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,S8) #{
-	if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
-		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
-		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
-	}
-	}#
-	IFEQUAL(+<+$save_typedef_name_ITVALUE_array{IT2KEY}+>+,) #{
-	if( pprev->IT2KEY != pnext->IT2KEY){
-		FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %d\n",prefix_string,(int) pprev->IT2KEY);
-		FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %d\n",prefix_string,(int) pnext->IT2KEY);
-	}
-	}#
-	+>>+
-
-	return ;
-}
-
+ITERATE %gColStruct +<<+ ITKEY  ITVALUE
++<+$gColStruct{ITKEY}{Struct}+>+
 +>>+
 
 
 
-
-FileName : cilog.c
+FileName : protocol_table.html
 Set : iterate_comments = ON
 
-/**		@file  cilog.c
- *      - function collection for printing CILOG
- *
- *     Copyright (c) 2006~ by Upresto Inc, Korea
- *     All rights reserved
- *
- *		$Id: cilog.stc,v 1.7 2007/03/09 08:14:49 cjlee Exp $
- * 
- *     @Author      $Author: cjlee $
- *     @version     $Revision: 1.7 $
- *     @date        $Date: 2007/03/09 08:14:49 $
- *     @ref         cilog.c   +<+$FileName+>+
- *     @todo        Function List --> CILOG_[Structure Name]()
- *
- *     @section     Intro(¼Ò°³)
- *      - For CILOG
- *      - We apply for our Prt method format.
- *      - For CILOG
- *      - For CILOG
- *      - For CILOG
- *
- *     @section     Requirement
- *      @li Have the File Descriptor (has already made it)
- *
- **/
+ITERATE %gCol +<<+ ITKEY  ITVALUE
+void 
+Compare_ITKEY(char *prefix_string, ITVALUE *pprev, ITVALUE *pnext){
+Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,ITVALUE *pprev, ITVALUE *pnext)"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
-ITERATE %ANALYSIS_TYPEDEF +<<+ ITKEY ITVALUE
-
-/** CILOG_ITKEY function.
- *
- *  Printing Function for CILOG
- *
- * @param *fp 			: file description
- * @param *pthis 		: ITKEY type's pointer
- *
- *  @return 	void
- *  @see    	+<+$FileName+>+
- *
- *  @exception  nothing
- *  @note 		This is used for logging to the file.
- **/
-Set : function_def{CILOG_ITKEY} = "void CILOG_ITKEY(FILE *fp, ITKEY *pthis)"
-void CILOG_ITKEY(FILE *fp, ITKEY *pthis)
-{
-	ITERATE @ANALYSIS_ARRAY_ITKEY +<<+ IT2KEY IT2VALUE
-	{	+<+$ANALYSIS_ITKEY_COMMENTS{IT2VALUE}+>+		/* index : IT2KEY */
-		IFEQUAL(+<+$ANALYSIS_ITKEY_CILOG_HIDDEN{IT2VALUE}+>+,NO) #{
-			IFEQUAL(+<+$ANALYSIS_ITKEY_CILOG_HIDDEN{IT2VALUE}+>+,NO) #{
-			+<+$ANALYSIS_ITKEY_PrintPreAction{IT2VALUE}+>+
-			FILEPRINT(fp,"+<+$ANALYSIS_ITKEY_PrintFormat{IT2VALUE}+>++<+$file_delimiter+>+", +<+$ANALYSIS_ITKEY_PrintValueFunc{IT2VALUE}+>+ (+<+$ANALYSIS_ITKEY_PrintValue{IT2VALUE}+>+) );
-			}#
-		}#
-	}
+	ITERATE %gCol{ITKEY} +<<+ IT2KEY  IT2VALUE
+		$gCol{ITKEY}{IT2KEY}{Len} = +<+$gCol{ITKEY}{IT2KEY}{Len}+>+ 
+		IFEQUAL( (+<+$gCol{ITKEY}{IT2KEY}{Len}+>+ eq 1) && (+<+$gCol{ITKEY}{IT2KEY}{Span}+>+ eq 1)) /#
+		if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
+			FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
+			FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+		}
+		#/
 	+>>+
 
-	FILEPRINT(fp, "\n");
+	return ;
 }
-
-
 
 +>>+
 

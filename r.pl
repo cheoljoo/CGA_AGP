@@ -5,6 +5,8 @@ our $cchange_start_time;
 our $outputdir = "OUTPUT";
 our %local_var_set;
 
+sub __SUB__ { (caller 1)[3] }
+
 sub start_time_log {
 	my $tmpLogInit = shift @_;
 	($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
@@ -51,6 +53,7 @@ sub CChange
 	my $iterate_var_name;
 	my $iterate_var_type;
 	my $iterate_lines = "";
+	my %file_output;
 	my $in;
 	my $in_start;
 	my $in_end;
@@ -100,7 +103,7 @@ sub CChange
 	if($stc_debug eq "DEBUG_ON"){ start_time_log("==time_debug=="); }
 
 	# for make file : but not use yet
-	my $comment =  <<END_COMMENT;
+my $comment =  <<END_COMMENT;
 	if($stc_filename_output ne ""){
 		$stg_stc_file{$stc_filename_output} = $stc_filename_output;
 		print_fp("STC FileName 1 : stg_stc_file : $stg_stc_file{$stc_filename_output} : $stc_filename_output\n",STDOUT,DBG);
@@ -126,9 +129,9 @@ END_COMMENT
 			$stc_filename_output = $1;
 			$stg_stc_file{$1} = $1;
 			print_fp("STC FileName 2 : stg_stc_file : $stg_stc_file{$1} : $stc_filename_output\n",STDOUT,DBG);
-			open(OUTPUTC , ">$outputdir/$stc_output_dir/$stc_filename_output");
+			$file_output{$stc_filename_output} = "";        # init
 
-			my $comment =  <<END_COMMENT;		# if need this statements , you change to put the values into hash variables.
+my $comment =  <<END_COMMENT;		# if need this statements , you change to put the values into hash variables.
 			if( ($stc_filename_output =~ /\.c\s*$/) || ($stc_filename_output =~ /\.cpp\s*$/) || ($stc_filename_output =~ /\.pc\s*$/) ){	
 				#print "INCLUDE2\n";
 				print OUTPUTC "\n#include \"$FileName\"\n\n\n";		# .c안에서는 되는데 .l에서 문제가 발생함.
@@ -246,16 +249,17 @@ END_COMMENT
 					#ITERATOR_DEBUG 
 					print DBG "\/\*\*\n$temp1$temp2$temp3\*\/\n";
 				}
+				# Iterator_recursion은 단지 확장을 위한 것이다. 그러므로 , 확장을하는 것만 해주면 된다.  
 				$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
 				#ITERATOR_DEBUG  
-				print DBG "RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
 				#$iterate_lines =~ s/\+<\+\s*\$(\S+)\s*\+>\+/$$1/g;		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 
 				if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug=="); }
 
 				# 이런식으로 처리하면 많은 %값들을 만들지 않아도 되며, define같은 값들을 지저분하게 군데군데 만들어줄 필요가 없다. 
-#print DBG "Set Hash 10 : $iterate_lines\n";
-				if(1){
+				#print DBG "Set Hash 10 : $iterate_lines\n";
+				if(1){      # It is mendatory
+					#  because of processing speed.  when it is replacement , it scans whole string. So I break down into substring.
 					my $iter_lena = length($iterate_lines);
 					my $iterate_lines_org = $iterate_lines;
 					$iterate_lines ="";
@@ -268,458 +272,127 @@ END_COMMENT
 
 					if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug 2=="); }
 
-				} else {
+				} else {            # This is old version's code.
 					$iterate_lines = replace_var_with_value($iterate_lines);
 				}
-#print DBG "Set Hash 11 : $iterate_lines\n";
+				#print DBG "Set Hash 11 : $iterate_lines\n";
+				print DBG "RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
 
+				$iterate_lines = recover_special_code($iterate_lines);
+				#print_fp("$iterate_lines\n" , OUTPUTC);
+				$file_output{$stc_filename_output} .= $iterate_lines;
 
-if(1){
-	my $iter_len = length($iterate_lines);
-	my $iterate_lines_org = $iterate_lines;
-	$iterate_lines ="";
-	for(my $itt = 0;$itt <= $iter_len ; $itt += 10000){
-		$iterate_lines .= iterate_equal(substr($iterate_lines_org, $itt, 10000));
-	}
-
-	$iterate_lines = iterate_equal($iterate_lines);
-	$iterate_lines =~ s/STG_SHARP_/\#/g;
-	
-if($stc_debug eq "STC"){
-	($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-	$Month++;
-	$Year += 1900;
-	$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $tttime;
-	$tttime = $Hour * 3600 + $Minute * 60 + $Second;
-	print_fp( "structg ($ddtime) : CChange ITERATE REPLACE <-> EQUAL END 3 ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-}
-
-	print_fp("$iterate_lines\n" , OUTPUTC);
-
-} else { 		# if(1)
-				@temp = split('\n',$iterate_lines);
-				my $ifequal_start = 0;
-				my $ifequal_one="";
-				my $ifequal_two="";
-				my $ifequal_action="";
-				my $is_ifequal = 0;
-#print DBG "CChange IFEQUAL NOTEQUAL<<\n$iterate_lines\n>>\n";
-				foreach $temp (@temp){
-					if($temp =~ /^\s*IFEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)\s*#\{(.*)/){
-						$ifequal_start = 1;
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						$ifequal_action = $3;
-						$is_ifequal = 1;
-						print DBG "IFEQUAL 1>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-					} elsif($temp =~ /^\s*NOTEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)\s*#\{(.*)/){
-						$ifequal_start = 1;
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						$ifequal_action = $3;
-						$is_ifequal = 0;
-						print DBG "NOTEQUAL 1>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-					} elsif($temp =~ /^\s*IFEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)\s*(.*)/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						$ifequal_action = $3;
-						print DBG "IFEQUAL 0>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-						if($ifequal_one eq $ifequal_two){	# 같으면 IFEQUAL이므로 처리
-							print DBG "IFEQUAL 0.5>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-							$ifequal_action =~ s/STG_SHARP_/\#/g;
-							print_fp("$ifequal_action\n" , OUTPUTC,DBG);
-						} else {
-							# NONE
-						}
-					} elsif($temp =~ /^\s*NOTEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)\s*(.*)/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						$ifequal_action = $3;
-						print DBG "NOTEQUAL 0>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-						if($ifequal_one ne $ifequal_two){	# 다르면  NOTEQUAL이므로 처리
-							print DBG "NOTEQUAL 0.5>>> $ifequal_start [$ifequal_one] [$ifequal_two] $ifequal_action\n";
-							$ifequal_action =~ s/STG_SHARP_/\#/g;
-							print_fp("$ifequal_action\n" , OUTPUTC,DBG);
-						} else {
-							# NONE
-						}
-					} elsif($temp =~ /^(.*)\}#.*$/){
-						print DBG "IFEQUAL 3>>> [$ifequal_start] $ifequal_action\n";
-						if($ifequal_start == 0){
-							print "Syntax Error : You don't have the exact count of braces. #\{  \}# \n";
-							die $error = 401;
-						} else {
-							$ifequal_start = 0;
-							$ifequal_action .= "\n$1";
-							if( ($is_ifequal == 1) && ($ifequal_one eq $ifequal_two) ){	# 같으면 IFEQUAL이므로 처리
-								print DBG "IFEQUAL 3.5>>> $ifequal_action\n";
-								$ifequal_action =~ s/STG_SHARP_/\#/g;
-								print_fp("$ifequal_action\n" , OUTPUTC,DBG);
-							} elsif( ($is_ifequal == 0) && ($ifequal_one ne $ifequal_two) ){	#  다른면 IFEQUAL이므로 처리
-								print DBG "NOTEQUAL 3.7>>> $ifequal_action\n";
-								$ifequal_action =~ s/STG_SHARP_/\#/g;
-								print_fp("$ifequal_action\n" , OUTPUTC,DBG);
-							} else {
-								# NONE
-							}
-						}
-					} else {
-						if($ifequal_start == 1){
-							print DBG "IFEQUAL 2>>> $temp\n";
-							$ifequal_action .= "\n$temp";
-						} else {
-							print DBG "IFEQUAL 0>>> $temp\n";
-							$temp =~ s/STG_SHARP_/\#/g;
-							print_fp("$temp\n",OUTPUTC,DBG);;
-						}
-					}
-				}
-}		#if(0)
 				$iterate_lines = "";
-#print DBG "Mend \n"; 
+#print DBG "Mend \n";
 			} else {			# if(0 == $iterate_cnt)
 				$iterate_lines .= $in;
 			} 					#if(0 == $iterate_cnt)
-		} 
-		else {
+		} else {
 			if(0 == $iterate_cnt){
-				print_fp($in, OUTPUTC);
+				#print_fp($in, OUTPUTC);
+				$file_output{$stc_filename_output} .= $in;
 			} else {
 				$iterate_lines .= $in;
 			}
-		} 
+		}
 	}
+
+	foreach my $tmpKey  (sort keys  %file_output){
+		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal start =="); }
+		my $iter_len = length($file_output{$tmpKey});
+		my $linesOrg = $file_output{$tmpKey};
+		my $lines ="";
+		for(my $itt = 0;$itt <= $iter_len ; $itt += 1000){
+			$lines .= iterate_equal(substr($linesOrg, $itt, 1000));
+		}
+		$lines = iterate_equal($lines);
+		#$lines =~ s/STG_SHARP_/\#/g;
+		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal end =="); }
+
+		open(OUTPUTC , ">$outputdir/$stc_output_dir/$tmpKey");
+		print OUTPUTC $lines;
+		close(OUTPUTC);
+	}
+
 	close(INPUTC);
-	close(OUTPUTC);
 
-if($stc_debug eq "STC"){
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time) ;
-$Month++;
-$Year += 1900;
-$ddtime = ($Hour * 3600 + $Minute * 60 + $Second) - $cchange_start_time;
-print_fp( "structg CChange duration ($ddtime) : CChange END ($stc_filename_input) - $Month-$Day-$Year : $Hour : $Minute : $Second\n",TIME_DBG);
-}
-
+	if($stc_debug eq "DEBUG_ON"){ end_time_log("==END CChange =="); }
 }
 
 sub  iterate_equal(){
+	# Rules
+	# IFEQUAL | IFNOTEQUAL ( condition with general rules :&& ,|| ,etc)  /#       
+	#       Contents with multiple lines
+	# #/
 	my $iterate_lines="";
 	my $ifequal_one="";
 	my $ifequal_two="";
 	my $ifequal_parm="";
+	my $len;
 
 	$iterate_lines = shift @_;
+	print DBG __SUB__ . " RD1 $iterate_lines\n";
 
-	$iterate_lines =~ s/#(\s*PARSING_RULE\s*:[^#]*)#/--$1--/g;
+	while($iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n#\/]*)\s*\/\#/){
+		#$iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n#\/]*)\s*\/\#/;
+		$indent = $1;
+		$order = $2;
+		$condition = $3;
+		$if_before = $`;
+		$if_match = $&;
+		$if_len = length($if_before);
+		$if_after = "\/\#" . $';
+		$if_eval = eval($condition);
+		print DBG __SUB__ . "RD2 indent[$indent] order[$order] condition[$condition]" . " eval " . eval($condition) . " len=$if_len\n";
+		if($if_eval){
+			print DBG "SUCCESS\n";
+		}
+		if($if_after =~ m/((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/){
+			$contents_before = $`;
+			$contents_match = $&;
+			$contents_after = $';
+			$contents_len = length($contents_before);
+			$contents_match =~ s/^\s*\/\#//; 
+			$contents_match =~ s/\#\/\s*$//; 
+			print DBG __SUB__ . " len=$contents_len RD3 $&\n";
+			print DBG __SUB__ . " RD3 contents_match $contents_match\n";
+			print DBG __SUB__ . " RD3 contents_after $contents_after\n";
+
+			# eval and process
+			if($order eq "IFEQUAL"){
+				if($if_eval){
+					$iterate_lines = $if_before . $contents_match . $contents_after;
+				} else {
+					$iterate_lines = $if_before . $contents_after;
+				}
+			} else {  # IFNOTEQUAL
+				if(not $if_eval){
+					$iterate_lines = $if_before . $contents_match . $contents_after;
+				} else {
+					$iterate_lines = $if_before . $contents_after;
+				}
+			}
+			print DBG __SUB__ . " RD4 $iterate_lines\n";
+		} else {
+			last;       # break while
+		}
+	}
+	#$iterate_lines =~ m/\s*IFEQUAL\s*((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/;
+	# my @pp = $a =~ s/((?:\/\*(?:[^*]|(?:\*+[^*\/]))*\*+\/)|(?:\/\/.*))//g;
+	#if($a =~ /(\{([^\{\}]|(?R))*\})/){
+
+	#$iterate_lines =~ s/STG_SHARP_/\#/g;
+
+
+	return $iterate_lines;
+
+	#$iterate_lines =~ s/#(\s*PARSING_RULE\s*:[^#]*)#/--$1--/g;
 	#ITERATOR_DEBUG   print DBG "1111RETURN \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
 	# $iterate_lines 에는 +<+...+>+ 등의 문자가 없음 위에서 모두 해결된 것임. (값들만 들어감)
-	while(					# while 1
-		($iterate_lines =~ /\s*NOTEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\n/)
-		|| ($iterate_lines =~ /\s*IFEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\n/)
-		|| ($iterate_lines =~ /\s*NOTEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)([^#\n]*)\n/)
-		|| ($iterate_lines =~ /\s*IFEQUAL\s*\(\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*\)([^#\n]*)\n/)
-		){
-		$iterate_lines =~ s/\n/\{\{\{\{1234\}\}\}\}/g;
-	
-		while($iterate_lines =~ /\s*NOTEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}/){
-			my @ifequal_parm;
-			my $ifequal_parm_cnt;
-			my $ifequal_is_true = "TRUE";
-			$ifequal_parm = $1;
-			$temp = $2;
-			if($ifequal_parm =~ /\|\|/){
-				if($ifequal_parm =~ /\&\&/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12301; }
-				@ifequal_parm = split('\|\|',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "TRUE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} else {
-						print "ERROR : NOEQUAL $ifequal_parm\n"; die $error = 12302; 
-					}
-				}
-			} elsif($ifequal_parm =~ /\&\&/){
-				if($ifequal_parm =~ /\|\|/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12303; }
-				@ifequal_parm = split('&&',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "FALSE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} else {
-						print "ERROR : NOEQUAL $ifequal_parm\n"; die $error = 12304; 
-					}
-				}
-			} else {
-				if($ifequal_parm =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-					$ifequal_one = $1;
-					$ifequal_two = $2;
-					if($ifequal_one ne $ifequal_two){
-						$ifequal_is_true = "TRUE";
-					}  else {
-						$ifequal_is_true = "FALSE";
-					}
-				}
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF1 NOTEQUAL : $ifequal_is_true :$ifequal_parm ";
-			if($ifequal_is_true eq "TRUE"){
-				$iterate_lines =~ s/(\s*)NOTEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}/$1$temp\{\{\{\{1234\}\}\}\}/;
-			} else {
-				$iterate_lines =~ s/(\s*)NOTEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}//;
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF1 NOTEQUAL  : $temp\n";
-		}
-		# $temp는 print 해보기 위함임
-		$temp = $iterate_lines;
-		$temp =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-		#ITERATOR_DEBUG   print DBG "GETIF1---- \$iterate_lines = \n\[\n$temp\n\]\n";
-	
-		while($iterate_lines =~ /\s*IFEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}/){
-			my @ifequal_parm;
-			my $ifequal_parm_cnt;
-			my $ifequal_is_true = "FALSE";
-			$ifequal_parm = $1;
-			$temp = $2;
-			if($ifequal_parm =~ /\|\|/){
-				if($ifequal_parm =~ /\&\&/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12311; }
-				@ifequal_parm = split('\|\|',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "FALSE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} else {
-						print "ERROR : IFEQUAL $ifequal_parm\n"; die $error = 12312; 
-					}
-				}
-			} elsif($ifequal_parm =~ /\&\&/){
-				if($ifequal_parm =~ /\|\|/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12313; }
-				@ifequal_parm = split('&&',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "TRUE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} else {
-						print "ERROR : IFEQUAL $ifequal_parm\n"; die $error = 12314; 
-					}
-				}
-			} else {
-				if($ifequal_parm =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-					$ifequal_one = $1;
-					$ifequal_two = $2;
-					if($ifequal_one ne $ifequal_two){
-						$ifequal_is_true = "FALSE";
-					}  else {
-						$ifequal_is_true = "TRUE";
-					}
-				}
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF2 IFEQUAL : $ifequal_is_true :$ifequal_parm ";
-			if($ifequal_is_true eq "TRUE"){
-				$iterate_lines =~ s/(\s*)IFEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}/$1$temp\{\{\{\{1234\}\}\}\}/;
-			} else {
-				$iterate_lines =~ s/(\s*)IFEQUAL\s*\(([^\)]*)\)\s*#\{([^#]*)\}#\s*\{\{\{\{1234\}\}\}\}//;
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF2 IFEQUAL  : $temp\n";
-		}
-		# $temp는 print 해보기 위함임.
-		$temp = $iterate_lines;
-		$temp =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-		#ITERATOR_DEBUG   print DBG "GETIF2---- \$iterate_lines = \n\[\n$temp\n\]\n";
-	
-		$iterate_lines =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-	
-		while($iterate_lines =~ /\s*NOTEQUAL\s*\(([^\)]*)\)([^#\n]*)\n/){
-			my @ifequal_parm;
-			my $ifequal_parm_cnt;
-			my $ifequal_is_true = "TRUE";
-			$ifequal_parm = $1;
-			$temp = $2;
-			if($ifequal_parm =~ /\|\|/){
-				if($ifequal_parm =~ /\&\&/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12331; }
-				@ifequal_parm = split('\|\|',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "TRUE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} else {
-						print "ERROR : NOTEQUAL $ifequal_parm\n"; die $error = 12332; 
-					}
-				}
-			} elsif($ifequal_parm =~ /\&\&/){
-				if($ifequal_parm =~ /\|\|/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12333; }
-				@ifequal_parm = split('&&',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "FALSE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} else {
-						print "ERROR : NOTEQUAL $ifequal_parm\n"; die $error = 12334; 
-					}
-				}
-			} else {
-				if($ifequal_parm =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-					$ifequal_one = $1;
-					$ifequal_two = $2;
-					if($ifequal_one ne $ifequal_two){
-						$ifequal_is_true = "TRUE";
-					}  else {
-						$ifequal_is_true = "FALSE";
-					}
-				}
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF3 NOTEQUAL : $ifequal_is_true :$ifequal_parm ";
-			if($ifequal_is_true eq "TRUE"){
-				$iterate_lines =~ s/(\s*)NOTEQUAL\s*\(([^\)]*)\)([^#\n]*)\n/\n$1$temp\{\{\{\{1234\}\}\}\}/;
-			} else {
-				$iterate_lines =~ s/(\s*)NOTEQUAL\s*\(([^\)]*)\)([^#\n]*)\n//;
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF3 NOTEQUAL  : $temp\n";
-		}
-		# $temp는 print 해보기 위함임.
-		$temp = $iterate_lines;
-		$temp =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-		#ITERATOR_DEBUG   print DBG "GETIF3---- \$iterate_lines = \n\[\n$temp\n\]\n";
-	
-		while($iterate_lines =~ /\s*IFEQUAL\s*\(([^\)]*)\)([^#\n]*)\n/){
-			my @ifequal_parm;
-			my $ifequal_parm_cnt;
-			my $ifequal_is_true = "FALSE";
-			$ifequal_parm = $1;
-			$temp = $2;
-			if($ifequal_parm =~ /\|\|/){
-				if($ifequal_parm =~ /\&\&/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12341; }
-				@ifequal_parm = split('\|\|',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "FALSE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one eq $ifequal_two){
-							$ifequal_is_true = "TRUE";
-						} 
-					} else {
-						print "ERROR : IFEQUAL $ifequal_parm\n"; die $error = 12342; 
-					}
-				}
-			} elsif($ifequal_parm =~ /\&\&/){
-				if($ifequal_parm =~ /\|\|/){ print "ERROR : || 와 &&을 함께 쓸수 없음.\n";   die $error = 12343; }
-				@ifequal_parm = split('&&',$ifequal_parm);
-				$ifequal_parm_cnt = @ifequal_parm;
-				$ifequal_is_true = "TRUE";
-				for(my $i=0;$i<$ifequal_parm_cnt;$i++){
-					if($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_one = $1;
-						$ifequal_two = $2;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} elsif($ifequal_parm[$i] =~ /\s*([^ \t\{\}\,\(\)#]*)\s*/){
-						$ifequal_two = $1;
-						if($ifequal_one ne $ifequal_two){
-							$ifequal_is_true = "FALSE";
-						} 
-					} else {
-						print "ERROR : IFEQUAL $ifequal_parm\n"; die $error = 12344; 
-					}
-				}
-			} else {
-				if($ifequal_parm =~ /\s*([^ \t\{\}\,\(\)#]*)\s*\,\s*([^ \t\{\}\,\(\)#]*)\s*/){
-					$ifequal_one = $1;
-					$ifequal_two = $2;
-					if($ifequal_one ne $ifequal_two){
-						$ifequal_is_true = "FALSE";
-					}  else {
-						$ifequal_is_true = "TRUE";
-					}
-				}
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF4 IFEQUAL : $ifequal_is_true :$ifequal_parm ";
-			if($ifequal_is_true eq "TRUE"){
-				$iterate_lines =~ s/(\s*)IFEQUAL\s*\(([^\)]*)\)([^#\n]*)\n/\n$1$temp\{\{\{\{1234\}\}\}\}/;
-			} else {
-				$iterate_lines =~ s/(\s*)IFEQUAL\s*\(([^\)]*)\)([^#\n]*)\n//;
-			}
-			#ITERATOR_DEBUG   print DBG "GETIF4 IFEQUAL  : $temp\n";
-		}
-		# $temp는 print 해보기 위함임.
-		$temp = $iterate_lines;
-		$temp =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-		#ITERATOR_DEBUG   print DBG "GETIF4---- \$iterate_lines = \n\[\n$temp\n\]\n";
-	
-		$iterate_lines =~ s/\{\{\{\{1234\}\}\}\}/\n/g;
-		#ITERATOR_DEBUG   print DBG "RETURN--- \$iterate_lines = \n\[\n$iterate_lines\n\]\n";
-	}		# while 1
-
+	#
 	#$iterate_lines =~ s/STG_SHARP_/\#/g;
 	#print_fp("$iterate_lines\n" , OUTPUTC);
 	#if($iterate_lines =~ /(IFEQUAL.*)/){ print ": $1 \n: IFEQUAL .. #{ }#일때 }# 뒤에 문자가 오면 안됨\n"; print ": #{ }# 안에 # 문자가 오면 안됨.\n";  die $error = 612348;}
-
-	return $iterate_lines;
 }
 
 sub getHashRef {
@@ -754,18 +427,18 @@ sub Iterator_recursion
 
 	($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value, $iterate_lines) = @_;
 	#print_fp( "O : @_\n", OUTPUTC);
-print DBG "RC : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n";
+	print DBG __SUB__ . "RC : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n";
 
-print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
+	print DBG __SUB__ . "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 
 	if($iterate_var_type eq "\%"){
-		print DBG "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
+		print DBG __SUB__ . "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
 		#$tmp1 = eval $$iterate_var_name;
 		$tt = "gCan{9}";
 		$tmp2 = \%{$tt};
-		print DBG "RC : tmp2 $tmp2  tmp1 $tmp1 gcan $gCan{9}\n";
+		print DBG __SUB__ . "RC : tmp2 $tmp2  tmp1 $tmp1 gCan $gCan{9}\n";
 		foreach $stg_key_hash (reverse sort keys %{getHashRef($iterate_var_name)}){
-			print DBG "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
+			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
 			$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
@@ -797,7 +470,7 @@ print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 		print "ERROR : unknown iterate var type  : $iterate_var_type\n";
 		die $error = 500;
 	}
-	print DBG "RC : Iterator_recursion : \$result = $result ]]]\n";
+	print DBG __SUB__ . "RC : Iterator_recursion : \$result = $result ]]]\n";
 
 	$iterate_lines = "";
 	if($result =~ /\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
@@ -844,9 +517,10 @@ print DBG "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 				}
 			} 
 		}
-	} 
+	}  
 	return $result;
 }
+
 
 sub replace_var_with_value
 {
@@ -854,11 +528,13 @@ sub replace_var_with_value
 	my $in_cnt = 0;
 	$replace_in = shift @_;
 
+	print DBG __SUB__ . __LINE__ . " AAAA : AAAA $replace_in\n";
 	while(
 		($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\+>\+/$$1/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\[\s*(\d*)\s*\]\s*\+>\+/$$1[$2]/)	# +<+$typedef_name[54]+>+  ==> COMBI_Accum
-		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\{\s*([\w\d\<\>\{\}\:\.\"\-\>\=]*)\s*\}\s*\+>\+/$$1{"$2"}/) 	# +<+$HASH_KEY_TYPE{uiIP}+>+ ==> IP4
+		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\{\s*([^\}]+)\s*\}\s*\+>\+/$$1{"$2"}/) 	# +<+$HASH_KEY_TYPE{uiIP}+>+ ==> IP4
 	){
+		print DBG __SUB__ . __LINE__ . " BBBB : 1 $replace_in\n";
 		while($replace_in =~ /(\d+)\s*\+\+\+\+/){		# 	++++     1을 더해 준다. 
 			my $temp_num;
 			$temp_num = $1;
@@ -872,8 +548,17 @@ sub replace_var_with_value
 			$replace_in =~ s/\d+\s*\-\-\-\-/$temp_num/;
 		}
 		$in_cnt ++;
-		#print DBG "Set Hash replace2 in_cnt=$in_cnt: $replace_in \n";
+		print DBG "Set Hash replace2 in_cnt=$in_cnt: $replace_in \n";
 	}			# +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+  ==> int
+
+	print DBG __LINE__ . " BBBB : AAAA $replace_in\n";
+	while($replace_in =~ /\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
+	{
+		my $val = eval($1);
+		print DBG __LINE__ . $1 . " replace : $val\n";
+		print __LINE__ . $1 . " replace : $val\n";
+		$replace_in =~ s/\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/$val/g;
+	};
 
 	return $replace_in;
 }
