@@ -664,7 +664,7 @@ sub traverse_hash_tree {
 print "arguments count : $#ARGV\n";
 ($filename,$stcfilename) = (@ARGV);
 if($stcfilename eq ""){
-	$filename = "default.GV";
+	$filename = "default.GVm";
 	$stcfilename = "default.stc";
 }
 

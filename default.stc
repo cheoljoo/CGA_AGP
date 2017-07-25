@@ -37,13 +37,13 @@ Set : iterate_comments = OFF
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>테이블</title>
+<title>Table</title>
 </head> 
 <STYLE TYPE="text/css">
 table {font-size: 75%;}
 </STYLE>
 <body>
- <h1>데이터 테이블 캡션</h1>
+ <h1>Data Table Caption</h1>
   <table border="1">
 
 
