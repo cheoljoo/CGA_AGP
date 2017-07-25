@@ -212,7 +212,7 @@ END_COMMENT
 		}
 #print_fp("Line 2 icnt=$iterate_cnt : $in",DBG);
 
-		if ($in =~ /^\s*ITERATE\s+([%@&])(.+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
+		if ($in =~ /^\s*ITERATE\s+([%@&+])(.+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
 			#ITERATOR_DEBUG 
 			print DBG "ITERATE Mstart $1 $2 $3 $4\n"; 
 			if(0 == $iterate_cnt){
@@ -242,7 +242,7 @@ END_COMMENT
 					$temp1 =~ s/\*\//\*\>/g;
 					$temp2 =~ s/\/\*/\<\*/g;
 					$temp2 =~ s/\*\//\*\>/g;
-					$temp2 =~ s/NOTEQUAL/notifequal/g;
+					$temp2 =~ s/IFNOTEQUAL/ifNOTequal/g;
 					$temp2 =~ s/IFEQUAL/ifequal/g;
 					$temp3 =~ s/\/\*/\<\*/g;
 					$temp3 =~ s/\*\//\*\>/g;
@@ -302,10 +302,15 @@ END_COMMENT
 		my $iter_len = length($file_output{$tmpKey});
 		my $linesOrg = $file_output{$tmpKey};
 		my $lines ="";
-		for(my $itt = 0;$itt <= $iter_len ; $itt += 1000){
-			$lines .= iterate_equal(substr($linesOrg, $itt, 1000));
+		if(0){
+			# for performance
+			for(my $itt = 0;$itt <= $iter_len ; $itt += 1000){
+				$lines .= iterate_equal(substr($linesOrg, $itt, 1000));
+			}
+			$lines = iterate_equal($lines);
+		} else {
+			$lines = iterate_equal($linesOrg);
 		}
-		$lines = iterate_equal($lines);
 		#$lines =~ s/STG_SHARP_/\#/g;
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal end =="); }
 
@@ -333,7 +338,7 @@ sub  iterate_equal(){
 	$iterate_lines = shift @_;
 	print DBG __SUB__ . " RD1 $iterate_lines\n";
 
-	while($iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n#\/]*)\s*\/\#/){
+	while($iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n\{]*)\s*/){
 		#$iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n#\/]*)\s*\/\#/;
 		$indent = $1;
 		$order = $2;
@@ -341,22 +346,25 @@ sub  iterate_equal(){
 		$if_before = $`;
 		$if_match = $&;
 		$if_len = length($if_before);
-		$if_after = "\/\#" . $';
+		$if_after = $';
 		$if_eval = eval($condition);
 		print DBG __SUB__ . "RD2 indent[$indent] order[$order] condition[$condition]" . " eval " . eval($condition) . " len=$if_len\n";
+		print DBG __SUB__ . "RD2 if_match[$f_match]\n";
 		if($if_eval){
 			print DBG "SUCCESS\n";
 		}
-		if($if_after =~ m/((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/){
+		if($if_after =~ m/(\{([^\{\}]|(?R))*\})/){
+			#if($if_after =~ m/((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/)
 			$contents_before = $`;
 			$contents_match = $&;
 			$contents_after = $';
 			$contents_len = length($contents_before);
-			$contents_match =~ s/^\s*\/\#//; 
-			$contents_match =~ s/\#\/\s*$//; 
+			print DBG __SUB__ . " RD3 contents_match $contents_match\n";
+			$contents_match =~ s/^\s*\{//;
+			$contents_match =~ s/\s*\}\s*$//;
 			print DBG __SUB__ . " len=$contents_len RD3 $&\n";
 			print DBG __SUB__ . " RD3 contents_match $contents_match\n";
-			print DBG __SUB__ . " RD3 contents_after $contents_after\n";
+			#print DBG __SUB__ . " RD3 contents_after $contents_after\n";
 
 			# eval and process
 			if($order eq "IFEQUAL"){
@@ -413,6 +421,40 @@ sub getHashRef {
 	return $hn;
 }
 
+sub max_keys
+{
+	my $iterate_var_name;
+	my $allDigit = 1;
+	my $max=0;
+	($iterate_var_name ) = @_;
+	foreach my $tmpKey ( keys %{getHashRef($iterate_var_name)}){
+		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
+			$allDigit = 0;
+			last;
+		}
+		if($max < $tmpKey){ $max = $tmpKey; }
+	}
+	
+	if($allDigit == 1){ return  $max; }
+	else { return  0; }
+}
+
+sub sort_keys
+{
+	my $iterate_var_name;
+	my $allDigit = 1;
+	($iterate_var_name ) = @_;
+	foreach my $tmpKey ( keys %{getHashRef($iterate_var_name)}){
+		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
+			$allDigit = 0;
+			last;
+		}
+	}
+	
+	if($allDigit == 1){ return  sort {$a <=> $b} keys %{getHashRef($iterate_var_name)}; }
+	else { return  sort keys %{getHashRef($iterate_var_name)}; }
+}
+
 sub Iterator_recursion
 {
 	my $iterate_var_type;
@@ -437,7 +479,8 @@ sub Iterator_recursion
 		$tt = "gCan{9}";
 		$tmp2 = \%{$tt};
 		print DBG __SUB__ . "RC : tmp2 $tmp2  tmp1 $tmp1 gCan $gCan{9}\n";
-		foreach $stg_key_hash (reverse sort keys %{getHashRef($iterate_var_name)}){
+		print DBG __SUB__ . "RC-1 : " . (sort_keys($iterate_var_name) ) . "\n";
+		foreach $stg_key_hash (sort_keys($iterate_var_name)){
 			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
@@ -466,6 +509,17 @@ sub Iterator_recursion
 			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
 			$result .= $temp;
 		}
+	} elsif($iterate_var_type eq "\+"){
+		my $my_max = max_keys($iterate_var_name);
+		#ITERATOR_DEBUG 
+		print DBG "--> MAX : $iterate_var_name  MAX COUNT =  $my_max\n";
+		for(my $i = 0 ; $i <= $my_max ; $i++){
+			#ITERATOR_DEBUG print DBG "array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
+			$temp = $iterate_lines;
+			$temp =~ s/$iterate_key/$i/g;
+			$temp =~ s/$iterate_value/$$iterate_var_name{$i}/g;
+			$result .= $temp;
+		}
 	} else {
 		print "ERROR : unknown iterate var type  : $iterate_var_type\n";
 		die $error = 500;
@@ -473,15 +527,15 @@ sub Iterator_recursion
 	print DBG __SUB__ . "RC : Iterator_recursion : \$result = $result ]]]\n";
 
 	$iterate_lines = "";
-	if($result =~ /\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
+	if($result =~ /\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
 		@lines = split("\n",$result);
 		$result = "";
 		foreach my $it_line (@lines){
-			if ($it_line =~ /^\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
+			if ($it_line =~ /^\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
 #print DBG "Set Hash 20 : $iterate_lines \n";
 				$it_line = replace_var_with_value($it_line);
 #print DBG "Set Hash 21 : $iterate_cnt : $it_line\n";
-				$it_line =~ /^\s*ITERATE\s+([%@])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
+				$it_line =~ /^\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
 				if(0 == $iterate_cnt){
 #print  DBG "Sstart $1 $2 $3\n"; 
 					($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
@@ -528,37 +582,43 @@ sub replace_var_with_value
 	my $in_cnt = 0;
 	$replace_in = shift @_;
 
-	print DBG __SUB__ . __LINE__ . " AAAA : AAAA $replace_in\n";
-	while(
-		($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\+>\+/$$1/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
-		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\[\s*(\d*)\s*\]\s*\+>\+/$$1[$2]/)	# +<+$typedef_name[54]+>+  ==> COMBI_Accum
-		|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\{\s*([^\}]+)\s*\}\s*\+>\+/$$1{"$2"}/) 	# +<+$HASH_KEY_TYPE{uiIP}+>+ ==> IP4
-	){
-		print DBG __SUB__ . __LINE__ . " BBBB : 1 $replace_in\n";
-		while($replace_in =~ /(\d+)\s*\+\+\+\+/){		# 	++++     1을 더해 준다. 
-			my $temp_num;
-			$temp_num = $1;
-			$temp_num++;
-			$replace_in =~ s/\d+\s*\+\+\+\+/$temp_num/;
-		}
-		while($replace_in =~ /(\d+)\s*\-\-\-\-/){		# 	----     1을 빼준다.
-			my $temp_num;
-			$temp_num = $1;
-			$temp_num--;
-			$replace_in =~ s/\d+\s*\-\-\-\-/$temp_num/;
-		}
+	print DBG __SUB__ . ":" . __LINE__ . " AAAA : before $replace_in\n";
+	while($replace_in =~ /(\d+)\s*\+\+\+\+/){		# 	++++     1을 더해 준다. 
+		my $temp_num;
+		$temp_num = $1;
+		$temp_num++;
+		$replace_in =~ s/\d+\s*\+\+\+\+/$temp_num/;
 		$in_cnt ++;
-		print DBG "Set Hash replace2 in_cnt=$in_cnt: $replace_in \n";
-	}			# +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+  ==> int
+	}
+	print DBG __SUB__ . ":" . __LINE__ . " ++++ : in_cnt $in_cnt\n";
+	while($replace_in =~ /(\d+)\s*\-\-\-\-/){		# 	----     1을 빼준다.
+		my $temp_num;
+		$temp_num = $1;
+		$temp_num--;
+		$replace_in =~ s/\d+\s*\-\-\-\-/$temp_num/;
+		$in_cnt ++;
+	}
+	print DBG __SUB__ . ":" . __LINE__ . " ---- : in_cnt $in_cnt\n";
+	#while(
+	#($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\+>\+/$$1/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
+	#|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\[\s*(\d*)\s*\]\s*\+>\+/$$1[$2]/)	# +<+$typedef_name[54]+>+  ==> COMBI_Accum
+	#|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\{\s*([^\}]+)\s*\}\s*\+>\+/$$1{"$2"}/) 	# +<+$HASH_KEY_TYPE{uiIP}+>+ ==> IP4
+	#){
+	#print DBG __SUB__ . __LINE__ . " BBBB : 1 $replace_in\n";
+	#$in_cnt ++;
+	#print DBG "Set Hash replace2 in_cnt=$in_cnt: $replace_in \n";
+	#}			# +<+$type{+<+$HASH_KEY_TYPE{uiIP}+>+}+>+  ==> int
 
-	print DBG __LINE__ . " BBBB : AAAA $replace_in\n";
 	while($replace_in =~ /\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 	{
+		my $match = $&;
 		my $val = eval($1);
-		print DBG __LINE__ . $1 . " replace : $val\n";
-		print __LINE__ . $1 . " replace : $val\n";
-		$replace_in =~ s/\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/$val/g;
+		print DBG __SUB__ . ":" . __LINE__ . " $match =>  $val\n";
+		$replace_in =~ s/\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/$val/;
+		$in_cnt ++;
 	};
+	print DBG __SUB__ . ":" . __LINE__ . " +<+ \$... +>+ : in_cnt $in_cnt\n";
+	print DBG __SUB__ . ":" . __LINE__ . " AAAA : after $replace_in\n";
 
 	return $replace_in;
 }

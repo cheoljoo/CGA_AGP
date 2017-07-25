@@ -6,7 +6,7 @@ ITERATE %gColStruct +<<+ ITKEY  ITVALUE
 
 
 
-FileName : protocol_table.html
+FileName : protocol.c
 Set : iterate_comments = ON
 
 ITERATE %gCol +<<+ ITKEY  ITVALUE
@@ -15,13 +15,13 @@ Compare_ITKEY(char *prefix_string, ITVALUE *pprev, ITVALUE *pnext){
 Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,ITVALUE *pprev, ITVALUE *pnext)"
 
 	ITERATE %gCol{ITKEY} +<<+ IT2KEY  IT2VALUE
-		$gCol{ITKEY}{IT2KEY}{Len} = +<+$gCol{ITKEY}{IT2KEY}{Len}+>+ 
-		IFEQUAL( (+<+$gCol{ITKEY}{IT2KEY}{Len}+>+ eq 1) && (+<+$gCol{ITKEY}{IT2KEY}{Span}+>+ eq 1)) /#
-		if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
-			FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
-			FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+		<!-- $gCol{ITKEY}{IT2KEY}{Len} = +<+$gCol{ITKEY}{IT2KEY}{Len}+>+  -->
+		IFEQUAL( (+<+$gCol{ITKEY}{IT2KEY}{Len}+>+ eq 1) && (+<+$gCol{ITKEY}{IT2KEY}{Span}+>+ eq 1)){
+			if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
+				FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
+				FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+			}
 		}
-		#/
 	+>>+
 
 	return ;
@@ -30,3 +30,45 @@ Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,
 +>>+
 
 
+FileName : table_protocol.html
+Set : iterate_comments = OFF
+
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>테이블</title>
+</head> 
+<STYLE TYPE="text/css">
+table {font-size: 75%;}
+</STYLE>
+<body>
+ <h1>데이터 테이블 캡션</h1>
+  <table border="1">
+
+
+ITERATE +gRow +<<+ ITKEY  ITVALUE
+	<tr height=35px><td>ITKEY</td>
+	ITERATE %gRow{ITKEY} +<<+ IT2KEY  IT2VALUE
+		<!-- itkey ITKEY , it2key IT2KEY (+<+$gRow{ITKEY}{IT2KEY}{Len}+>+ >= 1) && (+<+$gRow{ITKEY}{IT2KEY}{Span}+>+ >= 1) -->
+		IFEQUAL( (+<+$gRow{ITKEY}{IT2KEY}{Len}+>+ >= 1) && (+<+$gRow{ITKEY}{IT2KEY}{Span}+>+ >= 1)) {
+			<td align=center border=1 bgcolor=beige rowspan="+<+$gRow{ITKEY}{IT2KEY}{Len}+>+"  colspan="+<+$gRow{ITKEY}{IT2KEY}{Span}+>+" >
+				+<+$gRow{ITKEY}{IT2KEY}{Value}+>+ <br> +<+$gRow{ITKEY}{IT2KEY}{Description}+>+
+			</td>
+		}	
+		IFEQUAL( (+<+$gRow{ITKEY}{IT2KEY}{Len}+>+ >= 1) && (+<+$gRow{ITKEY}{IT2KEY}{Span}+>+ == -1)){
+			<td border=0 
+			IFEQUAL(+<+$gRow{ITKEY}{IT2KEY}{Len}+>+ >= 1){
+				rowspan="+<+$gRow{ITKEY}{IT2KEY}{Len}+>+"
+			}
+			>    </td>
+		}	
+	+>>+
+	</tr>
++>>+
+
+
+
+  </table>
+  </body>
+  </html>

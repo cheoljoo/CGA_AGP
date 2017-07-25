@@ -401,7 +401,14 @@ for($j=0;$j<=$gColMaxIndex;$j++){
 	for($i=0;$i<=$gRowMaxIndex;$i++){
 		if($gCol{$i}{$j}{Len}){
 			printf("\[%3d:%3d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span});
+			$gRow{$j}{$i}{Len} = $gCol{$i}{$j}{Len};
+			$gRow{$j}{$i}{Span} = $gCol{$i}{$j}{Span};
+			$gRow{$j}{$i}{Description} = $gCol{$i}{$j}{Description};
+			$gRow{$j}{$i}{Value} = $gCol{$i}{$j}{Value};
+			$gRow{$j}{$i}{Define} = $gCol{$i}{$j}{Define};
+			$gRow{$j}{$i}{Comments} = $gCol{$i}{$j}{Comments};
 		} else {
+			$gRow{$j}{$i}{Len} = 0;
 			print "\[       \] ";
 		}
 	}
@@ -410,21 +417,19 @@ for($j=0;$j<=$gColMaxIndex;$j++){
 
 $b = "";
 for($j=0;$j<=$gColMaxIndex;$j++){
-	$b .= "<tr height=35px><td>$j<\/td>";
+	$b .= "<tr height=35px><td>$j<\/td>\n";
 	for($i=0;$i<=$gRowMaxIndex;$i++){
 		if(($gCol{$i}{$j}{Len} >= 1) && ($gCol{$i}{$j}{Span} >= 1) ){
 			$b .= "<td align=center border=1 bgcolor=beige ";
 			if($gCol{$i}{$j}{Len} >= 1){ $b .= " rowspan=\"$gCol{$i}{$j}{Len}\" "; }
 			if($gCol{$i}{$j}{Span} >= 1){ $b .= " colspan=\"$gCol{$i}{$j}{Span}\" "; }
-			$b .= "\"> ";
-			$b .= $gCol{$i}{$j}{Value} . "<br>" . $gCol{$i}{$j}{Description};
-			$b .= " <\/td>";
+			$b .= " >\n";
+			$b .= $gCol{$i}{$j}{Value} . "<br>" . $gCol{$i}{$j}{Description} . "\n";
+			$b .= " <\/td>\n";
 		} elsif(($gCol{$i}{$j}{Len} >= 1) && ($gCol{$i}{$j}{Span} == -1) ){
-			$b .= "<td border=0 ";
-			if($gCol{$i}{$j}{Len} >= 1){ $b .= " rowspan=\"$gCol{$i}{$j}{Len}\" "; }
-			$b .= "\"> ";
-			$b .= " ";  # no value
-			$b .= " <\/td>";
+			$b .= "<td border=0 \n";
+			if($gCol{$i}{$j}{Len} >= 1){ $b .= " rowspan=\"$gCol{$i}{$j}{Len}\" \n"; }
+			$b .= ">   <\/td>\n";       # no value
 		}
 	}
 	$b .= "<\/tr>\n";
@@ -447,6 +452,7 @@ open(GVW,">"."default.GV") or die "GVW:ERROR$!\n";
 traverse_hash_tree_to_change_special_code(\%gColStruct,"gColStruct","",GVW);
 traverse_hash_tree_to_change_special_code(\%gCol,"gCol","",GVW);
 traverse_hash_tree_to_change_special_code(\%gCan,"gCan","",GVW);
+traverse_hash_tree_to_change_special_code(\%gRow,"gRow","",GVW);
 close(GVW) or die "Error in closing the file ", __FILE__, " $!\n";;
 
 print "AAAAAAAA\n";
