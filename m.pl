@@ -18,6 +18,7 @@ our $gColCnt = 0;
 our %gColStruct;
 our $gColMaxIndex = 0;
 our %gPrintHashName;
+our %gVariables;
 
 our %gTmp;
 our $gIndexOfStart;
@@ -98,13 +99,18 @@ while(<FH>){
 	eval $s;
 	$s =~ /^\$([^\{]+)/;
 	$gPrintHashName{$1} = "Done";
-	if($1 eq "gCan"){ print "== $s\n"; }
+	if($1 eq "gVariables"){ print "== $s\n"; }
 	#recover_hash_value(\%{$vname},$s);
 	#LOG1 print $s_org;
 	#if($lcnt >50){ last; }
 	#$lcnt++;
 }
 close(FH);
+
+foreach my $key (keys %gVariables){
+	print "[ $key ] \n";
+	$$key = $gVariables{$key};
+}
 
 
 foreach my $key (sort keys %gPrintHashName){

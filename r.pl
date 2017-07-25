@@ -690,6 +690,9 @@ while(<FH>){
 	#$lcnt++;
 }
 close(FH);
+foreach my $key (keys %gVariables){
+	$$key = $gVariables{$key};
+}
 
 
 
