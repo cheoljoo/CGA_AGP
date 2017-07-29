@@ -297,6 +297,8 @@ END_COMMENT
 		}
 	}
 
+	mkdir $outputdir;
+	mkdir "$outputdir\/$stc_output_dir";
 	foreach my $tmpKey  (sort keys  %file_output){
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal start =="); }
 		my $iter_len = length($file_output{$tmpKey});
