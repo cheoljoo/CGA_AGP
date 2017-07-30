@@ -17,7 +17,7 @@ Index 0 :   (Header - Start Bytes)   Value : 0xAA    , Define : START_BYTES
 			}
 			Index 3-4 : (Size of Payload) Value : 0x0F02 , Define : ODI_MSG_INDICATION
 			{
-				Index 5-6 : (FuClass_ID) Value : 0x03 , Define : FuClass_ID
+				Index 5-6 : (FuClass_ID) Value : 0x3303 , Define : FuClass_ID
 				Index 7-19 : (DataValue) Value : ? , Define : DataValue
 			}
 			Index 3-4 : (Size of Payload) Value : 0x01EE , Define : ODI_MSG_PRNDL_MSG
@@ -30,7 +30,7 @@ Index 0 :   (Header - Start Bytes)   Value : 0xAA    , Define : START_BYTES
 	Index 1 : (Header - Command)  Value : 0x87   , Define : MSG_DIAG            # CTL1
 	{
 		Index 2 : (Sub Command) Value : ? , Define : SUB_COMMAND     # Comments 2 { { } }  \
-		Index 3 : (Size of Payload) Value : Size , Define : SIZE_OF_PAYLOAD
+		Index 3 : (Size of Payload) Value : ? , Define : SIZE_OF_PAYLOAD
 		Index 4-? : (Data ifn exists) Value : ? , Define : Data
 	}
 }
