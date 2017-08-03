@@ -13,12 +13,12 @@ ITERATE %gParserRow +<<+ ITKEY  ITVALUE
 int parser_levelITKEY(int FromStatus, unsigned char *p);
 +>>+
 
-ITERATE %gColShortStructName +<<+ ITKEY  ITVALUE
+ITERATE -V%gColShortStructName +<<+ ITKEY  ITVALUE
 #define PARSER_RETURN_ITKEY     ITVALUE
 				// Structure Index (It will be returned) : ITKEY [  +<+$gColShortStructName{ITKEY}+>+  ]
 +>>+
 
-ITERATE %gLongDefine{Name} +<<+ ITKEY  ITVALUE
+ITERATE V%gLongDefine{Name} +<<+ ITKEY  ITVALUE
 #define ITKEY   +<+$gLongDefine{Name}{ITKEY}+>+
 +>>+
 

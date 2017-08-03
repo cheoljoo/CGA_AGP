@@ -212,7 +212,7 @@ END_COMMENT
 		}
 #print_fp("Line 2 icnt=$iterate_cnt : $in",DBG);
 
-		if ($in =~ /^\s*ITERATE\s+([%@&+])(.+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
+		if ($in =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
 			#ITERATOR_DEBUG 
 			print DBG "ITERATE Mstart $1 $2 $3 $4\n"; 
 			if(0 == $iterate_cnt){
@@ -475,17 +475,53 @@ sub max_keys
 sub sort_keys
 {
 	my $iterate_var_name;
+	my $iterate_op_type;
 	my $allDigit = 1;
-	($iterate_var_name ) = @_;
-	foreach my $tmpKey ( keys %{getHashRef($iterate_var_name)}){
-		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
-			$allDigit = 0;
-			last;
+	my $tmpReverse = "+";
+	my $tmpValue = 0;
+	my $debug = "DEBUG_OFF";
+	my @ret;
+	($iterate_var_name ,$iterate_op_type,$debug) = @_;
+	if($iterate_op_type =~ m/-/){ $tmpReverse = "-"; }
+	if($iterate_op_type =~ m/V/){ $tmpValue = "V"; }
+	if($tmpValue eq "V"){
+		foreach my $tmpKey ( keys %{getHashRef($iterate_var_name)}){
+			if(not (getHashRef($iterate_var_name)->{$tmpKey} =~ /^\s*\d*\s*$/)){
+				$allDigit = 0;
+				last;
+			}
+		}
+	} else {
+		foreach my $tmpKey ( keys %{getHashRef($iterate_var_name)}){
+			if(not ($tmpKey =~ /^\s*\d*\s*$/)){
+				$allDigit = 0;
+				last;
+			}
 		}
 	}
-	
-	if($allDigit == 1){ return  sort {$a <=> $b} keys %{getHashRef($iterate_var_name)}; }
-	else { return  sort keys %{getHashRef($iterate_var_name)}; }
+		
+	if($allDigit == 1){ 
+		if($tmpValue eq "V"){
+			@ret = sort {getHashRef($iterate_var_name)->{$a} <=> getHashRef($iterate_var_name)->{$b}} keys %{getHashRef($iterate_var_name)};
+		} else {
+			@ret = sort {$a <=> $b} keys %{getHashRef($iterate_var_name)};
+		}
+	}
+	else { @ret =  sort keys %{getHashRef($iterate_var_name)}; }
+
+	if($tmpReverse eq "-"){
+		@ret = reverse @ret;
+	}
+
+	if($debug eq "DEBUG_ON"){
+		print DBG __SUB__;
+		foreach (@ret){
+			print DBG "  $_";
+		}
+		print DBG "\n";
+	}
+
+	return @ret
 }
 
 sub Iterator_recursion
@@ -511,14 +547,11 @@ sub Iterator_recursion
 	#   @ : array
 	#   & : reverse array
 	#   + : 0 ~ max key value (only digits)
-	if($iterate_var_type eq "\%"){
+	if($iterate_var_type =~ m/^[+-]?[KV]?\%/){
 		print DBG __SUB__ . "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
 		#$tmp1 = eval $$iterate_var_name;
-		$tt = "gCan{9}";
-		$tmp2 = \%{$tt};
-		#print DBG __SUB__ . "RC : tmp2 $tmp2  tmp1 $tmp1 gCan $gCan{9}\n";
 		#print DBG __SUB__ . "RC-1 : " . (sort_keys($iterate_var_name) ) . "\n";
-		foreach $stg_key_hash (sort_keys($iterate_var_name)){
+		foreach $stg_key_hash (sort_keys($iterate_var_name,$iterate_var_type,"DEBUG_ON")){
 			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
@@ -564,16 +597,18 @@ sub Iterator_recursion
 	}
 	#print DBG __SUB__ . "RC : Iterator_recursion : \$result = $result ]]]\n";
 
+
+	# Various Operation
 	$iterate_lines = "";
-	if($result =~ /\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
+	if($result =~ /\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
 		@lines = split("\n",$result);
 		$result = "";
 		foreach my $it_line (@lines){
-			if ($it_line =~ /^\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
+			if ($it_line =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
 #print DBG "Set Hash 20 : $iterate_lines \n";
 				$it_line = replace_var_with_value($it_line);
 #print DBG "Set Hash 21 : $iterate_cnt : $it_line\n";
-				$it_line =~ /^\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
+				$it_line =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
 				if(0 == $iterate_cnt){
 #print  DBG "Sstart $1 $2 $3\n"; 
 					($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);

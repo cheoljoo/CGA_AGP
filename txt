@@ -1,4 +1,17 @@
 
+[Add new feature of ITERATOR]  r.pl
+ITERATE  [+-]?[KV]?[%@&+]
+ K : key sort , V : value sort (only hash %)
+ [KV] : K is default
+ [+-] : + is default
+ % : hash
+ @ : array
+ & : reverse array
+ + : 0 ~ max key 
+
+ ------------------------
+
+
 [Parser Done] : parser.c
 
 make the stc file for html and header file
@@ -60,7 +73,15 @@ Action Items : input for back end with stc file format
 		5       0x03        0x3303                        0x03        0x3303                                                                                        
 
 (ING)
-- Add function : various hash type (%V+  : hash value ascending sort)
+- Add function : various hash type (+V%  : hash value ascending sort)
+ITERATE  [+-]?[KV]?[%@&+]
+ K : key sort , V : value sort (only hash %)
+ [KV] : K is default
+ [+-] : + is default
+ % : hash
+ @ : array
+ & : reverse array
+ + : 0 ~ max key 
 	default : K(key sort) , +(ascending order)
 	%&@+
 	K or V or nothing : default K   (K :key , V : value)
