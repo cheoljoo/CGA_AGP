@@ -349,12 +349,13 @@ foreach $keyX (sort {$a<=>$b} keys %gCol){
 	my $tmpHistory = "";
 	foreach $keyY (sort {$a<=>$b} keys %{$gCol{$keyX}}){
 		if($gCol{$keyX}{$keyY}{Define} ne ""){ $tmpLongDefine = $tmpLongDefine . "__" . $gCol{$keyX}{$keyY}{Define}; }
-		my $tmpH = $tmpHistory . "_ " . "$keyX:$keyY(S:$gCol{$keyX}{$keyY}{ParserSiblingX})";
+		my $tmpH = $tmpHistory . "_ " . "$keyX:$keyY(SibX:$gCol{$keyX}{$keyY}{ParserSiblingX} ,SibY:$gCol{$keyX}{$keyY}{ParserSiblingY})";
 		$gCol{$keyX}{$keyY}{LongDefine} = $tmpLongDefine;
 		$gRow{$keyY}{$keyX}{LongDefine} = $tmpLongDefine;
 		if($gLongDefine{Name}{$tmpLongDefine} eq ""){
 			$gLongDefine{Name}{$tmpLongDefine} = $tmpCnt;
-			$gLongDefine{History}{$tmpLongDefine} = $tmpH;
+			$gLongDefine{History}{$tmpLongDefine}{X} = $keyX;
+			$gLongDefine{History}{$tmpLongDefine}{Y} = $keyY;
 			$gLongDefine{Index}{$tmpCnt} = $tmpLongDefine;
 			$gLongDefineDebug{$tmpLongDefine}{Name} = $tmpCnt;
 			$gLongDefineDebug{$tmpLongDefine}{History} = $tmpH;
@@ -401,9 +402,16 @@ for($j=0;$j<=$gColMaxIndex;$j++){
 $gPrintHashName{gLongDefine} = "Long Definition";
 $gPrintHashName{gLongDefineDebug} = "Long Definition for debugging ";
 
+foreach $key (keys %gColStruct){
+	$gColStructName{$gColStruct{$key}{Name}} = $key;
+}
+$gPrintHashName{gColStructName} = "Sturcture Name";
 
 # gParserCol gathers when value is not ? or NULL.
+my $gParserMinY = 9999999;
 foreach $keyX (sort {$a<=>$b} keys %gCol){
+	my $prevY = -1;
+	my $maxY = 0;
 	foreach $keyY (sort {$a<=>$b} keys %{$gCol{$keyX}}){
 			# $gCol{0}{5}{"Span"}="1"
 			# $gCol{0}{5}{"ParserSiblingX"}="0"
@@ -415,11 +423,17 @@ foreach $keyX (sort {$a<=>$b} keys %gCol){
 			# $gCol{0}{5}{"Description"}="(FuClass_ID)"
 			# $gCol{0}{5}{"Value"}="0x03"
 		if( ($gCol{$keyX}{$keyY}{Value} ne "") && ($gCol{$keyX}{$keyY}{Value} ne "?") && ($gCol{$keyX}{$keyY}{Span} > 0) ){
+			if($prevY != -1){
+				$gParserCol{$keyX}{$prevY}{NextY} = $keyY;
+				$gParserRow{$prevY}{$keyX}{NextY} = $keyY;
+			}
+			$prevY = $keyY;
 			print "Col $keyX:$keyY Span:$gCol{$keyX}{$keyY}{Span} Len:$gCol{$keyX}{$keyY}{Len} Parent:$gCol{$keyX}{$keyY}{Parent} Val:$gCol{$keyX}{$keyY}{Value} LD:$gCol{$keyX}{$keyY}{LongDefine}\n";
 			$gParserCol{$keyX}{$keyY}{Span}        = $gCol{$keyX}{$keyY}{Span};
 			$gParserCol{$keyX}{$keyY}{ParserSiblingX}     = $gCol{$keyX}{$keyY}{ParserSiblingX};
 			$gParserCol{$keyX}{$keyY}{ParserSiblingY}     = $gCol{$keyX}{$keyY}{ParserSiblingY};
-			$gParserCol{$keyX}{$keyY}{LongDefine}  = $gCol{$keyX}{$keyY}{LongDefine};
+			my $tmpLD = $gCol{$keyX}{$keyY}{LongDefine};
+			$gParserCol{$keyX}{$keyY}{LongDefine}  = $tmpLD;
 			$gParserCol{$keyX}{$keyY}{Len}         = $gCol{$keyX}{$keyY}{Len};
 			$gParserCol{$keyX}{$keyY}{ParserParentX}      = $gCol{$keyX}{$keyY}{ParserParentX};
 			$gParserCol{$keyX}{$keyY}{ParserParentY}      = $gCol{$keyX}{$keyY}{ParserParentY};
@@ -438,9 +452,27 @@ foreach $keyX (sort {$a<=>$b} keys %gCol){
 			$gParserRow{$keyY}{$keyX}{Define}      = $gCol{$keyX}{$keyY}{Define};
 			$gParserRow{$keyY}{$keyX}{Description} = $gCol{$keyX}{$keyY}{Description};
 			$gParserRow{$keyY}{$keyX}{Value}       = $gCol{$keyX}{$keyY}{Value};
+			if($gColStructName{$tmpLD} ne ""){
+				$gParserCol{$keyX}{$keyY}{Struct}       = $tmpLD;
+				$gParserRow{$keyY}{$keyX}{Struct}       = $tmpLD;
+			}
+			if($maxY < $keyY){ $maxY = $keyY; }
+			if($gParserMinY > $keyY){ $gParserMinY = $keyY; }
 		}
 	}
+	$gParserCol{$keyX}{$maxY}{ShortStruct} =  "O";
+	$gParserRow{$maxY}{$keyX}{ShortStruct} =  "O";
+	$gColStruct{$keyX}{ShortStructName} = $gParserCol{$keyX}{$maxY}{LongDefine};
+	if($gColShortStructName{$gColStruct{$keyX}{ShortStructName}} ne ""){
+		print "ERROR : shound unique structname: keyX=$keyX\n";
+		print "     gColShortStructName{gColStruct{keyX}{ShortStructName}}  = $gColShortStructName{$gColStruct{$keyX}{ShortStructName}}";
+		print "     gColStruct{keyX}{ShortStructName} = $gColStruct{$keyX}{ShortStructName}\n";
+		exit;
+	}
+	$gColShortStructName{$gColStruct{$keyX}{ShortStructName}} = $keyX;
+	$gColShortStructIndex{$keyX} = $gColStruct{$keyX}{ShortStructName};
 }
+$gVariables{gParserMinY} = $gParserMinY;
 foreach $keyY (sort {$a<=>$b} keys %gRow){
 	foreach $keyX (sort {$a<=>$b} keys %{$gRow{$keyY}}){
 		if( ($gCol{$keyX}{$keyY}{Value} ne "") && ($gCol{$keyX}{$keyY}{Value} ne "?") && ($gCol{$keyX}{$keyY}{Span} > 0) ){
@@ -448,6 +480,8 @@ foreach $keyY (sort {$a<=>$b} keys %gRow){
 		}
 	}
 }
+$gPrintHashName{gColShortStructName} = "ShortSturcture Name";
+$gPrintHashName{gColShortStructIndex} = "ShortSturcture Name";
 $gPrintHashName{gParserCol} = "Parser-relation between child and parent : only we will express the parent in child node";
 $gPrintHashName{gParserRow} = "Parser-relation between child and parent : only we will express the parent in child node";
 
@@ -477,7 +511,11 @@ for($j=0;$j<=$gColMaxIndex;$j++){
 			printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
 		} else {
 			if( ($gCol{$i}{$j}{Span} > 0) && ($gCol{$i}{$j}{Value} ne "") && ($gCol{$i}{$j}{Value} ne "?") ){
-				printf("%10s    ",$gCol{$i}{$j}{Value});
+				if($gParserCol{$i}{$j}{ShortStruct} ne ""){
+					printf("O:%8s    ",$gCol{$i}{$j}{Value});
+				} else {
+					printf("X:%8s    ",$gCol{$i}{$j}{Value});
+				}
 			} else {
 				print "              ";
 			}

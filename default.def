@@ -10,27 +10,45 @@ Index 0 :   (Header - Start Bytes)   Value : 0xAA    , Define : START_BYTES
 			Index 3-4 : (Size of Payload) Value : 0x0A03 , Define : ODI_MSG_DYN_DATA
 			{
 				Index 5-6 : (FuClass_ID) Value : 0x03 , Define : FuClass_ID
-				Index 7: (DataID) Value : ? , Define : DataID
-				Index 8: (DataType) Value : ? , Define : DataType
+				Index 7: (DataID) Value : 0x04 , Define : DataID
+				Index 8: (DataType) Value : 0x06 , Define : DataType
 				Index 9: (InvalidData) Value : ? , Define : InvalidData
 				Index 10-13 : (DataValue) Value : ? , Define : DataValue
 			}
 			Index 3-4 : (Size of Payload) Value : 0x0F02 , Define : ODI_MSG_INDICATION
 			{
 				Index 5-6 : (FuClass_ID) Value : 0x3303 , Define : FuClass_ID
-				Index 7-19 : (DataValue) Value : ? , Define : DataValue
+				Index 7: (DataID) Value : 0x08 , Define : DataID
+				Index 8-19 : (DataValue) Value : ? , Define : DataValue
 			}
 			Index 3-4 : (Size of Payload) Value : 0x01EE , Define : ODI_MSG_PRNDL_MSG
+			{
+				Index 5: (New Value) Value : 0x07 , Define : NEW_VALUE
+			}
 		}
 	}
 	Index 1 : (Header - Command)  Value : 0x81   , Define : MSG_CONTROL     \   # Comments 1  { {  }
 	Index 1 : (Header - Command)  Value : 0x82   , Define : MSG_ASK_STATUS  \
-	Index 1 : (Header - Command)  Value : 0x85   , Define : MSG_ENG         \
-	Index 1 : Value : 0x86   , Define : MSG_VP_DEBUG    \
-	Index 1 : (Header - Command)  Value : 0x87   , Define : MSG_DIAG            # CTL1
+	Index 1 : (Header - Command)  Value : 0x85   , Define : MSG_ENG
 	{
 		Index 2 : (Sub Command) Value : ? , Define : SUB_COMMAND     # Comments 2 { { } }  \
 		Index 3 : (Size of Payload) Value : ? , Define : SIZE_OF_PAYLOAD
 		Index 4-? : (Data ifn exists) Value : ? , Define : Data
+	}
+	Index 1 : Value : 0x86   , Define : MSG_VP_DEBUG 
+	{
+		Index 2 : (Sub Command) Value : ? , Define : SUB_COMMAND     # Comments 2 { { } }  \
+		Index 3 : (Size of Payload) Value : ? , Define : SIZE_OF_PAYLOAD
+		Index 4-5 : (Word) Value : 0x0102 , Define : WORD
+		Index 6 : (single) Value : 0x01 , Define : SINGLE
+		Index 7-? : (Data ifn exists) Value : ? , Define : Data
+	}
+	Index 1 : (Header - Command)  Value : 0x87   , Define : MSG_DIAG            # CTL1
+	{
+		Index 2 : (Sub Command) Value : ? , Define : SUB_COMMAND     # Comments 2 { { } }  \
+		Index 3 : (Size of Payload) Value : ? , Define : SIZE_OF_PAYLOAD
+		Index 4 : Value : 0x01 , Define : SINGLE
+		Index 5-6 : Value : 0x0102 , Define : WORD
+		Index 7-? : (Data ifn exists) Value : ? , Define : Data
 	}
 }

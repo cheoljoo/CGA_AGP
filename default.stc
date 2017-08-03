@@ -6,25 +6,78 @@ ITERATE %gColStruct +<<+ ITKEY  ITVALUE
 
 
 
-FileName : protocol.c
+FileName : parser.c
 Set : iterate_comments = ON
+int parser(unsigned char *p);
+ITERATE %gParserRow +<<+ ITKEY  ITVALUE
+int parser_levelITKEY(int FromStatus, unsigned char *p);
++>>+
 
-ITERATE %gCol +<<+ ITKEY  ITVALUE
-void 
-Compare_ITKEY(char *prefix_string, ITVALUE *pprev, ITVALUE *pnext){
-Set : function_def{Compare_ITVALUE} = "void Compare_ITVALUE(char *prefix_string,ITVALUE *pprev, ITVALUE *pnext)"
+ITERATE %gColShortStructName +<<+ ITKEY  ITVALUE
+#define PARSER_RETURN_ITKEY     ITVALUE
+				// Structure Index (It will be returned) : ITKEY [  +<+$gColShortStructName{ITKEY}+>+  ]
++>>+
 
-	ITERATE %gCol{ITKEY} +<<+ IT2KEY  IT2VALUE
-		<!-- $gCol{ITKEY}{IT2KEY}{Len} = +<+$gCol{ITKEY}{IT2KEY}{Len}+>+  -->
-		IFEQUAL( (+<+$gCol{ITKEY}{IT2KEY}{Len}+>+ eq 1) && (+<+$gCol{ITKEY}{IT2KEY}{Span}+>+ eq 1)){
-			if( strncmp(pprev->IT2KEY , pnext->IT2KEY , +<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ )){
-				FPRINTF(LOG_LEVEL,"%s : Prev : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pprev->IT2KEY);
-				FPRINTF(LOG_LEVEL,"%s : Next : ITVALUE->IT2KEY %.*s\n",prefix_string,+<+$save_typedef_member_arr_size_IT2KEY{ITVALUE}+>+ , pnext->IT2KEY);
+ITERATE %gLongDefine{Name} +<<+ ITKEY  ITVALUE
+#define ITKEY   +<+$gLongDefine{Name}{ITKEY}+>+
++>>+
+
+int parser(unsigned char *p){
+	return parser_level+<+$gParserMinY+>+(-1,p);
+}
+
+ITERATE %gParserRow +<<+ ITKEY  ITVALUE
+int parser_levelITKEY(int FromStatus, unsigned char *p){
+	//  unsigned char / short / int value = (unsigned char / short / int) (p + LENGTH)
+	unsigned char *pcvalue; pcvalue = (unsigned char *) (p+ITKEY);
+	short *psvalue; psvalue = (short *) (p+ITKEY);
+	int *pivalue; pivalue = (int *) (p+ITKEY);
+
+	IFEQUAL( ITKEY eq +<+$gParserMinY+>+){
+		if(0){
+		}
+		ITERATE %gParserRow{ITKEY} +<<+ IT2KEY  IT2VALUE
+		else if(
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 1){ *pcvalue == (unsigned char) +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+ }
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 2){ *psvalue == (short) +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+ }
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 4){ *pivalue == (int) +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+ }
+		){
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
+				return +<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ ;         // X : IT2KEY, Y : ITKEY
+			}
+			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
+				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+, p );  // X : IT2KEY, Y : ITKEY
 			}
 		}
-	+>>+
+		+>>+
+	}
+	IFNOTEQUAL( ITKEY eq +<+$gParserMinY+>+){
+		if(0){
+		}
+		ITERATE %gParserRow{ITKEY} +<<+ IT2KEY  IT2VALUE
+		else if( (FromStatus == +<+$gParserRow{$gParserRow{ITKEY}{IT2KEY}{ParserParentY}}{$gParserRow{ITKEY}{IT2KEY}{ParserParentX}}{LongDefine}+>+)  && 
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 1){ (*pcvalue == +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+) }
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 2){ (*psvalue == +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+) }
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{Len} eq 4){ (*pivalue == +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+) }
+		){
+			//FromStatus == $gParserRow{$gParserRow{ITKEY}{IT2KEY}{ParserParentY}}{$gParserRow{ITKEY}{IT2KEY}{ParserParentX}}{LongDefine}
+			//FromStatus == $gParserRow{+<+$gParserRow{ITKEY}{IT2KEY}{ParserParentY}+>+}{+<+$gParserRow{ITKEY}{IT2KEY}{ParserParentX}+>+}{LongDefine}
+			//FromStatus == +<+$gParserRow{$gParserRow{ITKEY}{IT2KEY}{ParserParentY}}{$gParserRow{ITKEY}{IT2KEY}{ParserParentX}}{LongDefine}+>+
+			//FromStatus == +<+$gParserRow{+<+$gParserRow{ITKEY}{IT2KEY}{ParserParentY}+>+}{+<+$gParserRow{ITKEY}{IT2KEY}{ParserParentX}+>+}{LongDefine}+>+
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
+				return PARSER_RETURN_+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ ;         // X : IT2KEY, Y : ITKEY
+				// Structure Index : +<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ [  +<+$gColShortStructName{+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+}+>+  ]
+			}
+			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
+				//return parser_level$gParserRow{ITKEY}{IT2KEY}{NextY}($gParserRow{ITKEY}{IT2KEY}{LongDefine}, p + 1);
+				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+, p );  // X : IT2KEY, Y : ITKEY
+				// Structure Index : +<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ [  +<+$gColShortStructName{+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+}+>+  ]
+			}
+		}
+		+>>+
+	}
 
-	return ;
+	return -1;
 }
 
 +>>+

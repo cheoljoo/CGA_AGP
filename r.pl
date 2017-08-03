@@ -5,7 +5,7 @@ our $cchange_start_time;
 our $outputdir = "OUTPUT";
 our %local_var_set;
 
-sub __SUB__ { (caller 1)[3] }
+sub __SUB__ { return  (caller 2)[3] . "|" . (caller 2)[2] . "-" . (caller 1)[3] . "|" . (caller 1)[2] . "-" . (caller 0)[2] . ": " }
 
 sub start_time_log {
 	my $tmpLogInit = shift @_;
@@ -297,6 +297,7 @@ END_COMMENT
 		}
 	}
 
+	print DBG __SUB__ . " iterate_equal\n";
 	foreach my $tmpKey  (sort keys  %file_output){
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal start =="); }
 		my $iter_len = length($file_output{$tmpKey});
@@ -311,6 +312,8 @@ END_COMMENT
 		} else {
 			$lines = iterate_equal($linesOrg);
 		}
+		$lines = replace_var_with_value($lines);
+		print DBG "FFFF $lines\n";
 		#$lines =~ s/STG_SHARP_/\#/g;
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal end =="); }
 
@@ -334,37 +337,64 @@ sub  iterate_equal(){
 	my $ifequal_two="";
 	my $ifequal_parm="";
 	my $len;
+	my $if_before="";
+	my $if_match="";
+	my $if_after="";
 
 	$iterate_lines = shift @_;
 	print DBG __SUB__ . " RD1 $iterate_lines\n";
 
-	while($iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n\{]*)\s*/){
+	while($iterate_lines =~ s/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*\(//){
 		#$iterate_lines =~ m/\n([\t ]*)(IFEQUAL|IFNOTEQUAL)\s*([^\n#\/]*)\s*\/\#/;
 		$indent = $1;
 		$order = $2;
-		$condition = $3;
 		$if_before = $`;
 		$if_match = $&;
-		$if_len = length($if_before);
 		$if_after = $';
-		$if_eval = eval($condition);
-		print DBG __SUB__ . "RD2 indent[$indent] order[$order] condition[$condition]" . " eval " . eval($condition) . " len=$if_len\n";
-		print DBG __SUB__ . "RD2 if_match[$f_match]\n";
-		if($if_eval){
-			print DBG "SUCCESS\n";
+		#$if_len = length($if_before);
+		print DBG __SUB__ . "RD2 indent[$indent] order[$order] \n";
+		$if_after = "\(" . $if_after;;
+		if($if_after =~ s/(\(([^\(\)]|(?R))*\))//){
+			$m_before = $`;
+			$m_match = $&;
+			$m_after = $';
+			print DBG __SUB__ . "RD2 if_match[$m_match]\n";
+			$condition = $m_match;
+			$if_eval = eval($condition);
+			if($if_eval){
+				print DBG "EQUAL_SUCCESS\n";
+			}
+			# rule : IF(?NOT)EQUAL (....) { .... }
+			#    each gap does not have any characters.
+			# So we can not have any string before matching text.
+			if($m_before =~ m/\S+/){
+				print STDOUT __SUB__ . "[$m_before]\n";
+				exit;
+			}
+		} else {
+			print STDOUT "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) \n";
+			print DBG "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) \n";
+			print DBG $if_after;
+			exit;
 		}
-		if($if_after =~ m/(\{([^\{\}]|(?R))*\})/){
+		if($m_after =~ s/(\{([^\{\}]|(?R))*\})//){
 			#if($if_after =~ m/((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/)
 			$contents_before = $`;
 			$contents_match = $&;
 			$contents_after = $';
-			$contents_len = length($contents_before);
 			print DBG __SUB__ . " RD3 contents_match $contents_match\n";
 			$contents_match =~ s/^\s*\{//;
 			$contents_match =~ s/\s*\}\s*$//;
-			print DBG __SUB__ . " len=$contents_len RD3 $&\n";
 			print DBG __SUB__ . " RD3 contents_match $contents_match\n";
 			#print DBG __SUB__ . " RD3 contents_after $contents_after\n";
+
+			# rule : IF(?NOT)EQUAL (....) { .... }
+			#    each gap does not have any characters.
+			# So we can not have any string before matching text.
+			if($contents_before =~ m/\S+/){
+				print STDOUT __SUB__ . "[$contents_before]\n";
+				exit;
+			}
 
 			# eval and process
 			if($order eq "IFEQUAL"){
@@ -380,9 +410,12 @@ sub  iterate_equal(){
 					$iterate_lines = $if_before . $contents_after;
 				}
 			}
-			print DBG __SUB__ . " RD4 $iterate_lines\n";
+			#print DBG __SUB__ . " RD4 $iterate_lines\n";
 		} else {
-			last;       # break while
+			print STDOUT "ERROR : IFEQUAL|IFNOTEQUAL has contents with {...} \n";
+			print DBG "ERROR : IFEQUAL|IFNOTEQUAL has contents with {...} \n";
+			print DBG $m_after;
+			exit;
 		}
 	}
 	#$iterate_lines =~ m/\s*IFEQUAL\s*((?:\/\#(?:[^#]|(?:\#+[^#\/]))*\#+\/))/;
@@ -473,13 +506,18 @@ sub Iterator_recursion
 
 	print DBG __SUB__ . "RC : Iterator_recursion : \$iterate_lines = $iterate_lines ]]]\n";
 
+	# Various Operation  :
+	#   % : hash
+	#   @ : array
+	#   & : reverse array
+	#   + : 0 ~ max key value (only digits)
 	if($iterate_var_type eq "\%"){
 		print DBG __SUB__ . "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
 		#$tmp1 = eval $$iterate_var_name;
 		$tt = "gCan{9}";
 		$tmp2 = \%{$tt};
-		print DBG __SUB__ . "RC : tmp2 $tmp2  tmp1 $tmp1 gCan $gCan{9}\n";
-		print DBG __SUB__ . "RC-1 : " . (sort_keys($iterate_var_name) ) . "\n";
+		#print DBG __SUB__ . "RC : tmp2 $tmp2  tmp1 $tmp1 gCan $gCan{9}\n";
+		#print DBG __SUB__ . "RC-1 : " . (sort_keys($iterate_var_name) ) . "\n";
 		foreach $stg_key_hash (sort_keys($iterate_var_name)){
 			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
@@ -524,7 +562,7 @@ sub Iterator_recursion
 		print "ERROR : unknown iterate var type  : $iterate_var_type\n";
 		die $error = 500;
 	}
-	print DBG __SUB__ . "RC : Iterator_recursion : \$result = $result ]]]\n";
+	#print DBG __SUB__ . "RC : Iterator_recursion : \$result = $result ]]]\n";
 
 	$iterate_lines = "";
 	if($result =~ /\s*ITERATE\s+([%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
@@ -571,7 +609,7 @@ sub Iterator_recursion
 				}
 			} 
 		}
-	}  
+	}
 	return $result;
 }
 
@@ -582,7 +620,7 @@ sub replace_var_with_value
 	my $in_cnt = 0;
 	$replace_in = shift @_;
 
-	print DBG __SUB__ . ":" . __LINE__ . " AAAA : before $replace_in\n";
+	#print DBG __SUB__ . ":" . __LINE__ . " AAAA : before $replace_in\n";
 	while($replace_in =~ /(\d+)\s*\+\+\+\+/){		# 	++++     1을 더해 준다. 
 		my $temp_num;
 		$temp_num = $1;
@@ -590,7 +628,7 @@ sub replace_var_with_value
 		$replace_in =~ s/\d+\s*\+\+\+\+/$temp_num/;
 		$in_cnt ++;
 	}
-	print DBG __SUB__ . ":" . __LINE__ . " ++++ : in_cnt $in_cnt\n";
+	#print DBG __SUB__ . ":" . __LINE__ . " ++++ : in_cnt $in_cnt\n";
 	while($replace_in =~ /(\d+)\s*\-\-\-\-/){		# 	----     1을 빼준다.
 		my $temp_num;
 		$temp_num = $1;
@@ -598,7 +636,7 @@ sub replace_var_with_value
 		$replace_in =~ s/\d+\s*\-\-\-\-/$temp_num/;
 		$in_cnt ++;
 	}
-	print DBG __SUB__ . ":" . __LINE__ . " ---- : in_cnt $in_cnt\n";
+	#print DBG __SUB__ . ":" . __LINE__ . " ---- : in_cnt $in_cnt\n";
 	#while(
 	#($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\+>\+/$$1/)		# 	+<+$stg_hash_del_timeout+>+ ==> 10
 	#|| ($replace_in =~ s/\+<\+\s*\$([\w\d\.]+)\s*\[\s*(\d*)\s*\]\s*\+>\+/$$1[$2]/)	# +<+$typedef_name[54]+>+  ==> COMBI_Accum
@@ -613,12 +651,12 @@ sub replace_var_with_value
 	{
 		my $match = $&;
 		my $val = eval($1);
-		print DBG __SUB__ . ":" . __LINE__ . " $match =>  $val\n";
+		print DBG __SUB__ . ":" . " $match =>  $val\n";
 		$replace_in =~ s/\+<\+\s*(\$[\w\d\.]+\s*[^\+>]*)\+>\+/$val/;
 		$in_cnt ++;
 	};
-	print DBG __SUB__ . ":" . __LINE__ . " +<+ \$... +>+ : in_cnt $in_cnt\n";
-	print DBG __SUB__ . ":" . __LINE__ . " AAAA : after $replace_in\n";
+	#print DBG __SUB__ . ":" . __LINE__ . " +<+ \$... +>+ : in_cnt $in_cnt\n";
+	#print DBG __SUB__ . ":" . __LINE__ . " AAAA : after $replace_in\n";
 
 	return $replace_in;
 }
