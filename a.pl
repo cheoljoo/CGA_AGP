@@ -22,6 +22,24 @@ our %gPrintHashName;
 our %gTmp;
 our $gIndexOfStart;
 
+sub getHashRef {
+	my ($name) = @_;        # gCan{9}
+	my $first;
+	#print "F " . $name . "\n";
+	$name =~ s/([^\{]+)//;
+	$first = $1;
+	my $hn = \%{$first};
+	#print "F " . $hn . "\n";
+	while($name =~ s/^\{([^\}]*)\}//){
+		my $uu = $1;
+		$hn = $hn->{$uu};
+		#print "G " . $uu . "   $hn\n";
+	}
+
+	#print "I " . $hn . "\n";
+	return $hn;
+}
+
 sub change_special_code {
 	my ($s) = @_;
 	$s =~ s/\{/#\+#\+#\+\+###/g;
@@ -104,7 +122,7 @@ while(<FH>){
 		my $lDefine = $4;
 		my $lContinue = $5;
 		my $lOthers = $';   # Comments
-		$gCan{$lBytes}{$lDescription}{lValue}{$lDefine}{$lContinue} = $lOthers;
+		$gCan{$lBytes}{$lDescription}{$lValue}{$lDefine}{$lContinue} = $lOthers;
 	# upper regular expression express the following three regex.   we can combine the syntax with | in regex.
 	# elsif($s =~ /:\s*(\([^\)]*\)|\s*)/)        # $` $&  $'
 	# elsif($s =~ /^\s*Index\s+([\d-?]+)\s*:\s*\s*Value\s*:\s*(\S+)\s*,\s*Define\s*:\s*(\S+)\s*(\\?)\s*/){        # $` $&  $'
@@ -195,7 +213,7 @@ print "\n======= Final  ==========\n";
 $total_context_org =~ s/$1#\+#\+#\+\+###/\{/g;
 $total_context_org =~ s/$1#-#-#--###/\}/g;
 $total_context_org =~ s/$1#=#=#==###/\\/g;
-print $total_context_org;
+print "CONTEXT = " . $total_context_org;
 
 @lines = split(/\n/,$total_context_org);
 #LOG3 print @lines;
@@ -228,7 +246,11 @@ foreach $line (@lines){
 			print "ERR : $line \n";
 		}
 
+
+		## IWISH : Draw the explanation with plantUML 
+		print "<<<< $gIndexOfStart < $gIndexOld >>>>\n";
 		if($gIndexOfStart < $gIndexOld){
+			print "{{{{ $gIndexOfStart < $gIndexOld }}}}\n";
 			my $tmpStructName = "";
 			foreach $key (sort {$a<=>$b} keys %gTmp){
 				{       # copy
@@ -240,7 +262,7 @@ foreach $line (@lines){
 					$gCol{$gColCnt}{$key}{Comments} = $gTmp{$key}{Comments} ;
 					if($gTmp{$key}{Len} ne ""){ $tmpStructName .= "__" . $gTmp{$key}{Define}; }
 				}
-				if($key >= $gIndexOfStart){
+				if($key >= $gIndexOfStart){     # index 0 ...   5     index 3 ... (So remove 5,4 only)
 					print "#";
 					delete $gTmp{$key}{Len} ;
 					delete $gTmp{$key}{Span} ;
@@ -271,48 +293,32 @@ foreach $line (@lines){
 		print "\n";
 	}
 }
-$gPrintHashName{"gCol"} = "";
-$gPrintHashName{"gColStruct"} = "";
-$gPrintHashName{"gVariables"} = "";
-$gVariables{gColCnt} = $gColCnt;
-
-		{
-			my $tmpStructName = "";
-			foreach $key (sort {$a<=>$b} keys %gTmp){
-				{       # copy
-					$gCol{$gColCnt}{$key}{Len} = $gTmp{$key}{Len} ;
-					$gCol{$gColCnt}{$key}{Span} = $gTmp{$key}{Span} ;
-					$gCol{$gColCnt}{$key}{Description} = $gTmp{$key}{Description} ;
-					$gCol{$gColCnt}{$key}{Value} = $gTmp{$key}{Value} ;
-					$gCol{$gColCnt}{$key}{Define} = $gTmp{$key}{Define} ;
-					$gCol{$gColCnt}{$key}{Comments} = $gTmp{$key}{Comments} ;
-					if($gTmp{$key}{Len} ne ""){ $tmpStructName .= "__" . $gTmp{$key}{Define}; }
-				}
-				if($key >= $gIndexOfStart){
-					print "#";
-					delete $gTmp{$key}{Len} ;
-					delete $gTmp{$key}{Span} ;
-					delete $gTmp{$key}{Description} ;
-					delete $gTmp{$key}{Value} ;
-					delete $gTmp{$key}{Define} ;
-					delete $gTmp{$key}{Comments} ;
-					delete $gTemp{$key};
-				} else {
-					$gTmp{$key}{Span}++ ;
-				}
-			}
-			$gColStruct{$gColCnt}{Name} = $tmpStructName;
-			$gColCnt ++;
+# When it reaches the EOF, Last gTmp is not processed. So I process the last gTmp values
+{
+	print "{{{{ $gIndexOfStart < $gIndexOld }}}}\n";
+	my $tmpStructName = "";
+	foreach $key (sort {$a<=>$b} keys %gTmp){
+		{       # copy
+			$gCol{$gColCnt}{$key}{Len} = $gTmp{$key}{Len} ;
+			$gCol{$gColCnt}{$key}{Span} = $gTmp{$key}{Span} ;
+			$gCol{$gColCnt}{$key}{Description} = $gTmp{$key}{Description} ;
+			$gCol{$gColCnt}{$key}{Value} = $gTmp{$key}{Value} ;
+			$gCol{$gColCnt}{$key}{Define} = $gTmp{$key}{Define} ;
+			$gCol{$gColCnt}{$key}{Comments} = $gTmp{$key}{Comments} ;
+			if($gTmp{$key}{Len} ne ""){ $tmpStructName .= "__" . $gTmp{$key}{Define}; }
 		}
+		$gColStruct{$gColCnt}{Name} = $tmpStructName;
+	}
+}
+$gPrintHashName{"gCol"} = "Column";
+$gPrintHashName{"gColStruct"} = "Each Structure of each Column";
+$gPrintHashName{"gVariables"} = "Global Variables.  I will make the varible directly.";
+$gVariables{gColCnt} = $gColCnt;
 
 ## Print gCol
 foreach $key (sort {$a<=>$b} keys %gColStruct){
 	print "gColStruct\{$key\}{Name} = $gColStruct{$key}{Name}\n";
 }
-
-
-
-
 
 
 open(GVW,">"."default.GV") or die "GVW:ERROR$!\n";

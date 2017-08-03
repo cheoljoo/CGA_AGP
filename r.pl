@@ -297,8 +297,6 @@ END_COMMENT
 		}
 	}
 
-	mkdir $outputdir;
-	mkdir "$outputdir\/$stc_output_dir";
 	foreach my $tmpKey  (sort keys  %file_output){
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal start =="); }
 		my $iter_len = length($file_output{$tmpKey});
@@ -662,6 +660,8 @@ sub traverse_hash_tree {
 }
 
 
+mkdir "OUTPUT";
+mkdir "OUTPUT/stc";
 # set the variables from file
 print "arguments count : $#ARGV\n";
 ($filename,$stcfilename) = (@ARGV);
@@ -719,7 +719,9 @@ foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{3-4}")}) { print "C$key  
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{9}")}) { print "C$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{1}")}) { print "C$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{2}")}) { print "C$key  ";} print "\n";
+getHashRef(gCan)->{100}->{10} = 11111;
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan")}) { print "C$key  ";} print "\n";
+foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{100}")}) { print "C$key  ";} print "\n";
 
 my $comment =  <<END_COMMENT;
 		foreach my $key (keys %hashName){

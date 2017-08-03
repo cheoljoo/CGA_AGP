@@ -48,7 +48,20 @@ sub recover_special_code {
 sub traverse_hash_tree_to_change_special_code {
 	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
 	#print "[sub $TAXA_TREE]\n";
-	foreach my $key (sort{$a<=>$b} keys %{$TAXA_TREE}) {
+	my $allDigit = 1;
+	foreach my $tmpKey ( keys %{$TAXA_TREE}){
+		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
+			$allDigit = 0;
+			last;
+		}
+	}
+
+	# always sort as sequence of digit or string
+	my @tmpRt;
+	if($allDigit == 1){ @tmpRt =  sort {$a <=> $b} keys %{$TAXA_TREE}; }
+	else { @tmpRt =   sort keys %{$TAXA_TREE}; }
+
+	foreach my $key (@tmpRt) {
 		if (ref $TAXA_TREE->{$key} eq 'HASH') {
 			#print "[K:[$key] lstr=$lstr]\n";
 			if($key =~ /^\s*\d+\s*$/){
@@ -214,6 +227,7 @@ for($i=0;$i<=$gRowMaxIndex;$i++){
 		}
 	}
 }
+print "[Len:Span]\n";
 for($j=0;$j<=$gColMaxIndex;$j++){
 	printf("%3d ",$j);
 	for($i=0;$i<=$gRowMaxIndex;$i++){
@@ -266,6 +280,211 @@ print FH $b;
 print FH $c;
 close(FH);
 
+
+# change gCol and gRow
+# sibling means the index with span value >=1  (representitives of each group)
+### sibling will be caclulated from gRow
+my $siblingKeyX=0;
+foreach $keyY (sort {$a<=>$b} keys %gRow){  # keyY : byte index on html table
+	foreach $keyX (sort {$a<=>$b} keys %{$gRow{$keyY}}){
+		if( ($gCol{$keyX}{$keyY}{Value} eq "") || ($gCol{$keyX}{$keyY}{Value} eq "?") || ($gCol{$keyX}{$keyY}{Len} <= 0) ){
+			$gCol{$keyX}{$keyY}{ParserSiblingX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			$gCol{$keyX}{$keyY}{ParserSiblingY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+			$gRow{$keyY}{$keyX}{ParserSiblingX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			$gRow{$keyY}{$keyX}{ParserSiblingY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+		} elsif($gRow{$keyY}{$keyX}{Span} <= 0){
+			$gRow{$keyY}{$keyX}{ParserSiblingX} = $siblingKeyX;
+			$gCol{$keyX}{$keyY}{ParserSiblingX} = $siblingKeyX;
+		} else {
+			$gRow{$keyY}{$keyX}{ParserSiblingX} = $keyX;
+			$gCol{$keyX}{$keyY}{ParserSiblingX} = $keyX;
+			$siblingKeyX = $keyX;
+		}
+	}
+}
+my $siblingKeyY;
+foreach $keyX (sort {$a<=>$b} keys %gCol){
+	foreach $keyY (sort {$a<=>$b} keys %{$gCol{$keyX}}){
+		if( ($gCol{$keyX}{$keyY}{Value} eq "") || ($gCol{$keyX}{$keyY}{Value} eq "?") || ($gCol{$keyX}{$keyY}{Len} <= 0) ){
+			$gCol{$keyX}{$keyY}{ParserSiblingY} = $siblingKeyY;
+			$gRow{$keyY}{$keyX}{ParserSiblingY} = $siblingKeyY;
+		} else {
+			$gCol{$keyX}{$keyY}{ParserSiblingY} = $keyY;
+			$gRow{$keyY}{$keyX}{ParserSiblingY} = $keyY;
+			$siblingKeyY = $keyY;
+		}
+	}
+}
+print "bytes [Len:Span:ParserSiblingX:ParserSiblingY]\n";
+print "if span == -1 , Ignore the below column\n";
+print "Byte";
+for($i=0;$i<=$gRowMaxIndex;$i++){
+	printf("\[_____%2d____\] ",$i);
+}
+print "\n";
+for($j=0;$j<=$gColMaxIndex;$j++){
+	printf(" %2d ",$j);
+	for($i=0;$i<=$gRowMaxIndex;$i++){
+		if(1){ # for debug
+			printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserSiblingX} , $gCol{$i}{$j}{ParserSiblingY});
+		} else {
+			if($gCol{$i}{$j}{Len}){
+				printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserSiblingX} , $gCol{$i}{$j}{ParserSiblingY});
+			} else {
+				print "\[__:__:__:__\] ";
+			}
+		}
+	}
+	print "\n";
+}
+
+
+
+### LongDefine name  : we will use these in parameter of parser function as separating origins.
+### each long name is unique.
+### parent
+my $tmpCnt =0;
+foreach $keyX (sort {$a<=>$b} keys %gCol){
+	my $tmpLongDefine = "";
+	my $tmpHistory = "";
+	foreach $keyY (sort {$a<=>$b} keys %{$gCol{$keyX}}){
+		if($gCol{$keyX}{$keyY}{Define} ne ""){ $tmpLongDefine = $tmpLongDefine . "__" . $gCol{$keyX}{$keyY}{Define}; }
+		my $tmpH = $tmpHistory . "_ " . "$keyX:$keyY(S:$gCol{$keyX}{$keyY}{ParserSiblingX})";
+		$gCol{$keyX}{$keyY}{LongDefine} = $tmpLongDefine;
+		$gRow{$keyY}{$keyX}{LongDefine} = $tmpLongDefine;
+		if($gLongDefine{Name}{$tmpLongDefine} eq ""){
+			$gLongDefine{Name}{$tmpLongDefine} = $tmpCnt;
+			$gLongDefine{History}{$tmpLongDefine} = $tmpH;
+			$gLongDefine{Index}{$tmpCnt} = $tmpLongDefine;
+			$gLongDefineDebug{$tmpLongDefine}{Name} = $tmpCnt;
+			$gLongDefineDebug{$tmpLongDefine}{History} = $tmpH;
+			$tmpCnt++;
+		}
+		if( ($gCol{$keyX}{$keyY}{Value} eq "") || ($gCol{$keyX}{$keyY}{Value} eq "?") || ($gCol{$keyX}{$keyY}{Len} <= 0) ){
+			$gCol{$keyX}{$keyY}{ParserParentX} = $gCol{$keyX}{$keyY-1}{ParserParentX};
+			$gCol{$keyX}{$keyY}{ParserParentY} = $gCol{$keyX}{$keyY-1}{ParserParentY};
+			$gRow{$keyY}{$keyX}{ParserParentX} = $gCol{$keyX}{$keyY-1}{ParserParentX};
+			$gRow{$keyY}{$keyX}{ParserParentY} = $gCol{$keyX}{$keyY-1}{ParserParentY};
+			#$gCol{$keyX}{$keyY}{ParserSiblingX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			#$gCol{$keyX}{$keyY}{ParserSiblingY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+			#$gRow{$keyY}{$keyX}{ParserSiblingX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			#$gRow{$keyY}{$keyX}{ParserSiblingY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+		} elsif($keyY > 0){
+			$gCol{$keyX}{$keyY}{ParserParentX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			$gCol{$keyX}{$keyY}{ParserParentY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+			$gRow{$keyY}{$keyX}{ParserParentX} = $gCol{$keyX}{$keyY-1}{ParserSiblingX};
+			$gRow{$keyY}{$keyX}{ParserParentY} = $gCol{$keyX}{$keyY-1}{ParserSiblingY};
+		}
+	}
+}
+print "bytes [Len:Span:ParserParentX:ParserParentY]\n";
+print "Byte";
+for($i=0;$i<=$gRowMaxIndex;$i++){
+	printf("\[_____%2d____\] ",$i);
+}
+print "\n";
+for($j=0;$j<=$gColMaxIndex;$j++){
+	printf(" %2d ",$j);
+	for($i=0;$i<=$gRowMaxIndex;$i++){
+		if(1){ # for debug
+			printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
+		} else {
+			if($gCol{$i}{$j}{Len}){
+				printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
+			} else {
+				print "\[__:__:__:__\] ";
+			}
+		}
+	}
+	print "\n";
+}
+$gPrintHashName{gLongDefine} = "Long Definition";
+$gPrintHashName{gLongDefineDebug} = "Long Definition for debugging ";
+
+
+# gParserCol gathers when value is not ? or NULL.
+foreach $keyX (sort {$a<=>$b} keys %gCol){
+	foreach $keyY (sort {$a<=>$b} keys %{$gCol{$keyX}}){
+			# $gCol{0}{5}{"Span"}="1"
+			# $gCol{0}{5}{"ParserSiblingX"}="0"
+			# $gCol{0}{5}{"LongDefine"}="__START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID"
+			# $gCol{0}{5}{"Len"}="2"
+			# $gCol{0}{5}{"Parent"}="9"
+			# $gCol{0}{5}{"Comments"}=""
+			# $gCol{0}{5}{"Define"}="FuClass_ID"
+			# $gCol{0}{5}{"Description"}="(FuClass_ID)"
+			# $gCol{0}{5}{"Value"}="0x03"
+		if( ($gCol{$keyX}{$keyY}{Value} ne "") && ($gCol{$keyX}{$keyY}{Value} ne "?") && ($gCol{$keyX}{$keyY}{Span} > 0) ){
+			print "Col $keyX:$keyY Span:$gCol{$keyX}{$keyY}{Span} Len:$gCol{$keyX}{$keyY}{Len} Parent:$gCol{$keyX}{$keyY}{Parent} Val:$gCol{$keyX}{$keyY}{Value} LD:$gCol{$keyX}{$keyY}{LongDefine}\n";
+			$gParserCol{$keyX}{$keyY}{Span}        = $gCol{$keyX}{$keyY}{Span};
+			$gParserCol{$keyX}{$keyY}{ParserSiblingX}     = $gCol{$keyX}{$keyY}{ParserSiblingX};
+			$gParserCol{$keyX}{$keyY}{ParserSiblingY}     = $gCol{$keyX}{$keyY}{ParserSiblingY};
+			$gParserCol{$keyX}{$keyY}{LongDefine}  = $gCol{$keyX}{$keyY}{LongDefine};
+			$gParserCol{$keyX}{$keyY}{Len}         = $gCol{$keyX}{$keyY}{Len};
+			$gParserCol{$keyX}{$keyY}{ParserParentX}      = $gCol{$keyX}{$keyY}{ParserParentX};
+			$gParserCol{$keyX}{$keyY}{ParserParentY}      = $gCol{$keyX}{$keyY}{ParserParentY};
+			$gParserCol{$keyX}{$keyY}{Comments}    = $gCol{$keyX}{$keyY}{Comments};
+			$gParserCol{$keyX}{$keyY}{Define}      = $gCol{$keyX}{$keyY}{Define};
+			$gParserCol{$keyX}{$keyY}{Description} = $gCol{$keyX}{$keyY}{Description};
+			$gParserCol{$keyX}{$keyY}{Value}       = $gCol{$keyX}{$keyY}{Value};
+			$gParserRow{$keyY}{$keyX}{Span}        = $gCol{$keyX}{$keyY}{Span};
+			$gParserRow{$keyY}{$keyX}{ParserSiblingX}     = $gCol{$keyX}{$keyY}{ParserSiblingX};
+			$gParserRow{$keyY}{$keyX}{ParserSiblingY}     = $gCol{$keyX}{$keyY}{ParserSiblingY};
+			$gParserRow{$keyY}{$keyX}{LongDefine}  = $gCol{$keyX}{$keyY}{LongDefine};
+			$gParserRow{$keyY}{$keyX}{Len}         = $gCol{$keyX}{$keyY}{Len};
+			$gParserRow{$keyY}{$keyX}{ParserParentX}      = $gCol{$keyX}{$keyY}{ParserParentX};
+			$gParserRow{$keyY}{$keyX}{ParserParentY}      = $gCol{$keyX}{$keyY}{ParserParentY};
+			$gParserRow{$keyY}{$keyX}{Comments}    = $gCol{$keyX}{$keyY}{Comments};
+			$gParserRow{$keyY}{$keyX}{Define}      = $gCol{$keyX}{$keyY}{Define};
+			$gParserRow{$keyY}{$keyX}{Description} = $gCol{$keyX}{$keyY}{Description};
+			$gParserRow{$keyY}{$keyX}{Value}       = $gCol{$keyX}{$keyY}{Value};
+		}
+	}
+}
+foreach $keyY (sort {$a<=>$b} keys %gRow){
+	foreach $keyX (sort {$a<=>$b} keys %{$gRow{$keyY}}){
+		if( ($gCol{$keyX}{$keyY}{Value} ne "") && ($gCol{$keyX}{$keyY}{Value} ne "?") && ($gCol{$keyX}{$keyY}{Span} > 0) ){
+			print "Row $keyY:$keyX Span:$gCol{$keyX}{$keyY}{Span} Len:$gCol{$keyX}{$keyY}{Len} ParserParentX:$gCol{$keyX}{$keyY}{ParserParentX} Val:$gCol{$keyX}{$keyY}{Value} LD:$gCol{$keyX}{$keyY}{LongDefine}\n";
+		}
+	}
+}
+$gPrintHashName{gParserCol} = "Parser-relation between child and parent : only we will express the parent in child node";
+$gPrintHashName{gParserRow} = "Parser-relation between child and parent : only we will express the parent in child node";
+
+print "bytes [Len:Span:ParserParentX:ParserParentY]\n";
+print "Byte";
+for($i=0;$i<=$gRowMaxIndex;$i++){
+	printf("\[_____%2d____\] ",$i);
+}
+print "\n";
+for($j=0;$j<=$gColMaxIndex;$j++){
+	printf(" %2d ",$j);
+	for($i=0;$i<=$gRowMaxIndex;$i++){
+		if(0){ # for debug
+			printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
+		} else {
+			if( ($gCol{$i}{$j}{Span} > 0) && ($gCol{$i}{$j}{Value} ne "") && ($gCol{$i}{$j}{Value} ne "?") ){
+				printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
+			} else {
+				print "\[__:__:__:__\] ";
+			}
+		}
+	}
+	print "\n";
+	printf(" %2d ",$j);
+	for($i=0;$i<=$gRowMaxIndex;$i++){
+		if(0){ # for debug
+			printf("\[%2d:%2d:%2d:%2d\] ",$gCol{$i}{$j}{Len} , $gCol{$i}{$j}{Span}, $gCol{$i}{$j}{ParserParentX} , $gCol{$i}{$j}{ParserParentY});
+		} else {
+			if( ($gCol{$i}{$j}{Span} > 0) && ($gCol{$i}{$j}{Value} ne "") && ($gCol{$i}{$j}{Value} ne "?") ){
+				printf("%10s    ",$gCol{$i}{$j}{Value});
+			} else {
+				print "              ";
+			}
+		}
+	}
+	print "\n";
+}
 
 open(GVW,">"."default.GVm") or die "GVW:ERROR$!\n";
 foreach my $key (sort keys %gPrintHashName){
