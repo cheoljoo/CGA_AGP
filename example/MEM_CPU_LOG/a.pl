@@ -174,10 +174,18 @@ sub traverse_hash_tree_to_recover_special_code {
 	foreach my $key (@ret) {
 		if (ref $TAXA_TREE->{$key} eq 'HASH') {
 			#print "K:$key lstr=$lstr\n";
-			traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+			} else {
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{\"" . recover_special_code($key) . "\"\}",$fh);
+			}
 		} else {
+			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
 			#print "$lstr $key = $TAXA_TREE->{$key}\n";
-			print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+				print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+			} else {
+				print $fh "\$$vn$lstr\{\"" . recover_special_code($key) ."\"\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+			}
 		}
 	}
 }
@@ -248,7 +256,7 @@ foreach $dir (@files){
 			$MEMTASK{$date}{$min}{$pid}{rss} = $rss;
 			$MEMTASK{$date}{$min}{$pid}{pss} = $pss;
 			$MEMTASK{$date}{$min}{$pid}{uss} = $uss;
-			$MEMTASK{$date}{$min}{$pid}{cmdline} = $cmdline;
+			$MEMTASK{$date}{$min}{$pid}{cmd} = $cmdline;
 			$MEMCMDLIST{$cmdline} = $memcmdlistcnt++;
 			print "$pid : $vss : $rss : $pss : $uss : $cmdline\n";
 		} elsif($s =~ m/^\s*(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+TOTAL\s*$/){
@@ -291,13 +299,86 @@ foreach $dir (@files){
 	close(LOGI);
 }
 
+
+#### STEP 2
+# Find increase the memory size each process in a day
+# Find increasing memory size and cpu % than yesterday
+my $minCountMax = 0;
+foreach my $date (keys %{MEMTASK}){
+	my $minCount = 0;
+	foreach my $min (keys %{$MEMTASK{$date}}){
+		$minCount++;
+		foreach my $pid (keys %{$MEMTASK{$date}{$min}}){
+			$memPID{$date}{$pid}{$min}{pss} = $MEMTASK{$date}{$min}{$pid}{pss};
+		}
+	}
+	if($minCountMax < $minCount){ $minCountMax = $minCount; }
+}
+# Find increase the memory size each process in a day
+foreach my $date (keys %{memPID}){
+	foreach my $pid (keys %{$memPID{$date}}){
+		my $increase = 1;
+		my $pssMax = 0;
+		my $initmin;
+		my $finalmin;
+		foreach my $min (sort {$a <=> $b} keys %{$memPID{$date}{$pid}}){ # minutes
+			if($pssMax == 0){
+				$initmin = $min;
+				$pssMax = $MEMTASK{$date}{$min}{$pid}{pss};
+			}
+			elsif($pssMax <= $MEMTASK{$date}{$min}{$pid}{pss}){
+			} else {
+				$increase = 0;
+			}
+			$finalmin = $min;
+		}
+		if( ($increase == 1) && ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss}) ){
+			print "$increase $date $initmin $finalmin $pid $MEMTASK{$date}{$finalmin}{$pid}{cmd} ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss})\n";
+			$MEMTASK{$date}{$finalmin}{$pid}{pssleak} = 1;
+			$memPID{$date}{$pid}{$finalmin}{cmd} = $MEMTASK{$date}{$finalmin}{$pid}{cmd};
+		}
+	}
+}
+
+my $mul = int(24 / $minCountMax);
+foreach $date (sort keys %{MEMTASK}){
+	#print "D$date ";
+	$tmpDate = $date;
+	my $lcnt = 1;
+	foreach $min (sort {$a <=> $b} keys %{$MEMTASK{$date}}){
+		#print "M$min ";
+		my $indexHour = sprintf("%3d",$mul * $lcnt);
+		$lcnt++;
+		foreach $pid (keys %{$MEMTASK{$date}{$min}}){
+			#print "P$pid ";
+			# {date}{index_of_min}{process}
+			my $cmd = $MEMTASK{$date}{$min}{$pid}{cmd};
+			my $pss = $MEMTASK{$date}{$min}{$pid}{pss};
+			$tmpDate =~ s/_/,/g;
+			$tmpDateTime = $tmpDate . ", " . $indexHour;
+			if( $MEMTASK{$date}{$min}{$pid}{pssleak} == 1){
+				$MEMCHART{$tmpDateTime}{$cmd}{pssleak} = "MemLeak:$cmd";
+			}
+			$MEMCHART{$tmpDateTime}{$cmd}{pss} = $pss;
+			$MEMCMDCHART{$cmd}{$tmpDateTime}{pss} = $pss;
+		}
+		print "\n";
+	}
+	print "\n";
+}
+print "mul $mul $minCountMax\n";
+
+#### OUT
 open(OUT,">default.GVm");
 traverse_hash_tree(\%{MEMTASK},MEMTASK,"",OUT);
 traverse_hash_tree(\%{MEMTOTAL},MEMTOTAL,"",OUT);
 traverse_hash_tree(\%{RAM},RAM,"",OUT);
 traverse_hash_tree(\%{CPUTASK},CPUTASK,"",OUT);
-traverse_hash_tree(\%{CPUTOTAL},CPU,"",OUT);
+traverse_hash_tree(\%{CPUTOTAL},CPUTOTAL,"",OUT);
 traverse_hash_tree(\%{MEMCMDLIST},MEMCMDLIST,"",OUT);
 traverse_hash_tree(\%{CPUCMDLIST},CPUCMDLIST,"",OUT);
+traverse_hash_tree(\%{memPID},memPID,"",OUT);
+traverse_hash_tree(\%{MEMCHART},MEMCHART,"",OUT);
+traverse_hash_tree(\%{MEMCMDCHART},MEMCMDCHART,"",OUT);
 close(OUT);
 

@@ -305,8 +305,8 @@ END_COMMENT
 		my $lines ="";
 		if(0){
 			# for performance
-			for(my $itt = 0;$itt <= $iter_len ; $itt += 1000){
-				$lines .= iterate_equal(substr($linesOrg, $itt, 1000));
+			for(my $itt = 0;$itt <= $iter_len ; $itt += 10000){
+				$lines .= iterate_equal(substr($linesOrg, $itt, 10000));
 			}
 			$lines = iterate_equal($lines);
 		} else {
@@ -372,8 +372,8 @@ sub  iterate_equal(){
 				exit;
 			}
 		} else {
-			print STDOUT "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) \n";
-			print DBG "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) \n";
+			print STDOUT "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) if_after $if_after\n";
+			print DBG "ERROR : IFEQUAL|IFNOTEQUAL has condition with (...) if_after $if_after\n";
 			print DBG $if_after;
 			exit;
 		}
@@ -555,7 +555,9 @@ sub Iterator_recursion
 			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
-			$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
+			#foreach my $key (sort{$a<=>$b} keys %{(getHashRef("gCol"))->{9}}) { print "B$key  ";} print "\n";
+			#$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
+			$temp =~ s/$iterate_value/(getHashRef($iterate_var_name))->{$stg_key_hash}/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\@"){
@@ -716,14 +718,36 @@ sub recover_special_code {
 }
 sub traverse_hash_tree_to_recover_special_code {
 	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
+	my $allDigit = 1;
 	#print "sub $TAXA_TREE\n";
-	foreach my $key (sort{$a<=>$b} keys %{$TAXA_TREE}) {
+	foreach my $tmpKey ( keys %{$TAXA_TREE}){
+		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
+			$allDigit = 0;
+			last;
+		}
+	}
+
+	my @ret;
+	if($allDigit == 1){
+		@ret = sort {$a <=> $b} keys %{$TAXA_TREE};
+	} else {
+		@ret = sort keys %{$TAXA_TREE};
+	}
+	foreach my $key (@ret) {
 		if (ref $TAXA_TREE->{$key} eq 'HASH') {
 			#print "K:$key lstr=$lstr\n";
-			traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+			} else {
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{\"" . recover_special_code($key) . "\"\}",$fh);
+			}
 		} else {
+			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
 			#print "$lstr $key = $TAXA_TREE->{$key}\n";
-			print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+				print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+			} else {
+				print $fh "\$$vn$lstr\{\"" . recover_special_code($key) ."\"\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+			}
 		}
 	}
 }
@@ -788,13 +812,14 @@ $tmp = $gCol{9};
 foreach my $key (sort{$a<=>$b} keys %$tmp) { print "A$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{(getHashRef("gCol"))->{9}}) { print "B$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCol{9}")}) { print "C$key  ";} print "\n";
-foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{3-4}")}) { print "C$key  ";} print "\n";
-foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{9}")}) { print "C$key  ";} print "\n";
-foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{1}")}) { print "C$key  ";} print "\n";
-foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{2}")}) { print "C$key  ";} print "\n";
+#foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{3-4}")}) { print "C$key  ";} print "\n";
+#foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{9}")}) { print "C$key  ";} print "\n";
+#foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{1}")}) { print "C$key  ";} print "\n";
+#foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{2}")}) { print "C$key  ";} print "\n";
 getHashRef(gCan)->{100}->{10} = 11111;
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan")}) { print "C$key  ";} print "\n";
 foreach my $key (sort{$a<=>$b} keys %{getHashRef("gCan{100}")}) { print "C$key  ";} print "\n";
+foreach my $key (sort keys %{MEMCMDLIST}) { print "C$key  ";} print "\n";
 
 my $comment =  <<END_COMMENT;
 		foreach my $key (keys %hashName){
@@ -802,4 +827,5 @@ my $comment =  <<END_COMMENT;
 			traverse_hash_tree(\%{$key},$key,"",VAR_DBG);
 		}
 END_COMMENT
+
 
