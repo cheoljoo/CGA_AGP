@@ -439,18 +439,18 @@ sub  iterate_equal(){
 sub getHashRef {
 	my ($name) = @_;        # gCan{9}
 	my $first;
-	print "F " . $name . "\n";
+	#print "F " . $name . "\n";
 	$name =~ s/([^\{]+)//;
 	$first = $1;
 	my $hn = \%{$first};
-	print "F " . $hn . "\n";
+	#print "F " . $hn . "\n";
 	while($name =~ s/^\{([^\}]*)\}//){
 		my $uu = $1;
 		$hn = $hn->{$uu};
-		print "G " . $uu . "   $hn\n";
+		#print "G " . $uu . "   $hn\n";
 	}
 
-	print "I " . $hn . "\n";
+	#print "I " . $hn . "\n";
 	return $hn;
 }
 
@@ -557,7 +557,8 @@ sub Iterator_recursion
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
 			#foreach my $key (sort{$a<=>$b} keys %{(getHashRef("gCol"))->{9}}) { print "B$key  ";} print "\n";
 			#$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
-			$temp =~ s/$iterate_value/(getHashRef($iterate_var_name))->{$stg_key_hash}/g;
+			my $tmp = getHashRef($iterate_var_name)->{$stg_key_hash};
+			$temp =~ s/$iterate_value/$tmp/g;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\@"){

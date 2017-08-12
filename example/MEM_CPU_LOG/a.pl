@@ -195,8 +195,20 @@ sub traverse_hash_tree {
 }
 
 
+sub BKMG_from_int {
+	my ($value) = @_;
+	if($value < 1024){
+		return "$value B";
+	}
+	$value = int($value/1024);
+	if($value < 1024){ return "$value K"; }
+	$value = int($value/1024);
+	if($value < 1024){ return "$value M"; }
+	$value = int($value/1024);
+	return "$value G";
+}
 
-sub calculate_memory_BKMG {
+sub int_from_BKMG {
 	my ($value) = @_;
 	if($value =~ m/\s*(\d+)K\s*$/){
 		return $1 * 1024;
@@ -247,10 +259,10 @@ foreach $dir (@files){
 			# PID       Vss      Rss      Pss      Uss  cmdline
 			# 848   238332K    5752K    4083K    3940K  /usr/bin/rild
 			$pid = $1;
-			$vss = calculate_memory_BKMG($2);
-			$rss = calculate_memory_BKMG($3);
-			$pss = calculate_memory_BKMG($4);
-			$uss = calculate_memory_BKMG($5);
+			$vss = int_from_BKMG($2);
+			$rss = int_from_BKMG($3);
+			$pss = int_from_BKMG($4);
+			$uss = int_from_BKMG($5);
 			$cmdline = $6;
 			$MEMTASK{$date}{$min}{$pid}{vss} = $vss;
 			$MEMTASK{$date}{$min}{$pid}{rss} = $rss;
@@ -263,15 +275,15 @@ foreach $dir (@files){
 			print "$pid : $vss : $rss : $pss : $uss : $cmdline\n";
 		} elsif($s =~ m/^\s*(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+TOTAL\s*$/){
 			#                  57041K   51036K  TOTAL
-			$totalPss = calculate_memory_BKMG($1);
-			$totalUss = calculate_memory_BKMG($2);
+			$totalPss = int_from_BKMG($1);
+			$totalUss = int_from_BKMG($2);
 			$MEMTOTAL{$date}{$min}{pss} = $totalPss;
 			$MEMTOTAL{$date}{$min}{uss} = $totalUss;
 			print "TOTAL pss $totalPss : uss $totalUss\n";
 		} elsif($s =~ m/^\s*RAM:\s*(\d+[BMKG]?)\s+total,\s+(\d+[BMKG]?)\s+free/){
 			# RAM: 159948K total, 7512K free, 0K buffers, 69248K cached, 912K shmem, 23056K slab
-			$total = calculate_memory_BKMG($1);
-			$free = calculate_memory_BKMG($2);
+			$total = int_from_BKMG($1);
+			$free = int_from_BKMG($2);
 			$RAM{$date}{$min}{total} = $total;
 			$RAM{$date}{$min}{free} = $free;
 			print "RAM total $total : free $free\n";
@@ -317,25 +329,38 @@ foreach my $date (keys %{MEMTASK}){
 	if($minCountMax < $minCount){ $minCountMax = $minCount; }
 }
 # Find increase the memory size each process in a day
+our $MAXOVERCOUNT=int($minCountMax/2);
+#our $MAXOVERCOUNT=1;
 foreach my $date (keys %{memPID}){
 	foreach my $pid (keys %{$memPID{$date}}){
-		my $increase = 1;
+		my $increaseAlways = 1;
 		my $pssMax = 0;
 		my $initmin;
 		my $finalmin;
+		my $overcount=0;
 		foreach my $min (sort {$a <=> $b} keys %{$memPID{$date}{$pid}}){ # minutes
 			if($pssMax == 0){
 				$initmin = $min;
 				$pssMax = $MEMTASK{$date}{$min}{$pid}{pss};
 			}
-			elsif($pssMax <= $MEMTASK{$date}{$min}{$pid}{pss}){
-			} else {
-				$increase = 0;
+			else {
+				if($pssMax < $MEMTASK{$date}{$min}{$pid}{pss}){
+					$overcount ++;
+					$pssMax = $MEMTASK{$date}{$min}{$pid}{pss};
+				} elsif($pssMax == $MEMTASK{$date}{$min}{$pid}{pss}){
+				} else {
+					$increaseAlways = 0;
+				}
 			}
 			$finalmin = $min;
 		}
-		if( ($increase == 1) && ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss}) ){
-			print "$increase $date $initmin $finalmin $pid $MEMTASK{$date}{$finalmin}{$pid}{cmd} ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss})\n";
+		#if( ($increaseAlways == 1) && ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss}) ){
+		#print "$increaseAlways $date $initmin $finalmin $pid $MEMTASK{$date}{$finalmin}{$pid}{cmd} ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss})\n";
+		#$MEMTASK{$date}{$finalmin}{$pid}{pssleak} = 1;
+		#$memPID{$date}{$pid}{$finalmin}{cmd} = $MEMTASK{$date}{$finalmin}{$pid}{cmd};
+		#}
+		if( ($overcount >= $MAXOVERCOUNT)&& ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss}) ){
+			print "$increaseAlways $date $initmin $finalmin $pid $MEMTASK{$date}{$finalmin}{$pid}{cmd} ($MEMTASK{$date}{$initmin}{$pid}{pss} < $MEMTASK{$date}{$finalmin}{$pid}{pss})\n";
 			$MEMTASK{$date}{$finalmin}{$pid}{pssleak} = 1;
 			$memPID{$date}{$pid}{$finalmin}{cmd} = $MEMTASK{$date}{$finalmin}{$pid}{cmd};
 		}
@@ -367,12 +392,14 @@ foreach $date (sort keys %{MEMTASK}){
 			$MEMCHART{$tmpDateTime}{$cmd}{pss} = $pss;
 			$MEMCMDCHART{$cmd}{$tmpDateTime}{pss} = $pss;
 			$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pss} = $pss;
+			$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pssShort} = BKMG_from_int($pss);
 		}
 		#print "\n";
 	}
 	#print "\n";
 }
 print "mul $mul $minCountMax\n";
+print "MAXOVERCOUNT=$MAXOVERCOUNT\n";
 
 #### OUT
 open(OUT,">default.GVm");

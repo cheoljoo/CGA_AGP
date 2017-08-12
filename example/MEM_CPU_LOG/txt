@@ -1,7 +1,12 @@
-[Done : Find Leak]
+[Done : Find Leak] Method Change to find the leak
 OUTPUT/stc/chart.html  <- default.stc
 I wonder how to process the process with the same name. (ex. app_proc)
 -> Solve this problem with PIDCMD
+Method Change to find the leak
+-> use $MAXOVERRUN = ranges /2
+   At least max value is updated by one second of ranges.
+   ex) check memory size after 5 , 10  , 15 , 20 min  (4 times check)
+	   $MAXOVERRAN = 4/2 = 2
 
 
 traverse_hash_tree(\%{MEMTASK},MEMTASK,"",OUT);

@@ -108,8 +108,8 @@ ITERATE %MEMPIDCMDLIST +<<+ ITKEY  ITVALUE
 						ITERATE %MEMPIDCMDCHART{ITKEY} +<<+ IT2KEY  IT2VALUE
 						<!-- itkey ITKEY ,it2key IT2KEY ,pss +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ ,leak +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak}+>+ -->
 
-						IFEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , 'ITKEY : +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+' , ''], }
-						IFNOTEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , 'ITKEY : +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+' , 'stroke-color: #871B47;stroke-width:8'], }
+						IFEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , '+<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssShort}+>+ :ITKEY' , ''], }
+						IFNOTEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , '+<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssShort}+>+ :ITKEY' , 'stroke-color: #871B47;stroke-width:8'], }
 						+>>+
 			  ]);
 

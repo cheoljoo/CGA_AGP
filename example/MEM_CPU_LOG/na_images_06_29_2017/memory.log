@@ -103,7 +103,7 @@ Load average: 1.05 0.85 0.41 1/480 2571
 ====================================================================================================
 DATE :  00:30:32 up 10 min,  load average: 1.07, 0.96, 0.57
   PID       Vss      Rss      Pss      Uss  cmdline
-  848   238332K    5752K    4083K    3940K  /usr/bin/rild
+  848   238332K    5752K    5085K    3940K  /usr/bin/rild
     1     4948K    3516K    2853K    2820K  /sbin/init
   867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
   525    49276K    4496K    2134K    2016K  /usr/bin/AudioManagerService
@@ -308,7 +308,7 @@ Load average: 1.00 0.99 0.69 1/477 4705
 ====================================================================================================
 DATE :  00:40:33 up 20 min,  load average: 1.04, 1.03, 0.79
   PID       Vss      Rss      Pss      Uss  cmdline
-  848   238332K    5752K    4084K    3940K  /usr/bin/rild
+  848   238332K    5752K    5084K    3940K  /usr/bin/rild
     1     4948K    3516K    2853K    2820K  /sbin/init
   867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
   525    49276K    4496K    2135K    2016K  /usr/bin/AudioManagerService
@@ -410,7 +410,7 @@ Load average: 1.05 1.04 0.79 1/476 5781
 ====================================================================================================
 DATE :  00:45:34 up 25 min,  load average: 1.00, 1.01, 0.85
   PID       Vss      Rss      Pss      Uss  cmdline
-  848   238332K    5752K    4084K    3940K  /usr/bin/rild
+  848   238332K    5752K    6084K    3940K  /usr/bin/rild
     1     4948K    3516K    2853K    2820K  /sbin/init
   867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
   525    49276K    4496K    2135K    2016K  /usr/bin/AudioManagerService
