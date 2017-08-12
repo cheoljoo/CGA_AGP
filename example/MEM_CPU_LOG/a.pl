@@ -258,6 +258,8 @@ foreach $dir (@files){
 			$MEMTASK{$date}{$min}{$pid}{uss} = $uss;
 			$MEMTASK{$date}{$min}{$pid}{cmd} = $cmdline;
 			$MEMCMDLIST{$cmdline} = $memcmdlistcnt++;
+			my $pidcmd = $pid . "_" . $cmdline;
+			$MEMPIDCMDLIST{$pidcmd} = $memcmdlistcnt++;
 			print "$pid : $vss : $rss : $pss : $uss : $cmdline\n";
 		} elsif($s =~ m/^\s*(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+TOTAL\s*$/){
 			#                  57041K   51036K  TOTAL
@@ -354,17 +356,21 @@ foreach $date (sort keys %{MEMTASK}){
 			# {date}{index_of_min}{process}
 			my $cmd = $MEMTASK{$date}{$min}{$pid}{cmd};
 			my $pss = $MEMTASK{$date}{$min}{$pid}{pss};
+			my $pidcmd = $pid . "_" . $cmd;
 			$tmpDate =~ s/_/,/g;
 			$tmpDateTime = $tmpDate . ", " . $indexHour;
 			if( $MEMTASK{$date}{$min}{$pid}{pssleak} == 1){
 				$MEMCHART{$tmpDateTime}{$cmd}{pssleak} = "MemLeak:$cmd";
+				$MEMCMDCHART{$cmd}{$tmpDateTime}{pssleak} = "MemLeak:$cmd";
+				$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pssleak} = "MemLeak:$pss:$cmd";
 			}
 			$MEMCHART{$tmpDateTime}{$cmd}{pss} = $pss;
 			$MEMCMDCHART{$cmd}{$tmpDateTime}{pss} = $pss;
+			$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pss} = $pss;
 		}
-		print "\n";
+		#print "\n";
 	}
-	print "\n";
+	#print "\n";
 }
 print "mul $mul $minCountMax\n";
 
@@ -376,9 +382,11 @@ traverse_hash_tree(\%{RAM},RAM,"",OUT);
 traverse_hash_tree(\%{CPUTASK},CPUTASK,"",OUT);
 traverse_hash_tree(\%{CPUTOTAL},CPUTOTAL,"",OUT);
 traverse_hash_tree(\%{MEMCMDLIST},MEMCMDLIST,"",OUT);
+traverse_hash_tree(\%{MEMPIDCMDLIST},MEMPIDCMDLIST,"",OUT);
 traverse_hash_tree(\%{CPUCMDLIST},CPUCMDLIST,"",OUT);
 traverse_hash_tree(\%{memPID},memPID,"",OUT);
 traverse_hash_tree(\%{MEMCHART},MEMCHART,"",OUT);
 traverse_hash_tree(\%{MEMCMDCHART},MEMCMDCHART,"",OUT);
+traverse_hash_tree(\%{MEMPIDCMDCHART},MEMPIDCMDCHART,"",OUT);
 close(OUT);
 

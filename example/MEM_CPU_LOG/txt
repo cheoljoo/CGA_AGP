@@ -1,6 +1,7 @@
-[Done : graph]
+[Done : Find Leak]
 OUTPUT/stc/chart.html  <- default.stc
 I wonder how to process the process with the same name. (ex. app_proc)
+-> Solve this problem with PIDCMD
 
 
 traverse_hash_tree(\%{MEMTASK},MEMTASK,"",OUT);
