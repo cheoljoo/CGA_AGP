@@ -1,0 +1,36 @@
+[Done : Find Leak] Method Change to find the leak
+OUTPUT/stc/chart.html  <- default.stc
+I wonder how to process the process with the same name. (ex. app_proc)
+-> Solve this problem with PIDCMD
+Method Change to find the leak
+-> use $MAXOVERRUN = ranges /2
+   At least max value is updated by one second of ranges.
+   ex) check memory size after 5 , 10  , 15 , 20 min  (4 times check)
+	   $MAXOVERRAN = 4/2 = 2
+
+
+traverse_hash_tree(\%{MEMTASK},MEMTASK,"",OUT);
+$MEMTASK{2017_06_27}{15}{716}{cmdline}="/usr/bin/app_proc"
+$MEMTASK{2017_06_27}{5}{1}{pss}="2921472"
+traverse_hash_tree(\%{MEMTOTAL},MEMTOTAL,"",OUT);
+traverse_hash_tree(\%{RAM},RAM,"",OUT);
+$RAM{2017_06_27}{5}{free}="7962624"
+$RAM{2017_06_27}{5}{total}="163786752"
+traverse_hash_tree(\%{CPUTASK},CPUTASK,"",OUT);
+$CPUTASK{2017_06_27}{5}{217}{command}="psmd"
+$CPUTASK{2017_06_27}{5}{217}{pcpu}="0.0"
+traverse_hash_tree(\%{CPUTOTAL},CPUTOTAL,"",OUT);
+$CPUTOTAL{2017_06_27}{5}{idle}="81.8"
+$CPUTOTAL{2017_06_27}{5}{sys}="18.1"
+$CPUTOTAL{2017_06_27}{5}{usr}="0.0"
+traverse_hash_tree(\%{MEMCMDLIST},MEMCMDLIST,"",OUT);
+$MEMCMDLIST{/sbin/adbd}="333"
+traverse_hash_tree(\%{CPUCMDLIST},CPUCMDLIST,"",OUT);
+$CPUCMDLIST{/usr/bin/LocationManagerService}="93"
+
+
+
+Example : MEM_CPU_LOG
+- Draw the chart to check the memory and cpu usage
+- It will check every day what is the problem.
+

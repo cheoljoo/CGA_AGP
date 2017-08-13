@@ -1,0 +1,512 @@
+DATE :  00:25:32 up 5 min,  load average: 1.04, 0.84, 0.40
+  PID       Vss      Rss      Pss      Uss  cmdline
+  848   238332K    5752K    4083K    3940K  /usr/bin/rild
+    1     4948K    3516K    2853K    2820K  /sbin/init
+  867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
+  525    49276K    4496K    2134K    2016K  /usr/bin/AudioManagerService
+  520   137036K    4436K    1889K    1748K  /usr/bin/TelephonyManagerService
+  711    40608K    4356K    1782K    1692K  /usr/bin/app_proc
+  435     8152K    3540K    1743K     700K  /usr/sbin/tcpdump
+  517    70256K    4280K    1721K    1468K  /usr/bin/ConfigurationManagerService
+  503    66324K    4212K    1654K    1428K  /usr/bin/app_proc
+  666    69416K    3800K    1438K    1204K  /usr/bin/CollectInfoManagerService
+  521    59124K    4128K    1281K    1028K  /usr/bin/LocationManagerService
+  634    44912K    3488K    1245K    1180K  /usr/bin/HTTPManagerService
+  518    48680K    3668K    1109K     960K  /usr/bin/DiagManagerService
+  522    53884K    3628K    1039K     916K  /usr/bin/PowerManagerService
+  820   197280K    1944K    1025K     976K  /usr/bin/thermal-engine
+  519   134820K    3164K    1013K     952K  /usr/bin/vifManagerService
+  706    46776K    3652K     960K     860K  /usr/bin/app_proc
+  710    38660K    3700K     947K     840K  /usr/bin/app_proc
+  708    55768K    3484K     939K     852K  /usr/bin/app_proc
+  700    38824K    3624K     925K     820K  /usr/bin/app_proc
+  699    37436K    3488K     898K     808K  /usr/bin/app_proc
+  715    37440K    3456K     885K     796K  /usr/bin/app_proc
+  716    37340K    3436K     874K     784K  /usr/bin/app_proc
+  528    61744K    3396K     873K     784K  /usr/bin/SystemManagerService
+  705    38468K    3552K     867K     768K  /usr/bin/app_proc
+  703    86276K    3284K     862K     788K  /usr/bin/app_proc
+  714    45064K    3272K     862K     772K  /usr/bin/app_proc
+  488    53028K    3128K     849K     768K  /usr/bin/ApplicationManagerService
+  670    53448K    3220K     792K     700K  /usr/bin/HMIManagerService
+  665    53652K    3176K     789K     692K  /usr/bin/EMLManagerService
+  717    45344K    3236K     771K     696K  /usr/bin/app_proc
+  632    45196K    3160K     756K     668K  /usr/bin/NWCommunicatorService
+  526   117884K    2772K     727K     672K  /usr/bin/CommunicationManagerService
+  667    53196K    2936K     711K     628K  /usr/bin/SMSManagerService
+  709    36600K    2992K     704K     632K  /usr/bin/app_proc
+  217    63564K    1564K     702K     652K  psmd
+  355    40896K    1860K     699K     648K  ipacm_perf
+  414    46868K    1448K     697K     660K  /usr/bin/qti
+  527    44684K    2992K     694K     616K  /usr/bin/OperationModeManagerService
+  633    53140K    2924K     676K     612K  /usr/bin/TetherManagerService
+  669    52768K    2760K     649K     592K  /usr/bin/MiscManagerService
+  701    44552K    2804K     642K     584K  /usr/bin/app_proc
+  220     2588K    1296K     636K     604K  /lib/systemd/systemd-udevd
+  635    52612K    2644K     628K     580K  /usr/bin/FirewallManagerService
+  529    44348K    2756K     626K     560K  /usr/bin/AlarmManagerService
+  661    44452K    2696K     614K     548K  /usr/bin/ArbiterManagerService
+  490     2524K    1264K     591K     552K  /usr/bin/dbus-daemon
+  480     2400K    1184K     576K     556K  /lib/systemd/systemd-logind
+  845    12996K    1344K     531K     488K  /usr/bin/qmuxd
+  487    18396K    2404K     499K     452K  /sbin/start
+  219     2120K    1044K     432K     412K  /lib/systemd/systemd-journald
+  334    47248K     972K     287K     264K  /sbin/adbd
+  409    12336K     744K     238K     224K  ipacmdiag
+  975    12328K     728K     238K     220K  /usr/bin/diagrebootapp
+  614     2072K     448K     223K     216K  /usr/bin/dnsmasq
+  463     3140K     696K     179K     144K  /sbin/syslogd
+  479     3188K     844K     169K     156K  /usr/bin/tigrisd
+ 1986     3080K     648K     160K      88K  /system/bin/sh
+ 2569     1964K     592K     144K     132K  procrank
+  431     3092K     920K     131K     108K  /usr/bin/logcat
+  451     3092K     916K     131K     108K  /usr/bin/logcat
+  440     3092K     912K     131K     108K  /usr/bin/logcat
+  540     1860K     696K     129K      92K  /sbin/agetty
+ 2568     3076K     528K     118K      56K  sh
+  538     1860K     680K     117K      80K  /sbin/agetty
+  443     3092K     780K     114K      96K  /usr/bin/logcat
+  478     2068K     496K      95K      88K  /sbin/servicemanager
+  470     1796K     512K      92K      84K  /usr/bin/propertyd
+  482     1776K     476K      82K      76K  /usr/bin/memory_logger
+  450     1660K     428K      70K      64K  /usr/bin/logger_kernel
+  970     1524K     196K      42K      40K  /sbin/reboot-daemon
+                           ------   ------  ------
+                           57041K   51036K  TOTAL
+
+ RAM: 159948K total, 7776K free, 0K buffers, 69196K cached, 912K shmem, 22848K slab
+[H[JMem: 152372K used, 7576K free, 912K shrd, 0K buff, 69208K cached
+CPU:  0.0% usr 18.1% sys  0.0% nic 81.8% idle  0.0% io  0.0% irq  0.0% sirq
+Load average: 1.05 0.85 0.41 1/480 2571
+[7m  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND[0m
+ 2571  2570 root     R     3080  1.9   0 18.1 top -n1
+  848     1 root     S     232m148.3   0  0.0 /usr/bin/rild -l /usr/lib/libril-q
+  867     1 root     S     200m127.8   0  0.0 /usr/bin/netmgrd
+  820     1 root     S <   192m122.8   0  0.0 /usr/bin/thermal-engine
+  520     1 root     S     133m 85.3   0  0.0 /usr/bin/TelephonyManagerService
+  519     1 root     S     131m 83.9   0  0.0 /usr/bin/vifManagerService
+  526     1 root     S     115m 73.3   0  0.0 /usr/bin/CommunicationManagerServi
+  703   487 user     S    86280 53.7   0  0.0 {atcommand} /usr/bin/app_proc -i a
+  517     1 root     S    70260 43.7   0  0.0 /usr/bin/ConfigurationManagerServi
+  666     1 root     S    69420 43.2   0  0.0 /usr/bin/CollectInfoManagerService
+  503   487 user     S    66328 41.2   0  0.0 {locd} /usr/bin/app_proc -d 10001
+  217     1 root     S    63568 39.5   0  0.0 psmd
+  528     1 root     S    61748 38.4   0  0.0 /usr/bin/SystemManagerService
+  521     1 root     S    59128 36.8   0  0.0 /usr/bin/LocationManagerService
+  708   487 user     S    55772 34.7   0  0.0 {factorycmd} /usr/bin/app_proc -i 
+  522     1 root     S    53888 33.5   0  0.0 /usr/bin/PowerManagerService
+  665     1 root     S    53656 33.4   0  0.0 /usr/bin/EMLManagerService
+  670     1 root     S    53452 33.2   0  0.0 /usr/bin/HMIManagerService
+  667     1 root     S    53200 33.1   0  0.0 /usr/bin/SMSManagerService
+  633     1 root     S    53144 33.0   0  0.0 /usr/bin/TetherManagerService
+
+====================================================================================================
+DATE :  00:30:32 up 10 min,  load average: 1.07, 0.96, 0.57
+  PID       Vss      Rss      Pss      Uss  cmdline
+  848   238332K    5752K    4083K    3940K  /usr/bin/rild
+    1     4948K    3516K    2853K    2820K  /sbin/init
+  867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
+  525    49276K    4496K    2134K    2016K  /usr/bin/AudioManagerService
+  520   137036K    4436K    1889K    1748K  /usr/bin/TelephonyManagerService
+  711    40608K    4356K    1782K    1692K  /usr/bin/app_proc
+  435     8152K    3540K    1743K     700K  /usr/sbin/tcpdump
+  517    70256K    4280K    1721K    1468K  /usr/bin/ConfigurationManagerService
+  503    66324K    4212K    1654K    1428K  /usr/bin/app_proc
+  666    69416K    3800K    1438K    1204K  /usr/bin/CollectInfoManagerService
+  521    59124K    4128K    1281K    1028K  /usr/bin/LocationManagerService
+  634    44912K    3488K    1245K    1180K  /usr/bin/HTTPManagerService
+  518    48680K    3668K    1109K     960K  /usr/bin/DiagManagerService
+  522    53884K    3628K    1039K     916K  /usr/bin/PowerManagerService
+  820   197280K    1944K    1025K     976K  /usr/bin/thermal-engine
+  519   134820K    3164K    1013K     952K  /usr/bin/vifManagerService
+  706    46776K    3652K     960K     860K  /usr/bin/app_proc
+  710    38660K    3700K     947K     840K  /usr/bin/app_proc
+  708    55768K    3484K     939K     852K  /usr/bin/app_proc
+  700    38824K    3624K     925K     820K  /usr/bin/app_proc
+  699    37436K    3488K     898K     808K  /usr/bin/app_proc
+  715    37440K    3456K     885K     796K  /usr/bin/app_proc
+  716    37340K    3436K     874K     784K  /usr/bin/app_proc
+  528    61744K    3396K     873K     784K  /usr/bin/SystemManagerService
+  705    38468K    3552K     867K     768K  /usr/bin/app_proc
+  703    86276K    3284K     862K     788K  /usr/bin/app_proc
+  714    45064K    3272K     862K     772K  /usr/bin/app_proc
+  488    53028K    3128K     849K     768K  /usr/bin/ApplicationManagerService
+  670    53448K    3220K     792K     700K  /usr/bin/HMIManagerService
+  665    53652K    3176K     789K     692K  /usr/bin/EMLManagerService
+  717    45344K    3236K     771K     696K  /usr/bin/app_proc
+  632    45196K    3160K     756K     668K  /usr/bin/NWCommunicatorService
+  526   117884K    2772K     727K     672K  /usr/bin/CommunicationManagerService
+  667    53196K    2936K     711K     628K  /usr/bin/SMSManagerService
+  709    36600K    2992K     704K     632K  /usr/bin/app_proc
+  217    63564K    1564K     702K     652K  psmd
+  355    40896K    1860K     699K     648K  ipacm_perf
+  414    46868K    1448K     697K     660K  /usr/bin/qti
+  527    44684K    2992K     694K     616K  /usr/bin/OperationModeManagerService
+  633    53140K    2924K     676K     612K  /usr/bin/TetherManagerService
+  669    52768K    2760K     649K     592K  /usr/bin/MiscManagerService
+  701    44552K    2804K     642K     584K  /usr/bin/app_proc
+  220     2588K    1296K     636K     604K  /lib/systemd/systemd-udevd
+  635    52612K    2644K     628K     580K  /usr/bin/FirewallManagerService
+  529    44348K    2756K     626K     560K  /usr/bin/AlarmManagerService
+  661    44452K    2696K     614K     548K  /usr/bin/ArbiterManagerService
+  490     2524K    1264K     591K     552K  /usr/bin/dbus-daemon
+  480     2400K    1184K     576K     556K  /lib/systemd/systemd-logind
+  845    12996K    1344K     531K     488K  /usr/bin/qmuxd
+  487    18396K    2404K     499K     452K  /sbin/start
+  219     2120K    1044K     432K     412K  /lib/systemd/systemd-journald
+  334    47248K     972K     287K     264K  /sbin/adbd
+  409    12336K     744K     238K     224K  ipacmdiag
+  975    12328K     728K     238K     220K  /usr/bin/diagrebootapp
+  614     2072K     448K     223K     216K  /usr/bin/dnsmasq
+  463     3140K     696K     179K     144K  /sbin/syslogd
+  479     3188K     844K     169K     156K  /usr/bin/tigrisd
+ 1986     3080K     648K     160K      88K  /system/bin/sh
+ 3641     1964K     592K     144K     132K  procrank
+  431     3092K     920K     131K     108K  /usr/bin/logcat
+  451     3092K     916K     131K     108K  /usr/bin/logcat
+  440     3092K     912K     131K     108K  /usr/bin/logcat
+  540     1860K     696K     129K      92K  /sbin/agetty
+ 3640     3076K     528K     118K      56K  sh
+  538     1860K     680K     117K      80K  /sbin/agetty
+  443     3092K     780K     114K      96K  /usr/bin/logcat
+  478     2068K     496K      95K      88K  /sbin/servicemanager
+  470     1796K     512K      92K      84K  /usr/bin/propertyd
+  482     1776K     480K      83K      76K  /usr/bin/memory_logger
+  450     1660K     428K      70K      64K  /usr/bin/logger_kernel
+  970     1524K     196K      42K      40K  /sbin/reboot-daemon
+                           ------   ------  ------
+                           57041K   51036K  TOTAL
+
+ RAM: 159948K total, 7512K free, 0K buffers, 69248K cached, 912K shmem, 23056K slab
+[H[JMem: 152448K used, 7500K free, 912K shrd, 0K buff, 69252K cached
+CPU:  0.0% usr 18.1% sys  0.0% nic 81.8% idle  0.0% io  0.0% irq  0.0% sirq
+Load average: 1.08 0.96 0.58 1/479 3644
+[7m  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND[0m
+ 3643  3642 root     R     3080  1.9   0 12.1 top -n1
+  528     1 root     S    61748 38.4   0  6.0 /usr/bin/SystemManagerService
+  848     1 root     S     232m148.3   0  0.0 /usr/bin/rild -l /usr/lib/libril-q
+  867     1 root     S     200m127.8   0  0.0 /usr/bin/netmgrd
+  820     1 root     S <   192m122.8   0  0.0 /usr/bin/thermal-engine
+  520     1 root     S     133m 85.3   0  0.0 /usr/bin/TelephonyManagerService
+  519     1 root     S     131m 83.9   0  0.0 /usr/bin/vifManagerService
+  526     1 root     S     115m 73.3   0  0.0 /usr/bin/CommunicationManagerServi
+  703   487 user     S    86280 53.7   0  0.0 {atcommand} /usr/bin/app_proc -i a
+  517     1 root     S    70260 43.7   0  0.0 /usr/bin/ConfigurationManagerServi
+  666     1 root     S    69420 43.2   0  0.0 /usr/bin/CollectInfoManagerService
+  503   487 user     S    66328 41.2   0  0.0 {locd} /usr/bin/app_proc -d 10001
+  217     1 root     S    63568 39.5   0  0.0 psmd
+  521     1 root     S    59128 36.8   0  0.0 /usr/bin/LocationManagerService
+  708   487 user     S    55772 34.7   0  0.0 {factorycmd} /usr/bin/app_proc -i 
+  522     1 root     S    53888 33.5   0  0.0 /usr/bin/PowerManagerService
+  665     1 root     S    53656 33.4   0  0.0 /usr/bin/EMLManagerService
+  670     1 root     S    53452 33.2   0  0.0 /usr/bin/HMIManagerService
+  667     1 root     S    53200 33.1   0  0.0 /usr/bin/SMSManagerService
+  633     1 root     S    53144 33.0   0  0.0 /usr/bin/TetherManagerService
+
+====================================================================================================
+DATE :  00:35:33 up 15 min,  load average: 1.00, 0.98, 0.69
+  PID       Vss      Rss      Pss      Uss  cmdline
+  848   238332K    5752K    4084K    3940K  /usr/bin/rild
+    1     4948K    3516K    2853K    2820K  /sbin/init
+  867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
+  525    49276K    4496K    2135K    2016K  /usr/bin/AudioManagerService
+  520   137036K    4436K    1889K    1748K  /usr/bin/TelephonyManagerService
+  711    40608K    4356K    1782K    1692K  /usr/bin/app_proc
+  435     8152K    3540K    1743K     700K  /usr/sbin/tcpdump
+  517    70256K    4280K    1721K    1468K  /usr/bin/ConfigurationManagerService
+  503    66324K    4212K    1654K    1428K  /usr/bin/app_proc
+  666    69416K    3800K    1438K    1204K  /usr/bin/CollectInfoManagerService
+  521    59124K    4128K    1281K    1028K  /usr/bin/LocationManagerService
+  634    44912K    3488K    1245K    1180K  /usr/bin/HTTPManagerService
+  518    48680K    3668K    1109K     960K  /usr/bin/DiagManagerService
+  522    53884K    3628K    1039K     916K  /usr/bin/PowerManagerService
+  820   197280K    1944K    1025K     976K  /usr/bin/thermal-engine
+  519   134820K    3164K    1013K     952K  /usr/bin/vifManagerService
+  706    46776K    3652K     960K     860K  /usr/bin/app_proc
+  710    38660K    3700K     947K     840K  /usr/bin/app_proc
+  708    55768K    3484K     939K     852K  /usr/bin/app_proc
+  700    38824K    3624K     925K     820K  /usr/bin/app_proc
+  699    37436K    3488K     898K     808K  /usr/bin/app_proc
+  715    37440K    3456K     886K     796K  /usr/bin/app_proc
+  716    37340K    3436K     874K     784K  /usr/bin/app_proc
+  528    61744K    3396K     873K     784K  /usr/bin/SystemManagerService
+  705    38468K    3552K     867K     768K  /usr/bin/app_proc
+  703    86276K    3284K     862K     788K  /usr/bin/app_proc
+  714    45064K    3272K     862K     772K  /usr/bin/app_proc
+  488    53028K    3128K     849K     768K  /usr/bin/ApplicationManagerService
+  670    53448K    3220K     793K     700K  /usr/bin/HMIManagerService
+  665    53652K    3176K     790K     692K  /usr/bin/EMLManagerService
+  717    45344K    3236K     771K     696K  /usr/bin/app_proc
+  632    45196K    3160K     756K     668K  /usr/bin/NWCommunicatorService
+  526   117884K    2772K     727K     672K  /usr/bin/CommunicationManagerService
+  667    53196K    2936K     711K     628K  /usr/bin/SMSManagerService
+  709    36600K    2992K     704K     632K  /usr/bin/app_proc
+  217    63564K    1564K     702K     652K  psmd
+  355    40896K    1860K     699K     648K  ipacm_perf
+  414    46868K    1448K     697K     660K  /usr/bin/qti
+  527    44684K    2992K     694K     616K  /usr/bin/OperationModeManagerService
+  633    53140K    2924K     676K     612K  /usr/bin/TetherManagerService
+  669    52768K    2760K     649K     592K  /usr/bin/MiscManagerService
+  701    44552K    2804K     642K     584K  /usr/bin/app_proc
+  220     2588K    1296K     636K     604K  /lib/systemd/systemd-udevd
+  635    52612K    2644K     628K     580K  /usr/bin/FirewallManagerService
+  529    44348K    2756K     626K     560K  /usr/bin/AlarmManagerService
+  661    44452K    2696K     614K     548K  /usr/bin/ArbiterManagerService
+  490     2524K    1264K     591K     552K  /usr/bin/dbus-daemon
+  480     2400K    1184K     576K     556K  /lib/systemd/systemd-logind
+  845    12996K    1344K     531K     488K  /usr/bin/qmuxd
+  487    18396K    2404K     499K     452K  /sbin/start
+  219     2120K    1044K     432K     412K  /lib/systemd/systemd-journald
+  334    47248K    1080K     369K     344K  /sbin/adbd
+  409    12336K     744K     238K     224K  ipacmdiag
+  975    12328K     728K     238K     220K  /usr/bin/diagrebootapp
+  614     2072K     448K     223K     216K  /usr/bin/dnsmasq
+  463     3140K     696K     196K     160K  /sbin/syslogd
+  479     3188K     844K     169K     156K  /usr/bin/tigrisd
+ 4702     3076K     528K     167K     136K  sh
+ 4703     1964K     592K     144K     132K  procrank
+  431     3092K     920K     131K     108K  /usr/bin/logcat
+  451     3092K     916K     131K     108K  /usr/bin/logcat
+  440     3092K     912K     131K     108K  /usr/bin/logcat
+  540     1860K     696K     130K      92K  /sbin/agetty
+  538     1860K     680K     117K      80K  /sbin/agetty
+  443     3092K     780K     114K      96K  /usr/bin/logcat
+  478     2068K     496K      95K      88K  /sbin/servicemanager
+  470     1796K     512K      92K      84K  /usr/bin/propertyd
+  482     1776K     480K      83K      76K  /usr/bin/memory_logger
+  450     1660K     428K      70K      64K  /usr/bin/logger_kernel
+  970     1524K     196K      42K      40K  /sbin/reboot-daemon
+                           ------   ------  ------
+                           57034K   51124K  TOTAL
+
+ RAM: 159948K total, 7516K free, 0K buffers, 69312K cached, 912K shmem, 23056K slab
+[H[JMem: 152472K used, 7476K free, 912K shrd, 0K buff, 69316K cached
+CPU:  7.6% usr 15.3% sys  0.0% nic 76.9% idle  0.0% io  0.0% irq  0.0% sirq
+Load average: 1.00 0.99 0.69 1/477 4705
+[7m  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND[0m
+ 4705  4704 root     R     3080  1.9   0 15.3 top -n1
+  848     1 root     S     232m148.3   0  0.0 /usr/bin/rild -l /usr/lib/libril-q
+  867     1 root     S     200m127.8   0  0.0 /usr/bin/netmgrd
+  820     1 root     S <   192m122.8   0  0.0 /usr/bin/thermal-engine
+  520     1 root     S     133m 85.3   0  0.0 /usr/bin/TelephonyManagerService
+  519     1 root     S     131m 83.9   0  0.0 /usr/bin/vifManagerService
+  526     1 root     S     115m 73.3   0  0.0 /usr/bin/CommunicationManagerServi
+  703   487 user     S    86280 53.7   0  0.0 {atcommand} /usr/bin/app_proc -i a
+  517     1 root     S    70260 43.7   0  0.0 /usr/bin/ConfigurationManagerServi
+  666     1 root     S    69420 43.2   0  0.0 /usr/bin/CollectInfoManagerService
+  503   487 user     S    66328 41.2   0  0.0 {locd} /usr/bin/app_proc -d 10001
+  217     1 root     S    63568 39.5   0  0.0 psmd
+  528     1 root     S    61748 38.4   0  0.0 /usr/bin/SystemManagerService
+  521     1 root     S    59128 36.8   0  0.0 /usr/bin/LocationManagerService
+  708   487 user     S    55772 34.7   0  0.0 {factorycmd} /usr/bin/app_proc -i 
+  522     1 root     S    53888 33.5   0  0.0 /usr/bin/PowerManagerService
+  665     1 root     S    53656 33.4   0  0.0 /usr/bin/EMLManagerService
+  670     1 root     S    53452 33.2   0  0.0 /usr/bin/HMIManagerService
+  667     1 root     S    53200 33.1   0  0.0 /usr/bin/SMSManagerService
+  633     1 root     S    53144 33.0   0  0.0 /usr/bin/TetherManagerService
+
+====================================================================================================
+DATE :  00:40:33 up 20 min,  load average: 1.04, 1.03, 0.79
+  PID       Vss      Rss      Pss      Uss  cmdline
+  848   238332K    5752K    4084K    3940K  /usr/bin/rild
+    1     4948K    3516K    2853K    2820K  /sbin/init
+  867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
+  525    49276K    4496K    2135K    2016K  /usr/bin/AudioManagerService
+  520   137036K    4436K    1889K    1748K  /usr/bin/TelephonyManagerService
+  711    40608K    4356K    1782K    1692K  /usr/bin/app_proc
+  435     8152K    3540K    1743K     700K  /usr/sbin/tcpdump
+  517    70256K    4280K    1721K    1468K  /usr/bin/ConfigurationManagerService
+  503    66324K    4212K    1654K    1428K  /usr/bin/app_proc
+  666    69416K    3800K    1438K    1204K  /usr/bin/CollectInfoManagerService
+  521    59124K    4128K    1281K    1028K  /usr/bin/LocationManagerService
+  634    44912K    3488K    1245K    1180K  /usr/bin/HTTPManagerService
+  518    48680K    3668K    1109K     960K  /usr/bin/DiagManagerService
+  522    53884K    3628K    1039K     916K  /usr/bin/PowerManagerService
+  820   197280K    1944K    1025K     976K  /usr/bin/thermal-engine
+  519   134820K    3164K    1013K     952K  /usr/bin/vifManagerService
+  706    46776K    3652K     960K     860K  /usr/bin/app_proc
+  710    38660K    3700K     947K     840K  /usr/bin/app_proc
+  708    55768K    3484K     939K     852K  /usr/bin/app_proc
+  700    38824K    3624K     925K     820K  /usr/bin/app_proc
+  699    37436K    3488K     898K     808K  /usr/bin/app_proc
+  715    37440K    3456K     886K     796K  /usr/bin/app_proc
+  716    37340K    3436K     874K     784K  /usr/bin/app_proc
+  528    61744K    3396K     873K     784K  /usr/bin/SystemManagerService
+  705    38468K    3552K     867K     768K  /usr/bin/app_proc
+  703    86276K    3284K     862K     788K  /usr/bin/app_proc
+  714    45064K    3272K     862K     772K  /usr/bin/app_proc
+  488    53028K    3128K     849K     768K  /usr/bin/ApplicationManagerService
+  670    53448K    3220K     793K     700K  /usr/bin/HMIManagerService
+  665    53652K    3176K     790K     692K  /usr/bin/EMLManagerService
+  717    45344K    3236K     771K     696K  /usr/bin/app_proc
+  632    45196K    3160K     756K     668K  /usr/bin/NWCommunicatorService
+  526   117884K    2772K     727K     672K  /usr/bin/CommunicationManagerService
+  667    53196K    2936K     711K     628K  /usr/bin/SMSManagerService
+  709    36600K    2992K     704K     632K  /usr/bin/app_proc
+  217    63564K    1564K     702K     652K  psmd
+  355    40896K    1860K     699K     648K  ipacm_perf
+  414    46868K    1448K     697K     660K  /usr/bin/qti
+  527    44684K    2992K     694K     616K  /usr/bin/OperationModeManagerService
+  633    53140K    2924K     676K     612K  /usr/bin/TetherManagerService
+  669    52768K    2760K     649K     592K  /usr/bin/MiscManagerService
+  701    44552K    2804K     642K     584K  /usr/bin/app_proc
+  220     2588K    1296K     636K     604K  /lib/systemd/systemd-udevd
+  635    52612K    2644K     628K     580K  /usr/bin/FirewallManagerService
+  529    44348K    2756K     626K     560K  /usr/bin/AlarmManagerService
+  661    44452K    2696K     614K     548K  /usr/bin/ArbiterManagerService
+  490     2524K    1264K     591K     552K  /usr/bin/dbus-daemon
+  480     2400K    1184K     576K     556K  /lib/systemd/systemd-logind
+  845    12996K    1344K     531K     488K  /usr/bin/qmuxd
+  487    18396K    2404K     499K     452K  /sbin/start
+  219     2120K    1044K     432K     412K  /lib/systemd/systemd-journald
+  334    47248K    1080K     369K     344K  /sbin/adbd
+  409    12336K     744K     238K     224K  ipacmdiag
+  975    12328K     728K     238K     220K  /usr/bin/diagrebootapp
+  614     2072K     448K     223K     216K  /usr/bin/dnsmasq
+  463     3140K     696K     196K     160K  /sbin/syslogd
+  479     3188K     844K     169K     156K  /usr/bin/tigrisd
+ 5776     3076K     528K     167K     136K  sh
+ 5777     1964K     592K     144K     132K  procrank
+  431     3092K     920K     131K     108K  /usr/bin/logcat
+  451     3092K     916K     131K     108K  /usr/bin/logcat
+  440     3092K     912K     131K     108K  /usr/bin/logcat
+  540     1860K     696K     130K      92K  /sbin/agetty
+  538     1860K     680K     117K      80K  /sbin/agetty
+  443     3092K     780K     114K      96K  /usr/bin/logcat
+  478     2068K     496K      95K      88K  /sbin/servicemanager
+  470     1796K     512K      92K      84K  /usr/bin/propertyd
+  482     1776K     480K      83K      76K  /usr/bin/memory_logger
+  450     1660K     428K      70K      64K  /usr/bin/logger_kernel
+  970     1524K     196K      42K      40K  /sbin/reboot-daemon
+                           ------   ------  ------
+                           57034K   51124K  TOTAL
+
+ RAM: 159948K total, 7496K free, 0K buffers, 69360K cached, 912K shmem, 23060K slab
+[H[JMem: 152492K used, 7456K free, 912K shrd, 0K buff, 69372K cached
+CPU:  0.0% usr 16.6% sys  0.0% nic 83.3% idle  0.0% io  0.0% irq  0.0% sirq
+Load average: 1.05 1.04 0.79 1/476 5781
+[7m  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND[0m
+ 5781  5780 root     R     3080  1.9   0 16.6 top -n1
+  848     1 root     S     232m148.3   0  0.0 /usr/bin/rild -l /usr/lib/libril-q
+  867     1 root     S     200m127.8   0  0.0 /usr/bin/netmgrd
+  820     1 root     S <   192m122.8   0  0.0 /usr/bin/thermal-engine
+  520     1 root     S     133m 85.3   0  0.0 /usr/bin/TelephonyManagerService
+  519     1 root     S     131m 83.9   0  0.0 /usr/bin/vifManagerService
+  526     1 root     S     115m 73.3   0  0.0 /usr/bin/CommunicationManagerServi
+  703   487 user     S    86280 53.7   0  0.0 {atcommand} /usr/bin/app_proc -i a
+  517     1 root     S    70260 43.7   0  0.0 /usr/bin/ConfigurationManagerServi
+  666     1 root     S    69420 43.2   0  0.0 /usr/bin/CollectInfoManagerService
+  503   487 user     S    66328 41.2   0  0.0 {locd} /usr/bin/app_proc -d 10001
+  217     1 root     S    63568 39.5   0  0.0 psmd
+  528     1 root     S    61748 38.4   0  0.0 /usr/bin/SystemManagerService
+  521     1 root     S    59128 36.8   0  0.0 /usr/bin/LocationManagerService
+  708   487 user     S    55772 34.7   0  0.0 {factorycmd} /usr/bin/app_proc -i 
+  522     1 root     S    53888 33.5   0  0.0 /usr/bin/PowerManagerService
+  665     1 root     S    53656 33.4   0  0.0 /usr/bin/EMLManagerService
+  670     1 root     S    53452 33.2   0  0.0 /usr/bin/HMIManagerService
+  667     1 root     S    53200 33.1   0  0.0 /usr/bin/SMSManagerService
+  633     1 root     S    53144 33.0   0  0.0 /usr/bin/TetherManagerService
+
+====================================================================================================
+DATE :  00:45:34 up 25 min,  load average: 1.00, 1.01, 0.85
+  PID       Vss      Rss      Pss      Uss  cmdline
+  848   238332K    5752K    4084K    3940K  /usr/bin/rild
+    1     4948K    3516K    2853K    2820K  /sbin/init
+  867   205384K    3220K    2226K    2120K  /usr/bin/netmgrd
+  525    49276K    4496K    2135K    2016K  /usr/bin/AudioManagerService
+  520   137036K    4436K    1889K    1748K  /usr/bin/TelephonyManagerService
+  711    40608K    4356K    1782K    1692K  /usr/bin/app_proc
+  435     8152K    3540K    1743K     700K  /usr/sbin/tcpdump
+  517    70256K    4280K    1721K    1468K  /usr/bin/ConfigurationManagerService
+  503    66324K    4212K    1654K    1428K  /usr/bin/app_proc
+  666    69416K    3800K    1438K    1204K  /usr/bin/CollectInfoManagerService
+  521    59124K    4128K    1281K    1028K  /usr/bin/LocationManagerService
+  634    44912K    3488K    1245K    1180K  /usr/bin/HTTPManagerService
+  518    48680K    3668K    1109K     960K  /usr/bin/DiagManagerService
+  522    53884K    3628K    1039K     916K  /usr/bin/PowerManagerService
+  820   197280K    1944K    1025K     976K  /usr/bin/thermal-engine
+  519   134820K    3164K    1013K     952K  /usr/bin/vifManagerService
+  706    46776K    3652K     960K     860K  /usr/bin/app_proc
+  710    38660K    3700K     947K     840K  /usr/bin/app_proc
+  708    55768K    3484K     939K     852K  /usr/bin/app_proc
+  700    38824K    3624K     925K     820K  /usr/bin/app_proc
+  699    37436K    3488K     898K     808K  /usr/bin/app_proc
+  715    37440K    3456K     886K     796K  /usr/bin/app_proc
+  716    37340K    3436K     874K     784K  /usr/bin/app_proc
+  528    61744K    3396K     873K     784K  /usr/bin/SystemManagerService
+  705    38468K    3552K     867K     768K  /usr/bin/app_proc
+  703    86276K    3284K     862K     788K  /usr/bin/app_proc
+  714    45064K    3272K     862K     772K  /usr/bin/app_proc
+  488    53028K    3128K     849K     768K  /usr/bin/ApplicationManagerService
+  670    53448K    3220K     793K     700K  /usr/bin/HMIManagerService
+  665    53652K    3176K     790K     692K  /usr/bin/EMLManagerService
+  717    45344K    3236K     771K     696K  /usr/bin/app_proc
+  632    45196K    3160K     756K     668K  /usr/bin/NWCommunicatorService
+  526   117884K    2772K     727K     672K  /usr/bin/CommunicationManagerService
+  667    53196K    2936K     711K     628K  /usr/bin/SMSManagerService
+  709    36600K    2992K     704K     632K  /usr/bin/app_proc
+  217    63564K    1564K     702K     652K  psmd
+  355    40896K    1860K     699K     648K  ipacm_perf
+  414    46868K    1448K     697K     660K  /usr/bin/qti
+  527    44684K    2992K     694K     616K  /usr/bin/OperationModeManagerService
+  633    53140K    2924K     676K     612K  /usr/bin/TetherManagerService
+  669    52768K    2760K     649K     592K  /usr/bin/MiscManagerService
+  701    44552K    2804K     642K     584K  /usr/bin/app_proc
+  220     2588K    1296K     636K     604K  /lib/systemd/systemd-udevd
+  635    52612K    2644K     628K     580K  /usr/bin/FirewallManagerService
+  529    44348K    2756K     626K     560K  /usr/bin/AlarmManagerService
+  661    44452K    2696K     614K     548K  /usr/bin/ArbiterManagerService
+  490     2524K    1264K     591K     552K  /usr/bin/dbus-daemon
+  480     2400K    1184K     576K     556K  /lib/systemd/systemd-logind
+  845    12996K    1344K     531K     488K  /usr/bin/qmuxd
+  487    18396K    2404K     499K     452K  /sbin/start
+  219     2120K    1044K     432K     412K  /lib/systemd/systemd-journald
+  334    47248K    1080K     369K     344K  /sbin/adbd
+  409    12336K     744K     238K     224K  ipacmdiag
+  975    12328K     728K     238K     220K  /usr/bin/diagrebootapp
+  614     2072K     448K     223K     216K  /usr/bin/dnsmasq
+  463     3140K     696K     196K     160K  /sbin/syslogd
+  479     3188K     844K     169K     156K  /usr/bin/tigrisd
+ 6852     3076K     528K     167K     136K  sh
+ 6853     1964K     592K     144K     132K  procrank
+  431     3092K     920K     131K     108K  /usr/bin/logcat
+  451     3092K     916K     131K     108K  /usr/bin/logcat
+  440     3092K     912K     131K     108K  /usr/bin/logcat
+  540     1860K     696K     130K      92K  /sbin/agetty
+  538     1860K     680K     117K      80K  /sbin/agetty
+  443     3092K     780K     114K      96K  /usr/bin/logcat
+  478     2068K     496K      95K      88K  /sbin/servicemanager
+  470     1796K     512K      92K      84K  /usr/bin/propertyd
+  482     1776K     480K      83K      76K  /usr/bin/memory_logger
+  450     1660K     428K      70K      64K  /usr/bin/logger_kernel
+  970     1524K     196K      42K      40K  /sbin/reboot-daemon
+                           ------   ------  ------
+                           57034K   51124K  TOTAL
+
+ RAM: 159948K total, 7440K free, 0K buffers, 69420K cached, 912K shmem, 23060K slab
+[H[JMem: 152520K used, 7428K free, 912K shrd, 0K buff, 69424K cached
+CPU:  0.0% usr 16.6% sys  0.0% nic 83.3% idle  0.0% io  0.0% irq  0.0% sirq
+Load average: 1.00 1.01 0.85 1/476 6855
+[7m  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND[0m
+ 6855  6854 root     R     3080  1.9   0 16.6 top -n1
+  848     1 root     S     232m148.3   0  0.0 /usr/bin/rild -l /usr/lib/libril-q
+  867     1 root     S     200m127.8   0  0.0 /usr/bin/netmgrd
+  820     1 root     S <   192m122.8   0  0.0 /usr/bin/thermal-engine
+  520     1 root     S     133m 85.3   0  0.0 /usr/bin/TelephonyManagerService
+  519     1 root     S     131m 83.9   0  0.0 /usr/bin/vifManagerService
+  526     1 root     S     115m 73.3   0  0.0 /usr/bin/CommunicationManagerServi
+  703   487 user     S    86280 53.7   0  0.0 {atcommand} /usr/bin/app_proc -i a
+  517     1 root     S    70260 43.7   0  0.0 /usr/bin/ConfigurationManagerServi
+  666     1 root     S    69420 43.2   0  0.0 /usr/bin/CollectInfoManagerService
+  503   487 user     S    66328 41.2   0  0.0 {locd} /usr/bin/app_proc -d 10001
+  217     1 root     S    63568 39.5   0  0.0 psmd
+  528     1 root     S    61748 38.4   0  0.0 /usr/bin/SystemManagerService
+  521     1 root     S    59128 36.8   0  0.0 /usr/bin/LocationManagerService
+  708   487 user     S    55772 34.7   0  0.0 {factorycmd} /usr/bin/app_proc -i 
+  522     1 root     S    53888 33.5   0  0.0 /usr/bin/PowerManagerService
+  665     1 root     S    53656 33.4   0  0.0 /usr/bin/EMLManagerService
+  670     1 root     S    53452 33.2   0  0.0 /usr/bin/HMIManagerService
+  667     1 root     S    53200 33.1   0  0.0 /usr/bin/SMSManagerService
+  633     1 root     S    53144 33.0   0  0.0 /usr/bin/TetherManagerService
+
+====================================================================================================

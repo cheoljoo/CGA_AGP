@@ -1,0 +1,158 @@
+FileName : chart.html
+<html>
+<head>
+	      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		  <script type="text/javascript">
+google.charts.load('current', {'packages':['line']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Day');
+	data.addColumn('number', 'Guardians of the Galaxy');
+	data.addColumn('number', 'The Avengers');
+	data.addColumn('number', 'Transformers: Age of Extinction');
+
+	data.addRows([
+			[1,  37.8, 80.8, 41.8],
+			[2,  30.9, 69.5, 32.4],
+			[3,  25.4,   57, 25.7],
+			[4,  11.7, 18.8, 10.5],
+			[5,  11.9, 17.6, 10.4],
+			[6,   8.8, 13.6,  7.7],
+			[7,   7.6, 12.3,  9.6],
+			[8,  12.3, 29.2, 10.6],
+			[9,  16.9, 42.9, 14.8],
+			[10, 12.8, 30.9, 11.6],
+			[11,  5.3,  7.9,  4.7],
+			[12,  6.6,  8.4,  5.2],
+			[13,  4.8,  6.3,  3.6],
+			[14,  4.2,  6.2,  3.4]
+	]);
+
+	var options = {
+		chart: {
+			title: 'Box Office Earnings in First Two Weeks of Opening',
+			subtitle: 'in millions of dollars (USD)'
+		},
+		width: 900,
+		height: 500
+	};
+
+	var chart = new google.charts.Line(document.getElementById('linechart_material'));
+
+	chart.draw(data, google.charts.Line.convertOptions(options));
+}
+		  </script>
+
+		  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+		  <script type='text/javascript'>
+google.charts.load('current', {'packages':['annotationchart']});
+google.charts.setOnLoadCallback(drawChart);
+
+function drawChart() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('date', 'Date');
+	ITERATE %MEMCMDLIST +<<+ ITKEY  ITVALUE
+		<!-- itkey ITKEY -->
+		data.addColumn('number', 'ITKEY');
+		data.addColumn('string', 'ProcessMemoryLeak');
+	+>>+
+	data.addRows([
+		ITERATE %MEMCHART +<<+ ITKEY  ITVALUE
+			<!-- itkey ITKEY -->
+			[new Date(ITKEY)
+			ITERATE %MEMCMDLIST +<<+ IT2KEY  IT2VALUE
+				<!-- itkey ITKEY , it2key IT2KEY : +<+$MEMCHART{"ITKEY"}{"IT2KEY"}{pss}+>+  -->
+				IFNOTEQUAL("+<+$MEMCHART{"ITKEY"}{"IT2KEY"}{pss}+>+" eq ""){
+				, +<+$MEMCHART{"ITKEY"}{"IT2KEY"}{pss}+>+, '+<+$MEMCHART{"ITKEY"}{"IT2KEY"}{pssleak}+>+'
+				}
+				IFEQUAL("+<+$MEMCHART{"ITKEY"}{"IT2KEY"}{pss}+>+" eq ""){
+				, 0 ,undefined 
+				}
+			+>>+
+			],
+		+>>+
+	]);
+
+	var chart = new google.visualization.AnnotationChart(document.getElementById('chart_div'));
+
+	var options = {
+		displayAnnotations: true
+	};
+
+	chart.draw(data, options);
+}
+		  </script>
+
+<!--
+			  var data = google.visualization.arrayToDataTable([
+					  ["APP_Mem_Size", "IT2KEY", {type:'string',role:'annotation'} , "IT2KEY", {type:'string',role:'annotation'} , {role:'style'} ],
+					  ["Copper", 8.94, 8.94, 10,10,''],
+					  ["Silver", 11.49,9,  9,9,''],
+					  ["Gold", 19.30,19.30 ,9,9 ,''],
+					  ["Platinum", 21.45, 21.45 , 9, 999 , 'stroke-color: #871B47;stroke-width:8']
+			  ]);
+-->
+
+ITERATE %MEMPIDCMDLIST +<<+ ITKEY  ITVALUE
+	<!-- itkey ITKEY itvalue ITVALUE +<+$MEMPIDCMDLIST{"ITKEY"}+>+ -->
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script type="text/javascript">
+		  google.charts.load("current", {packages:['corechart','bar']});
+		  google.charts.setOnLoadCallback(drawChart);
+		  function drawChart() {
+			  var data = google.visualization.arrayToDataTable([
+					  ["Time_Date", "Value" , {type:'string',role:'annotation'} , {role:'style'} ],
+						ITERATE %MEMPIDCMDCHART{ITKEY} +<<+ IT2KEY  IT2VALUE
+						<!-- itkey ITKEY ,it2key IT2KEY ,pss +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ ,leak +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak}+>+ -->
+
+						IFEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , '+<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssShort}+>+ :ITKEY' , ''], }
+						IFNOTEQUAL($MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssleak} eq ""){ ['IT2KEY', +<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pss}+>+ , '+<+$MEMPIDCMDCHART{"ITKEY"}{"IT2KEY"}{pssShort}+>+ :ITKEY' , 'stroke-color: #871B47;stroke-width:8'], }
+						+>>+
+			  ]);
+
+	var view = new google.visualization.DataView(data);
+
+	var options = {
+		title: "Title : ITKEY +<+$MEMCMDLIST{"ITKEY"}+>+",
+		width: 600,
+		height: 400,
+		bar: {groupWidth: "95%"},
+		legend: { position: "none" },
+		annotations: {
+		alwaysOutside: true,
+			   textStyle: {
+				fontSize: 12,
+				auraColor: 'none',
+				color: '#555'
+			   },
+				boxStyle: {
+					stroke: '#ccc',
+					strokeWidth: 1,
+					gradient: {
+						color1: '#f3e5f5',
+						color2: '#f3e5f5',
+						x1: '0%', y1: '0%',
+						x2: '100%', y2: '100%'
+					}
+				}
+		},
+	};
+
+			  var chart = new google.visualization.BarChart(document.getElementById("T_+<+$MEMPIDCMDLIST{"ITKEY"}+>+"));
+			  chart.draw(view, options);
+		  }
+	</script>
++>>+
+
+</head>
+<body>
+	<div id="linechart_material" style="width: 900px; height: 500px"></div>
+	<div id='chart_div' style='width: 1500px; height: 1500px;'></div>
+ITERATE %MEMPIDCMDLIST +<<+ ITKEY  ITVALUE
+	<div id='T_+<+$MEMPIDCMDLIST{"ITKEY"}+>+' style='width: 800px; height: 400px;'></div>
++>>+
+</body>
+</html>

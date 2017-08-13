@@ -1,13 +1,13 @@
+Example : MEM_CPU_LOG
+- Draw the chart to check the memory and cpu usage
+- It will check every day what is the problem.:q
 
-[Add new feature of ITERATOR]  r.pl
-ITERATE  [+-]?[KV]?[%@&+]
- K : key sort , V : value sort (only hash %)
- [KV] : K is default
- [+-] : + is default
- % : hash
- @ : array
- & : reverse array
- + : 0 ~ max key 
+ - Documents [NEXT]
+	. Comments as doxygen for each function
+	. ASPICE traceability
+	. SDD/LLD with flow chart / state diagram / progress
+ - Unit test (gtest & vectorCast) 
+ - Study : Design Pattern , C++ , perlre(ING)
 
  ------------------------
 
@@ -72,7 +72,7 @@ Action Items : input for back end with stc file format
 		5 [ 2: 1: 0: 3] [ 2: 1: 1: 3] [__:__:__:__] [ 2: 1: 3: 3] [ 2: 1: 4: 3] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
 		5       0x03        0x3303                        0x03        0x3303                                                                                        
 
-(ING)
+(Done)
 - Add function : various hash type (+V%  : hash value ascending sort)
 ITERATE  [+-]?[KV]?[%@&+]
  K : key sort , V : value sort (only hash %)
