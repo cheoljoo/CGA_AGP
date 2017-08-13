@@ -231,10 +231,19 @@ our %CPUTASK;
 
 our $logFileName = "memory.log";
 opendir(DIR, ".");
-@files = readdir(DIR);
+@files = sort readdir(DIR);
 closedir(DIR);
 
-foreach $dir (@files){
+foreach $dir (sort @files){
+	if((-d $dir) && ($dir =~ m/_(?P<MONTH>\d+)_(?P<DAY>\d+)_(?P<YEAR>\d+)\s*$/)){
+		push @finalFiles,$dir;
+	}
+}
+print "finalfiles = " . "@finalFiles" . "\n";;
+$recent = pop(@finalFiles);
+print "recent = " . $recent . "\n";;
+
+foreach $dir (@finalFiles){
 	if(not ((-d $dir) && ($dir =~ m/_(?P<MONTH>\d+)_(?P<DAY>\d+)_(?P<YEAR>\d+)\s*$/)) ){
 		next ;
 	}
