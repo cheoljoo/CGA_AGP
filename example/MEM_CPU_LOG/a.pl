@@ -243,7 +243,9 @@ print "finalfiles = " . "@finalFiles" . "\n";;
 $recent = pop(@finalFiles);
 print "recent = " . $recent . "\n";;
 
-foreach $dir (@finalFiles){
+#foreach $dir (@finalFiles)
+$dir = $recent;
+{
 	if(not ((-d $dir) && ($dir =~ m/_(?P<MONTH>\d+)_(?P<DAY>\d+)_(?P<YEAR>\d+)\s*$/)) ){
 		next ;
 	}
@@ -397,11 +399,14 @@ foreach $date (sort keys %{MEMTASK}){
 				$MEMCHART{$tmpDateTime}{$cmd}{pssleak} = "MemLeak:$cmd";
 				$MEMCMDCHART{$cmd}{$tmpDateTime}{pssleak} = "MemLeak:$cmd";
 				$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pssleak} = "MemLeak:$pss:$cmd";
+				$MEMPIDCMDDMCHART{$pidcmd}{$date}{$min}{pssleak} = "MemLeak:$pss:$cmd";
 			}
 			$MEMCHART{$tmpDateTime}{$cmd}{pss} = $pss;
 			$MEMCMDCHART{$cmd}{$tmpDateTime}{pss} = $pss;
 			$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pss} = $pss;
 			$MEMPIDCMDCHART{$pidcmd}{$tmpDateTime}{pssShort} = BKMG_from_int($pss);
+			$MEMPIDCMDDMCHART{$pidcmd}{$date}{$min}{pss} = $pss;
+			$MEMPIDCMDDMCHART{$pidcmd}{$date}{$min}{pssshort} = BKMG_from_int($pss);
 		}
 		#print "\n";
 	}
@@ -424,5 +429,6 @@ traverse_hash_tree(\%{memPID},memPID,"",OUT);
 traverse_hash_tree(\%{MEMCHART},MEMCHART,"",OUT);
 traverse_hash_tree(\%{MEMCMDCHART},MEMCMDCHART,"",OUT);
 traverse_hash_tree(\%{MEMPIDCMDCHART},MEMPIDCMDCHART,"",OUT);
+traverse_hash_tree(\%{MEMPIDCMDDMCHART},MEMPIDCMDDMCHART,"",OUT);
 close(OUT);
 
