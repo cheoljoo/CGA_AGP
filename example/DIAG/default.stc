@@ -1,0 +1,35 @@
+FileName : diag.c
+
+ITERATE %checkValue +<<+ ITKEY  ITVALUE
+	ITERATE %DIAG{ITKEY}{ITVALUE}{op} +<<+ IT2KEY  IT2VALUE
+
+
+
+/**
+  * @brief  ITKEY : ITVALUE_IT2KEY  is a function.
+  * @parameter +<+$DIAG{ITKEY}{"ITVALUE"}{size}+>+ &size 
+  * @parameter +<+$DIAG{ITKEY}{"ITVALUE"}{argu}+>+ &* data 
+  * @return
+  */
+ITVALUE_IT2KEY ( +<+$DIAG{ITKEY}{"ITVALUE"}{size}+>+ &size ,  +<+$DIAG{ITKEY}{"ITVALUE"}{argu}+>+ &* data ){
+}
+	+>>+
+
++>>+
+
+void parse(char *s){
+	switch(*s){
+
+		ITERATE %checkValue +<<+ ITKEY  ITVALUE
+		case ITKEY:   /**input :  +<+$checkOrg{ITKEY}+>+ */ 
+			ITERATE %DIAG{ITKEY}{ITVALUE}{op} +<<+ IT2KEY  IT2VALUE
+			ITVALUE_IT2KEY ( +<+$DIAG{ITKEY}{ITVALUE}{size}+>+ &size ,  +<+$DIAG{ITKEY}{ITVALUE}{argu}+>+ &* data );
+			+>>+
+			break;
+		+>>+
+
+		default: 
+			break;
+	}
+}
+

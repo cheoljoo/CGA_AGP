@@ -1,0 +1,50 @@
+Time_information:     0:     write:     uint16_t :uint8_t 
+Firewall_error_detection_times:     1:     read:     uint16_t : uint9_t
+HTTPS_TLS_error_detection_times:     2:     write , read:     uint16_t : uint10_t
+IP_Header_for_IDS:     3:     read, write,add:     uint16_t :uint11_t 
+TCP_Header_for_IDS:     4:     read, write,delete:     uint16_t : uint12_t
+UDP_Header_for_IDS:     5:     read, write:     uint16_t :uint13_t
+TLS_error_factor_for_IDS:     6:     read, write:     uint16_t : uint14_t
+Tool_authentication_error_factor_for_IDS:     7:     read, write:     uint16_t : uint15_t
+Wireless_device_ID_NUM_1:     8:     read, write:     uint16_t : uint16_t
+Wireless_device_software_version:     9:     read, write:     uint16_t : uint17_t
+MSISDN:     10:     read, write:     uint16_t : uint18_t
+Identification_information:     11:     read, write:     uint16_t : uint19_t
+Vehicle_type_information:     12:     read, write:     uint16_t : uint20_t
+Antenna_connection_status:     13:     read, write:     uint16_t : uint21_t
+eUICCID:     14:     read, write:     uint16_t : uint22_t
+PLMN:     15:     read, write:     uint16_t : uint23_t
+ICCID:     16:     read, write:     uint16_t : uint24_t
+IMSI:     17:     read, write:     uint16_t : uint25_t
+IMEI:     18:     read, write:     uint16_t : uint26_t
+Air_Data_Feed_status:     19:     read, write:     uint16_t : uint27_t
+Grade_information:     20:     read, write:     uint16_t : uint28_t
+DCM_operation_mode:     21:     read, write:     uint16_t : uint29_t
+TSC_service_status:     22:     read, write:     uint16_t : uint30_t
+TSP_US_service_status:     23:     read, write:     uint16_t : uint31_t
+C_code_registration_status:     24:     read, write:     uint16_t : uint32_t
+Initial_sequence:     25:     read, write:     uint16_t : uint33_t
+Data_table:     26:     read, write:     uint16_t : uint34_t
+Service_progress_rate:     27:     read, write:     uint16_t : uint35_t
+Forgotten_operation_table:     28:     read, write:     uint16_t : uint36_t
+Remote_confirmation_table:     29:     read, write:     uint16_t : uint37_t
+Warning_table:     30:     read, write:     uint16_t : uint38_t
+Remote_control_table:     31:     read, write:     uint16_t : uint39_t
+FOTA:     32:     read, write:     uint16_t : uint40_t
+Outgoing_call_volume_index:     33:     read, write:     uint16_t : uint41_t
+Incoming_call_voice_volume_index:     34:     read, write:     uint16_t : uint42_t
+Speaker_system_configuration_setting:     35:     read, write:     uint16_t : uint43_t
+Connection_to_center_setting:     36:     read, write:     uint16_t : uint44_t
+ACN_phone_number_Primary:     37:     read, write:     uint16_t : uint45_t
+ACN_phone_number_Secondary:     38:     read, write:     uint16_t : uint46_t
+MAN_phone_number_Primary:     39:     read, write:     uint16_t : uint47_t
+MAN_phone_number_Secondary:     40:     read, write:     uint16_t : uint48_t
+Non_Subscriber_Number_SOS:     41:     read, write:     uint16_t : uint49_t
+Collision_notification_cancellation:     42:     read, write:     uint16_t : uint50_t
+Y_code_registration_status:     43:     read, write:     uint16_t : uint51_t
+Equipment_remote_start_ECU_connection_availability:     44:     read, write:     uint16_t : uint52_t
+Diagnostics_recorder:     45:     read, write:     uint16_t : uint53_t
+Under_repair_status:     46:     read, write:     uint16_t : uint54_t
+Speaker_operation:     47:     read, write:     uint16_t : uint55_t
+ECUSerialNumberDataIdentifier:     48:     read, write:     uint16_t : uint56_t
+
