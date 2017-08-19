@@ -1,3 +1,22 @@
+1.Make a new variables for ITERATE
+  When we want to change the order of elements , we should generate new variables.
+  So I add special function in existed code.  Function LIB->traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
+- LIB->traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
+  LIB->traverse_hash_tree : function name
+  (
+   \%{DIAG} : hashname for output variable
+   ,DIAG : variable name for output variable
+   ,"default.GVm" : output file name 
+   ,NEW : create a new output file name
+   ,FUNC,SUBCMD);  : get these variables as array
+	 create many variables according to input.
+	 FUNC -> create  %DIAG_FUNC
+	    $DIAG{0}{function_name}{op}=value   >>  $DIAG_FUNC{function_name}{0}{op}=value
+	 SUBCMD -> create  %DIAG_SUBCMD
+	    $DIAG{0}{function_name}{op}=value   >>  $DIAG_SUBCMD{op}{function_name}{0}}=value
+  This method is not circular but swapable between two indexs. (If you need circular method , let me know.)  cheoljoo@gmail.com  (Charles)
+
+---------------
 1. Perl Module : LIB.pm a.pl 
 	- Call sub routine has the special first argument with LIB name.)
 	- LIB.pm has the check routine for debugging in argument receiving statements.

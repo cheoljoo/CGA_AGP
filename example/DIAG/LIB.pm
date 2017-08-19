@@ -9,7 +9,7 @@ our %local_var_set;
 
 #our @EXPORT = qw(traverse_hash_tree  recover_special_code change_special_code sort_keys max_keys getHashRef print_fp end_time_log mid_time_log start_time_log  __SUB__);
 
-sub __SUB__ { return  __FILE__ . "||" . (caller 2)[3] . "|" . (caller 2)[2] . "-" . (caller 1)[3] . "|" . (caller 1)[2] . "-" . (caller 0)[2] . ": " }
+sub __SUB__ { return  __FILE__ . "||" . (caller 2)[3] . "|" . (caller 2)[2] . "-" . (caller 1)[3] . "|" . (caller 1)[2] . "-Line:" . (caller 0)[2] . ": " }
 
 sub start_time_log {
 	my $tmpLogInit = shift @_;
@@ -166,9 +166,11 @@ sub recover_special_code {
 	return $s;
 }
 sub traverse_hash_tree_to_recover_special_code {
-	my ($TAXA_TREE,$vn,$lstr,$fh)    = @_;
+	my ($TAXA_TREE,$vn,$lstr,$fh,@keyOrder)    = @_;
 	if($TAXA_TREE eq "LIB"){ print "ERROR:" . __SUB__ . "value $TAXA_TREE\n"; exit; }
 	my $allDigit = 1;
+	my $keyOrderCnt = @keyOrder;
+
 	print " sub $TAXA_TREE $vn $lstr $fh\n";
 	foreach my $tmpKey ( keys %{$TAXA_TREE}){
 		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
@@ -187,26 +189,51 @@ sub traverse_hash_tree_to_recover_special_code {
 		if (ref $TAXA_TREE->{$key} eq 'HASH') {
 			#print "K:$key lstr=$lstr\n";
 			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
-				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh);
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{" . recover_special_code($key) . "\}",$fh,@keyOrder);
 			} else {
-				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{\"" . recover_special_code($key) . "\"\}",$fh);
+				traverse_hash_tree_to_recover_special_code($TAXA_TREE->{$key},$vn,$lstr . "\{\"" . recover_special_code($key) . "\"\}",$fh,@keyOrder);
 			}
 		} else {
+			my $hashVar;
+			my $hashValue;
+			#print $fh "\$$vn$lstr\{\"" . recover_special_code($key) ."\"\}=\"" .  recover_special_code($TAXA_TREE->{$key}) . "\"\n";
 			if(recover_special_code($key) =~ m/^\s*\d+\s*$/){
 			#print "$lstr $key = $TAXA_TREE->{$key}\n";
-				print $fh "\$$vn$lstr\{" . recover_special_code($key) ."\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+				$hashVar = "\$$vn$lstr\{" . recover_special_code($key) ."\}";
 			} else {
-				print $fh "\$$vn$lstr\{\"" . recover_special_code($key) ."\"\}=\"" . recover_special_code($TAXA_TREE->{$key}) . "\"\n";
+				$hashVar = "\$$vn$lstr\{\"" . recover_special_code($key) ."\"\}";
+			}
+			$hashValue = recover_special_code($TAXA_TREE->{$key});
+			print $fh "$hashVar=\"" . $hashValue . "\"\n";
+			if($keyOrderCnt > 0){
+				my @myHashName = split(/{/,$hashVar);
+				my $myHashNameCnt = @myHashName;
+				my $tmpFirstElement = $myHashName[1];
+				if( ($keyOrderCnt + 2) > $myHashNameCnt){ # 2 means HashName and first element. we can make new variable with elements after second order.
+					print "ERROR : HashVar must have more elements\n\tNew @keyOrder [ cnt $keyOrderCnt ] , OldHash @myHashName [ cnt $myHashNameCnt ] - $hashVar\n";
+					print __SUB__ . ":: ERROR : # 2 means HashName and first element. we can make new variable with elements after second order.\n";
+					exit;
+				}
+				#Debug: print $fh "@keyOrder [ $keyOrderCnt ] , @myHashName [ $myHashNameCnt ]\n";
+				for(my $i=0;$i<$keyOrderCnt;$i++){
+					my @newVar = @myHashName;
+					$newVar[0] = $myHashName[0] . "_$keyOrder[$i]";
+					$newVar[1] = $newVar[$i+2];
+					$newVar[$i+2] = $tmpFirstElement;
+					my $n = join('{',@newVar);
+					print $fh "$n=\"" . $hashValue . "\"\n";
+				}
 			}
 		}
 	}
 }
+
 sub traverse_hash_tree {
 	my ($lib,$TAXA_TREE,$vn,$filename,$mode,@keyOrder)    = @_;
 	print __SUB__ . "AA $TAXA_TREE $vn $lstr $filename $mode @keyOrder\n";
 	if($mode eq "NEW"){ open(OUT,">default.GVm"); }
 	else { open(OUT,">>default.GVm"); }
-	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,"",OUT);
+	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,"",OUT,@keyOrder);
 	close(OUT);
 }
 
