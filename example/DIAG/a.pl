@@ -44,8 +44,11 @@ open(LOGI,"<$inputFileName");
 # Find increasing memory size and cpu % than yesterday
 #### OUT
 #DEBUG : foreach my $key (keys %DIAG){ print $key;} print "\n";
-LIB->traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
-LIB->traverse_hash_tree(\%{checkValue},checkValue,"default.GVm",ADD);
-LIB->traverse_hash_tree(\%{checkFunc},checkFunc,"default.GVm",ADD);
-LIB->traverse_hash_tree(\%{checkOrg},checkOrg,"default.GVm",ADD);
+LIB::traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
+LIB::traverse_hash_tree(\%{checkValue},checkValue,"default.GVm",ADD);
+LIB::traverse_hash_tree(\%{checkFunc},checkFunc,"default.GVm",ADD);
+LIB::traverse_hash_tree(\%{checkOrg},checkOrg,"default.GVm",ADD);
+# Call function of libary
+# when we call with LIB-> ...   , First argument is library name.  This is inserted automatically.
+#LIB->traverse_hash_tree(\%{checkOrg},checkOrg,"default.GVm",ADD);
 
