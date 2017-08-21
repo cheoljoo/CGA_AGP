@@ -1,4 +1,8 @@
-1.Make a new variables for ITERATE
+1. LIB.pm
+- Each perl module owns their own memory.
+  So , we can set the variables in perl module.
+  LoadVarFromFile() has a set function in module.
+2.Make a new variables for ITERATE
   When we want to change the order of elements , we should generate new variables.
   So I add special function in existed code.  Function LIB->traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
 - LIB->traverse_hash_tree(\%{DIAG},DIAG,"default.GVm",NEW,FUNC,SUBCMD);
