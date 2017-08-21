@@ -139,33 +139,62 @@ foreach $key (sort {$a<=>$b} keys %gCol){
 	$tmpStructMembers = "";
 	print "gColStruct\{$key\}{Name} = $gColStruct{$key}{Name}\n";
 	$tmpStructMembers .= "struct  $gColStruct{$key}{Name} {\n";
+	my $myStructName = $gColStruct{$key}{Name};
+	my $myStructElementCnt = 0;
 	foreach $key2 (sort {$a<=>$b} keys %{$gCol{$key}}){
 		$max = $key2;
 		print "gCol\{$key\}\{$key2\} Len:$gCol{$key}{$key2}{Len} Span:$gCol{$key}{$key2}{Span} V:$gCol{$key}{$key2}{Value} D:$gCol{$key}{$key2}{Define}\n";
 		if($gCol{$key}{$key2}{Len} == ""){ next; }
 		if($gCol{$key}{$key2}{Len} == 1){
 			$tmpStructMembers .= "\tchar $gCol{$key}{$key2}{Define};";
+			if( $gCol{$key}{$key2}{Value} ne "?"){
+				$gStructUnitTest{$key}{$myStructElementCnt}{varType} = "char";
+				$gStructUnitTest{$key}{$myStructElementCnt}{varName} = $gCol{$key}{$key2}{Define};
+				$gStructUnitTest{$key}{$myStructElementCnt}{varValue} = $gCol{$key}{$key2}{Value};
+				$gStructUnitTest{$key}{$myStructElementCnt}{structName} = $myStructName;
+			}
 		} elsif($gCol{$key}{$key2}{Len} == 2){
 			$tmpStructMembers .= "\tshort $gCol{$key}{$key2}{Define};";
+			if( $gCol{$key}{$key2}{Value} ne "?"){
+				$gStructUnitTest{$key}{$myStructElementCnt}{varType} = "short";
+				$gStructUnitTest{$key}{$myStructElementCnt}{varName} = $gCol{$key}{$key2}{Define};
+				$gStructUnitTest{$key}{$myStructElementCnt}{varValue} = $gCol{$key}{$key2}{Value};
+				$gStructUnitTest{$key}{$myStructElementCnt}{structName} = $myStructName;
+			}
 			$max += 1;
 		} elsif($gCol{$key}{$key2}{Len} == 4){
 			$tmpStructMembers .= "\tint $gCol{$key}{$key2}{Define};";
+			if( $gCol{$key}{$key2}{Value} ne "?"){
+				$gStructUnitTest{$key}{$myStructElementCnt}{varType} = "int";
+				$gStructUnitTest{$key}{$myStructElementCnt}{varName} = $gCol{$key}{$key2}{Define};
+				$gStructUnitTest{$key}{$myStructElementCnt}{varValue} = $gCol{$key}{$key2}{Value};
+				$gStructUnitTest{$key}{$myStructElementCnt}{structName} = $myStructName;
+			}
 			$max += 3;
 		} elsif($gCol{$key}{$key2}{Len} > 4){
 			$tmpStructMembers .= "\tchar *$gCol{$key}{$key2}{Define};";
+			if( $gCol{$key}{$key2}{Value} ne "?"){
+				$gStructUnitTest{$key}{$myStructElementCnt}{varType} = "char *";
+				$gStructUnitTest{$key}{$myStructElementCnt}{varName} = $gCol{$key}{$key2}{Define};
+				$gStructUnitTest{$key}{$myStructElementCnt}{varValue} = $gCol{$key}{$key2}{Value};
+				$gStructUnitTest{$key}{$myStructElementCnt}{structName} = $myStructName;
+			}
 			if($gCol{$key}{$key2}{Len} != 99999){
 				$max += ($gCol{$key}{$key2}{Len} - 1);
 			}
 		} else {
 			$tmpStructMembers .= "\tERROR : $gCol{$key}{$key2}{Define};";
+			die("ERROR : $gCol{$key}{$key2}{Define} $myStructElementCnt $myStructNmae\n");
 		}
 		$tmpStructMembers .= "\t\t/* Len:$gCol{$key}{$key2}{Len} Span:$gCol{$key}{$key2}{Span} V:$gCol{$key}{$key2}{Value} D:$gCol{$key}{$key2}{Define} Desc:$Col{$key}{$key2}{Description} C:$gCol{$key}{$key2}{Comments} */\n";
+		$myStructElementCnt++;
 		if($gColMaxIndex < $max){ $gColMaxIndex = $max; }
 	}
 	$tmpStructMembers .= "};\n";
 	$gColStruct{$key}{Struct} = $tmpStructMembers;
 	print "$gColStruct{$key}{Struct}";
 }
+$gPrintHashName{gStructUnitTest} = "Structure Infomation";
 
 print "\$gRowMaxIndex = $gRowMaxIndex (vertical max count)\n";
 print "\$gColMaxIndex = $gColMaxIndex (horizontal max count)\n";
@@ -401,6 +430,7 @@ for($j=0;$j<=$gColMaxIndex;$j++){
 }
 $gPrintHashName{gLongDefine} = "Long Definition";
 $gPrintHashName{gLongDefineDebug} = "Long Definition for debugging ";
+$gPrintHashName{gColStruct} = "Sturcture Name";
 
 foreach $key (keys %gColStruct){
 	$gColStructName{$gColStruct{$key}{Name}} = $key;

@@ -1,16 +1,84 @@
+UnitTest Automation
+- m.pl : add unittest variable
+  name : %gStructUnitTest
+- default.stc
+  #pragma pack(1)  <- for processing netowrk protocol
+  add TestCase Function : ut.c
+
+  [TestCase Run Result]
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue success RET : 0
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+0 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue success RET : 1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+1 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+2 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE success RET : 2
+2 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+2 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+2 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+2 __START_BYTES__MSG_ODI__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue success RET : 3
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+3 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_DYN_DATA__FuClass_ID__DataID__DataType__InvalidData__DataValue fail RET : -1
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue success RET : 4
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+4 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_INDICATION__FuClass_ID__DataID__DataValue fail RET : -1
+5 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE success RET : 5
+5 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+5 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+5 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+5 __START_BYTES__MSG_ODI_RETRY__SEQ_NUMBER__ODI_MSG_PRNDL_MSG__NEW_VALUE fail RET : -1
+6 __START_BYTES__MSG_CONTROL__SUB_COMMAND__SIZE_OF_PAYLOAD__Data success RET : 6
+6 __START_BYTES__MSG_CONTROL__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+6 __START_BYTES__MSG_CONTROL__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+7 __START_BYTES__MSG_ASK_STATUS__SUB_COMMAND__SIZE_OF_PAYLOAD__Data success RET : 7
+7 __START_BYTES__MSG_ASK_STATUS__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+7 __START_BYTES__MSG_ASK_STATUS__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+8 __START_BYTES__MSG_ENG__SUB_COMMAND__SIZE_OF_PAYLOAD__Data success RET : 8
+8 __START_BYTES__MSG_ENG__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+8 __START_BYTES__MSG_ENG__SUB_COMMAND__SIZE_OF_PAYLOAD__Data fail RET : -1
+9 __START_BYTES__MSG_VP_DEBUG__SUB_COMMAND__SIZE_OF_PAYLOAD__WORD__SINGLE__Data success RET : 9
+9 __START_BYTES__MSG_VP_DEBUG__SUB_COMMAND__SIZE_OF_PAYLOAD__WORD__SINGLE__Data fail RET : -1
+9 __START_BYTES__MSG_VP_DEBUG__SUB_COMMAND__SIZE_OF_PAYLOAD__WORD__SINGLE__Data fail RET : -1
+9 __START_BYTES__MSG_VP_DEBUG__SUB_COMMAND__SIZE_OF_PAYLOAD__WORD__SINGLE__Data fail RET : -1
+9 __START_BYTES__MSG_VP_DEBUG__SUB_COMMAND__SIZE_OF_PAYLOAD__WORD__SINGLE__Data fail RET : -1
+10 __START_BYTES__MSG_DIAG__SUB_COMMAND__SIZE_OF_PAYLOAD__SINGLE__WORD__Data success RET : 10
+10 __START_BYTES__MSG_DIAG__SUB_COMMAND__SIZE_OF_PAYLOAD__SINGLE__WORD__Data fail RET : -1
+10 __START_BYTES__MSG_DIAG__SUB_COMMAND__SIZE_OF_PAYLOAD__SINGLE__WORD__Data fail RET : -1
+10 __START_BYTES__MSG_DIAG__SUB_COMMAND__SIZE_OF_PAYLOAD__SINGLE__WORD__Data fail RET : -1
+10 __START_BYTES__MSG_DIAG__SUB_COMMAND__SIZE_OF_PAYLOAD__SINGLE__WORD__Data fail RET : -1
+
+
+-------------------------
+
+Documents [NEXT]
+	. Comments as doxygen for each function
+	. ASPICE traceability
+	. SDD/LLD with flow chart / state diagram / progress
+- Unit test (gtest & vectorCast) 
+- Study : Design Pattern , C++ , perlre(ING)
+
+-------------------------
+
 Example : MEM_CPU_LOG
 - Draw the chart to check the memory and cpu usage
 - It will check every day what is the problem.:q
 
- - Documents [NEXT]
-	. Comments as doxygen for each function
-	. ASPICE traceability
-	. SDD/LLD with flow chart / state diagram / progress
- - Unit test (gtest & vectorCast) 
- - Study : Design Pattern , C++ , perlre(ING)
-
- ------------------------
-
+-------------------------
 
 [Parser Done] : parser.c
 

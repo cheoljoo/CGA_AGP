@@ -1,17 +1,84 @@
-FileName : struct.h
+FileName : ut.c
+Set : iterate_comments = ON
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "struct.h"
+#include "parser.h"
 
 ITERATE %gColStruct +<<+ ITKEY  ITVALUE
-+<+$gColStruct{ITKEY}{Struct}+>+
+void set_ITKEY_struct(struct +<+$gColStruct{ITKEY}{Name}+>+ *p) // ITKEY :  +<+$gColStruct{ITKEY}{Name}+>+
+{
+	ITERATE %gStructUnitTest{ITKEY} +<<+ IT2KEY  IT2VALUE
+	// ITKEY IT2KEY +<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+
+	// ITKEY IT2KEY +<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+
+	// ITKEY IT2KEY +<+$gStructUnitTest{ITKEY}{IT2KEY}{varValue}+>+
+	IFEQUAL(+<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+  eq "char"){
+		p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+  = (char) +<+$gStructUnitTest{ITKEY}{IT2KEY}{varValue}+>+  ;
+	}
+	IFEQUAL(+<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+  eq "short"){
+		p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+  = (short) +<+$gStructUnitTest{ITKEY}{IT2KEY}{varValue}+>+  ;
+	}
+	IFEQUAL(+<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+  eq "int"){
+		p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+  = (int) +<+$gStructUnitTest{ITKEY}{IT2KEY}{varValue}+>+  ;
+	}
+#ifdef DEBUG
+		printf("Sets +<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+   +<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+ : value %x\n",p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+);
+#endif
+	+>>+
+
+#ifdef DEBUG
+	{
+		int i=0;
+		unsigned char *ch;
+		ch = (unsigned char *)p;
+		printf("Buffer = ");
+		for(i=0;i<20;i++){
+			printf("%2x ",ch[i]);
+		}
+		printf("\n");
+	}
+#endif
+}
 +>>+
 
+int main()
+{
+	char buf[BUFSIZ];
+
+	ITERATE %gColStruct +<<+ ITKEY  ITVALUE
+	{
+		struct +<+$gColStruct{ITKEY}{Name}+>+ *p;
+		p = (struct +<+$gColStruct{ITKEY}{Name}+>+ *) buf;
+		{
+			int ret;
+			memset(buf , 0 , BUFSIZ);
+			set_ITKEY_struct(p);
+			ret = parser((unsigned char *) p);
+			printf("ITKEY +<+$gColStruct{ITKEY}{Name}+>+ success RET : %d\n",ret);
+		}
+		ITERATE %gStructUnitTest{ITKEY} +<<+ IT2KEY  IT2VALUE
+		{
+			int ret;
+			memset(buf , (int) 0 , BUFSIZ);
+			set_ITKEY_struct(p);
+			p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+  = ( +<+$gStructUnitTest{ITKEY}{IT2KEY}{varType}+>+ ) 0xff; // orgValue: +<+$gStructUnitTest{ITKEY}{IT2KEY}{varValue}+>+ 
+			ret = parser((unsigned char *) p);
+			printf("ITKEY +<+$gColStruct{ITKEY}{Name}+>+ fail RET : %d\n",ret);
+		}
+		+>>+
+
+	}
+	+>>+
+
+	return 0;
+}
 
 
 FileName : parser.c
 Set : iterate_comments = ON
-int parser(unsigned char *p);
-ITERATE %gParserRow +<<+ ITKEY  ITVALUE
-int parser_levelITKEY(int FromStatus, unsigned char *p);
-+>>+
+#include "parser.h"
 
 ITERATE -V%gColShortStructName +<<+ ITKEY  ITVALUE
 #define PARSER_RETURN_ITKEY     ITVALUE
@@ -23,15 +90,22 @@ ITERATE V%gLongDefine{Name} +<<+ ITKEY  ITVALUE
 +>>+
 
 int parser(unsigned char *p){
-	return parser_level+<+$gParserMinY+>+(-1,p);
+	return parser_level+<+$gParserMinY+>+(-1,"INIT",p);
 }
 
 ITERATE %gParserRow +<<+ ITKEY  ITVALUE
-int parser_levelITKEY(int FromStatus, unsigned char *p){
+int parser_levelITKEY(int FromStatus, const char *s,unsigned char *p){
 	//  unsigned char / short / int value = (unsigned char / short / int) (p + LENGTH)
 	unsigned char *pcvalue; pcvalue = (unsigned char *) (p+ITKEY);
 	short *psvalue; psvalue = (short *) (p+ITKEY);
 	int *pivalue; pivalue = (int *) (p+ITKEY);
+
+#ifdef DEBUG
+	printf("parser_levelITKEY : FromStatus %s\n",s);
+		printf("*pcvalue [0x%x] ",*pcvalue);
+		printf("*psvalue [0x%x] ",*psvalue);
+		printf("*pivalue [0x%x]\n",*pivalue);
+#endif
 
 	IFEQUAL( ITKEY eq +<+$gParserMinY+>+){
 		if(0){
@@ -46,7 +120,7 @@ int parser_levelITKEY(int FromStatus, unsigned char *p){
 				return +<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ ;         // X : IT2KEY, Y : ITKEY
 			}
 			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
-				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+, p );  // X : IT2KEY, Y : ITKEY
+				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+, "+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+", p );  // X : IT2KEY, Y : ITKEY
 			}
 		}
 		+>>+
@@ -70,7 +144,7 @@ int parser_levelITKEY(int FromStatus, unsigned char *p){
 			}
 			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){
 				//return parser_level$gParserRow{ITKEY}{IT2KEY}{NextY}($gParserRow{ITKEY}{IT2KEY}{LongDefine}, p + 1);
-				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+, p );  // X : IT2KEY, Y : ITKEY
+				return parser_level+<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+(+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+,"+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+", p );  // X : IT2KEY, Y : ITKEY
 				// Structure Index : +<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+ [  +<+$gColShortStructName{+<+$gParserRow{ITKEY}{IT2KEY}{LongDefine}+>+}+>+  ]
 			}
 		}
@@ -81,6 +155,26 @@ int parser_levelITKEY(int FromStatus, unsigned char *p){
 }
 
 +>>+
+
+
+FileName : parser.h
+Set : iterate_comments = ON
+int parser(unsigned char *p);
+ITERATE %gParserRow +<<+ ITKEY  ITVALUE
+int parser_levelITKEY(int FromStatus, const char *s,unsigned char *p);
++>>+
+
+
+
+FileName : struct.h
+
+#pragma pack(1)
+ITERATE %gColStruct +<<+ ITKEY  ITVALUE
++<+$gColStruct{ITKEY}{Struct}+>+
++>>+
+
+
+
 
 
 FileName : table_protocol.html
