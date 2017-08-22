@@ -1,3 +1,7 @@
+Write the description which field of hash has what means.
+%_DESC_{HashNave}{.. Elements ...} { } ...
+
+---------------
 1. LIB.pm
 - Each perl module owns their own memory.
   So , we can set the variables in perl module.

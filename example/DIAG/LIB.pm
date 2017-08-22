@@ -221,12 +221,12 @@ sub recover_special_code
 
 sub traverse_hash_tree_to_recover_special_code
 {
-	my ($TAXA_TREE,$vn,$lstr,$fh,@keyOrder)    = @_;
+	my ($TAXA_TREE,$vn,$lstr,$fh,$_DESC_,@keyOrder)    = @_;
 	if($TAXA_TREE eq "LIB"){ die "ERROR:" . __SUB__ . "value $TAXA_TREE\n"; }
 	my $allDigit = 1;
 	my $keyOrderCnt = @keyOrder;
 
-	print " sub $TAXA_TREE $vn $lstr $fh\n";
+	#Debug print " sub $TAXA_TREE $vn $lstr $fh\n";
 	foreach my $tmpKey ( keys %{$TAXA_TREE}){
 		if(not ($tmpKey =~ /^\s*\d*\s*$/)){
 			$allDigit = 0;
@@ -284,12 +284,35 @@ sub traverse_hash_tree_to_recover_special_code
 
 sub traverse_hash_tree
 {
-	my ($TAXA_TREE,$vn,$filename,$mode,@keyOrder)    = @_;
+	my ($TAXA_TREE,$vn,$filename,$mode,$_DESC_,@keyOrder)    = @_;
 	print __SUB__ . "$TAXA_TREE VariableName $vn ,FileName $filename ,Mode $mode ,OtherKeys @keyOrder\n";
 	if($mode eq "NEW"){ open(OUT,">$filename"); }
 	else { open(OUT,">>$filename"); }
+
+	my $keyOrderCnt = @keyOrder;
+	if($keyOrderCnt > 0){       # make description
+		for(my $i=0;$i<$keyOrderCnt;$i++){
+			foreach my $key (sort {$a <=> $b}  keys %{$_DESC_->{$vn}}){
+				if($key == 0){
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}{0}{Name}=\"" . $_DESC_->{$vn}{$i+1}{Name} . "\"\n";
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}{0}{Description}=\"" . $_DESC_->{$vn}{$i+1}{Description} . "\"\n";
+					if($_DESC_->{$vn}{$i+1}{isDIGIT} ne ""){ print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}{0}{isDIGIT}=" . $_DESC_->{$vn}{$i+1}{isDIGIT} . "\n"; }
+				} elsif($key == ($i+1)){
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . ($i+1) . "\}{Name}=\"" .  $_DESC_->{$vn}{0}{Name} . "\"\n";
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . ($i+1) . "\}{Description}=\"" .  $_DESC_->{$vn}{0}{Description} . "\"\n";
+					if($_DESC_->{$vn}{0}{isDIGIT} ne ""){ print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . ($i+1) . "\}{isDIGIT}=" .  $_DESC_->{$vn}{0}{isDIGIT} . "\n"; }
+				} else {
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . $key . "\}{Name}=\"" .  $_DESC_->{$vn}{$key}{Name} . "\"\n";
+					print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . $key . "\}{Description}=\"" .  $_DESC_->{$vn}{$key}{Description} . "\"\n";
+					if($_DESC_->{$vn}{$key}{isDIGIT} ne ""){ print OUT "\$_DESC_\{$vn\_$keyOrder[$i]\}\{" . $key . "\}{isDIGIT}=" .  $_DESC_->{$vn}{$key}{isDIGIT} . "\n"; }
+				}
+			}
+			#print $_DESC_->{$vn}{$i}{Name} . "\n";
+		}
+	}
+
 	print OUT "----[$vn]-+-+-+-\n";
-	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,"",OUT,@keyOrder);
+	traverse_hash_tree_to_recover_special_code($TAXA_TREE,$vn,"",OUT,$_DESC_,@keyOrder);
 	close(OUT);
 }
 
