@@ -57,7 +57,7 @@ sub CChange
 	my $in;
 	my $in_start;
 	my $in_end;
-	my $iterate_cnt = 0;
+	my $iterate_depth_cnt = 0;
 	my $stc_filename_input ;
 	my $stc_filename_output ;
 	my $stc_debug ;
@@ -206,29 +206,29 @@ END_COMMENT
 		}
 
 
-#print_fp("Line 1 icnt=$iterate_cnt : $in",DBG);
-		if(0 == $iterate_cnt){
+#print_fp("Line 1 icnt=$iterate_depth_cnt : $in",DBG);
+		if(0 == $iterate_depth_cnt){
 			$in = replace_var_with_value($in);
 		}
-#print_fp("Line 2 icnt=$iterate_cnt : $in",DBG);
+#print_fp("Line 2 icnt=$iterate_depth_cnt : $in",DBG);
 
-		if ($in =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
+		if ($in =~ /^\s*ITERATE\s+([+-\|]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)\s*$/){
 			#ITERATOR_DEBUG 
 			print DBG "ITERATE Mstart $1 $2 $3 $4\n"; 
-			if(0 == $iterate_cnt){
+			if(0 == $iterate_depth_cnt){
 				$in_start = $in;
 				($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3 , $4);
 			} else {
 				$iterate_lines .= $in;
 			}
-			$iterate_cnt ++;
+			$iterate_depth_cnt ++;
 			#ITERATOR_DEBUG 
-			print DBG "ITERATE iterate_cnt $iterate_cnt : $in";
+			print DBG "ITERATE iterate_depth_cnt $iterate_depth_cnt : $in";
 		} elsif ($in =~ /^(.*)\+>>\+/){
-			$iterate_cnt--;
+			$iterate_depth_cnt--;
 			#ITERATOR_DEBUG 
-			print DBG "ITERATE iterate_cnt $iterate_cnt : $in";
-			if(0 == $iterate_cnt){
+			print DBG "ITERATE iterate_depth_cnt $iterate_depth_cnt : $in";
+			if(0 == $iterate_depth_cnt){
 				if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID time_debug=="); }
 				$in_end = $in;
 				#ITERATOR_DEBUG 
@@ -284,11 +284,11 @@ END_COMMENT
 
 				$iterate_lines = "";
 #print DBG "Mend \n";
-			} else {			# if(0 == $iterate_cnt)
+			} else {			# if(0 == $iterate_depth_cnt)
 				$iterate_lines .= $in;
-			} 					#if(0 == $iterate_cnt)
+			} 					#if(0 == $iterate_depth_cnt)
 		} else {
-			if(0 == $iterate_cnt){
+			if(0 == $iterate_depth_cnt){
 				#print_fp($in, OUTPUTC);
 				$file_output{$stc_filename_output} .= $in;
 			} else {
@@ -482,6 +482,7 @@ sub sort_keys
 	my $debug = "DEBUG_OFF";
 	my @ret;
 	($iterate_var_name ,$iterate_op_type,$debug) = @_;
+	print __SUB__ . $iterate_var_name . "\n";
 	if($iterate_op_type =~ m/-/){ $tmpReverse = "-"; }
 	if($iterate_op_type =~ m/V/){ $tmpValue = "V"; }
 	if($tmpValue eq "V"){
@@ -500,6 +501,7 @@ sub sort_keys
 		}
 	}
 		
+	print __SUB__ . "digit = $allDigit\n";
 	if($allDigit == 1){ 
 		if($tmpValue eq "V"){
 			@ret = sort {getHashRef($iterate_var_name)->{$a} <=> getHashRef($iterate_var_name)->{$b}} keys %{getHashRef($iterate_var_name)};
@@ -513,6 +515,15 @@ sub sort_keys
 		@ret = reverse @ret;
 	}
 
+
+	print __SUB__ . "ret = @ret\n";
+
+	my $mycnt = @ret;
+	for(my $i = 0 ; $i < $mycnt ; $i++){
+		if($ret[$i] eq ""){ print "A\n";   splice @ret,$i,1; }
+	}
+	print __SUB__ . "ret = @ret\n";
+
 	if($debug eq "DEBUG_ON"){
 		print DBG __SUB__;
 		foreach (@ret){
@@ -521,22 +532,26 @@ sub sort_keys
 		print DBG "\n";
 	}
 
-	return @ret
+	return @ret;
 }
 
 sub Iterator_recursion
 {
 	my $iterate_var_type;
+	my $iterate_var_type2;
 	my $iterate_var_name;
 	my $iterate_key;
 	my $iterate_value;
 	my $iterate_lines;
 	my $result = "";
 	my $in;
-	my $iterate_cnt = 0;
+	my $iterate_depth_cnt = 0;
+	my $iterate_loop_cnt = 0;
 	my @lines;
 
 	($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value, $iterate_lines) = @_;
+	$iterate_key_index = "INDEX_" . $iterate_key;
+	$$iterate_key_index = 0;
 	#print_fp( "O : @_\n", OUTPUTC);
 	print DBG __SUB__ . "RC : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n";
 
@@ -547,15 +562,17 @@ sub Iterator_recursion
 	#   @ : array
 	#   & : reverse array
 	#   + : 0 ~ max key value (only digits)
-	if($iterate_var_type =~ m/^[+-]?[KV]?\%/){
+	if($iterate_var_type =~ m/^[+-\|]?[KV]?\%/){
 		print DBG __SUB__ . "RC : HASH Iterator_recursion : \$iterate_var_name = $iterate_var_name ]]]\n";
 		#$tmp1 = eval $$iterate_var_name;
 		#print DBG __SUB__ . "RC-1 : " . (sort_keys($iterate_var_name) ) . "\n";
 		foreach $stg_key_hash (sort_keys($iterate_var_name,$iterate_var_type,"DEBUG_ON")){
 			print DBG __SUB__ . "RC : HASH Iterator_recursion : \$key = $stg_key_hash\n";
 			$temp = $iterate_lines;
+			$temp =~ s/$iterate_key_index/$iterate_loop_cnt/g;
 			$temp =~ s/$iterate_key/$stg_key_hash/g;
 			$temp =~ s/$iterate_value/$$iterate_var_name{$stg_key_hash}/g;
+			$iterate_loop_cnt ++;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\@"){
@@ -565,8 +582,10 @@ sub Iterator_recursion
 		for(my $i = 0 ; $i < $my_cnt ; $i++){
 			#ITERATOR_DEBUG print DBG "array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
 			$temp = $iterate_lines;
+			$temp =~ s/$iterate_key_index/$iterate_loop_cnt/g;
 			$temp =~ s/$iterate_key/$i/g;
 			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
+			$iterate_loop_cnt ++;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\&"){
@@ -576,8 +595,10 @@ sub Iterator_recursion
 		for(my $i = $my_cnt - 1 ; $i >= 0 ; $i--){
 			#ITERATOR_DEBUG print DBG "REVERSE array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
 			$temp = $iterate_lines;
+			$temp =~ s/$iterate_key_index/$iterate_loop_cnt/g;
 			$temp =~ s/$iterate_key/$i/g;
 			$temp =~ s/$iterate_value/$$iterate_var_name[$i]/g;
+			$iterate_loop_cnt ++;
 			$result .= $temp;
 		}
 	} elsif($iterate_var_type eq "\+"){
@@ -587,8 +608,10 @@ sub Iterator_recursion
 		for(my $i = 0 ; $i <= $my_max ; $i++){
 			#ITERATOR_DEBUG print DBG "array : \$$iterate_var_name \[ $i \] = $$iterate_var_name[$i]\n";
 			$temp = $iterate_lines;
+			$temp =~ s/$iterate_key_index/$iterate_loop_cnt/g;
 			$temp =~ s/$iterate_key/$i/g;
 			$temp =~ s/$iterate_value/$$iterate_var_name{$i}/g;
+			$iterate_loop_cnt ++;
 			$result .= $temp;
 		}
 	} else {
@@ -600,28 +623,28 @@ sub Iterator_recursion
 
 	# Various Operation
 	$iterate_lines = "";
-	if($result =~ /\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
+	if($result =~ /\s*ITERATE\s+([+-\|]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){ 
 		@lines = split("\n",$result);
 		$result = "";
 		foreach my $it_line (@lines){
-			if ($it_line =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
+			if ($it_line =~ /^\s*ITERATE\s+([+-\|]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/){  
 #print DBG "Set Hash 20 : $iterate_lines \n";
 				$it_line = replace_var_with_value($it_line);
-#print DBG "Set Hash 21 : $iterate_cnt : $it_line\n";
-				$it_line =~ /^\s*ITERATE\s+([+-]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
-				if(0 == $iterate_cnt){
+#print DBG "Set Hash 21 : $iterate_depth_cnt : $it_line\n";
+				$it_line =~ /^\s*ITERATE\s+([+-\|]?[KV]?[%@&+])(\S+)\s+\+<<\+\s+(\S+)\s+(\S+)/;  
+				if(0 == $iterate_depth_cnt){
 #print  DBG "Sstart $1 $2 $3\n"; 
-					($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
+					($iterate_var_type2 , $iterate_var_name , $iterate_key , $iterate_value) = ($1,$2,$3,$4);
 				} else {
 					$iterate_lines .= $it_line . "\n";
 				}
-				$iterate_cnt ++;
+				$iterate_depth_cnt ++;
 			}
 			elsif ($it_line =~ /^(.*)\+>>\+/){
-#print DBG "SUB_ITERATE : $iterate_cnt : $it_line\n";
-				$iterate_cnt--;
-				if(0 == $iterate_cnt){
-					$iterate_lines = Iterator_recursion($iterate_var_type , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
+#print DBG "SUB_ITERATE : $iterate_depth_cnt : $it_line\n";
+				$iterate_depth_cnt--;
+				if(0 == $iterate_depth_cnt){
+					$iterate_lines = Iterator_recursion($iterate_var_type2 , $iterate_var_name,$iterate_key,$iterate_value,$iterate_lines);
 #print  DBG "Send result 30 :: $iterate_lines\n"; 
 					#$iterate_lines = replace_var_with_value($iterate_lines);
 					$result .= $iterate_lines;
@@ -633,10 +656,10 @@ sub Iterator_recursion
 				}
 			} 
 			else {
-#print DBG "SUB_ITERATE 40 : $iterate_cnt : $it_line\n";
-				if(0 == $iterate_cnt){
+#print DBG "SUB_ITERATE 40 : $iterate_depth_cnt : $it_line\n";
+				if(0 == $iterate_depth_cnt){
 					$it_line = replace_var_with_value($it_line);
-#print DBG "SUB_ITERATE 41 : $iterate_cnt : $it_line\n";
+#print DBG "SUB_ITERATE 41 : $iterate_depth_cnt : $it_line\n";
 					$result .= $it_line . "\n";
 				} else {
 					$iterate_lines .= $it_line . "\n";
@@ -644,6 +667,13 @@ sub Iterator_recursion
 				}
 			} 
 		}
+	}
+	print DBG __SUB__ . "RC $iterate_var_type\n";
+	if($iterate_var_type =~ m/\|/){
+		print DBG "result Before[$iterate_var_type]||  $result\n";
+		$result =~ s/\n//g;
+		$result =~ s///g;
+		print DBG "result After [$iterate_var_type]||  $result\n";
 	}
 	return $result;
 }

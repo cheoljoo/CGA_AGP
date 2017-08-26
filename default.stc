@@ -1,3 +1,49 @@
+FileName : parser.aspice.SAD
+Set : iterate_comments = OFF
+@startuml start
+:Here is a table result
+ITERATE %gRow +<<+ ITKEY  ITVALUE
+	ITERATE |%gRow{ITKEY} +<<+ IT2KEY  IT2VALUE
+| +<+$gRow{ITKEY}{IT2KEY}{Value}+>+
+	+>>+
+| [ITKEY] |
++>>+
+;
+start;
+ITERATE %gParserRow +<<+ ITKEY  ITVALUE
+:Byte ITKEY;
+	ITERATE %gParserRow{ITKEY} +<<+ IT2KEY  IT2VALUE
+		IFEQUAL(INDEX_IT2KEY eq 0){
+			if ( +<+$gLongDefine{Name}{$gParserRow{$gParserRow{ITKEY}{IT2KEY}{ParserParentY}}{$gParserRow{ITKEY}{IT2KEY}{ParserParentX}}{LongDefine}}+>+  && +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+) then (yes)
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){ 
+				:return +<+$gLongDefine{Name}{$gParserRow{ITKEY}{IT2KEY}{LongDefine}}+>+; 
+				stop; 
+			}
+			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){ 
+				:Next Byte +<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+ , +<+$gLongDefine{Name}{$gParserRow{ITKEY}{IT2KEY}{LongDefine}}+>+;
+			}
+		}
+		IFNOTEQUAL(INDEX_IT2KEY eq 0){
+			elseif ( +<+$gLongDefine{Name}{$gParserRow{$gParserRow{ITKEY}{IT2KEY}{ParserParentY}}{$gParserRow{ITKEY}{IT2KEY}{ParserParentX}}{LongDefine}}+>+  && +<+$gParserRow{ITKEY}{IT2KEY}{Value}+>+) then (yes)
+			IFEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){ 
+				:return +<+$gLongDefine{Name}{$gParserRow{ITKEY}{IT2KEY}{LongDefine}}+>+; 
+				stop; 
+			}
+			IFNOTEQUAL($gParserRow{ITKEY}{IT2KEY}{ShortStruct} eq "O"){ 
+				:Next Byte +<+$gParserRow{ITKEY}{IT2KEY}{NextY}+>+ , +<+$gLongDefine{Name}{$gParserRow{ITKEY}{IT2KEY}{LongDefine}}+>+;
+			}
+		}
+	+>>+
+else (default)
+endif
++>>+
+
+
+stop
+@enduml
+
+
+
 FileName : ut.c
 Set : iterate_comments = ON
 
@@ -8,6 +54,26 @@ Set : iterate_comments = ON
 #include "parser.h"
 
 ITERATE %gColStruct +<<+ ITKEY  ITVALUE
+/**
+ * @brief set the vaule to structure :  +<+$gColStruct{ITKEY}{Name}+>+
+ *
+ INDEX INDEX_ITKEY
+ * Description  : All structure has their own right value.
+ *  This values are used for parsing.
+ *
+ * @code
+	ITERATE %gStructUnitTest{ITKEY} +<<+ IT2KEY  IT2VALUE
+ * p->+<+$gStructUnitTest{ITKEY}{IT2KEY}{varName}+>+;
+	+>>+
+ * @endcode
+ *
+ * @param p structure pointer of struct number:ITKEY and name:+<+$gColStruct{ITKEY}{Name}+>+
+ *
+ * @return void
+ * @see [BEFORE:SRS001]
+ * @see [AFTER:http://website/]
+ * @note Set value to parse from input buffer
+ */
 void set_ITKEY_struct(struct +<+$gColStruct{ITKEY}{Name}+>+ *p) // ITKEY :  +<+$gColStruct{ITKEY}{Name}+>+
 {
 	ITERATE %gStructUnitTest{ITKEY} +<<+ IT2KEY  IT2VALUE
@@ -29,6 +95,7 @@ void set_ITKEY_struct(struct +<+$gColStruct{ITKEY}{Name}+>+ *p) // ITKEY :  +<+$
 	+>>+
 
 #ifdef DEBUG
+	/// print buffer to hexa code until 20 bytes.
 	{
 		int i=0;
 		unsigned char *ch;
@@ -43,6 +110,15 @@ void set_ITKEY_struct(struct +<+$gColStruct{ITKEY}{Name}+>+ *p) // ITKEY :  +<+$
 }
 +>>+
 
+/**
+ * @brief main funciton for unit test
+ *
+ * Description  : Unit Test
+ *  Suggest one success case and multiple fail case each structure.
+ *
+ * @return void
+ * @note we should check the ode coverage from this test cases.
+ */
 int main()
 {
 	char buf[BUFSIZ];
@@ -76,35 +152,143 @@ int main()
 }
 
 
-FileName : parser.c
+FileName : parser.aspice.FULL
 Set : iterate_comments = ON
+
+/**
+  * When we meet the following warning:
+  * parser.c:92:3: warning: implicitly declaring library function 'printf' with type 'int (const char *, ...)' [-Wimplicit-function-declaration]
+  *               printf("parser_level0 : FromStatus %20s\n",s);
+  * parser.c:92:3: note: include the header <stdio.h> or explicitly provide a declaration fo
+  * You should add <stdio.h>
+  */
+#include <stdio.h>
+#include "parser.h"
+
+/**
+  @CGA_SyRS Need the protocol between AP and MICOM
+  SyRS: System requirement
+
+  @CGA_SRS   How to match without any fixed number. I wanna make the number automatically.
+	- @[SRS_DEFINE_PROTOCOL]@ define protocol
+bytes [Len:Span:ParserParentX:ParserParentY]
+Byte[_____ 0____] [_____ 1____] [_____ 2____] [_____ 3____] [_____ 4____] [_____ 5____] [_____ 6____] [_____ 7____] [_____ 8____] [_____ 9____] [_____10____] 
+ 0 [ 1:11: 0: 0] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 0 X:    0xAA                                                                                                                                                
+ 1 [ 1: 3: 0: 0] [__:__:__:__] [__:__:__:__] [ 1: 3: 0: 0] [__:__:__:__] [__:__:__:__] [ 1: 1: 0: 0] [ 1: 1: 0: 0] [ 1: 1: 0: 0] [ 1: 1: 0: 0] [ 1: 1: 0: 0] 
+ 1 X:    0x84                                X:    0x88                                O:    0x81    O:    0x82    O:    0x85    X:    0x86    X:    0x87    
+ 2 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 2                                                                                                                                                           
+ 3 [ 2: 1: 0: 1] [ 2: 1: 0: 1] [ 2: 1: 0: 1] [ 2: 1: 3: 1] [ 2: 1: 3: 1] [ 2: 1: 3: 1] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 3 X:  0x0A03    X:  0x0F02    X:  0x01EE    X:  0x0A03    X:  0x0F02    X:  0x01EE                                                                          
+ 4 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [ 2: 1: 9: 1] [ 1: 1:10: 1] 
+ 4                                                                                                                               X:  0x0102    X:    0x01    
+ 5 [ 2: 1: 0: 3] [ 2: 1: 1: 3] [ 1: 1: 2: 3] [ 2: 1: 3: 3] [ 2: 1: 4: 3] [ 1: 1: 5: 3] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [ 2: 1:10: 4] 
+ 5 X:    0x03    X:  0x3303    O:    0x07    X:    0x03    X:  0x3303    O:    0x07                                                            O:  0x0102    
+ 6 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [ 1: 1: 9: 4] [__:__:__:__] 
+ 6                                                                                                                               O:    0x01                  
+ 7 [ 1: 1: 0: 5] [ 1: 1: 1: 5] [__:__:__:__] [ 1: 1: 3: 5] [ 1: 1: 4: 5] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 7 X:    0x04    O:    0x08                  X:    0x04    O:    0x08                                                                                        
+ 8 [ 1: 1: 0: 7] [__:__:__:__] [__:__:__:__] [ 1: 1: 3: 7] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 8 O:    0x06                                O:    0x06                                                                                                      
+ 9 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+ 9                                                                                                                                                           
+10 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+10                                                                                                                                                           
+11 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+11                                                                                                                                                           
+12 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+12                                                                                                                                                           
+13 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+13                                                                                                                                                           
+14 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+14                                                                                                                                                           
+15 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+15                                                                                                                                                           
+16 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+16                                                                                                                                                           
+17 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+17                                                                                                                                                           
+18 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+18                                                                                                                                                           
+19 [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] [__:__:__:__] 
+	- @[SRS_PARSER]@ make a parse function
+  SRS : software requirement
+
+  @CGA_SAD I will use UML or flow chart what it is.
+  SAD : software architecture design
+  parser.aspice.SAD
+
+  @CGA_SDD I will explain what each function does.
+  SDD : software detailed design
+  each function has tag (down direction) and the will have another link for uplink.
+  */
+
+
+FileName : parser.c
+Set : iterate_comments = OFF
+
+/**
+  * When we meet the following warning:
+  * parser.c:92:3: warning: implicitly declaring library function 'printf' with type 'int (const char *, ...)' [-Wimplicit-function-declaration]
+  *               printf("parser_level0 : FromStatus %20s\n",s);
+  * parser.c:92:3: note: include the header <stdio.h> or explicitly provide a declaration fo
+  * You should add <stdio.h>
+  */
+#include <stdio.h>
 #include "parser.h"
 
 ITERATE -V%gColShortStructName +<<+ ITKEY  ITVALUE
-#define PARSER_RETURN_ITKEY     ITVALUE
-				// Structure Index (It will be returned) : ITKEY [  +<+$gColShortStructName{ITKEY}+>+  ]
+#define PARSER_RETURN_ITKEY     ITVALUE     /// Structure Index (It will be returned) : ITKEY [  +<+$gColShortStructName{ITKEY}+>+  ]
 +>>+
 
 ITERATE V%gLongDefine{Name} +<<+ ITKEY  ITVALUE
-#define ITKEY   +<+$gLongDefine{Name}{ITKEY}+>+
+#define ITKEY   +<+$gLongDefine{Name}{ITKEY}+>+     /// index and Name for Long Definition for each structure
 +>>+
 
+/**
+ * @brief Parser Function
+ *
+ * Description  : This is common api for parsing.
+ *
+ * @param p buffer pointer (binary)
+ *
+ * @return > 0 : Matched Structure Index
+ * @return  -1 : Fail
+ */
 int parser(unsigned char *p){
 	return parser_level+<+$gParserMinY+>+(-1,"INIT",p);
 }
 
 ITERATE %gParserRow +<<+ ITKEY  ITVALUE
-int parser_levelITKEY(int FromStatus, const char *s,unsigned char *p){
+/**
+ * @brief parser process to find matched structure
+ *
+ * Description  : ITKEY 
+ * 1. Find the matched structure using previous status and current value.
+ * 2. If this is final , return the proper structure index or fail (-1)
+ * 3. If this is not final , go to next function according to bytes sequence. 
+ *
+ * @param FromStatus previous state
+ * @param s string of previous state
+ * @param p buffer pointer (binary) 
+ *
+ * @return > 0 : Matched Structure Index
+ * @return  -1 : Fail
+ */
+int parser_levelITKEY(int FromStatus, char *s,unsigned char *p){
 	//  unsigned char / short / int value = (unsigned char / short / int) (p + LENGTH)
 	unsigned char *pcvalue; pcvalue = (unsigned char *) (p+ITKEY);
 	short *psvalue; psvalue = (short *) (p+ITKEY);
 	int *pivalue; pivalue = (int *) (p+ITKEY);
 
 #ifdef DEBUG
-	printf("parser_levelITKEY : FromStatus %s\n",s);
+	{
+		printf("parser_levelITKEY : FromStatus %20s\n",s);
 		printf("*pcvalue [0x%x] ",*pcvalue);
 		printf("*psvalue [0x%x] ",*psvalue);
 		printf("*pivalue [0x%x]\n",*pivalue);
+	}
 #endif
 
 	IFEQUAL( ITKEY eq +<+$gParserMinY+>+){
@@ -161,7 +345,7 @@ FileName : parser.h
 Set : iterate_comments = ON
 int parser(unsigned char *p);
 ITERATE %gParserRow +<<+ ITKEY  ITVALUE
-int parser_levelITKEY(int FromStatus, const char *s,unsigned char *p);
+int parser_levelITKEY(int FromStatus, char *s,unsigned char *p);
 +>>+
 
 
