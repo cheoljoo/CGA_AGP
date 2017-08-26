@@ -551,7 +551,6 @@ sub Iterator_recursion
 
 	($iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value, $iterate_lines) = @_;
 	$iterate_key_index = "INDEX_" . $iterate_key;
-	$$iterate_key_index = 0;
 	#print_fp( "O : @_\n", OUTPUTC);
 	print DBG __SUB__ . "RC : $iterate_var_type , $iterate_var_name , $iterate_key , $iterate_value\n";
 
