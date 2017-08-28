@@ -1,31 +1,39 @@
-New Branch : DOXYGEN (doxygen including plantUML  and  prepare the init for ASPICE )
-Mission 1 : ASPICE
-- Comments as doxygen for each function
-  Done : add doxygen comments in parser.c ut.c
-- Requirement
-  I will explain why I make it.
-  @CGA_SyRS Need the protocol between AP and MICOM
-  @CGA_SRS   How to match without any fixed number. I wanna make the number automatically.
-	- @[SRS_DEFINE_PROTOCOL]@ define protocol
-	- @[SRS_PARSER]@ make a parse function
-- SAD
-  What is needed for that
-  How to design
-	@CGA_SAD I will use UML or flow chart what it is.
-	SAD : software architecture design
-	parser.aspice.SAD
-- SDD/LLD with flow chart / state diagram / progress
-	make the flow  diagram of parser code with platntUML
-	(This is LLD)
-	@CGA_SDD I will explain what each function does.
-	SDD : software detailed design
-	each function has tag (down direction) and the will have another link for uplink.
-- ASPICE traceability
+Mission 1 : ASPICE traceability
+- How to design aspice traceability
+- how to connect the link between SRS SAD LLD
+- How to make a apsice table from which annotation
+
 Mission 2 : Merge all branches' technology into master
 - Merge the log txt
 	- UNITTEST -> master
 	- LIB_pm includeing DIAG -> master
 keep the status of example directory
+
+
+ ------------------------
+
+New Branch : DOXYGEN (doxygen including plantUML  and  prepare the init for ASPICE )
+Mission 1 : ASPICE
+- Comments as doxygen for each function (Done)
+  Done : add doxygen comments in parser.c ut.c
+- Requirement (I do not know how to do.)
+  I will explain why I make it.
+  @CGA_SyRS Need the protocol between AP and MICOM
+  @CGA_SRS   How to match without any fixed number. I wanna make the number automatically.
+	- @[SRS_DEFINE_PROTOCOL]@ define protocol
+	- @[SRS_PARSER]@ make a parse function
+- SAD  (Done)
+  What is needed for that
+  How to design
+	@CGA_SAD I will use UML or flow chart what it is.
+	SAD : software architecture design
+	parser.aspice.SAD
+- SDD/LLD with flow chart / state diagram / progress (Done)
+	make the flow  diagram of parser code with platntUML
+	(This is LLD)
+	@CGA_SDD I will explain what each function does.
+	SDD : software detailed design
+	each function has tag (down direction) and the will have another link for uplink.
 
 
  ------------------------
