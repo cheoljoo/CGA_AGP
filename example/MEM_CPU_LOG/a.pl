@@ -256,6 +256,7 @@ $dir = $recent;
 	print "$logPath : $date\n";
 
 	my $min = 0;
+	my $maxmin = 0;
 	my $memcmdlistcnt=0;
 	my $cpucmdlistcnt=0;
 	open(LOGI,"<$logPath");
@@ -265,6 +266,11 @@ $dir = $recent;
 		if($s =~ m/^\s*DATE\s*:\s*.*up\s+(\d+)\s*min/){
 			# DATE :  00:25:32 up 5 min,  load average: 1.04, 0.84, 0.40
 			$min = $1;
+			if($maxmin < $min){
+				$maxmin = $min;
+			} else {
+				last;
+			}
 			print "$min : $s\n";
 		} elsif($s =~ m/^\s*(\d+)\s+(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+(\d+[BMKG]?)\s+(.*)\s*$/){
 			# PID       Vss      Rss      Pss      Uss  cmdline
@@ -328,7 +334,7 @@ $dir = $recent;
 #### STEP 2
 # Find increase the memory size each process in a day
 # Find increasing memory size and cpu % than yesterday
-my $minCountMax = 0;
+my $minCountMax = 1;
 foreach my $date (keys %{MEMTASK}){
 	my $minCount = 0;
 	foreach my $min (keys %{$MEMTASK{$date}}){
