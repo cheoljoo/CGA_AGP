@@ -229,7 +229,7 @@ our %RAM;
 our %CPUTOTAL;
 our %CPUTASK;
 
-our $logFileName = "memory.log";
+our $logFileName = "logger/memory.log";
 opendir(DIR, ".");
 @files = sort readdir(DIR);
 closedir(DIR);
@@ -243,6 +243,7 @@ print "finalfiles = " . "@finalFiles" . "\n";;
 $recent = pop(@finalFiles);
 print "recent = " . $recent . "\n";;
 
+$gVariables{gDirectory} = $recent;
 #foreach $dir (@finalFiles)
 $dir = $recent;
 {
@@ -254,6 +255,8 @@ $dir = $recent;
 
 	if(not (-e $logPath) ){ next; }
 	print "$logPath : $date\n";
+
+	$gVariables{gLogPath} = $logPath;
 
 	my $min = 0;
 	my $maxmin = 0;
@@ -421,6 +424,8 @@ foreach $date (sort keys %{MEMTASK}){
 print "mul $mul $minCountMax\n";
 print "MAXOVERCOUNT=$MAXOVERCOUNT\n";
 
+$gPrintHashName{"gVariables"} = "Global Variables.  I will make the varible directly.";
+
 #### OUT
 open(OUT,">default.GVm");
 traverse_hash_tree(\%{MEMTASK},MEMTASK,"",OUT);
@@ -436,5 +441,6 @@ traverse_hash_tree(\%{MEMCHART},MEMCHART,"",OUT);
 traverse_hash_tree(\%{MEMCMDCHART},MEMCMDCHART,"",OUT);
 traverse_hash_tree(\%{MEMPIDCMDCHART},MEMPIDCMDCHART,"",OUT);
 traverse_hash_tree(\%{MEMPIDCMDDMCHART},MEMPIDCMDDMCHART,"",OUT);
+traverse_hash_tree(\%{gVariables},gVariables,"",OUT);
 close(OUT);
 

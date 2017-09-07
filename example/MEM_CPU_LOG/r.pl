@@ -317,7 +317,10 @@ END_COMMENT
 		#$lines =~ s/STG_SHARP_/\#/g;
 		if($stc_debug eq "DEBUG_ON"){ mid_time_log("==MID equal end =="); }
 
-		open(OUTPUTC , ">$outputdir/$stc_output_dir/$tmpKey");
+		#open(OUTPUTC , ">$outputdir/$stc_output_dir/$tmpKey");
+		my $lfile = $gVariables{gDirectory} . "/". $tmpKey;
+		print  "filename = " . $lfile . "\n";
+		open(OUTPUTC , ">$lfile");
 		print OUTPUTC $lines;
 		close(OUTPUTC);
 	}
