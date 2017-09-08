@@ -436,6 +436,7 @@ sub  iterate_equal(){
 	#if($iterate_lines =~ /(IFEQUAL.*)/){ print ": $1 \n: IFEQUAL .. #{ }#일때 }# 뒤에 문자가 오면 안됨\n"; print ": #{ }# 안에 # 문자가 오면 안됨.\n";  die $error = 612348;}
 }
 
+our %pNull = {};
 sub getHashRef {
 	my ($name) = @_;        # gCan{9}
 	my $first;
@@ -451,7 +452,11 @@ sub getHashRef {
 	}
 
 	print "I " . $hn . "\n";
-	return $hn;
+	if($hn == 0){
+		return \%pNull;
+	} else {
+		return $hn;
+	}
 }
 
 sub max_keys
