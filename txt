@@ -1,13 +1,14 @@
 Mission 1 : ASPICE traceability
 - How to design aspice traceability
+  Need a SIMPLE Design (we can start from DRAFT)
 - how to connect the link between SRS SAD LLD
 - How to make a apsice table from which annotation
 
 Mission 2 : Merge all branches' technology into master
 - Merge the log txt
-	- UNITTEST -> master
+	- UNITTEST & DOXYGEN -> master
 	- LIB_pm includeing DIAG -> master
-keep the status of example directory
+keep the status of example directory on master git
 
 
  ------------------------
