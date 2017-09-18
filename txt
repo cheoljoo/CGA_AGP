@@ -4,6 +4,55 @@ Mission 1 : ASPICE traceability
 - how to connect the link between SRS SAD LLD
 - How to make a apsice table from which annotation
 
+
+*2 Stage for Mission 1
+
+* First Stage for Mission 1
+First ,Expand ignoring the following Rules
+
+* Second Stage for Mission 1
+Second , Make the hash variables with FILE-LINES
+Rule :   Number or AUTO
+  Value : SyAD-ModuleA-ModuleB-0001
+  key : UNIQUE_NAME
+  key : SyAD-ModuleA-ModuleB-0001
+  key : SyAD-UNIQUE_NAME
+  key : SyAD-ModuleA-ModuleB-UNIQUE_NAME
+  Declaration -> @ASPICE:STEP:MODULE_NAMES:NUMBER:UNIQUE_NAME:Description@
+      $wholeUniqueID{UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER,...,...,...
+      $uniqueID{UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER
+      $wholeUniqueID{STEP-UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER,...,...,...
+      $uniqueID{STEP-UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER
+      $wholeUniqueID{STEP-MODULE_NAMES-UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER,...,...,...
+      $uniqueID{STEP-MODULE_NAMES-UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER
+      $wholeUniqueID{STEP-MODULE_NAMES-NUMBER} = STEP-MODULE_NAMES-NUMBER,...,...,...
+      $uniqueID{STEP-MODULE_NAMES-NUMBER} = STEP-MODULE_NAMES-NUMBER
+      $uniqueFile{STEP-MODULE_NAMES-NUMBER} = filename
+      $uniqueLine{STEP-MODULE_NAMES-NUMBER} = line#
+  Upper Link -> @ASPICE:LINK:uniqueID@
+  UnitTest -> @ASPICE:TC:case:Description@
+
+Have a index or tag for each startUML! Automatically!
+
+
+*Exmaple :
+  SAD : protocol
+	@ASPICE:SAD:VIF:AUTO:VIF_PROTOCOL:VIF protocol@  --+
+	@ASPICE:LINK:SyAD@    @ASPICE:LINK:SyAD@         --+ should combine to one line.
+	if I want to describe some detailed information , how to do it?
+  HLD : parser and Structure
+	@ASPICE:HLD:VIF-STRUCT:AUTO:each structure name:VIF structrue - structure name@
+	@ASPICE:LINK:VIF_PROTOCOL@
+	@ASPICE:HLD:VIF-PARSER:NUMBER:HLDeach parser level:VIF parser level #@
+	@ASPICE:LINK:VIF_PROTOCOL@
+  LLD : each function
+	@ASPICE:LLD:VIF-PARSER:NUMBER:LLDeach parser level:VIF parser level #@
+	@ASPICE:LINK:VIF_PROTOCOL@
+  TC and explanation for public function
+	@ASPICE:TC:case:description@
+  UnitTest Table and Result Table
+
+
 Mission 2 : Merge all branches' technology into master
 - Merge the log txt
 	- UNITTEST & DOXYGEN -> master
