@@ -12,12 +12,16 @@ First ,Expand ignoring the following Rules
 
 * Second Stage for Mission 1
 Second , Make the hash variables with FILE-LINES
-Rule :   Number or AUTO
-  Value : SyAD-ModuleA-ModuleB-0001
+Rule_of_Number :   Number or AUTO
+Value : SyAD-ModuleA-ModuleB-0001
   key : UNIQUE_NAME
   key : SyAD-ModuleA-ModuleB-0001
   key : SyAD-UNIQUE_NAME
   key : SyAD-ModuleA-ModuleB-UNIQUE_NAME
+  STEP : SAD / HLD / LLD / TC
+  Declaration -> @ASPICE:STEP:MODULE_NAMES:Rule_of_Number:UNIQUE_NAME:Description@
+	We can use the different two names. UNIQUE_NAME or MODULE_NAMES+Number.
+	But , if Number is set automatically  , we can not use as ID.
   Declaration -> @ASPICE:STEP:MODULE_NAMES:NUMBER:UNIQUE_NAME:Description@
       $wholeUniqueID{UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER,...,...,...
       $uniqueID{UNIQUE_NAME} = STEP-MODULE_NAMES-NUMBER
@@ -29,27 +33,29 @@ Rule :   Number or AUTO
       $uniqueID{STEP-MODULE_NAMES-NUMBER} = STEP-MODULE_NAMES-NUMBER
       $uniqueFile{STEP-MODULE_NAMES-NUMBER} = filename
       $uniqueLine{STEP-MODULE_NAMES-NUMBER} = line#
-  Upper Link -> @ASPICE:LINK:uniqueID@
-  UnitTest -> @ASPICE:TC:case:Description@
+  Upper Link -> @ASPICE:UPLINK:uniqueID:Description@
+	uniqueID => Unique name of combination
+  UnitTest -> @ASPICE:TC:CASE:uniqueID:Description@
+	uniqueID => Unique name of combination
 
 Have a index or tag for each startUML! Automatically!
 
 
 *Exmaple :
   SAD : protocol
-	@ASPICE:SAD:VIF:AUTO:VIF_PROTOCOL:VIF protocol@  --+
-	@ASPICE:LINK:SyAD@    @ASPICE:LINK:SyAD@         --+ should combine to one line.
+	@ASPICE:UPLINK:SyAD:description@    @ASPICE:UPLINK:SyAD:description@    --+ should combine to one line.
+	@ASPICE:SAD:VIF:AUTO:VIF_PROTOCOL:(description) VIF protocol@           --+
 	if I want to describe some detailed information , how to do it?
   HLD : parser and Structure
+	@ASPICE:UPLINK:VIF_PROTOCOL@
 	@ASPICE:HLD:VIF-STRUCT:AUTO:each structure name:VIF structrue - structure name@
-	@ASPICE:LINK:VIF_PROTOCOL@
+	@ASPICE:UPLINK:VIF_PROTOCOL@
 	@ASPICE:HLD:VIF-PARSER:NUMBER:HLDeach parser level:VIF parser level #@
-	@ASPICE:LINK:VIF_PROTOCOL@
   LLD : each function
+	@ASPICE:UPLINK:VIF_PROTOCOL@
 	@ASPICE:LLD:VIF-PARSER:NUMBER:LLDeach parser level:VIF parser level #@
-	@ASPICE:LINK:VIF_PROTOCOL@
   TC and explanation for public function
-	@ASPICE:TC:case:description@
+	@ASPICE:TC:CASE:VIF-PARSER-Number:description@
   UnitTest Table and Result Table
 
 
